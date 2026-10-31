@@ -1,0 +1,10 @@
+{
+  "max_level": 50,
+  "class_level": 10,
+  "xp_base": 100,
+  "xp_per_level": 90,
+  "xp_exponent": 1.85,
+  "stat_points_per_level": 10,
+  "stat_point_value": 0.3,
+  "class_points_per_level": 2
+}

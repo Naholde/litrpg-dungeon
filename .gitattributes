@@ -1,0 +1,7 @@
+# Все текстовые файлы — с LF, кроме bat-файлов Windows.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.nbt binary
+*.ogg binary
+*.jar binary
