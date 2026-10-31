@@ -1,11 +1,11 @@
-.gradle/
-build/
-out/
-run/
-runs/
-.idea/
+/.gradle/
+/build/
+/out/
+/run/
+/runs/
+/.idea/
 *.iml
-.vscode/
-bin/
+/.vscode/
+/bin/
 # музыка владельца — только в jar, не на GitHub
 src/main/resources/assets/litrpg/sounds/music/
