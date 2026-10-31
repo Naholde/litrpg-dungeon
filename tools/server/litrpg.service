@@ -1,0 +1,17 @@
+[Unit]
+Description=LitRPG Minecraft server (NeoForge 1.21.1)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=mc
+WorkingDirectory=/opt/litrpg/server
+ExecStart=/opt/litrpg/server/run.sh nogui
+Restart=on-failure
+RestartSec=15
+# Сервер сохраняет мир по SIGTERM; даём время.
+TimeoutStopSec=120
+SuccessExitStatus=0 1 143
+
+[Install]
+WantedBy=multi-user.target

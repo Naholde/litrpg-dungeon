@@ -12,3 +12,4 @@ src/main/resources/assets/litrpg/sounds/music/
 /build-log.txt
 /gametest-log.txt
 /*.log
+/client-log.txt
