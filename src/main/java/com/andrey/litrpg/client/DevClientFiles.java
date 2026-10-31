@@ -14,7 +14,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-/** Клиентская часть dev-файлов: {@code dev_screenshot.txt} с именем → снимок экрана в {@code screenshots/<имя>.png}. */
+/**
+ * Клиентская часть dev-файлов: {@code dev_screenshot.txt} с именем → снимок экрана в {@code screenshots/<имя>.png};
+ * {@code dev_open.txt}: {@code character [вкладка]}, {@code role}, {@code close} — открыть/закрыть окно.
+ */
 @EventBusSubscriber(modid = LitRPG.MOD_ID, value = Dist.CLIENT)
 public final class DevClientFiles {
     private static int ticks;
@@ -26,6 +29,7 @@ public final class DevClientFiles {
     public static void onTick(ClientTickEvent.Post e) {
         if (!DevFiles.ENABLED || ++ticks % 10 != 0) return;
         Minecraft mc = Minecraft.getInstance();
+        openScreen(mc);
         Path file = mc.gameDirectory.toPath().resolve("dev_screenshot.txt");
         if (!Files.exists(file)) return;
         String name;
@@ -38,5 +42,26 @@ public final class DevClientFiles {
         if (name.isEmpty()) name = "dev";
         Screenshot.grab(mc.gameDirectory, name + ".png", mc.getMainRenderTarget(),
                 msg -> LitRPG.LOG.info("[LitRPG] dev: {}", msg.getString()));
+    }
+
+    private static void openScreen(Minecraft mc) {
+        Path file = mc.gameDirectory.toPath().resolve("dev_open.txt");
+        if (!Files.exists(file) || mc.player == null) return;
+        String[] cmd;
+        try {
+            cmd = Files.readString(file, StandardCharsets.UTF_8).strip().split("\\s+");
+            Files.delete(file);
+        } catch (IOException ex) {
+            return;
+        }
+        switch (cmd[0]) {
+            case "character" -> mc.setScreen(new com.andrey.litrpg.client.screen.CharacterScreen(
+                    cmd.length > 1 ? Integer.parseInt(cmd[1]) : 0));
+            case "role" -> mc.setScreen(cmd.length > 1
+                    ? new com.andrey.litrpg.client.screen.RoleScreen(com.andrey.litrpg.player.Role.byId(cmd[1]))
+                    : new com.andrey.litrpg.client.screen.RoleScreen());
+            case "close" -> mc.setScreen(null);
+            default -> LitRPG.LOG.warn("[LitRPG] dev: неизвестное окно {}", cmd[0]);
+        }
     }
 }

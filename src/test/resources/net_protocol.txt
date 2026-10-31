@@ -1,2 +1,3 @@
 # История сетевого протокола: «версия: пакеты». Новые строки — только в конец.
 1: balance_sync
+2: balance_sync, player_sync, choose_role, allocate_stats

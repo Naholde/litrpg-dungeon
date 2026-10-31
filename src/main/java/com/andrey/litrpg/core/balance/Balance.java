@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * Все цифры баланса. Механика живёт в коде, цифры — здесь, в json из {@code data/litrpg/balance/}.
@@ -24,8 +23,11 @@ public final class Balance {
     private static final Map<BalanceKey<?>, Object> VALUES = new ConcurrentHashMap<>();
     private static final Set<String> FROM_DATA = ConcurrentHashMap.newKeySet();
     private static volatile List<String> errors = List.of();
+    private static volatile int generation;
 
     public static final BalanceKey<Progression> PROGRESSION = register("progression", Progression.CODEC, Progression.DEFAULT);
+    public static final BalanceKey<CharacterBalance> CHARACTER = register("character", CharacterBalance.CODEC, CharacterBalance.DEFAULT);
+    public static final BalanceKey<RolesBalance> ROLES = register("roles", RolesBalance.CODEC, RolesBalance.DEFAULT);
 
     private Balance() {
     }
@@ -63,6 +65,11 @@ public final class Balance {
         return errors;
     }
 
+    /** Растёт при каждой загрузке баланса — по нему кэши понимают, что цифры поменялись. */
+    public static int generation() {
+        return generation;
+    }
+
     /**
      * Применить json всех разделов (с диска на сервере или из пакета на клиенте).
      * Сломанный раздел оставляет значения по умолчанию и попадает в {@link #errors()}.
@@ -83,23 +90,31 @@ public final class Balance {
             if (!KEYS.containsKey(name)) problems.add(name + ": такого раздела баланса нет (опечатка в имени файла?)");
         }
         errors = List.copyOf(problems);
+        generation++;
         for (String p : problems) LitRPG.LOG.error("[LitRPG] Баланс: {}", p);
         return errors;
     }
 
     private static <T> void applyOne(BalanceKey<T> key, JsonElement json, List<String> problems) {
-        if (json.isJsonObject()) {
-            Set<String> known = key.codec().keys(JsonOps.INSTANCE)
-                    .map(JsonElement::getAsString).collect(Collectors.toSet());
-            for (String field : json.getAsJsonObject().keySet()) {
-                if (!known.contains(field)) problems.add(key.name() + ": лишнее поле «" + field + "» (опечатка?)");
-            }
-        }
         var result = key.codec().codec().parse(JsonOps.INSTANCE, json);
         result.resultOrPartial(msg -> problems.add(key.name() + ": " + msg)).ifPresentOrElse(value -> {
             VALUES.put(key, value);
-            if (result.error().isEmpty()) FROM_DATA.add(key.name());
+            if (result.error().isEmpty()) {
+                // Поле, которого нет после обратного кодирования, кодек не знает — скорее всего опечатка.
+                key.codec().codec().encodeStart(JsonOps.INSTANCE, value).result()
+                        .ifPresent(known -> unknownFields(key.name(), json, known, problems));
+                FROM_DATA.add(key.name());
+            }
         }, () -> VALUES.remove(key));
+    }
+
+    private static void unknownFields(String path, JsonElement given, JsonElement known, List<String> problems) {
+        if (!given.isJsonObject() || !known.isJsonObject()) return;
+        JsonObject k = known.getAsJsonObject();
+        for (var e : given.getAsJsonObject().entrySet()) {
+            if (!k.has(e.getKey())) problems.add(path + ": лишнее поле «" + e.getKey() + "» (опечатка?)");
+            else unknownFields(path + "." + e.getKey(), e.getValue(), k.get(e.getKey()), problems);
+        }
     }
 
     /** Текущие значения всех разделов в json — для рассылки клиентам и команды {@code /litrpg balance}. */

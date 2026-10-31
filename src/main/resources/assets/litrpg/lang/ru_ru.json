@@ -1,3 +1,5 @@
 {
-  "litrpg.mod_name": "LitRPG: Подземелье Системы"
+  "litrpg.mod_name": "LitRPG: Подземелье Системы",
+  "key.categories.litrpg": "LitRPG",
+  "key.litrpg.character": "Окно персонажа"
 }

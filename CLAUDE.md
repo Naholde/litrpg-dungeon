@@ -44,8 +44,12 @@
 - `LitRPG` — вход, подключает модули. `core/` — `LitrpgCommand` (`/litrpg version|balance`), `core/balance/` — `Balance`,
   `BalanceKey`, `BalanceLoader`, разделы (`Progression`).
 - `net/` — `Protocol` (версия и список пакетов), `ModNetwork`, пакеты. `dev/` — `DevFiles`. `client/` — `DevClientFiles`.
+- `player/` — `PlayerData`, `PlayerService` (все изменения персонажа только через него), `PlayerEvents`, `StatBreakdown`
+  (один расчёт для боя и окна), `Derived`, `Stat`, `Role`, `RoleInfo`, `Leveling`, `PlayerCommands`.
+- `client/` — `HudOverlay`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).
 
 ## Dev-проверка без человека
 - `run/dev_commands.txt` — сервер выполняет строки раз в секунду (лог `run/logs/latest.log`).
 - `run/dev_screenshot.txt` с именем → `run/screenshots/<имя>.png` (смотреть через Read).
+- Помощники: `bash tools/dev/shot.sh имя`, `bash tools/dev/open.sh character 2`, `bash tools/dev/srv.sh "litrpg level set Dev 20"`.

@@ -4,7 +4,9 @@ import com.andrey.litrpg.core.balance.Balance;
 import com.andrey.litrpg.core.balance.BalanceKey;
 import com.andrey.litrpg.net.Protocol;
 import com.mojang.brigadier.CommandDispatcher;
+import com.andrey.litrpg.player.PlayerCommands;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -17,18 +19,20 @@ public final class LitrpgCommand {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> d) {
-        d.register(Commands.literal("litrpg")
-                .then(Commands.literal("version").executes(c -> {
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("litrpg");
+        root.then(Commands.literal("version").executes(c -> {
                     c.getSource().sendSuccess(() -> Component.literal(
                             "LitRPG, протокол сети " + Protocol.VERSION), false);
                     return 1;
-                }))
-                .then(Commands.literal("balance").requires(s -> s.hasPermission(2))
+                }));
+        root.then(Commands.literal("balance").requires(s -> s.hasPermission(2))
                         .executes(c -> listBalance(c.getSource()))
                         .then(Commands.argument("section", StringArgumentType.word())
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                         Balance.keys().stream().map(BalanceKey::name), b))
-                                .executes(c -> showSection(c.getSource(), StringArgumentType.getString(c, "section"))))));
+                                .executes(c -> showSection(c.getSource(), StringArgumentType.getString(c, "section")))));
+        PlayerCommands.addTo(root);
+        d.register(root);
     }
 
     private static int listBalance(CommandSourceStack src) {
