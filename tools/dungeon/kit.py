@@ -412,8 +412,9 @@ class Stage:
         self.rift = None
         self.rift_when = []
         self.packs, self.bosses, self.gates = [], [], []
+        self.mechs, self.caches, self.lore, self.signs = [], [], [], []
 
-    def pack(self, pid, mobs, weight=1.0):
+    def pack(self, pid, mobs, weight=1.0, title=None):
         """mobs: [(вид, x, y, z, ур.[, ранг[, мин. отряд]])]. Центр — среднее точек."""
         out = []
         for m in mobs:
@@ -428,11 +429,17 @@ class Stage:
         cy = min(o['at'][1] for o in out)
         cz = sum(o['at'][2] for o in out) / len(out)
         p = {'id': f's{self.n}_{pid}', 'at': [round(cx, 1), cy, round(cz, 1)], 'weight': weight, 'mobs': out}
+        if title:
+            p['title'] = title
+            p['weight'] = max(weight, 3.0)
         self.packs.append(p)
         return p['id']
 
-    def boss(self, bid, btype, at, arena, final=False):
+    def boss(self, bid, btype, at, arena, final=False, arena2=None):
+        """arena2 — (x, y, z, r) второго зала: на половине здоровья хранитель переносит бой туда."""
         b = {'id': f's{self.n}_{bid}', 'type': btype, 'at': list(at), 'arena': arena, 'final': final}
+        if arena2:
+            b['arena2'] = [float(v) for v in arena2]
         self.bosses.append(b)
         return b['id']
 
@@ -445,11 +452,36 @@ class Stage:
         self.gates.append(g)
         return g['id']
 
+    def mech(self, mid, mtype, points=(), area=None, answers=(), text='', **num):
+        """Механизм: plates / levers / sequence / memory / riddle / hazard (см. Mechanisms.java)."""
+        m = {'id': f's{self.n}_{mid}', 'type': mtype, 'points': [list(p) for p in points]}
+        if area:
+            m['area'] = list(area)
+        if answers:
+            m['answers'] = list(answers)
+        if text:
+            m['text'] = text
+        if num:
+            m['num'] = {k: float(v) for k, v in num.items()}
+        self.mechs.append(m)
+        return m['id']
+
+    def cache(self, cid, at, tier):
+        self.caches.append({'id': f's{self.n}_{cid}', 'at': list(at), 'tier': tier})
+
+    def say(self, box, text):
+        """Голос Системы: запись в чат, когда отряд впервые входит в область."""
+        self.lore.append({'box': list(box), 'text': text})
+
+    def sign(self, at, lines):
+        self.signs.append({'at': list(at), 'lines': list(lines)})
+
     def json(self):
         return {'n': self.n, 'key': self.key, 'name': self.name, 'levels': self.levels, 'biome': self.biome,
                 'box': list(self.box), 'camp': list(self.camp), 'trader': list(self.trader), 'rift': list(self.rift),
                 'rift_when': self.rift_when or [f'boss:{b["id"]}' for b in self.bosses],
-                'packs': self.packs, 'bosses': self.bosses, 'gates': self.gates}
+                'packs': self.packs, 'bosses': self.bosses, 'gates': self.gates, 'mechs': self.mechs,
+                'caches': self.caches, 'lore': self.lore, 'signs': self.signs}
 
 
 def apply_gates(m, stage, block='litrpg:sealed_gate'):
@@ -487,7 +519,7 @@ COLORS = [('lava', (230, 100, 20)), ('water', (50, 100, 200)), ('cobweb', (230, 
           ('cobble', (115, 115, 115)), ('stone', (130, 130, 130)), ('andesite', (140, 140, 140)), ('sand', (220, 210, 160)),
           ('dirt', (130, 100, 70)), ('quartz', (235, 230, 225)), ('purpur', (170, 120, 170)), ('end_stone', (220, 220, 160)),
           ('obsidian', (30, 20, 40)), ('magma', (160, 60, 20)), ('ice', (160, 200, 250)), ('rift', (220, 60, 220)),
-          ('sealed_gate', (190, 90, 255)), ('seal', (255, 210, 90)), ('carpet', (150, 40, 40)), ('wool', (150, 40, 40))]
+          ('sealed_gate', (190, 90, 255)), ('seal', (255, 210, 90)), ('cache', (255, 200, 40)), ('carpet', (150, 40, 40)), ('wool', (150, 40, 40))]
 
 
 def color_of(s):

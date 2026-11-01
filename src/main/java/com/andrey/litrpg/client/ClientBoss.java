@@ -12,38 +12,61 @@ import net.minecraft.client.gui.GuiGraphics;
  * («можно сбить» — голубым), таблица угрозы (для танка — видно, кто близок к срыву агро).
  */
 public final class ClientBoss {
-    private static BossSyncPayload last;
-    private static long receivedAt;
-    private static long clientAtReceive;
+    /** Видимые хранители (сёстры — двое сразу): id сущности → последний пакет и когда пришёл. */
+    private static final java.util.Map<Integer, Entry> FRAMES = new java.util.LinkedHashMap<>();
+
+    private record Entry(BossSyncPayload p, long clientAt) {
+    }
 
     private ClientBoss() {
     }
 
     public static void update(BossSyncPayload p) {
         if (p.name().isEmpty()) {
-            if (last != null && last.entityId() == p.entityId()) last = null;
+            FRAMES.remove(p.entityId());
             return;
         }
-        last = p;
-        receivedAt = p.serverTime();
         var mc = Minecraft.getInstance();
-        clientAtReceive = mc.level != null ? mc.level.getGameTime() : 0;
+        FRAMES.put(p.entityId(), new Entry(p, mc.level != null ? mc.level.getGameTime() : 0));
     }
 
+    /** Есть хоть одна свежая рамка; устаревшие (пакеты перестали приходить) выбрасываются. */
     public static boolean active() {
         var mc = Minecraft.getInstance();
-        return last != null && mc.level != null && mc.level.getGameTime() - clientAtReceive < 60;
+        if (mc.level == null) return false;
+        long now = mc.level.getGameTime();
+        FRAMES.values().removeIf(e -> now - e.clientAt() >= 60);
+        return !FRAMES.isEmpty();
+    }
+
+    public static int frames() {
+        return Math.min(2, FRAMES.size());
+    }
+
+    /** Трек хранителя, чей бой идёт (для музыки). */
+    public static String music() {
+        return active() ? FRAMES.values().iterator().next().p().music() : "";
     }
 
     public static void reset() {
-        last = null;
+        FRAMES.clear();
     }
 
     public static int render(GuiGraphics g, Font f, int w, float partial) {
         if (!active()) return 0;
-        BossSyncPayload b = last;
+        int y = 4, i = 0;
+        for (Entry e : java.util.List.copyOf(FRAMES.values())) {
+            if (i++ >= 2) break;
+            y = frame(g, f, w, partial, e, y, i == 1);
+        }
+        return y;
+    }
+
+    private static int frame(GuiGraphics g, Font f, int w, float partial, Entry e, int y, boolean first) {
+        BossSyncPayload b = e.p();
+        long receivedAt = b.serverTime(), clientAtReceive = e.clientAt();
         var mc = Minecraft.getInstance();
-        int fw = 220, x = (w - fw) / 2, y = 4, fh = 34;
+        int fw = 220, x = (w - fw) / 2, fh = 34;
         int frame = b.shielded() ? 0xFF7FD8FF : 0xFFE0564F;
         UiKit.panel(g, x, y, fw, fh, frame);
         String title = b.name() + (b.enrage() > 0 ? "  · неистовство " + b.enrage() : "");
@@ -85,7 +108,7 @@ public final class ClientBoss {
             }
         }
         // Угроза: справа от рамки.
-        if (!b.threat().isEmpty()) {
+        if (first && !b.threat().isEmpty()) {
             int tx = x + fw + 4, ty = y;
             UiKit.text(g, f, "Угроза", tx, ty, UiKit.MUTED);
             for (int i = 0; i < b.threat().size(); i++) {

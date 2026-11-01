@@ -90,25 +90,82 @@ public record Layout(int version, Lobby lobby, List<Stage> stages) {
         ).apply(i, Mob::new));
     }
 
-    /** Отряд монстров. {@code weight} — доля опыта этапа «за отряды». */
-    public record Pack(String id, Vec3 at, double weight, List<Mob> mobs) {
+    /**
+     * Отряд монстров. {@code weight} — доля опыта этапа «за отряды». {@code title} — имя мини-хранителя: первый монстр
+     * отряда становится им (чемпион с именем, за победу каждому — ключ тайника).
+     */
+    public record Pack(String id, Vec3 at, double weight, List<Mob> mobs, Optional<String> title) {
         public static final Codec<Pack> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.fieldOf("id").forGetter(Pack::id),
                 Vec3.CODEC.fieldOf("at").forGetter(Pack::at),
                 Codec.DOUBLE.optionalFieldOf("weight", 1.0).forGetter(Pack::weight),
-                Mob.CODEC.listOf().fieldOf("mobs").forGetter(Pack::mobs)
+                Mob.CODEC.listOf().fieldOf("mobs").forGetter(Pack::mobs),
+                Codec.STRING.optionalFieldOf("title").forGetter(Pack::title)
         ).apply(i, Pack::new));
     }
 
-    /** Хранитель: тип (= id сущности), место, радиус арены, последний ли на этапе. */
-    public record Boss(String id, String type, BlockPos at, double arena, boolean last) {
+    /**
+     * Хранитель: тип (= id сущности), место, радиус арены, последний ли на этапе. {@code arena2} — второй зал
+     * (x, y, z, радиус): на половине здоровья хранитель переносит бой туда.
+     */
+    public record Boss(String id, String type, BlockPos at, double arena, boolean last, Optional<List<Double>> arena2) {
         public static final Codec<Boss> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.STRING.fieldOf("id").forGetter(Boss::id),
                 Codec.STRING.fieldOf("type").forGetter(Boss::type),
                 BlockPos.CODEC.fieldOf("at").forGetter(Boss::at),
                 Codec.DOUBLE.fieldOf("arena").forGetter(Boss::arena),
-                Codec.BOOL.optionalFieldOf("final", false).forGetter(Boss::last)
+                Codec.BOOL.optionalFieldOf("final", false).forGetter(Boss::last),
+                Codec.DOUBLE.listOf(4, 4).optionalFieldOf("arena2").forGetter(Boss::arena2)
         ).apply(i, Boss::new));
+    }
+
+    /**
+     * Механизм этапа: загадка или ловушка. {@code points} — блоки (плиты, рычаги, кнопки, столбы), {@code area} — область
+     * (ловушка, место загадки), {@code answers} — ответы текстовой загадки, {@code text} — вопрос или подсказка,
+     * {@code num} — цифры механизма (секунды, доля урона, период…).
+     */
+    public record Mech(String id, String type, List<BlockPos> points, Optional<Box> area, List<String> answers, String text,
+                       Map<String, Double> num) {
+        public static final Codec<Mech> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.STRING.fieldOf("id").forGetter(Mech::id),
+                Codec.STRING.fieldOf("type").forGetter(Mech::type),
+                BlockPos.CODEC.listOf().optionalFieldOf("points", List.of()).forGetter(Mech::points),
+                Box.CODEC.optionalFieldOf("area").forGetter(Mech::area),
+                Codec.STRING.listOf().optionalFieldOf("answers", List.of()).forGetter(Mech::answers),
+                Codec.STRING.optionalFieldOf("text", "").forGetter(Mech::text),
+                Codec.unboundedMap(Codec.STRING, Codec.DOUBLE).optionalFieldOf("num", Map.of()).forGetter(Mech::num)
+        ).apply(i, Mech::new));
+
+        public double n(String key, double def) {
+            return num.getOrDefault(key, def);
+        }
+
+        /** Загадка (даёт опыт «за загадки»), а не ловушка. */
+        public boolean puzzle() {
+            return !type.equals("hazard");
+        }
+    }
+
+    /** Тайник: уровень 1 — обычный, 2 — запертый (нужен ключ), 3 — в секретке, 4 — божественный. */
+    public record Cache(String id, BlockPos at, int tier) {
+        public static final Codec<Cache> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.STRING.fieldOf("id").forGetter(Cache::id),
+                BlockPos.CODEC.fieldOf("at").forGetter(Cache::at),
+                Codec.INT.fieldOf("tier").forGetter(Cache::tier)
+        ).apply(i, Cache::new));
+
+        /** Тайник секретки — за находку отряд получает опыт «за загадки». */
+        public boolean secret() {
+            return tier >= 3;
+        }
+    }
+
+    /** Голос Системы: отряд впервые вошёл в область — в чат приходит запись. */
+    public record Lore(Box box, String text) {
+        public static final Codec<Lore> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Box.CODEC.fieldOf("box").forGetter(Lore::box),
+                Codec.STRING.fieldOf("text").forGetter(Lore::text)
+        ).apply(i, Lore::new));
     }
 
     /**
@@ -126,7 +183,7 @@ public record Layout(int version, Lobby lobby, List<Stage> stages) {
 
     public record Stage(int n, String key, String name, List<Integer> levels, String biome, Box box, Spot camp, Spot trader,
                         Box rift, List<String> riftWhen, List<Pack> packs, List<Boss> bosses, List<Gate> gates,
-                        List<Sign> signs) {
+                        List<Sign> signs, Extra extra) {
         public static final Codec<Stage> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.INT.fieldOf("n").forGetter(Stage::n),
                 Codec.STRING.fieldOf("key").forGetter(Stage::key),
@@ -141,8 +198,25 @@ public record Layout(int version, Lobby lobby, List<Stage> stages) {
                 Pack.CODEC.listOf().fieldOf("packs").forGetter(Stage::packs),
                 Boss.CODEC.listOf().fieldOf("bosses").forGetter(Stage::bosses),
                 Gate.CODEC.listOf().fieldOf("gates").forGetter(Stage::gates),
-                Sign.CODEC.listOf().optionalFieldOf("signs", List.of()).forGetter(Stage::signs)
+                Sign.CODEC.listOf().optionalFieldOf("signs", List.of()).forGetter(Stage::signs),
+                Extra.CODEC.forGetter(Stage::extra)
         ).apply(i, Stage::new));
+
+        public List<Mech> mechs() {
+            return extra.mechs;
+        }
+
+        public List<Cache> caches() {
+            return extra.caches;
+        }
+
+        public List<Lore> lore() {
+            return extra.lore;
+        }
+
+        public Optional<Mech> mech(String id) {
+            return extra.mechs.stream().filter(m -> m.id.equals(id)).findFirst();
+        }
 
         public int fromLevel() {
             return levels.get(0);
@@ -159,6 +233,15 @@ public record Layout(int version, Lobby lobby, List<Stage> stages) {
         public Optional<Boss> boss(String id) {
             return bosses.stream().filter(b -> b.id.equals(id)).findFirst();
         }
+    }
+
+    /** Механизмы, тайники и записки этапа (отдельно — у кодека этапа предел полей). */
+    public record Extra(List<Mech> mechs, List<Cache> caches, List<Lore> lore) {
+        public static final com.mojang.serialization.MapCodec<Extra> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Mech.CODEC.listOf().optionalFieldOf("mechs", List.of()).forGetter(Extra::mechs),
+                Cache.CODEC.listOf().optionalFieldOf("caches", List.of()).forGetter(Extra::caches),
+                Lore.CODEC.listOf().optionalFieldOf("lore", List.of()).forGetter(Extra::lore)
+        ).apply(i, Extra::new));
     }
 
     public static final Codec<Layout> CODEC = RecordCodecBuilder.create(i -> i.group(
@@ -181,7 +264,7 @@ public record Layout(int version, Lobby lobby, List<Stage> stages) {
         return l;
     }
 
-    /** Подставить свою схему (автотесты). */
+    /** Подставить свою схему (автотесты); null — вернуть схему из файла. */
     public static synchronized void override(Layout layout) {
         instance = layout;
         signs = null;

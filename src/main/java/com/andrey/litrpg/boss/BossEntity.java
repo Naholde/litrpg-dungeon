@@ -95,6 +95,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private final List<Task> tasks = new ArrayList<>();
     private final Map<String, Long> readyAt = new HashMap<>();
     private final List<UUID> spawned = new ArrayList<>();
+    /** Узлы, которые держат щит (ледяные гробницы и прочие объекты боя щит не держат). */
+    private final List<UUID> shieldNodes = new ArrayList<>();
     private Cast casting;
     private int castCounter;
     private Vec3 home;
@@ -110,6 +112,15 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     /** Хранитель прохождения: id из схемы и размер отряда на старте (0 — считать по игрокам на арене). */
     private String runId;
     private int fixedParty;
+    /** Второй зал: на половине здоровья бой переносится туда (вместе с отрядом). */
+    private Vec3 arena2;
+    private double arena2Radius;
+    private Vec3 homeOrig;
+    private double arenaOrig;
+    private boolean relocated;
+    /** Прохождение узнаёт о переносе боя (духов павших — следом). */
+    public static java.util.function.BiConsumer<BossEntity, Vec3> onRelocate = (b, from) -> {
+    };
 
     protected BossEntity(EntityType<? extends BossEntity> type, Level level) {
         super(type, level);
@@ -135,6 +146,15 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
 
     /** Пороги фаз по доле здоровья, по убыванию (0,66 → фаза 1, 0,33 → фаза 2). */
     protected abstract double[] phaseThresholds();
+
+    /** Бой начался (хранитель может позвать помощников, расставить объекты). */
+    protected void onEngage(List<ServerPlayer> players) {
+    }
+
+    /** Хранитель «выключен» (лежит, ждёт): не ходит, не бьёт, не готовит навыки. */
+    protected boolean dormant() {
+        return false;
+    }
 
     /** Хранитель перешёл в фазу {@code phase} (1, 2…). */
     protected abstract void onPhase(int phase);
@@ -202,6 +222,72 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         return runId;
     }
 
+    /** Центр второго зала (или этой арены, если второго нет): куда ставить объекты второй половины боя. */
+    public Vec3 secondArenaCenter() {
+        return relocated || arena2 == null ? home() : arena2;
+    }
+
+    public double secondArenaRadius() {
+        return relocated || arena2 == null ? arenaRadius() : arena2Radius;
+    }
+
+    /** Сорвать подготовку без перезарядки (хранитель упал, сменил фазу). */
+    protected void cancelCast() {
+        if (casting == null) return;
+        int id = casting.id;
+        tasks.removeIf(t -> t.castId == id);
+        endCast();
+    }
+
+    public void setSecondArena(Vec3 center, double radius) {
+        arena2 = center;
+        arena2Radius = radius;
+    }
+
+    public boolean relocated() {
+        return relocated;
+    }
+
+    /** Название второго зала для фразы хранителя (переопределяют хранители). */
+    protected String secondArenaName() {
+        return "другой зал";
+    }
+
+    /**
+     * Перенос боя: хранитель кричит, через 3 с он и все живые на арене — во втором зале (по кругу у края),
+     * арена теперь там. Неистовство, фазы и угроза сохраняются.
+     */
+    private void relocate() {
+        relocated = true;
+        tell(Component.literal(type().name() + " уходит в " + secondArenaName() + " — Система переносит отряд следом!")
+                .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
+        Fx.pillar((ServerLevel) level(), position(), 2, 8, 60, Fx.SHADOW);
+        level().playSound(null, blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.HOSTILE, 1.5f, 0.5f);
+        schedule(60, () -> {
+            Vec3 from = home();
+            List<ServerPlayer> party = playersInArena();
+            homeOrig = home;
+            arenaOrig = arenaRadius;
+            home = arena2;
+            arenaRadius = arena2Radius;
+            teleportTo(arena2.x, arena2.y, arena2.z);
+            for (int i = 0; i < party.size(); i++) {
+                double a = Math.PI * 2 * i / Math.max(1, party.size());
+                double r = arena2Radius * 0.6;
+                ServerPlayer p = party.get(i);
+                p.teleportTo((ServerLevel) level(), arena2.x + Math.cos(a) * r, arena2.y, arena2.z + Math.sin(a) * r, p.getYRot(), 0);
+                p.fallDistance = 0;
+            }
+            Fx.ring((ServerLevel) level(), arena2, (float) arena2Radius, 30, Fx.SHADOW);
+            onRelocate.accept(this, from);
+            onRelocated();
+        });
+    }
+
+    /** Бой перенесён (хранитель может сменить набор навыков, поставить узлы…). */
+    protected void onRelocated() {
+    }
+
     // ------------------------------------------------------------------ игроки на арене
 
     public List<ServerPlayer> playersInArena() {
@@ -255,8 +341,11 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (position().distanceToSqr(home) > (arenaRadius + 6) * (arenaRadius + 6)) teleportTo(home.x, home.y, home.z);
         updateEnrage(now);
         updatePhase();
+        if (arena2 != null && !relocated && getHealth() <= getMaxHealth() * 0.5f) relocate();
         runTasks(now);
-        if (casting != null) {
+        if (dormant()) {
+            getNavigation().stop();
+        } else if (casting != null) {
             getNavigation().stop();
             if (casting.target != null) getLookControl().setLookAt(casting.target);
             if (now >= casting.end) endCast();
@@ -287,6 +376,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         for (Ability a : abilities()) readyAt.put(a.key(), combatStart + Math.round(p(a.key() + "_cd") * 10));
         tell(Component.literal(type().name() + " вступает в бой. Отряд: " + partySize + ", ур. " + bossLevel() + ".")
                 .withStyle(ChatFormatting.RED));
+        onEngage(players);
         level().playSound(null, blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.6f, 1.4f);
     }
 
@@ -301,6 +391,11 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         entityData.set(CAST_NAME, "");
         entityData.set(SHIELDED, false);
         removeSpawned();
+        if (relocated && homeOrig != null) {
+            home = homeOrig;
+            arenaRadius = arenaOrig;
+        }
+        relocated = false;
         if (hasData(ModAttachments.THREAT)) ThreatService.table(this).clear();
         StatusService.clear(this);
         setTarget(null);
@@ -421,14 +516,18 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     /** Закрыться щитом: урон не проходит, пока живы узлы силы (их нужно разбить). */
     public void raiseShield(List<? extends Entity> nodes) {
         entityData.set(SHIELDED, true);
-        nodes.forEach(this::track);
+        nodes.forEach(n -> {
+            if (!spawned.contains(n.getUUID())) track(n);
+            shieldNodes.add(n.getUUID());
+        });
         tell(Component.literal(type().name() + " закрылся щитом! Разбейте узлы силы.").withStyle(ChatFormatting.AQUA));
     }
 
     private void updateShield() {
         if (!shielded() || !(level() instanceof ServerLevel sl)) return;
-        boolean anyNode = spawned.stream().map(sl::getEntity).anyMatch(e -> e instanceof PowerNode n && n.isAlive());
+        boolean anyNode = shieldNodes.stream().map(sl::getEntity).anyMatch(e -> e != null && e.isAlive());
         if (!anyNode) {
+            shieldNodes.clear();
             entityData.set(SHIELDED, false);
             tell(Component.literal("Щит пал — бейте хранителя!").withStyle(ChatFormatting.GREEN));
             Fx.burst(sl, position().add(0, 2, 0), 4, 14, Fx.ARCANE);
@@ -448,6 +547,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             if (e != null) e.discard();
         }
         spawned.clear();
+        shieldNodes.clear();
     }
 
     @Override
@@ -514,7 +614,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
                 if (who != null) rows.add(new BossSyncPayload.ThreatRow(who.getGameProfile().getName(), (float) (e.getValue() / top)));
             });
         }
-        var payload = new BossSyncPayload(getId(), type().name(), getHealth(), getMaxHealth(), shielded(), enrageStage,
+        var payload = new BossSyncPayload(getId(), type().name(), type().music(), getHealth(), getMaxHealth(), shielded(), enrageStage,
                 castName(), level().getGameTime(), rows);
         for (ServerPlayer p : players) Net.send(p, payload);
     }
@@ -553,6 +653,12 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         tag.putDouble("arena", arenaRadius);
         if (runId != null) tag.putString("runId", runId);
         tag.putInt("fixedParty", fixedParty);
+        if (arena2 != null) {
+            tag.putDouble("a2x", arena2.x);
+            tag.putDouble("a2y", arena2.y);
+            tag.putDouble("a2z", arena2.z);
+            tag.putDouble("a2r", arena2Radius);
+        }
     }
 
     @Override
@@ -562,6 +668,67 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (tag.contains("arena")) arenaRadius = tag.getDouble("arena");
         if (tag.contains("runId")) runId = tag.getString("runId");
         fixedParty = tag.getInt("fixedParty");
+        if (tag.contains("a2x")) {
+            arena2 = new Vec3(tag.getDouble("a2x"), tag.getDouble("a2y"), tag.getDouble("a2z"));
+            arena2Radius = tag.getDouble("a2r");
+        }
+    }
+
+    // ------------------------------------------------------------------ помощники хранителей
+
+    /** Единица силы ударов этого хранителя (здоровье бойца его уровня). */
+    public double unit() {
+        return BossDamage.unit(bossLevel());
+    }
+
+    /**
+     * Подручный: монстр бестиария уровня хранителя у точки {@code at}. Убирается при сбросе и смерти хранителя,
+     * добычи и опыта не даёт; сразу бросается на случайного игрока.
+     */
+    public com.andrey.litrpg.mob.DungeonMob summon(com.andrey.litrpg.mob.Bestiary.Species s, Vec3 at, com.andrey.litrpg.mob.MobRank rank) {
+        if (!(level() instanceof ServerLevel sl)) return null;
+        var mob = com.andrey.litrpg.mob.ModMobs.TYPES.get(s.id()).get().create(sl);
+        if (mob == null) return null;
+        mob.moveTo(at.x, at.y, at.z, random.nextFloat() * 360, 0);
+        mob.setup(bossLevel(), rank);
+        mob.setPersistenceRequired();
+        mob.getPersistentData().putBoolean(com.andrey.litrpg.gear.LootService.NO_LOOT, true);
+        sl.addFreshEntity(mob);
+        track(mob);
+        ServerPlayer t = randomNonTarget();
+        if (t != null) {
+            ThreatService.add(mob, t, 1);
+            mob.setTarget(t);
+        }
+        Fx.burst(sl, at.add(0, 0.5, 0), 1f, 8, Fx.SHADOW);
+        return mob;
+    }
+
+    /** Объект боя (узел силы, ледяная гробница, филактерия): ломается только руками игроков. */
+    public <T extends PowerNode> T spawnNode(EntityType<T> type, Vec3 at, double hpUnits, String name) {
+        if (!(level() instanceof ServerLevel sl)) return null;
+        T n = type.create(sl);
+        if (n == null) return null;
+        n.moveTo(at.x, at.y, at.z, 0, 0);
+        n.setHp(hpUnits * unit() * Math.max(0.6, partySize() / 3.0));
+        if (name != null) {
+            n.setCustomName(Component.literal(name).withStyle(ChatFormatting.AQUA));
+            n.setCustomNameVisible(true);
+        }
+        sl.addFreshEntity(n);
+        track(n);
+        return n;
+    }
+
+    /** Живые подручные этого хранителя. */
+    public List<Entity> spawnedAlive() {
+        if (!(level() instanceof ServerLevel sl)) return List.of();
+        List<Entity> out = new ArrayList<>();
+        for (UUID id : spawned) {
+            Entity e = sl.getEntity(id);
+            if (e != null && e.isAlive()) out.add(e);
+        }
+        return out;
     }
 
     // ------------------------------------------------------------------ для автотестов

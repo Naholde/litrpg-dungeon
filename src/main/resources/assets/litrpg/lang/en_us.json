@@ -38,5 +38,16 @@
   "block.litrpg.seal": "Seal",
   "block.litrpg.sealed_gate": "Sealed Gate",
   "block.litrpg.rift": "Rift",
-  "biome.litrpg.lobby": "Antechamber"
+  "biome.litrpg.lobby": "Antechamber",
+  "block.litrpg.cache": "Cache",
+  "block.litrpg.locked_cache": "Locked Cache",
+  "block.litrpg.secret_cache": "Secret Cache",
+  "block.litrpg.divine_cache": "Divine Cache",
+  "item.litrpg.cache_key": "Cache Key",
+  "entity.litrpg.gatekeeper": "Crypt Gatekeeper",
+  "entity.litrpg.morra": "Morra",
+  "entity.litrpg.vessa": "Vessa",
+  "entity.litrpg.lich": "Lich King Karn",
+  "entity.litrpg.ice_tomb": "Ice Tomb",
+  "entity.litrpg.phylactery": "Phylactery"
 }

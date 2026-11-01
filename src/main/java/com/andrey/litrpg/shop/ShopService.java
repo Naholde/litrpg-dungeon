@@ -68,11 +68,16 @@ public final class ShopService {
         }
         entries.add(new ShopPayload.Entry(new ItemStack(ModItems.ELIXIR.get()), elixirPrice(t), false));
         entries.add(new ShopPayload.Entry(new ItemStack(ModItems.SCROLL_OBLIVION.get()), Math.round(s.scroll()), false));
+        entries.add(new ShopPayload.Entry(new ItemStack(ModItems.CACHE_KEY.get()), keyPrice(t), false));
         GearData held = p.getMainHandItem().get(ModComponents.GEAR.get());
         long reroll = held != null ? rerollPrice(held) : -1;
         long upgrade = held != null && held.level() < d.level() ? upgradePrice(held, d.level()) : -1;
         return new ShopPayload(t.getId(), t.stage(), Wallet.total(p), entries, reroll, upgrade,
                 Math.round(s.classChangePerLevel() * d.level()), Math.round(s.rankResetPerLevel() * d.level()));
+    }
+
+    private static long keyPrice(TraderEntity t) {
+        return Math.round(prices().keyPerLevel() * t.goodsLevel());
     }
 
     private static long elixirPrice(TraderEntity t) {
@@ -97,11 +102,13 @@ public final class ShopService {
         switch (action) {
             case BUY -> {
                 List<ItemStack> stock = stock(p, t);
-                if (index < 0 || index >= stock.size() + 2) return;
+                if (index < 0 || index >= stock.size() + 3) return;
                 if (index == stock.size()) {
                     if (pay(p, elixirPrice(t))) give(p, new ItemStack(ModItems.ELIXIR.get()));
                 } else if (index == stock.size() + 1) {
                     if (pay(p, Math.round(s.scroll()))) give(p, new ItemStack(ModItems.SCROLL_OBLIVION.get()));
+                } else if (index == stock.size() + 2) {
+                    if (pay(p, keyPrice(t))) give(p, new ItemStack(ModItems.CACHE_KEY.get()));
                 } else {
                     if (d.bought(key(t, index))) return;
                     GearData g = stock.get(index).get(ModComponents.GEAR.get());

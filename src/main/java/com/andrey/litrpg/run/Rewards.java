@@ -27,6 +27,16 @@ public final class Rewards {
         return Balance.get(Balance.PROGRESSION).xpBetween(st.fromLevel(), st.toLevel());
     }
 
+    /** Загадки и секретки этапа (за них — доля «extra»). */
+    public static int extras(Layout.Stage st) {
+        return (int) (st.mechs().stream().filter(Layout.Mech::puzzle).count() + st.caches().stream().filter(Layout.Cache::secret).count());
+    }
+
+    public static long extraXp(Layout.Stage st) {
+        int n = extras(st);
+        return n == 0 ? 0 : Math.round(budget(st) * Balance.get(Balance.RUN).xp().extra() / n);
+    }
+
     /** Доля «за хранителей» с учётом того, что загадок на этапе может не быть. */
     static double bossShare(Layout.Stage st, int extras) {
         RunBalance.Xp x = Balance.get(Balance.RUN).xp();
@@ -37,13 +47,13 @@ public final class Rewards {
         double total = st.packs().stream().mapToDouble(Layout.Pack::weight).sum();
         if (total <= 0) return 0;
         double packs = Balance.get(Balance.RUN).xp().packs();
-        if (st.bosses().isEmpty()) packs += bossShare(st, 0);
+        if (st.bosses().isEmpty()) packs += bossShare(st, extras(st));
         return Math.round(budget(st) * packs * pack.weight() / total);
     }
 
     public static long bossXp(Layout.Stage st) {
         if (st.bosses().isEmpty()) return 0;
-        return Math.round(budget(st) * bossShare(st, 0) / st.bosses().size());
+        return Math.round(budget(st) * bossShare(st, extras(st)) / st.bosses().size());
     }
 
     /** Выдать награду {@code id} всему отряду (кто не в сети — получит при входе). Повторно — ничего. */
@@ -85,6 +95,9 @@ public final class Rewards {
                 if (p.isPresent()) return packXp(st, p.get());
             } else if (kv[0].equals("boss") && st.boss(kv[1]).isPresent()) {
                 return bossXp(st);
+            } else if ((kv[0].equals("mech") && st.mech(kv[1]).isPresent())
+                    || (kv[0].equals("cache") && st.caches().stream().anyMatch(c -> c.id().equals(kv[1])))) {
+                return extraXp(st);
             }
         }
         return 0;

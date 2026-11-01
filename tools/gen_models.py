@@ -474,6 +474,131 @@ MODELS.update({"crypt_warrior": crypt_warrior, "crypt_archer": crypt_archer, "gh
                "bone_guard": bone_guard, "acolyte": acolyte, "bone_rat": bone_rat})
 
 
+# ---------------------------------------------------------------------------- хранители: общий каркас
+
+MATERIALS.update({
+    "gold": ("#D4A93A", 0.10, False, "rivets"),
+    "gold_glow": ("#FFE27A", 0.05, True, "plain"),
+    "ice": ("#9FD8F0", 0.08, True, "facets"),
+    "ice_dark": ("#5A9AC0", 0.08, False, "facets"),
+    "cloth_purple": ("#4A2A6A", 0.10, False, "plain"),
+    "cloth_green": ("#2A4A30", 0.10, False, "plain"),
+    "cloth_blue": ("#1E2A4A", 0.10, False, "plain"),
+    "eye_purple": ("#C27FFF", 0.0, True, "plain"),
+    "soul": ("#7FE8FF", 0.05, True, "plain"),
+    "iron_dark": ("#3E434C", 0.08, False, "rivets"),
+    "chain": ("#5A5E66", 0.12, False, "rivets"),
+})
+
+
+def boss_humanoid(o):
+    """Хранитель-человекоподобный: как humanoid, плюс «каст» (руки вверх) и «удар оземь» (обеими руками)."""
+    bones, anims = humanoid(o)
+    anims["cast"] = loop(1.2, {
+        "right_arm": {"rotation": kf([(0, [-150, 0, 20]), (0.6, [-160, 0, 30]), (1.2, [-150, 0, 20])])},
+        "left_arm": {"rotation": kf([(0, [-150, 0, -20]), (0.6, [-160, 0, -30]), (1.2, [-150, 0, -20])])},
+        "head": {"rotation": kf([(0, [-15, 0, 0]), (0.6, [-20, 0, 0]), (1.2, [-15, 0, 0])])},
+    })
+    anims["slam"] = once(0.8, {
+        "right_arm": {"rotation": kf([(0, [0, 0, 0]), (0.35, [-170, 0, 10]), (0.55, [-20, 0, 0]), (0.8, [0, 0, 0])])},
+        "left_arm": {"rotation": kf([(0, [0, 0, 0]), (0.35, [-170, 0, -10]), (0.55, [-20, 0, 0]), (0.8, [0, 0, 0])])},
+        "body": {"rotation": kf([(0, [0, 0, 0]), (0.35, [-12, 0, 0]), (0.55, [25, 0, 0]), (0.8, [0, 0, 0])])},
+    })
+    return bones, anims
+
+
+# ---------------------------------------------------------------------------- хранители этапа 1
+
+def gatekeeper():
+    """Привратник Склепа: огромный скелет в железном ошейнике, рога, цепь с гирей в правой руке."""
+    return boss_humanoid({"head": "bone", "body": "bone_dark", "arm": "bone", "leg": "bone", "eyes": "eye_blue",
+                          "lean": 8, "arm_len": 13, "extras": [
+        ("head", Cube([-5, 23, -5], [10, 2, 10], "iron_dark")),              # ошейник
+        ("head", Cube([-7, 30, -1], [3, 2, 2], "bone_dark")), ("head", Cube([-8, 32, -1], [2, 4, 2], "bone")),
+        ("head", Cube([4, 30, -1], [3, 2, 2], "bone_dark")), ("head", Cube([6, 32, -1], [2, 4, 2], "bone")),
+        ("body", Cube([-4.5, 14, -2.5], [9, 1, 5], "bone")), ("body", Cube([-4.5, 17, -2.5], [9, 1, 5], "bone")),
+        ("body", Cube([-4.5, 20, -2.5], [9, 1, 5], "bone")),                 # рёбра
+        ("body", Cube([-6, 20, -3], [12, 4, 6], "rust")),                    # наплечник
+        ("right_arm", Cube([-6.5, 0, -1], [2, 13, 2], "chain")),             # цепь
+        ("right_arm", Cube([-8, -4, -2.5], [5, 5, 5], "iron_dark")),         # гиря
+        ("left_arm", Cube([3.5, 10, -2], [4, 3, 4], "chain")),               # обрывок кандалов
+    ]})
+
+
+def morra():
+    """Морра: некромантка в чёрно-красном, маска-череп, коса."""
+    return boss_humanoid({"head": "bone", "face": "bone", "body": "cloth_black", "arm": "cloth_black", "leg": "cloth_black",
+                          "eyes": "eye_red", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 9, 9], "cloth_red")),            # капюшон
+        ("body", Cube([-5, 0, -3], [10, 13, 6], "cloth_black")),             # полы платья
+        ("body", Cube([-4.5, 18, -2.6], [9, 2, 1], "gold")),                 # пояс-цепочка
+        ("right_arm", Cube([-6, -6, -1.5], [1, 30, 1], "wood")),             # древко косы
+        ("right_arm", Cube([-14, 21, -2], [9, 2, 1], "steel")),              # лезвие
+        ("right_arm", Cube([-14, 19, -2], [2, 2, 1], "steel")),
+    ]})
+
+
+def vessa():
+    """Весса: колдунья в фиолетово-зелёном, книга на поясе, посох с зелёным огнём."""
+    return boss_humanoid({"head": "skin", "face": "bone", "body": "cloth_purple", "arm": "cloth_purple", "leg": "cloth_purple",
+                          "eyes": "eye_green", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 9, 9], "cloth_green")),
+        ("head", Cube([-3, 33, -3], [6, 3, 6], "cloth_green")),              # острый капюшон
+        ("body", Cube([-5, 0, -3], [10, 13, 6], "cloth_purple")),
+        ("body", Cube([3, 12, -3.5], [3, 4, 2], "leather")),                 # книга
+        ("left_arm", Cube([5, -4, -1.5], [1, 26, 1], "wood")),               # посох
+        ("left_arm", Cube([4, 21, -2.5], [3, 3, 3], "gem_green")),
+    ]})
+
+
+def lich():
+    """Король-лич Карн: высокий скелет в королевской мантии, золотая корона, посох с ледяным кристаллом."""
+    return boss_humanoid({"head": "bone", "face": "bone", "body": "cloth_blue", "arm": "bone", "leg": "cloth_blue",
+                          "eyes": "soul", "arm_len": 13, "extras": [
+        ("head", Cube([-4.5, 31, -4.5], [9, 2, 9], "gold")),                 # корона
+        ("head", Cube([-4.5, 33, -4.5], [2, 3, 2], "gold")), ("head", Cube([2.5, 33, -4.5], [2, 3, 2], "gold")),
+        ("head", Cube([-1, 33, -4.5], [2, 4, 2], "gold_glow")),
+        ("body", Cube([-6, 0, -3.5], [12, 14, 7], "cloth_blue")),            # мантия
+        ("body", Cube([-6.5, 20, -3.5], [13, 4, 7], "ice_dark")),            # ледяной воротник
+        ("body", Cube([-6, 6, 3], [12, 18, 1], "cloth_purple")),             # плащ
+        ("right_arm", Cube([-6, -8, -1.5], [1, 32, 1], "iron_dark")),        # посох
+        ("right_arm", Cube([-7.5, 22, -3], [4, 6, 4], "ice")),               # кристалл
+    ]})
+
+
+def _node(mat_main, mat_core, name):
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 10, 0], "root", [Cube([-5, 2, -5], [10, 18, 10], mat_main),
+                                               Cube([-3, 20, -3], [6, 6, 6], mat_main),
+                                               Cube([-2, 8, -6], [4, 6, 1], mat_core)])]
+    anims = {"idle": loop(3, {"core": {"rotation": kf([(0, [0, 0, 0]), (1.5, [0, 180, 0]), (3, [0, 360, 0])]),
+                                       "position": kf([(0, [0, 0, 0]), (1.5, [0, 1, 0]), (3, [0, 0, 0])])}}),
+             "walk": loop(3, {}), "death": {"animation_length": 0.5, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.5, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def ice_tomb():
+    return _node("ice", "ice_dark", "ice_tomb")
+
+
+def phylactery():
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 12, 0], "root", [Cube([-3, 8, -3], [6, 8, 6], "soul"),
+                                               Cube([-4, 6, -4], [8, 1, 8], "gold"), Cube([-4, 17, -4], [8, 1, 8], "gold"),
+                                               Cube([-4, 7, -4], [1, 10, 1], "gold"), Cube([3, 7, -4], [1, 10, 1], "gold"),
+                                               Cube([-4, 7, 3], [1, 10, 1], "gold"), Cube([3, 7, 3], [1, 10, 1], "gold")])]
+    anims = {"idle": loop(2, {"core": {"rotation": kf([(0, [0, 0, 0]), (2, [0, 360, 0])]),
+                                       "position": kf([(0, [0, 0, 0]), (1, [0, 1.5, 0]), (2, [0, 0, 0])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.5, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.5, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+MODELS.update({"gatekeeper": gatekeeper, "morra": morra, "vessa": vessa, "lich": lich, "ice_tomb": ice_tomb,
+               "phylactery": phylactery})
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None

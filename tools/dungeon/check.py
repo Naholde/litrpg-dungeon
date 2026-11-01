@@ -14,6 +14,11 @@ from kit import passable, standable
 JAVA = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'main', 'java', 'com', 'andrey', 'litrpg')
 
 
+# Ломаются игроком (тег litrpg:breakable) — для проверки проходимости это проход.
+BREAKABLE = {'minecraft:cobweb', 'minecraft:decorated_pot', 'minecraft:infested_cracked_stone_bricks',
+             'minecraft:infested_mossy_stone_bricks', 'minecraft:infested_deepslate'}
+
+
 def known_ids(path, pattern):
     ids = set()
     for root, _, files in os.walk(os.path.join(JAVA, path)):
@@ -40,6 +45,8 @@ class Walker:
         if (x, y, z) in self.opened:
             return True
         s = self.m.blocks.get((x, y, z))
+        if s and s.split('[')[0] in BREAKABLE:
+            return True
         return passable(s) and not (s and 'lava' in s)
 
     def stand(self, x, y, z):
@@ -88,9 +95,35 @@ def near(reached, pos, r=1, dy=2):
     return False
 
 
+def m_get(m, pt):
+    return m.blocks.get(tuple(pt))
+
+
 def check_stage(m, st, species, bosses, errors):
+    m_ = m
     sid = f'этап {st["n"]}'
     ids = {f'pack:{p["id"]}' for p in st['packs']} | {f'boss:{b["id"]}' for b in st['bosses']}
+    ids |= {f'mech:{m["id"]}' for m in st.get('mechs', []) if m['type'] != 'hazard'}
+    for mc in st.get('mechs', []):
+        if mc['type'] not in ('plates', 'levers', 'sequence', 'memory', 'riddle', 'hazard'):
+            errors.append(f'{sid}: механизм {mc["id"]}: неизвестный тип {mc["type"]}')
+        if mc['type'] in ('plates', 'levers', 'sequence', 'memory') and len(mc['points']) < 2:
+            errors.append(f'{sid}: механизм {mc["id"]}: мало точек')
+        if mc['type'] in ('riddle', 'hazard') and 'area' not in mc:
+            errors.append(f'{sid}: механизм {mc["id"]}: нет области')
+        if mc['type'] == 'riddle' and not mc.get('answers'):
+            errors.append(f'{sid}: загадка {mc["id"]}: нет ответов')
+        if mc['type'] == 'levers':
+            for pt in mc['points']:
+                if 'lever' not in (m_get(m_, pt) or ''):
+                    errors.append(f'{sid}: {mc["id"]}: в точке {pt} нет рычага')
+        if mc['type'] == 'plates':
+            for pt in mc['points']:
+                if 'pressure_plate' not in (m_get(m_, pt) or ''):
+                    errors.append(f'{sid}: {mc["id"]}: в точке {pt} нет плиты')
+    for c in st.get('caches', []):
+        if 'cache' not in (m_get(m_, c['at']) or ''):
+            errors.append(f'{sid}: тайник {c["id"]}: в {c["at"]} нет блока тайника')
     for p in st['packs']:
         for mob in p['mobs']:
             if mob['species'] not in species:
@@ -131,6 +164,15 @@ def check_stage(m, st, species, bosses, errors):
         for b in st['bosses']:
             if near(reached, b['at'], r=3):
                 done.add(f'boss:{b["id"]}')
+        for mc in st.get('mechs', []):
+            if mc['type'] == 'hazard':
+                continue
+            pts = mc['points'] or ([] if 'area' not in mc else [mc['area'][:3]])
+            if mc['type'] == 'riddle':
+                a = mc['area']
+                pts = [[(a[0] + a[3]) // 2, a[1], (a[2] + a[5]) // 2]]
+            if pts and all(near(reached, pt, r=2, dy=2) for pt in pts):
+                done.add(f'mech:{mc["id"]}')
         for g in st['gates']:
             if g['open_when'] and all(c in done for c in g['open_when']) and f'gate:{g["id"]}' not in done:
                 done.add(f'gate:{g["id"]}')
@@ -145,6 +187,14 @@ def check_stage(m, st, species, bosses, errors):
         errors.append(f'{sid}: разлом недостижим')
     if not near(reached, st['trader']):
         errors.append(f'{sid}: торговец недостижим')
+    for c in st.get('caches', []):
+        if not near(reached, c['at'], r=2, dy=2):
+            errors.append(f'{sid}: тайник {c["id"]} недостижим')
+    for b in st['bosses']:
+        if 'arena2' in b:
+            x, y, z, r = b['arena2']
+            if not Walker(m, opened).stand(int(x // 1), int(y // 1), int(z // 1)):
+                errors.append(f'{sid}: второй зал {b["id"]}: в центре негде стоять')
     return len(reached)
 
 

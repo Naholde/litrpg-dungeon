@@ -39,7 +39,8 @@ public final class ClientRun {
         int w = g.guiWidth(), h = g.guiHeight();
         String title = "Этап " + data.stage() + " · " + data.stageName() + (data.attempt() > 1 ? " · попытка " + data.attempt() : "");
         int tw = Math.max(f.width(title), f.width(data.goal())) + 12;
-        int x = w - tw - 4, y = 4;
+        // Во время боя с хранителем верх экрана занят рамками и угрозой — панель этапа ниже.
+        int x = w - tw - 4, y = ClientBoss.active() ? ClientBoss.frames() * 38 + 60 : 4;
         UiKit.panel(g, x, y, tw, 26);
         UiKit.text(g, f, title, x + 6, y + 4, 0xFFE8C66A);
         UiKit.text(g, f, data.goal(), x + 6, y + 15, 0xFFB8C4D6);

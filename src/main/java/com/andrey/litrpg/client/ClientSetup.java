@@ -55,6 +55,12 @@ public final class ClientSetup {
             e.registerEntityRenderer(ModEntities.TRIAL_WARDEN.get(), ctx -> GeoRenderers.glowing(ctx, "trial_warden", 1.6f));
             e.registerEntityRenderer(ModEntities.POWER_NODE.get(), ctx -> GeoRenderers.glowing(ctx, "power_node", 1.0f));
             e.registerEntityRenderer(ModEntities.TRADER.get(), ctx -> GeoRenderers.glowing(ctx, "trader", 1.0f));
+            e.registerEntityRenderer(ModEntities.GATEKEEPER.get(), ctx -> GeoRenderers.glowing(ctx, "gatekeeper", 2.2f));
+            e.registerEntityRenderer(ModEntities.MORRA.get(), ctx -> GeoRenderers.glowing(ctx, "morra", 1.35f));
+            e.registerEntityRenderer(ModEntities.VESSA.get(), ctx -> GeoRenderers.glowing(ctx, "vessa", 1.35f));
+            e.registerEntityRenderer(ModEntities.LICH.get(), ctx -> GeoRenderers.glowing(ctx, "lich", 1.9f));
+            e.registerEntityRenderer(ModEntities.ICE_TOMB.get(), ctx -> GeoRenderers.glowing(ctx, "ice_tomb", 1.0f));
+            e.registerEntityRenderer(ModEntities.PHYLACTERY.get(), ctx -> GeoRenderers.glowing(ctx, "phylactery", 1.0f));
             for (var s : com.andrey.litrpg.mob.Bestiary.all()) {
                 e.registerEntityRenderer(com.andrey.litrpg.mob.ModMobs.TYPES.get(s.id()).get(),
                         ctx -> GeoRenderers.glowing(ctx, s.model(), s.scale()));

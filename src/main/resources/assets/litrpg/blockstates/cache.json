@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "litrpg:block/cache",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "litrpg:block/cache",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "litrpg:block/cache",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "litrpg:block/cache",
+      "y": 270
+    }
+  }
+}

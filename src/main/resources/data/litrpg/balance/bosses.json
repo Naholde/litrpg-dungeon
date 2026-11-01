@@ -13,6 +13,59 @@
     "enrage_mult": 1.3
   },
   "bosses": {
+    "gatekeeper": {
+      "level": 4.0,
+      "hp_units": 38.0,
+      "melee_units": 0.14,
+      "chain_units": 0.75,
+      "chain_cd": 9.0,
+      "chain_cast": 1.6,
+      "rampart_units": 0.55,
+      "rampart_cd": 21.0,
+      "rampart_cast": 2.6,
+      "call_cd": 32.0,
+      "call_cast": 2.0,
+      "shield_share": 0.08,
+      "shield_cd": 26.0,
+      "shield_cast": 3.0
+    },
+    "lich": {
+      "level": 10.0,
+      "hp_units": 66.0,
+      "melee_units": 0.18,
+      "scythe_units": 0.9,
+      "scythe_cd": 11.0,
+      "scythe_cast": 1.8,
+      "storm_units": 0.45,
+      "storm_cd": 15.0,
+      "storm_cast": 2.2,
+      "tomb_units": 0.9,
+      "tomb_seconds": 8.0,
+      "tomb_hp_units": 1.0,
+      "tomb_cd": 24.0,
+      "tomb_cast": 1.5,
+      "raise_cd": 40.0,
+      "raise_cast": 2.5,
+      "dark_units": 0.07,
+      "dark_seconds": 8.0,
+      "dark_cd": 30.0,
+      "dark_cast": 2.0,
+      "phylactery_hp_units": 5.0
+    },
+    "morra": {
+      "level": 7.0,
+      "hp_units": 30.0,
+      "melee_units": 0.16,
+      "reap_units": 0.8,
+      "reap_cd": 10.0,
+      "reap_cast": 1.6,
+      "spears_units": 0.5,
+      "spears_cd": 17.0,
+      "spears_cast": 2.2,
+      "revive_seconds": 12.0,
+      "link_cut": 0.5,
+      "link_units": 0.06
+    },
     "trial_warden": {
       "level": 10.0,
       "hp_units": 60.0,
@@ -35,6 +88,21 @@
       "node_hp_units": 4.0,
       "spark_hp_units": 1.2,
       "spark_units": 0.06
+    },
+    "vessa": {
+      "level": 7.0,
+      "hp_units": 26.0,
+      "melee_units": 0.08,
+      "mend_share": 0.08,
+      "mend_cd": 20.0,
+      "mend_cast": 3.0,
+      "curse_units": 0.05,
+      "curse_seconds": 10.0,
+      "curse_cd": 14.0,
+      "curse_cast": 1.5,
+      "nova_units": 0.45,
+      "nova_cd": 19.0,
+      "nova_cast": 2.4
     }
   }
 }

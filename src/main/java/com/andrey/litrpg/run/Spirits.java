@@ -94,6 +94,19 @@ public final class Spirits {
         }
     }
 
+    /** Бой перенесён в другой зал: духи павших на старой арене — следом (у края новой). */
+    static void follow(MinecraftServer server, Vec3 from, Vec3 to, double radius) {
+        RunState s = RunService.state(server);
+        for (var e : Map.copyOf(s.spirits).entrySet()) {
+            if (Vec3.atBottomCenterOf(e.getValue()).distanceTo(from) > 40) continue;
+            BlockPos np = BlockPos.containing(to.x + (Math.random() - 0.5) * radius, to.y, to.z + (Math.random() - 0.5) * radius);
+            s.spirits.put(e.getKey(), np);
+            ServerPlayer p = server.getPlayerList().getPlayer(e.getKey());
+            if (p != null) p.teleportTo(RunService.dungeon(server), np.getX() + 0.5, np.getY() + 1, np.getZ() + 0.5, p.getYRot(), 0);
+        }
+        s.setDirty();
+    }
+
     /** Снять дух без воскрешения на месте (перенос на привал, сброс). */
     static void restore(ServerPlayer p) {
         RunState s = RunService.state(p.server);

@@ -34,7 +34,7 @@ import java.util.List;
 public final class StageWorld {
     public static final String TAG = "litrpg_run";
     /** Метка «без добычи»: отряд или хранитель, за которого награда уже выдана (повтор после вайпа). */
-    public static final String NO_LOOT = "litrpg_noloot";
+    public static final String NO_LOOT = com.andrey.litrpg.gear.LootService.NO_LOOT;
 
     private StageWorld() {
     }
@@ -77,6 +77,7 @@ public final class StageWorld {
     static void spawnPack(ServerLevel level, RunState s, Layout.Pack pack) {
         int n = 0;
         boolean claimed = s.claims.contains("pack:" + pack.id());
+        boolean first = true;
         for (Layout.Mob m : pack.mobs()) {
             if (m.minParty() > s.partySize) continue;
             var type = ModMobs.TYPES.get(m.species());
@@ -90,7 +91,13 @@ public final class StageWorld {
             mob.moveTo(m.at().getX() + 0.5, m.at().getY(), m.at().getZ() + 0.5, yaw, 0);
             mob.setYHeadRot(yaw);
             mob.setYBodyRot(yaw);
-            mob.setup(m.level(), rank(m.rank()));
+            if (first && pack.title().isPresent()) {
+                mob.setTitle(pack.title().get());
+                mob.setup(m.level(), MobRank.CHAMPION);
+            } else {
+                mob.setup(m.level(), rank(m.rank()));
+            }
+            first = false;
             mob.setHome(m.at());
             mob.setPersistenceRequired();
             tag(mob, s, "pack", pack.id());
@@ -121,6 +128,7 @@ public final class StageWorld {
         Vec3 c = Vec3.atBottomCenterOf(b.at());
         boss.moveTo(c.x, c.y, c.z, 0, 0);
         boss.setArena(c, b.arena());
+        b.arena2().ifPresent(a -> boss.setSecondArena(new Vec3(a.get(0), a.get(1), a.get(2)), a.get(3)));
         boss.setRun(b.id(), s.partySize);
         tag(boss, s, "boss", b.id());
         if (s.claims.contains("boss:" + b.id())) boss.getPersistentData().putBoolean(NO_LOOT, true);

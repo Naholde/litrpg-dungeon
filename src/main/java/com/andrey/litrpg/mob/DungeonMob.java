@@ -57,6 +57,8 @@ public class DungeonMob extends Monster implements GeoEntity {
     private boolean setUp;
     /** Место монстра отряда: утащили дальше поводка — возвращается и лечится. */
     private net.minecraft.core.BlockPos home;
+    /** Имя мини-хранителя (null — обычный монстр). */
+    private String title;
     private final List<long[]> pending = new ArrayList<>();
     private final List<Runnable> pendingRun = new ArrayList<>();
 
@@ -82,8 +84,22 @@ public class DungeonMob extends Monster implements GeoEntity {
         return rank;
     }
 
+    /** Отряд из схемы прохождения (null — монстр не из отряда). */
+    public String packId() {
+        var t = getPersistentData().getCompound("litrpg_run");
+        return t.getString("kind").equals("pack") ? t.getString("id") : null;
+    }
+
     public void setHome(net.minecraft.core.BlockPos pos) {
         home = pos;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String title() {
+        return title;
     }
 
     private double p(String key) {
@@ -113,7 +129,7 @@ public class DungeonMob extends Monster implements GeoEntity {
         Bestiary.Species s = species();
         ChatFormatting c = rank == MobRank.CHAMPION ? ChatFormatting.GOLD : rank == MobRank.ELITE ? ChatFormatting.AQUA : ChatFormatting.WHITE;
         setCustomName(Component.literal("Ур. " + level + " · ").withStyle(ChatFormatting.GRAY)
-                .append(Component.literal(s.name() + (rank.mark.isEmpty() ? "" : " " + rank.mark)).withStyle(c)));
+                .append(Component.literal((title != null ? title : s.name()) + (rank.mark.isEmpty() ? "" : " " + rank.mark)).withStyle(c)));
         setCustomNameVisible(true);
     }
 
@@ -209,7 +225,12 @@ public class DungeonMob extends Monster implements GeoEntity {
         super.setTarget(target);
         if (!level().isClientSide && before == null && target instanceof ServerPlayer p) {
             MobsBalance mb = Balance.get(Balance.MOBS);
-            for (DungeonMob m : level().getEntitiesOfClass(DungeonMob.class, getBoundingBox().inflate(mb.packRadius()))) {
+            // В прохождении стая — это отряд из схемы (соседний отряд в том же зале не бросается следом);
+            // вне прохождения — все сородичи в радиусе стаи.
+            String pack = packId();
+            double r = pack != null ? 24 : mb.packRadius();
+            for (DungeonMob m : level().getEntitiesOfClass(DungeonMob.class, getBoundingBox().inflate(r))) {
+                if (pack != null && !pack.equals(m.packId())) continue;
                 if (m != this && m.getTarget() == null && m.isAlive()) {
                     ThreatService.add(m, p, 1);
                     m.setTarget(p);
@@ -343,6 +364,7 @@ public class DungeonMob extends Monster implements GeoEntity {
         tag.putString("rank", rank.name());
         tag.putBoolean("setUp", setUp);
         if (home != null) tag.putLong("home", home.asLong());
+        if (title != null) tag.putString("title", title);
     }
 
     @Override
@@ -356,6 +378,7 @@ public class DungeonMob extends Monster implements GeoEntity {
         }
         setUp = tag.getBoolean("setUp");
         if (tag.contains("home")) home = net.minecraft.core.BlockPos.of(tag.getLong("home"));
+        if (tag.contains("title")) title = tag.getString("title");
     }
 
     @Override

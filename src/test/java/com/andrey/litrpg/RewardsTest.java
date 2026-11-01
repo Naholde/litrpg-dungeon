@@ -20,10 +20,11 @@ class RewardsTest {
             assertEquals(expectFrom, st.fromLevel(), "этап " + st.n() + " начинается там, где кончился прошлый");
             assertEquals(st.fromLevel() == 1 ? 10 : st.fromLevel() + 10, st.toLevel(), "этап " + st.n() + " — 10 уровней");
             expectFrom = st.toLevel();
-            long sum = st.packs().stream().mapToLong(p -> Rewards.packXp(st, p)).sum() + Rewards.bossXp(st) * st.bosses().size();
+            long sum = st.packs().stream().mapToLong(p -> Rewards.packXp(st, p)).sum() + Rewards.bossXp(st) * st.bosses().size()
+                    + Rewards.extraXp(st) * Rewards.extras(st);
             long budget = Rewards.budget(st);
             assertEquals(Balance.get(Balance.PROGRESSION).xpBetween(st.fromLevel(), st.toLevel()), budget);
-            assertTrue(Math.abs(sum - budget) <= st.packs().size() + st.bosses().size(),
+            assertTrue(Math.abs(sum - budget) <= st.packs().size() + st.bosses().size() + Rewards.extras(st),
                     "этап " + st.n() + ": награды " + sum + " ≠ бюджет " + budget);
         }
     }

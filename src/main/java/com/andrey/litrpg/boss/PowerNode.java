@@ -78,7 +78,8 @@ public class PowerNode extends Mob implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "main", 0,
-                state -> state.setAndContinue(RawAnimation.begin().thenLoop("animation.power_node.idle"))));
+                state -> state.setAndContinue(RawAnimation.begin().thenLoop("animation."
+                        + net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(getType()).getPath() + ".idle"))));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.andrey.litrpg.core;
 
 import com.andrey.litrpg.LitRPG;
+import com.andrey.litrpg.world.block.CacheBlock;
 import com.andrey.litrpg.world.block.RiftBlock;
 import com.andrey.litrpg.world.block.SealBlock;
 import com.andrey.litrpg.world.block.SealedGateBlock;
@@ -33,6 +34,17 @@ public final class ModBlocks {
     public static final DeferredBlock<RiftBlock> RIFT = REG.register("rift",
             () -> new RiftBlock(fixed().mapColor(MapColor.COLOR_MAGENTA).noCollission().noOcclusion()
                     .lightLevel(s -> s.getValue(RiftBlock.ACTIVE) ? 15 : 4).sound(SoundType.AMETHYST)));
+
+    /** Тайники по уровням: обычный, запертый (ключ), секретка, божественный. */
+    public static final DeferredBlock<CacheBlock> CACHE = cache("cache", 1);
+    public static final DeferredBlock<CacheBlock> LOCKED_CACHE = cache("locked_cache", 2);
+    public static final DeferredBlock<CacheBlock> SECRET_CACHE = cache("secret_cache", 3);
+    public static final DeferredBlock<CacheBlock> DIVINE_CACHE = cache("divine_cache", 4);
+
+    private static DeferredBlock<CacheBlock> cache(String id, int tier) {
+        return REG.register(id, () -> new CacheBlock(fixed().mapColor(MapColor.WOOD).noOcclusion().sound(SoundType.WOOD)
+                .lightLevel(s -> tier >= 3 ? 7 : 0), tier));
+    }
 
     private ModBlocks() {
     }

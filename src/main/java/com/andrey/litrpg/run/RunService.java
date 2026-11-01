@@ -186,6 +186,7 @@ public final class RunService {
         }
         StageWorld.restoreBroken(level, s);
         StageWorld.clearEntities(level, false);
+        if (prev != null) Mechanisms.resetBlocks(level, prev);
         s.stage = n;
         s.attempt = 1;
         s.epoch++;
@@ -248,6 +249,7 @@ public final class RunService {
         if (st == null) return;
         StageWorld.restoreBroken(level, s);
         StageWorld.clearEntities(level, false);
+        Mechanisms.resetBlocks(level, st);
         s.attempt++;
         s.wipes++;
         s.epoch++;
@@ -276,6 +278,9 @@ public final class RunService {
         int left = s.alive.getOrDefault(id, 1) - 1;
         s.alive.put(id, Math.max(0, left));
         s.setDirty();
+        if (mob.title() != null) {
+            for (ServerPlayer p : onlineMembers(server)) Caches.giveKey(p);
+        }
         if (left > 0) return;
         s.done.add("pack:" + id);
         Layout.Stage st = currentStage(server);
@@ -411,6 +416,7 @@ public final class RunService {
         if (riftOpen) tickRift(server, s, st, alive, cfg);
 
         Spirits.tick(server, s, alive);
+        tickLore(server, s, st, alive);
         // вайп: в сети никого живого
         List<ServerPlayer> online = onlineMembers(server);
         if (!online.isEmpty() && alive.isEmpty()) {
@@ -426,6 +432,30 @@ public final class RunService {
         if (++syncTimer >= 2) {
             syncTimer = 0;
             syncAll(server);
+        }
+    }
+
+    /** Каждый тик: загадки и ловушки (им нужен точный ритм). */
+    public static void tickFast(MinecraftServer server) {
+        if (server instanceof net.minecraft.gametest.framework.GameTestServer && !testing) return;
+        RunState s = state(server);
+        if (!s.active(Layout.get().lastStage())) return;
+        Layout.Stage st = currentStage(server);
+        if (st != null && !st.mechs().isEmpty()) Mechanisms.tick(server, s, st, aliveMembers(server));
+    }
+
+    /** Голос Системы: отряд впервые вошёл в место — запись в чат (один раз за прохождение). */
+    private static void tickLore(MinecraftServer server, RunState s, Layout.Stage st, List<ServerPlayer> alive) {
+        for (int i = 0; i < st.lore().size(); i++) {
+            Layout.Lore l = st.lore().get(i);
+            String id = "lore:" + st.n() + ":" + i;
+            if (s.claims.contains(id) || alive.stream().noneMatch(p -> l.box().contains(p.position()))) continue;
+            s.claims.add(id);
+            s.setDirty();
+            for (ServerPlayer p : onlineMembers(server)) {
+                SystemChat.send(p, Component.literal(l.text()).withStyle(ChatFormatting.GOLD, ChatFormatting.ITALIC));
+                p.playNotifySound(SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.MASTER, 0.8f, 0.6f);
+            }
         }
     }
 
@@ -493,7 +523,8 @@ public final class RunService {
 
     // ------------------------------------------------------------------ команды и тесты
 
-    static boolean testing;
+    /** Автотесты: включить прохождение на сервере автотестов (там оно по умолчанию спит). */
+    public static boolean testing;
 
     /** Сбросить прохождение: все — в преддверие, мир этапов — как был. */
     public static void reset(MinecraftServer server) {
@@ -512,6 +543,10 @@ public final class RunService {
         riftTimer = -1;
         wipeTimer = -1;
         syncAll(server);
+    }
+
+    public static void chatForTest(ServerPlayer p, String message) {
+        Mechanisms.onChat(p, message);
     }
 
     public static void reviveForTest(ServerPlayer p, double share) {

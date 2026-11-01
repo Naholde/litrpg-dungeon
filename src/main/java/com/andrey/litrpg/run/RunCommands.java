@@ -62,6 +62,11 @@ public final class RunCommands {
                             c.getSource().sendSuccess(() -> Component.literal("Отмечено: " + what), true);
                             return 1;
                         })))
+                .then(Commands.literal("solve").executes(c -> {
+                    int n = Mechanisms.solveAll(c.getSource().getServer());
+                    c.getSource().sendSuccess(() -> Component.literal("Загадок снято: " + n), true);
+                    return n;
+                }))
                 .then(Commands.literal("lobby").executes(c -> {
                     RunService.toLobby(c.getSource().getPlayerOrException());
                     return 1;

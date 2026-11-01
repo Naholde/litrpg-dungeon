@@ -29,6 +29,9 @@ import java.util.UUID;
  * вещь — предметом на земле, который может поднять только он (и подсвеченным). Ванильный дроп убран.
  */
 public final class LootService {
+    /** Метка «без добычи и опыта»: подручные хранителей и повторные победы после вайпа. */
+    public static final String NO_LOOT = "litrpg_noloot";
+
     private LootService() {
     }
 
@@ -42,7 +45,7 @@ public final class LootService {
     public static void onDeath(LivingDeathEvent e) {
         if (!(e.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel)) return;
         // Повтор после вайпа (награда уже выдана) — без добычи.
-        if (mob.getPersistentData().getBoolean(com.andrey.litrpg.run.StageWorld.NO_LOOT)) return;
+        if (mob.getPersistentData().getBoolean(NO_LOOT)) return;
         if (mob instanceof BossEntity boss) {
             bossLoot(boss);
             return;

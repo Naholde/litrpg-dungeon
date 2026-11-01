@@ -1,0 +1,152 @@
+{
+ "format_version": "1.12.0",
+ "minecraft:geometry": [
+  {
+   "description": {
+    "identifier": "geometry.phylactery",
+    "texture_width": 128,
+    "texture_height": 128,
+    "visible_bounds_width": 6,
+    "visible_bounds_height": 6,
+    "visible_bounds_offset": [
+     0,
+     2,
+     0
+    ]
+   },
+   "bones": [
+    {
+     "name": "root",
+     "pivot": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "core",
+     "pivot": [
+      0,
+      12,
+      0
+     ],
+     "parent": "root",
+     "cubes": [
+      {
+       "origin": [
+        -3,
+        8,
+        -3
+       ],
+       "size": [
+        6,
+        8,
+        6
+       ],
+       "uv": [
+        0,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -4,
+        6,
+        -4
+       ],
+       "size": [
+        8,
+        1,
+        8
+       ],
+       "uv": [
+        24,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -4,
+        17,
+        -4
+       ],
+       "size": [
+        8,
+        1,
+        8
+       ],
+       "uv": [
+        56,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -4,
+        7,
+        -4
+       ],
+       "size": [
+        1,
+        10,
+        1
+       ],
+       "uv": [
+        88,
+        0
+       ]
+      },
+      {
+       "origin": [
+        3,
+        7,
+        -4
+       ],
+       "size": [
+        1,
+        10,
+        1
+       ],
+       "uv": [
+        92,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -4,
+        7,
+        3
+       ],
+       "size": [
+        1,
+        10,
+        1
+       ],
+       "uv": [
+        96,
+        0
+       ]
+      },
+      {
+       "origin": [
+        3,
+        7,
+        3
+       ],
+       "size": [
+        1,
+        10,
+        1
+       ],
+       "uv": [
+        100,
+        0
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

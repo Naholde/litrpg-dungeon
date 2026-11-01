@@ -1,5 +1,9 @@
 {
   "values": [
-    "litrpg:trial_warden"
+    "litrpg:trial_warden",
+    "litrpg:gatekeeper",
+    "litrpg:morra",
+    "litrpg:vessa",
+    "litrpg:lich"
   ]
 }

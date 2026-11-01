@@ -39,6 +39,14 @@ public final class RunEvents {
         game.addListener((ServerStartedEvent e) -> onStarted(e.getServer()));
         game.addListener((ServerTickEvent.Post e) -> {
             if (e.getServer().getTickCount() % 10 == 0) RunService.tick(e.getServer());
+            RunService.tickFast(e.getServer());
+        });
+        game.addListener((net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock e) -> {
+            if (e.getEntity() instanceof ServerPlayer p && e.getHand() == net.minecraft.world.InteractionHand.MAIN_HAND
+                    && RunService.inDungeon(p)) Mechanisms.onUse(p, e.getPos());
+        });
+        game.addListener((net.neoforged.neoforge.event.ServerChatEvent e) -> {
+            if (RunService.inDungeon(e.getPlayer())) Mechanisms.onChat(e.getPlayer(), e.getRawText());
         });
         game.addListener(EventPriority.LOW, (PlayerEvent.PlayerLoggedInEvent e) -> {
             if (e.getEntity() instanceof ServerPlayer p) RunService.onLogin(p);
@@ -72,6 +80,10 @@ public final class RunEvents {
     private static void onJoin(EntityJoinLevelEvent e) {
         if (e.getLevel().isClientSide() || e.getLevel().dimension() != ModWorld.DUNGEON || StageWorld.tagOf(e.getEntity()) == null) return;
         if (e.loadedFromDisk() && StageWorld.stale(e.getEntity(), RunService.state(e.getLevel().getServer()))) e.setCanceled(true);
+    }
+
+    static {
+        BossEntity.onRelocate = (boss, from) -> Spirits.follow(boss.getServer(), from, boss.home(), boss.arenaRadius());
     }
 
     private static void onStarted(MinecraftServer server) {

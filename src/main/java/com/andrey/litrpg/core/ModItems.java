@@ -33,6 +33,8 @@ public final class ModItems {
     public static final DeferredItem<CoinItem> GOLD_COIN = REG.register("gold_coin",
             () -> new CoinItem(new Item.Properties(), 81));
 
+    /** Ключ тайника: открывает запертый тайник (продаёт торговец, дают мини-хранители). */
+    public static final DeferredItem<Item> CACHE_KEY = REG.register("cache_key", () -> new Item(new Item.Properties().stacksTo(16)));
     public static final DeferredItem<ElixirItem> ELIXIR = REG.register("elixir_of_life", () -> new ElixirItem(new Item.Properties()));
     public static final DeferredItem<ScrollItem> SCROLL_OBLIVION = REG.register("scroll_of_oblivion",
             () -> new ScrollItem(new Item.Properties()));

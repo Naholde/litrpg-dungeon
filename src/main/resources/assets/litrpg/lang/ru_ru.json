@@ -38,5 +38,16 @@
   "block.litrpg.seal": "Печать",
   "block.litrpg.sealed_gate": "Печать-преграда",
   "block.litrpg.rift": "Разлом",
-  "biome.litrpg.lobby": "Преддверие"
+  "biome.litrpg.lobby": "Преддверие",
+  "block.litrpg.cache": "Тайник",
+  "block.litrpg.locked_cache": "Запертый тайник",
+  "block.litrpg.secret_cache": "Тайник секретки",
+  "block.litrpg.divine_cache": "Божественный тайник",
+  "item.litrpg.cache_key": "Ключ тайника",
+  "entity.litrpg.gatekeeper": "Привратник Склепа",
+  "entity.litrpg.morra": "Морра",
+  "entity.litrpg.vessa": "Весса",
+  "entity.litrpg.lich": "Король-лич Карн",
+  "entity.litrpg.ice_tomb": "Ледяная гробница",
+  "entity.litrpg.phylactery": "Филактерия"
 }

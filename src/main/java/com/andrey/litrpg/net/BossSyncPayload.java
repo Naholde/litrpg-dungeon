@@ -13,13 +13,13 @@ import java.util.List;
  * Сервер → игрокам на арене: рамка хранителя. {@code cast} — «Имя|можно_сбить|длина|тик_конца» или пусто.
  * {@code name} пустое — хранителя больше нет (рамку убрать).
  */
-public record BossSyncPayload(int entityId, String name, float health, float maxHealth, boolean shielded, int enrage,
+public record BossSyncPayload(int entityId, String name, String music, float health, float maxHealth, boolean shielded, int enrage,
                               String cast, long serverTime, List<ThreatRow> threat) implements CustomPacketPayload {
     public record ThreatRow(String name, float share) {
     }
 
     public static BossSyncPayload gone(int entityId) {
-        return new BossSyncPayload(entityId, "", 0, 0, false, 0, "", 0, List.of());
+        return new BossSyncPayload(entityId, "", "", 0, 0, false, 0, "", 0, List.of());
     }
 
     public static final Type<BossSyncPayload> TYPE = new Type<>(LitRPG.id("boss_sync"));
@@ -27,6 +27,7 @@ public record BossSyncPayload(int entityId, String name, float health, float max
             (buf, p) -> {
                 buf.writeVarInt(p.entityId);
                 buf.writeUtf(p.name, 64);
+                buf.writeUtf(p.music, 32);
                 buf.writeFloat(p.health);
                 buf.writeFloat(p.maxHealth);
                 buf.writeBoolean(p.shielded);
@@ -38,7 +39,7 @@ public record BossSyncPayload(int entityId, String name, float health, float max
                     b.writeFloat(r.share);
                 });
             },
-            buf -> new BossSyncPayload(buf.readVarInt(), buf.readUtf(64), buf.readFloat(), buf.readFloat(), buf.readBoolean(),
+            buf -> new BossSyncPayload(buf.readVarInt(), buf.readUtf(64), buf.readUtf(32), buf.readFloat(), buf.readFloat(), buf.readBoolean(),
                     buf.readVarInt(), buf.readUtf(128), buf.readVarLong(),
                     buf.readList(b -> new ThreatRow(b.readUtf(32), b.readFloat()))));
 

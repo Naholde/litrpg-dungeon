@@ -69,6 +69,17 @@ public final class DevClientFiles {
                 mc.player.respawn();
                 mc.setScreen(null);
             }
+            // написать в чат (текстовые загадки)
+            case "chat" -> mc.player.connection.sendChat(String.join(" ", java.util.Arrays.copyOfRange(cmd, 1, cmd.length)));
+            // ПКМ по блоку под прицелом (рычаги, кнопки, тайники, Печать)
+            case "use" -> {
+                if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult hit
+                        && hit.getType() == net.minecraft.world.phys.HitResult.Type.BLOCK) {
+                    mc.gameMode.useItemOn(mc.player, net.minecraft.world.InteractionHand.MAIN_HAND, hit);
+                }
+            }
+            // зажать/отпустить Shift (воскрешение духа)
+            case "sneak" -> mc.options.keyShift.setDown(cmd.length > 1 && cmd[1].equals("on"));
             default -> LitRPG.LOG.warn("[LitRPG] dev: неизвестное окно {}", cmd[0]);
         }
     }

@@ -410,6 +410,80 @@ def rift_off():
     return c
 
 
+# ---------------------------------------------------------------------------- тайники и ключ
+
+CACHE_STYLE = {
+    # имя: (дерево, дерево светлое, оковка, оковка светлая, акцент)
+    "cache": ("#5A3A20", "#7A5230", "#6E6E78", "#A8A8B4", "#3A2412"),
+    "locked_cache": ("#3E2A1A", "#5A3E26", "#B08A2E", "#F2D27A", "#2A1A0C"),
+    "secret_cache": ("#2A2236", "#3E3352", "#6A4AA8", "#B88CFF", "#1A1424"),
+    "divine_cache": ("#E8DCC0", "#FFF4D8", "#C9962E", "#FFE27A", "#FFFFFF"),
+}
+
+
+def _cache_face(name, face):
+    wood, wood_l, iron, iron_l, acc = (hexrgb(v) for v in CACHE_STYLE[name])
+    c = Canvas(16, 16)
+    for y in range(16):
+        for x in range(16):
+            plank = (y // 4) % 2
+            col = wood_l if (x * 3 + y * 7 + plank) % 9 == 0 else wood
+            if y % 4 == 0:
+                col = shade(wood, 0.8)
+            c.set(x, y, col)
+    for x in range(16):
+        c.set(x, 0, iron)
+        c.set(x, 15, iron)
+    for y in range(16):
+        c.set(0, y, iron)
+        c.set(15, y, iron)
+    if face == "top":
+        for x in range(16):
+            c.set(x, 7, iron)
+            c.set(x, 8, iron_l if x % 3 == 0 else iron)
+    else:
+        for x in range(16):
+            c.set(x, 5, iron)
+        for (x, y) in [(1, 1), (14, 1), (1, 14), (14, 14)]:
+            c.set(x, y, iron_l)
+    if face == "front":
+        for y in range(4, 9):
+            for x in range(6, 10):
+                c.set(x, y, iron_l if (x in (6, 9) or y in (4, 8)) else iron)
+        c.set(7, 6, acc)
+        c.set(8, 6, acc)
+        c.set(7, 7, acc)
+        if name == "locked_cache":
+            c.set(8, 7, acc)
+            c.set(7, 8, hexrgb("#000000"))
+    if name in ("secret_cache", "divine_cache"):
+        glow = iron_l
+        for i in range(2, 14, 4):
+            c.set(i, 11, glow)
+            c.set(i + 1, 12, glow)
+    return c
+
+
+for _n in CACHE_STYLE:
+    for _f in ("front", "side", "top"):
+        OUT[f"block/{_n}_{_f}.png"] = (lambda n=_n, f=_f: _cache_face(n, f))
+
+
+@texture("item/cache_key.png")
+def cache_key():
+    c = Canvas(16, 16)
+    gold, gold_l, gold_d = hexrgb("#C9962E"), hexrgb("#F2D27A"), hexrgb("#7A5418")
+    for (x, y) in [(3, 3), (4, 3), (5, 3), (3, 4), (5, 4), (3, 5), (4, 5), (5, 5), (2, 4), (6, 4), (4, 2), (4, 6)]:
+        c.set(x, y, gold_l if (x + y) % 2 else gold)
+    c.set(4, 4, hexrgb("#9B6CFF"))
+    for i in range(6, 13):
+        c.set(i, i, gold)
+        c.set(i + 1, i, gold_d)
+    for (x, y) in [(10, 12), (11, 13), (12, 10), (13, 11)]:
+        c.set(x, y, gold)
+    return c
+
+
 def main():
     preview = None
     if "--preview" in sys.argv:

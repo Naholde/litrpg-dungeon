@@ -44,7 +44,7 @@ public record MobsBalance(double gapPlayerDamage, double gapMinDamage, double ga
     ).apply(i, MobsBalance::new));
 
     public static MobsBalance defaults() {
-        return new MobsBalance(0.06, 0.4, 0.09, 0.035, 10, 12, Bestiary.defaultValues());
+        return new MobsBalance(0.06, 0.4, 0.09, 0.035, 10, 10, Bestiary.defaultValues());
     }
 
     public double value(String species, String key, double def) {
