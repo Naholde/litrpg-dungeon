@@ -79,7 +79,7 @@ public final class TankSkills {
         public Bulwark() {
             super("tank.bulwark", "Стойкость", 0x8FB8E8, "▣", 20, 0);
             seconds("duration", 5);
-            percent("reduce", 0.35);
+            percent("reduce", 0.525);
         }
 
         @Override

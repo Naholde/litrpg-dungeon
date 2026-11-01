@@ -31,8 +31,8 @@ public final class WarlockSkills {
             super("warlock.curse", "Проклятие слабости", 0x8B5CFF, "⊗", 14, 0);
             blocks("range", 22);
             seconds("duration", 12);
-            percent("weaken", 0.3);
-            percent("extra", 0.22);
+            percent("weaken", 0.45);
+            percent("extra", 0.33);
         }
 
         @Override
@@ -102,7 +102,7 @@ public final class WarlockSkills {
         public Pact() {
             super("warlock.pact", "Пакт", 0xB0001A, "⚯", 20, 0);
             percent("price", 0.2);
-            percent("power", 0.35);
+            percent("power", 0.525);
             seconds("duration", 10);
             count("pact", 40);
         }
@@ -125,7 +125,7 @@ public final class WarlockSkills {
             if (price > 0) ctx.caster.setHealth(hp - price);
             ctx.gain(ctx.v("pact"));
             ctx.status(ctx.caster, StatusType.DAMAGE_DEALT, 1 + ctx.v("power"), "duration");
-            Fx.pillar(ctx.level, ctx.caster.position(), 1.0f, 3.5f, ctx.ticks("duration"), 0xB0001A);
+            Fx.pillarOn(ctx.level, ctx.caster, 1.0f, 3.5f, ctx.ticks("duration"), 0xB0001A);
             ctx.sound(SoundEvents.WITHER_SPAWN, 0.5f, 1.6f);
         }
     }
@@ -220,7 +220,7 @@ public final class WarlockSkills {
     /** Жертвенный приговор: половина своей жизни — в один удар. */
     public static final class Sacrifice extends Skill {
         public Sacrifice() {
-            super("warlock.sacrifice", "Жертвенный приговор", 0x4A0A4A, "✹", 100, 0);
+            super("warlock.sacrifice", "Жертвенный приговор", 0x4A0A4A, "✹", 80, 0);
             blocks("range", 20);
             count("cost", 40);
             percent("price", 0.5);

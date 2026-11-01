@@ -363,6 +363,12 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             lastPlayerSeen = now;
         }
         if (position().distanceToSqr(home) > (arenaRadius + 6) * (arenaRadius + 6)) teleportTo(home.x, home.y, home.z);
+        // Цель потеряна (исчезновение, невидимость, приманка разбита), а на арене кто-то есть — хранитель
+        // не стоит столбом: снова «видит» всех видимых на арене, и таблица угрозы выбирает, кого бить.
+        if (getTarget() == null && now % 10 == 0 && !players.isEmpty()) {
+            for (ServerPlayer p : players) ThreatService.add(this, p, 1);
+            ThreatService.tick(this);
+        }
         updateEnrage(now);
         tickPools(now);
         updatePhase();

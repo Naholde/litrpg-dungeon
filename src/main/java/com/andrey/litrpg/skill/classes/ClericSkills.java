@@ -82,7 +82,7 @@ public final class ClericSkills {
             blocks("radius", 5);
             seconds("duration", 8);
             heal("heal", 0.35);
-            percent("reduce", 0.15);
+            percent("reduce", 0.225);
         }
 
         @Override
@@ -117,7 +117,7 @@ public final class ClericSkills {
     /** Чудо: вся группа рядом — большое лечение и щит. */
     public static final class Miracle extends Skill {
         public Miracle() {
-            super("cleric.miracle", "Чудо", 0xFFFFFF, "✺", 180, 0);
+            super("cleric.miracle", "Чудо", 0xFFFFFF, "✺", 144, 0);
             blocks("radius", 30);
             heal("heal", 5.0);
             shield("shield", 1.5);

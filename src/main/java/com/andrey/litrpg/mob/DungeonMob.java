@@ -61,6 +61,8 @@ public class DungeonMob extends Monster implements GeoEntity {
     private String title;
     private final List<long[]> pending = new ArrayList<>();
     private final List<Runnable> pendingRun = new ArrayList<>();
+    /** Когда можно снова ударить приманку (двойника, зеркало, помощника). */
+    private long nextDecoyHit;
 
     public DungeonMob(EntityType<? extends DungeonMob> type, Level lvl) {
         super(type, lvl);
@@ -151,7 +153,7 @@ public class DungeonMob extends Monster implements GeoEntity {
         goalSelector.addGoal(8, new RandomLookAroundGoal(this));
         targetSelector.addGoal(1, new HurtByTargetGoal(this));
         targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, 10, true, false,
-                e -> e.distanceTo(this) <= Balance.get(Balance.MOBS).aggroRadius()));
+                e -> e.distanceTo(this) <= Balance.get(Balance.MOBS).aggroRadius() && !ThreatService.hidden(e)));
     }
 
     @Override
@@ -165,6 +167,7 @@ public class DungeonMob extends Monster implements GeoEntity {
         if (home != null && tickCount % 10 == 0) leash();
         tryLeap();
         long now = level().getGameTime();
+        hitDecoy(now);
         for (int i = pending.size() - 1; i >= 0; i--) {
             if (now >= pending.get(i)[0]) {
                 pending.remove(i);
@@ -177,6 +180,31 @@ public class DungeonMob extends Monster implements GeoEntity {
                 && distanceTo(getTarget()) < 4 && tickCount % 160 == 0) {
             slam();
         }
+    }
+
+    /**
+     * Приманка — не игрок: двойник, зеркало, помощник. Ванильный ближний бой к таким целям ходит плохо
+     * (путь строится к блоку, а не к фигуре, и монстр замирает рядом), поэтому подходим и бьём сами,
+     * в том же темпе, что и обычный удар. Стрелки и чародеи бьют приманку своими снарядами как обычно.
+     */
+    private void hitDecoy(long now) {
+        LivingEntity t = getTarget();
+        MobRole role = species().role();
+        if (t == null || t instanceof Player || !t.isAlive() || role == MobRole.ARCHER || role == MobRole.CASTER
+                || role == MobRole.HEALER) return;
+        double reach = (getBbWidth() + t.getBbWidth()) * 0.5 + 1.0;
+        double dx = t.getX() - getX(), dz = t.getZ() - getZ();
+        if (dx * dx + dz * dz > reach * reach || Math.abs(t.getY() - getY()) > 2.5) {
+            if (tickCount % 10 == 0) getNavigation().moveTo(t.getX(), t.getY(), t.getZ(), 1.15);
+            return;
+        }
+        getNavigation().stop();
+        getLookControl().setLookAt(t, 30, 30);
+        if (now < nextDecoyHit) return;
+        nextDecoyHit = now + 20;
+        swing(net.minecraft.world.InteractionHand.MAIN_HAND);
+        t.invulnerableTime = 0;
+        doHurtTarget(t);
     }
 
     /** Поводок: монстра не утащить через полкарты — возвращается на место с полным здоровьем. */
@@ -224,7 +252,7 @@ public class DungeonMob extends Monster implements GeoEntity {
     public void setTarget(LivingEntity target) {
         LivingEntity before = getTarget();
         super.setTarget(target);
-        if (!level().isClientSide && before == null && target instanceof ServerPlayer p) {
+        if (!level().isClientSide && before == null && target instanceof ServerPlayer p && getTarget() == p) {
             MobsBalance mb = Balance.get(Balance.MOBS);
             // В прохождении стая — это отряд из схемы (соседний отряд в том же зале не бросается следом);
             // вне прохождения — все сородичи в радиусе стаи.

@@ -118,6 +118,43 @@ public final class SkillTests {
         h.succeed();
     }
 
+    /**
+     * Палач под «Эшафотом»: «Тяжёлый замах» не уходит в перезарядку, но очередью замахов не выйдет —
+     * пока читается один, второй не начать, а повторное нажатие лишь отменяет чтение.
+     */
+    @GameTest(template = "arena", timeoutTicks = 300)
+    public static void headsmanScaffoldSwingHasNoCooldownButNoSpam(GameTestHelper h) {
+        ServerPlayer x = player(h, Role.DAMAGE, 44, 8.0);
+        PlayerService.setClass(x, ClassRegistry.HEADSMAN.id());
+        // Манекен на блок выше обычного: на этой площадке нижний ряд — пол, и прицел в него упирается.
+        TrainingDummy d = h.spawn(ModEntities.TRAINING_DUMMY.get(), new BlockPos(6, 2, 4));
+        var kit = ClassRegistry.loadout(Role.DAMAGE, "headsman", 44);
+        int swing = kit.indexOf(SkillRegistry.HEADSMAN_SWING), scaffold = kit.indexOf(SkillRegistry.HEADSMAN_SCAFFOLD);
+        h.runAfterDelay(1, () -> {
+            x.teleportTo(d.getX() + 1.6, d.getY(), d.getZ());
+            aim(x, d);
+            h.assertTrue(SkillService.use(x, scaffold), "эшафот");
+            h.runAfterDelay(22, () -> {
+                aim(x, d);
+                h.assertTrue(SkillService.use(x, swing), "замах начат");
+                for (int i = 0; i < 100; i++) SkillService.use(x, swing == 0 ? 1 : 0); // другие навыки — «идёт чтение»
+                h.assertTrue(SkillService.state(x).casting() != null, "замах читается, остальное не началось");
+                float before = d.getHealth();
+                h.runAfterDelay(34, () -> {
+                    SkillService.tick(x); // у тестового игрока нет игрового тика — двигаем чтение вручную
+                    h.assertTrue(d.getHealth() < before, "замах ударил");
+                    long now = x.level().getGameTime();
+                    h.assertTrue(SkillService.state(x).readyAt(SkillRegistry.HEADSMAN_SWING.id) <= now,
+                            "под эшафотом замах сразу готов");
+                    float after = d.getHealth();
+                    for (int i = 0; i < 100; i++) SkillService.use(x, swing);
+                    h.assertTrue(d.getHealth() == after, "сто нажатий не дали ни одного мгновенного удара");
+                    h.succeed();
+                });
+            });
+        });
+    }
+
     /** «Под прикрытие»: доля урона по союзнику уходит стражнику. */
     @GameTest(template = "arena", timeoutTicks = 200)
     public static void guardianCoverRedirectsDamage(GameTestHelper h) {

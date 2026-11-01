@@ -83,7 +83,7 @@ public final class ReaperSkills {
             blocks("range", 20);
             seconds("duration", 15);
             count("souls", 25);
-            percent("extra", 0.2);
+            percent("extra", 0.3);
         }
 
         @Override
@@ -144,7 +144,7 @@ public final class ReaperSkills {
             super("reaper.ferryman", "Проводник", 0xBFE8FF, "≫", 35, 0);
             count("cost", 25);
             seconds("duration", 8);
-            percent("speed", 0.35);
+            percent("speed", 0.875);
         }
 
         @Override
@@ -175,7 +175,7 @@ public final class ReaperSkills {
     /** Приговор: через несколько секунд врагу возвращается доля всего, что он получил. */
     public static final class Sentence extends Skill {
         public Sentence() {
-            super("reaper.sentence", "Приговор", 0x2A2A3A, "⌛", 80, 0);
+            super("reaper.sentence", "Приговор", 0x2A2A3A, "⌛", 64, 0);
             blocks("range", 20);
             seconds("duration", 5);
             percent("share", 0.5);

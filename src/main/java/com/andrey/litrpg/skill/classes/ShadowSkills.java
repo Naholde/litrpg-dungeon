@@ -97,7 +97,7 @@ public final class ShadowSkills {
         public Cloak() {
             super("shadow.cloak", "Покров", 0x4A3A6B, "◖", 28, 0);
             seconds("duration", 5);
-            percent("ambush", 0.8);
+            percent("ambush", 1.2);
             seconds("ambush_time", 3);
         }
 
@@ -128,7 +128,7 @@ public final class ShadowSkills {
             blocks("range", 14);
             blocks("radius", 7);
             seconds("duration", 6);
-            percent("miss", 0.3);
+            percent("miss", 0.45);
         }
 
         @Override
@@ -172,7 +172,7 @@ public final class ShadowSkills {
             blocks("range", 4);
             damage("damage", 2.4);
             seconds("duration", 8);
-            percent("extra", 0.25);
+            percent("extra", 0.375);
         }
 
         @Override
@@ -198,7 +198,7 @@ public final class ShadowSkills {
     /** Перерезать: добить раненого — и если получилось, навык сразу готов снова. */
     public static final class Cut extends Skill {
         public Cut() {
-            super("shadow.cut", "Перерезать", 0x8B0000, "☠", 25, 0);
+            super("shadow.cut", "Перерезать", 0x8B0000, "☠", 20, 0);
             blocks("range", 4);
             damage("damage", 2.2);
             percent("threshold", 0.3);

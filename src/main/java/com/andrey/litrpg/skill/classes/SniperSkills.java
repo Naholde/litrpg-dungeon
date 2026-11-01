@@ -60,7 +60,7 @@ public final class SniperSkills {
             super("sniper.breath", "Задержать дыхание", 0xE8F0FF, "◌", 24, 0);
             count("cost", 40);
             seconds("duration", 4);
-            percent("power", 0.8);
+            percent("power", 1.2);
         }
 
         @Override
@@ -88,7 +88,7 @@ public final class SniperSkills {
             super("sniper.mark", "Метка", 0xFFD27A, "⌖", 12, 0);
             blocks("range", 45);
             seconds("duration", 20);
-            percent("extra", 0.25);
+            percent("extra", 0.375);
         }
 
         @Override
@@ -191,7 +191,7 @@ public final class SniperSkills {
     /** Контрольный: по отмеченному — самый сильный выстрел, метка тратится. */
     public static final class Finisher extends Skill {
         public Finisher() {
-            super("sniper.finisher", "Контрольный", 0x8B0000, "✹", 45, 0);
+            super("sniper.finisher", "Контрольный", 0x8B0000, "✹", 36, 0);
             blocks("range", 50);
             damage("damage", 4.5);
             percent("marked", 1.0);

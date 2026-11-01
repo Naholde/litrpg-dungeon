@@ -216,7 +216,7 @@ public final class CryomancerSkills {
     /** Абсолютный ноль: всё в радиусе сковано разом. */
     public static final class AbsoluteZero extends Skill {
         public AbsoluteZero() {
-            super("cryo.zero", "Абсолютный ноль", 0xFFFFFF, "⬣", 120, 0);
+            super("cryo.zero", "Абсолютный ноль", 0xFFFFFF, "⬣", 96, 0);
             blocks("radius", 9);
             damage("damage", 1.8);
             seconds("duration", 3);

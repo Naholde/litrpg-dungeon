@@ -107,7 +107,8 @@ public final class StatusService {
         long now = now(e);
         StatusList l = list(e);
         boolean stopped = l.has(StatusType.STUN, now) || l.has(StatusType.ROOT, now) || l.has(StatusType.FROZEN, now);
-        double speed = stopped ? -1 : Math.max(-0.9, l.sum(StatusType.SPEED, now) - l.sum(StatusType.SLOW, now));
+        // Ускорения складываются, но не дальше ×2.5 от обычного шага — иначе отряд улетает из-под разметки.
+        double speed = stopped ? -1 : Math.max(-0.9, Math.min(1.5, l.sum(StatusType.SPEED, now)) - l.sum(StatusType.SLOW, now));
         set(e.getAttribute(Attributes.MOVEMENT_SPEED), MOVE, speed);
         set(e.getAttribute(Attributes.JUMP_STRENGTH), JUMP, stopped ? -1 : 0);
     }

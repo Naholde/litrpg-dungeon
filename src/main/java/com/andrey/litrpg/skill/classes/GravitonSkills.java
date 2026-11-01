@@ -72,7 +72,7 @@ public final class GravitonSkills {
             blocks("range", 14);
             blocks("radius", 6);
             seconds("duration", 8);
-            percent("extra", 0.25);
+            percent("extra", 0.375);
             percent("slow", 0.35);
         }
 
@@ -203,7 +203,7 @@ public final class GravitonSkills {
      */
     public static final class BlackHole extends Skill {
         public BlackHole() {
-            super("graviton.blackhole", "Чёрная дыра", 0x3A2A9B, "✹", 150, 0);
+            super("graviton.blackhole", "Чёрная дыра", 0x3A2A9B, "✹", 120, 0);
             blocks("range", 14);
             blocks("radius", 9);
             seconds("duration", 4);

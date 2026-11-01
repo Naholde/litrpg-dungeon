@@ -60,6 +60,7 @@ public class ClassProp extends Mob implements GeoEntity {
                                   double hp, double radius, int durationTicks) {
         ClassProp p = type.create(level);
         if (p == null) throw new IllegalStateException("не создался объект класса " + type);
+        if (!floats(type)) at = ground(level, at);
         p.moveTo(at.x, at.y, at.z, owner.getYRot(), 0);
         p.owner = owner.getUUID();
         p.until = level.getGameTime() + durationTicks;
@@ -69,6 +70,29 @@ public class ClassProp extends Mob implements GeoEntity {
         p.ring();
         level.playSound(null, p.blockPosition(), SoundEvents.WOOD_PLACE, SoundSource.PLAYERS, 0.8f, 1.2f);
         return p;
+    }
+
+    /** Висят в воздухе нарочно: светило и разлом. Остальные объекты стоят на полу. */
+    private static boolean floats(EntityType<?> type) {
+        String id = BuiltInRegistries.ENTITY_TYPE.getKey(type).getPath();
+        return id.equals(PropKind.STAR.id()) || id.equals(PropKind.VOID_RIFT.id());
+    }
+
+    /**
+     * Поставить на пол: объект без тяжести, поставленный в прыжке или в точку над полом, иначе висит
+     * в воздухе — и монстры не могут к нему подойти, чтобы ударить.
+     */
+    static Vec3 ground(ServerLevel level, Vec3 at) {
+        net.minecraft.core.BlockPos.MutableBlockPos m = net.minecraft.core.BlockPos.containing(at).mutable();
+        for (int i = 0; i < 6; i++) {
+            var shape = level.getBlockState(m).getCollisionShape(level, m);
+            if (!shape.isEmpty()) {
+                double top = m.getY() + shape.max(net.minecraft.core.Direction.Axis.Y);
+                return top <= at.y + 0.6 ? new Vec3(at.x, top, at.z) : at;
+            }
+            m.move(0, -1, 0);
+        }
+        return at;
     }
 
     public ClassProp onPulse(int intervalTicks, Consumer<ClassProp> action) {
@@ -194,7 +218,20 @@ public class ClassProp extends Mob implements GeoEntity {
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "main", 0,
                 state -> state.setAndContinue(RawAnimation.begin().thenLoop("animation."
-                        + BuiltInRegistries.ENTITY_TYPE.getKey(getType()).getPath() + ".idle"))));
+                        + BuiltInRegistries.ENTITY_TYPE.getKey(getType()).getPath() + ".idle")))
+                .triggerableAnim("attack", RawAnimation.begin().thenPlay("animation."
+                        + BuiltInRegistries.ENTITY_TYPE.getKey(getType()).getPath() + ".attack")));
+    }
+
+    /** Двойник бьёт: разворачивается к цели и замахивается (движение есть у моделей двойников). */
+    public void strikeAt(LivingEntity target) {
+        Vec3 d = target.position().subtract(position());
+        float yaw = (float) (Math.toDegrees(Math.atan2(d.z, d.x)) - 90);
+        setYRot(yaw);
+        setYHeadRot(yaw);
+        setYBodyRot(yaw);
+        yRotO = yaw;
+        triggerAnim("main", "attack");
     }
 
     @Override

@@ -213,7 +213,7 @@ public final class HarpoonerSkills {
     /** Тяга бездны: всех врагов в радиусе собирает в одну точку. */
     public static final class AbyssPull extends Skill {
         public AbyssPull() {
-            super("harpoon.abyss", "Тяга бездны", 0x3A4A6B, "✺", 75, 0);
+            super("harpoon.abyss", "Тяга бездны", 0x3A4A6B, "✺", 60, 0);
             blocks("range", 16);
             blocks("radius", 10);
             seconds("duration", 3);

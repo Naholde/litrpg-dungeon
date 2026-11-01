@@ -189,7 +189,7 @@ public final class BastionSkills {
             super("bastion.permafrost", "Вечная мерзлота", 0x7FB8FF, "✶", 50, 0);
             blocks("radius", 8);
             seconds("duration", 8);
-            percent("weaken", 0.25);
+            percent("weaken", 0.375);
         }
 
         @Override
@@ -225,7 +225,7 @@ public final class BastionSkills {
     /** Ледяная гробница: неуязвим и неподвижен, всех рядом держит. */
     public static final class Tomb extends Skill {
         public Tomb() {
-            super("bastion.tomb", "Ледяная гробница", 0xFFFFFF, "⬣", 130, 0);
+            super("bastion.tomb", "Ледяная гробница", 0xFFFFFF, "⬣", 104, 0);
             blocks("radius", 7);
             seconds("duration", 6);
             damage("burst", 1.8);

@@ -1374,6 +1374,15 @@ def _ghost_double(mat, glow):
     anims = {"idle": loop(2.6, {"body": {"position": kf([(0, [0, 0, 0]), (1.3, [0, 0.4, 0]), (2.6, [0, 0, 0])])},
                                 "head": {"rotation": kf([(0, [0, -6, 0]), (1.3, [0, 6, 0]), (2.6, [0, -6, 0])])}}),
              "walk": loop(2.6, {}),
+             # Удар двойника: широкий замах правой с разворотом корпуса и выпадом — видно издалека,
+             # что «Отражённый удар» повторил именно он.
+             "attack": once(0.5, {
+                 "right_arm": {"rotation": kf([(0, [0, 0, 0]), (0.15, [-150, 20, 30]), (0.28, [20, -10, -10]),
+                                               (0.5, [0, 0, 0])])},
+                 "left_arm": {"rotation": kf([(0, [0, 0, 0]), (0.15, [-30, 0, -25]), (0.5, [0, 0, 0])])},
+                 "body": {"rotation": kf([(0, [0, 0, 0]), (0.15, [-8, 25, 0]), (0.28, [12, -20, 0]), (0.5, [0, 0, 0])]),
+                          "position": kf([(0, [0, 0, 0]), (0.28, [0, -0.6, -2]), (0.5, [0, 0, 0])])},
+                 "legs": {"position": kf([(0, [0, 0, 0]), (0.28, [0, 0, -1.2]), (0.5, [0, 0, 0])])}}),
              "death": {"animation_length": 0.4, "hold_on_last_frame": True,
                        "bones": {"root": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
     return bones, anims
@@ -1412,10 +1421,73 @@ def minion_wolf():
 
 
 def minion_golem():
-    return humanoid({"head": "bone", "body": "bone_dark", "arm": "bone_dark", "leg": "bone_dark", "eyes": "soul",
-                     "arm_len": 14, "extras": [("body", Cube([-5, 22, -3], [10, 4, 6], "bone")),
-                                               ("right_arm", Cube([-8, 10, -2.5], [5, 4, 5], "bone")),
-                                               ("left_arm", Cube([3, 10, -2.5], [5, 4, 5], "bone"))]})
+    """Костяной голем: не скелет покрупнее, а глыба — сутулый, с бочкой рёбер и горящей душой внутри,
+    руки до колен с кулаками из сросшихся черепов, короткие толстые ноги. Ростом ~3 блока (модель ×1.35)."""
+    z = [0, 0, 0]
+    bones = [
+        Bone("root", z),
+        Bone("right_leg", [-4, 12, 0], "root", [Cube([-8, 0, -3.5], [7, 12, 7], "bone_dark"),
+                                                Cube([-8.5, 0, -4.5], [8, 3, 8], "bone"),
+                                                Cube([-7.5, 7, -4], [6, 3, 1], "bone")]),
+        Bone("left_leg", [4, 12, 0], "root", [Cube([1, 0, -3.5], [7, 12, 7], "bone_dark"),
+                                              Cube([0.5, 0, -4.5], [8, 3, 8], "bone"),
+                                              Cube([1.5, 7, -4], [6, 3, 1], "bone")]),
+        Bone("body", [0, 12, 0], "root", [
+            Cube([-8, 12, -5], [16, 8, 10], "bone_dark"),              # таз и живот
+            Cube([-10, 20, -6], [20, 12, 12], "bone_dark"),            # грудная бочка
+            Cube([-9, 21, -6.6], [18, 2, 1], "bone"),                  # рёбра спереди
+            Cube([-9, 24.5, -6.6], [18, 2, 1], "bone"),
+            Cube([-9, 28, -6.6], [18, 2, 1], "bone"),
+            Cube([-3, 22, -6.3], [6, 7, 1], "soul"),                   # душа за рёбрами
+            Cube([-11, 30, -4], [22, 4, 8], "bone"),                   # плечевой пояс
+            Cube([-2, 26, 6], [4, 10, 2], "bone"),                     # хребет-гребень
+            Cube([-1.5, 34, 4], [3, 3, 3], "bone"),
+        ], rotation=[12, 0, 0]),
+        Bone("head", [0, 33, -3], "body", [Cube([-4, 31, -9], [8, 7, 7], "bone"),
+                                           Cube([-4.5, 30, -9.5], [9, 3, 4], "bone_dark"),   # нижняя челюсть
+                                           Cube([-3, 34, -9.3], [2, 2, 1], "soul"),
+                                           Cube([1, 34, -9.3], [2, 2, 1], "soul"),
+                                           Cube([-5, 37, -6], [2, 4, 2], "bone"),            # рога
+                                           Cube([3, 37, -6], [2, 4, 2], "bone")]),
+        Bone("right_arm", [-12, 31, 0], "body", [Cube([-17, 18, -3.5], [7, 14, 7], "bone_dark"),
+                                                 Cube([-18, 28, -4.5], [9, 5, 9], "bone"),     # наплечник
+                                                 Cube([-17.5, 4, -4.5], [8, 14, 9], "bone_dark"),
+                                                 Cube([-18.5, 1, -5.5], [10, 7, 11], "bone"),  # кулак
+                                                 Cube([-17, 3, -6], [2, 2, 1], "soul")]),
+        Bone("left_arm", [12, 31, 0], "body", [Cube([10, 18, -3.5], [7, 14, 7], "bone_dark"),
+                                               Cube([9, 28, -4.5], [9, 5, 9], "bone"),
+                                               Cube([9.5, 4, -4.5], [8, 14, 9], "bone_dark"),
+                                               Cube([8.5, 1, -5.5], [10, 7, 11], "bone"),
+                                               Cube([15, 3, -6], [2, 2, 1], "soul")]),
+    ]
+    anims = {
+        "idle": loop(3.2, {
+            "body": {"rotation": kf([(0, [12, 0, 0]), (1.6, [15, 0, 0]), (3.2, [12, 0, 0])]),
+                     "position": kf([(0, z), (1.6, [0, -0.6, 0]), (3.2, z)])},
+            "head": {"rotation": kf([(0, z), (1.6, [4, 10, 0]), (3.2, z)])},
+            "right_arm": {"rotation": kf([(0, [0, 0, 4]), (1.6, [-6, 0, 7]), (3.2, [0, 0, 4])])},
+            "left_arm": {"rotation": kf([(0, [0, 0, -4]), (1.6, [-6, 0, -7]), (3.2, [0, 0, -4])])}}),
+        "walk": loop(1.4, {
+            "right_leg": {"rotation": kf([(0, [24, 0, 0]), (0.7, [-24, 0, 0]), (1.4, [24, 0, 0])])},
+            "left_leg": {"rotation": kf([(0, [-24, 0, 0]), (0.7, [24, 0, 0]), (1.4, [-24, 0, 0])])},
+            "right_arm": {"rotation": kf([(0, [-18, 0, 6]), (0.7, [18, 0, 6]), (1.4, [-18, 0, 6])])},
+            "left_arm": {"rotation": kf([(0, [18, 0, -6]), (0.7, [-18, 0, -6]), (1.4, [18, 0, -6])])},
+            "body": {"rotation": kf([(0, [12, 0, -4]), (0.7, [12, 0, 4]), (1.4, [12, 0, -4])]),
+                     "position": kf([(0, z), (0.35, [0, -1, 0]), (0.7, z), (1.05, [0, -1, 0]), (1.4, z)])}}),
+        # Удар двумя кулаками сверху вниз — тяжело и с паузой наверху.
+        "attack": once(0.9, {
+            "right_arm": {"rotation": kf([(0, z), (0.4, [-170, 0, -10]), (0.55, [-170, 0, -10]), (0.7, [-20, 0, 0]),
+                                          (0.9, z)])},
+            "left_arm": {"rotation": kf([(0, z), (0.4, [-170, 0, 10]), (0.55, [-170, 0, 10]), (0.7, [-20, 0, 0]),
+                                         (0.9, z)])},
+            "body": {"rotation": kf([(0, [12, 0, 0]), (0.4, [-12, 0, 0]), (0.7, [32, 0, 0]), (0.9, [12, 0, 0])])},
+            "head": {"rotation": kf([(0, z), (0.4, [-20, 0, 0]), (0.7, [10, 0, 0]), (0.9, z)])}}),
+        "death": {"animation_length": 1.4, "hold_on_last_frame": True, "bones": {
+            "root": {"rotation": kf([(0, z), (0.6, [0, 0, 0]), (1.4, [0, 0, 0])]),
+                     "scale": kf([(0, [1, 1, 1]), (0.6, [1, 0.9, 1]), (1.4, [1.1, 0.05, 1.1])])},
+            "head": {"rotation": kf([(0, z), (0.6, [30, 0, 0])])}}},
+    }
+    return bones, anims
 
 
 MODELS.update({"totem_heal": totem_heal, "totem_storm": totem_storm, "totem_earth": totem_earth,
@@ -1469,6 +1541,10 @@ def mob_anims(name, bones, anims):
                                                    "scale": kf([(0, [1, 1, 1]), (0.08, [0.92, 1.05, 0.92]), (0.3, [1, 1, 1])])}}))
 
 
+# Крупным моделям не хватает развёртки 128×128.
+BIG_TEX = {"minion_golem"}
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None
@@ -1479,7 +1555,8 @@ def main():
         boss_anims.add(name, anims)
         if name in MOBS:
             mob_anims(name, bones, anims)
-        geo, anim, tex, glow = build(name, bones, anims, tex_w=128, tex_h=64 if name == "power_node" else 128)
+        geo, anim, tex, glow = build(name, bones, anims, tex_w=128,
+                                     tex_h=64 if name == "power_node" else 256 if name in BIG_TEX else 128)
         (ASSETS / "geo/entity").mkdir(parents=True, exist_ok=True)
         (ASSETS / "animations/entity").mkdir(parents=True, exist_ok=True)
         (ASSETS / f"geo/entity/{name}.geo.json").write_text(json.dumps(geo, indent=1), encoding="utf-8", newline="\n")

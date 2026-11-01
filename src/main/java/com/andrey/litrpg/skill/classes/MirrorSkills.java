@@ -28,7 +28,7 @@ public final class MirrorSkills {
         public Glass() {
             super("mirror.glass", "Стекло", 0xB0E8FF, "◫", 20, 0);
             seconds("duration", 6);
-            percent("reduce", 0.4);
+            percent("reduce", 0.6);
         }
 
         @Override
@@ -131,7 +131,7 @@ public final class MirrorSkills {
             super("mirror.hall", "Зеркальный зал", 0xA6E1FF, "❖", 44, 0);
             blocks("radius", 5);
             seconds("duration", 6);
-            percent("miss", 0.35);
+            percent("miss", 0.525);
         }
 
         @Override
@@ -163,7 +163,7 @@ public final class MirrorSkills {
     /** Двойник: зеркальная копия стоит в мире, тянет врагов на себя и бьёт осколками, когда её разбивают. */
     public static final class Reflection extends Skill {
         public Reflection() {
-            super("mirror.double", "Двойник", 0xB0E8FF, "⧈", 60, 0);
+            super("mirror.double", "Двойник", 0xB0E8FF, "⧈", 48, 0);
             blocks("radius", 10);
             shield("hp", 6.0);
             seconds("duration", 12);

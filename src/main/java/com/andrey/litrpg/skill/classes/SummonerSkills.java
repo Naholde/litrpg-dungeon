@@ -90,7 +90,7 @@ public final class SummonerSkills {
             blocks("range", 25);
             blocks("search", 30);
             seconds("duration", 8);
-            percent("power", 0.4);
+            percent("power", 0.6);
         }
 
         @Override
@@ -195,7 +195,7 @@ public final class SummonerSkills {
     /** Легион: вся армия разом. */
     public static final class Legion extends Skill {
         public Legion() {
-            super("summon.legion", "Легион", 0xFFE8A6, "✺", 150, 0);
+            super("summon.legion", "Легион", 0xFFE8A6, "✺", 120, 0);
             blocks("radius", 4);
             count("cost", 40);
             shield("hp", 5.0);

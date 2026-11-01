@@ -104,8 +104,8 @@ public final class GuardianSkills {
         public Brace() {
             super("guardian.brace", "Упор", 0xB0C4DE, "◈", 18, 0);
             seconds("duration", 4);
-            percent("reduce", 0.2);
-            percent("reflect", 0.4);
+            percent("reduce", 0.3);
+            percent("reflect", 0.6);
         }
 
         @Override
@@ -134,7 +134,7 @@ public final class GuardianSkills {
             super("guardian.dome", "Купол", 0x8FE3FF, "◯", 40, 0);
             blocks("radius", 5);
             seconds("duration", 6);
-            percent("reduce", 0.25);
+            percent("reduce", 0.375);
         }
 
         @Override
@@ -175,9 +175,9 @@ public final class GuardianSkills {
     /** Несокрушимый: вдвое меньше урона, и смертельный удар оставляет 1 здоровья. */
     public static final class Unbreakable extends Skill {
         public Unbreakable() {
-            super("guardian.unbreakable", "Несокрушимый", 0xFFE27A, "✠", 120, 0);
+            super("guardian.unbreakable", "Несокрушимый", 0xFFE27A, "✠", 96, 0);
             seconds("duration", 8);
-            percent("reduce", 0.5);
+            percent("reduce", 0.75);
         }
 
         @Override
@@ -195,7 +195,7 @@ public final class GuardianSkills {
         public void execute(SkillContext ctx) {
             ctx.status(ctx.caster, StatusType.DAMAGE_TAKEN, 1 - Math.min(0.9, ctx.v("reduce")), "duration");
             ctx.status(ctx.caster, StatusType.WARD, 1, "duration");
-            Fx.pillar(ctx.level, ctx.caster.position(), 1.0f, 4, ctx.ticks("duration"), 0xFFE27A);
+            Fx.pillarOn(ctx.level, ctx.caster, 1.0f, 4, ctx.ticks("duration"), 0xFFE27A);
             Fx.domeOn(ctx.level, ctx.caster, 1.3f, ctx.ticks("duration"), 0xFFE27A);
             ctx.level.playSound(null, ctx.caster.blockPosition(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 0.8f, 1.2f);
         }

@@ -95,8 +95,8 @@ public final class ChronologSkills {
             super("chrono.haste", "Ускорить", 0xB8F5E0, "≫", 20, 0);
             blocks("radius", 10);
             seconds("duration", 6);
-            percent("speed", 0.25);
-            percent("haste", 0.2);
+            percent("speed", 0.625);
+            percent("haste", 0.3);
         }
 
         @Override
@@ -188,7 +188,7 @@ public final class ChronologSkills {
             blocks("radius", 6);
             seconds("duration", 8);
             percent("slow", 0.45);
-            percent("haste", 0.25);
+            percent("haste", 0.375);
         }
 
         @Override
@@ -227,7 +227,7 @@ public final class ChronologSkills {
     /** Перемотка: группе возвращается часть того, что она потеряла за последние секунды. */
     public static final class Replay extends Skill {
         public Replay() {
-            super("chrono.replay", "Перемотка", 0xFFFFFF, "⟲", 150, 0);
+            super("chrono.replay", "Перемотка", 0xFFFFFF, "⟲", 120, 0);
             blocks("radius", 25);
             seconds("back", 4);
             percent("share", 0.7);

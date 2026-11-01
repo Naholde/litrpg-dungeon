@@ -82,6 +82,12 @@ public final class Fx {
         send(l, base, of(FxPayload.Shape.PILLAR, base, base, radius, 0, 0, height, duration, color, false, -1, -1, ""));
     }
 
+    /** Столб, который держится на сущности (самоусиление идёт вместе с игроком, знамя — со знаменем). */
+    public static void pillarOn(ServerLevel l, Entity e, float radius, float height, int duration, int color) {
+        send(l, e.position(), of(FxPayload.Shape.PILLAR, e.position(), e.position(), radius, 0, 0, height, duration, color,
+                false, e.getId(), -1, ""));
+    }
+
     public static void burst(ServerLevel l, Vec3 center, float radius, int duration, int color) {
         send(l, center, of(FxPayload.Shape.BURST, center, center, radius, 0, 0, 0, duration, color, false, -1, -1, ""));
     }

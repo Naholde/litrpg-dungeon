@@ -218,7 +218,7 @@ public final class PyromancerSkills {
     /** Пекло: тем сильнее, чем больше врагов уже горит; на полном жаре пиромант горит сам. */
     public static final class Inferno extends Skill {
         public Inferno() {
-            super("pyro.inferno", "Пекло", 0xFFD27A, "✹", 110, 0);
+            super("pyro.inferno", "Пекло", 0xFFD27A, "✹", 88, 0);
             blocks("radius", 10);
             damage("damage", 2.0);
             percent("per_burning", 0.35);
@@ -255,7 +255,7 @@ public final class PyromancerSkills {
                         if (ctx.caster.isAlive()) ctx.caster.setHealth((float) Math.max(1, ctx.caster.getHealth() - tick));
                     });
                 }
-                Fx.pillar(ctx.level, ctx.caster.position(), 1.2f, 4f, ctx.ticks("duration"), 0xFF4A2E);
+                Fx.pillarOn(ctx.level, ctx.caster, 1.2f, 4f, ctx.ticks("duration"), 0xFF4A2E);
             }
             Fx.ring(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 16, 0xFFD27A);
             Fx.wave(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 2.6f, 18, 0xFF4A2E);

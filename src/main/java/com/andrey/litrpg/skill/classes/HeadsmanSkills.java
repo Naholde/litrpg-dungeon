@@ -44,7 +44,8 @@ public final class HeadsmanSkills {
         @Override
         public String template() {
             return "Замах {cast}, который невозможно сбить — ни оглушением, ни движением: {damage} урона цели "
-                    + "и всем рядом с ней в {radius}. На «Плахе» бьёт на {block_bonus} больше.";
+                    + "и всем рядом с ней в {radius}. На «Плахе» бьёт на {block_bonus} больше. "
+                    + "Пока стоит «Эшафот», замах без перезарядки — только сам замах и общая перезарядка.";
         }
 
         @Override
@@ -59,6 +60,9 @@ public final class HeadsmanSkills {
             Fx.burst(ctx.level, ctx.target.position().add(0, 1, 0), (float) ctx.v("radius"), 10,
                     onBlock ? 0xFF4A2E : 0x8B2A2A);
             ctx.soundAt(ctx.target.position(), SoundEvents.ANVIL_LAND, 1f, 0.6f);
+            // «Эшафот»: замах сразу снова готов. Чаще одного раза в {cast} всё равно не выйдет — новый замах
+            // не начать, пока читается прежний, а между ними ещё общая перезарядка.
+            if (StatusService.magnitudeFrom(ctx.caster, StatusType.STEADFAST, ctx.caster.getUUID()) > 0) ctx.readyNow();
         }
     }
 
@@ -196,9 +200,9 @@ public final class HeadsmanSkills {
     /** Эшафот: палача не сбить с ног и не замедлить. */
     public static final class Scaffold extends Skill {
         public Scaffold() {
-            super("headsman.scaffold", "Эшафот", 0x8B6B2A, "⌸", 90, 0);
+            super("headsman.scaffold", "Эшафот", 0x8B6B2A, "⌸", 72, 0);
             seconds("duration", 10);
-            percent("reduce", 0.25);
+            percent("reduce", 0.375);
         }
 
         @Override
@@ -209,7 +213,7 @@ public final class HeadsmanSkills {
         @Override
         public String template() {
             return "{duration}: палача нельзя ни оглушить, ни обездвижить, ни замедлить, и урон по нему меньше "
-                    + "на {reduce}. Он просто идёт и рубит.";
+                    + "на {reduce}, а «Тяжёлый замах» не уходит в перезарядку. Он просто идёт и рубит.";
         }
 
         @Override

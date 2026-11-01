@@ -13,3 +13,5 @@ src/main/resources/assets/litrpg/sounds/music/
 /gametest-log.txt
 /*.log
 /client-log.txt
+
+__pycache__/

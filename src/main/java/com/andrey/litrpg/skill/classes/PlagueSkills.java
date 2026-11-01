@@ -34,7 +34,7 @@ public final class PlagueSkills {
     /** Мор: заразить цель. */
     public static final class Plague extends Skill {
         public Plague() {
-            super("plague.plague", "Мор", 0x8FA83A, "☣", 4, 0);
+            super("plague.plague", "Мор", 0x8FA83A, "☣", 3, 0);
             blocks("range", 20);
             damage("damage", 0.7);
             damage("rot", 1.6);
@@ -65,7 +65,7 @@ public final class PlagueSkills {
     /** Распространение: зараза перескакивает с цели на соседей. */
     public static final class Spread extends Skill {
         public Spread() {
-            super("plague.spread", "Распространение", 0x6B8B2A, "⁂", 14, 0);
+            super("plague.spread", "Распространение", 0x6B8B2A, "⁂", 10, 0);
             blocks("range", 20);
             blocks("radius", 7);
             count("targets", 4);
@@ -105,7 +105,7 @@ public final class PlagueSkills {
     /** Увядание: заражённого почти нельзя лечить. */
     public static final class Wither extends Skill {
         public Wither() {
-            super("plague.wither", "Увядание", 0x4A5A2A, "⊘", 20, 0);
+            super("plague.wither", "Увядание", 0x4A5A2A, "⊘", 16, 0);
             blocks("range", 20);
             seconds("duration", 8);
             percent("heal_cut", 0.7);
@@ -135,7 +135,7 @@ public final class PlagueSkills {
     /** Рой мух: зона, которая заражает и грызёт. */
     public static final class FlySwarm extends Skill {
         public FlySwarm() {
-            super("plague.swarm", "Рой мух", 0x5A5A3A, "✻", 30, 0);
+            super("plague.swarm", "Рой мух", 0x5A5A3A, "✻", 24, 0);
             blocks("range", 16);
             blocks("radius", 6);
             seconds("duration", 10);
@@ -176,7 +176,7 @@ public final class PlagueSkills {
             blocks("range", 20);
             blocks("search", 10);
             seconds("duration", 6);
-            percent("power", 0.5);
+            percent("power", 0.75);
         }
 
         @Override
@@ -214,7 +214,7 @@ public final class PlagueSkills {
     /** Пандемия: со всех заражённых разом — по счёту их слоёв. */
     public static final class Pandemic extends Skill {
         public Pandemic() {
-            super("plague.pandemic", "Пандемия", 0x2A3A1A, "✹", 130, 0);
+            super("plague.pandemic", "Пандемия", 0x2A3A1A, "✹", 104, 0);
             blocks("radius", 14);
             param("per_stack", 0.85, com.andrey.litrpg.skill.SkillParam.Unit.DAMAGE,
                     com.andrey.litrpg.skill.SkillParam.Scale.POWER);

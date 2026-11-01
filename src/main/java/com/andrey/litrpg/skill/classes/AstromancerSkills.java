@@ -246,7 +246,7 @@ public final class AstromancerSkills {
     /** Сверхновая: все светила гаснут, каждое — взрывом. */
     public static final class Supernova extends Skill {
         public Supernova() {
-            super("astro.supernova", "Сверхновая", 0xFFF3B0, "✺", 85, 0);
+            super("astro.supernova", "Сверхновая", 0xFFF3B0, "✺", 68, 0);
             blocks("search", 40);
             blocks("radius", 7);
             damage("damage", 2.8);

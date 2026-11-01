@@ -92,7 +92,7 @@ public final class SwiftSkills {
             super("swift.pirouette", "Пируэт", 0xD6FFF5, "◐", 20, 0);
             seconds("duration", 1.5);
             seconds("speed_time", 4);
-            percent("speed", 0.3);
+            percent("speed", 0.75);
         }
 
         @Override
@@ -209,7 +209,7 @@ public final class SwiftSkills {
     /** Последний взмах: один удар, сила которого — весь накопленный разгон. */
     public static final class LastSwing extends Skill {
         public LastSwing() {
-            super("swift.last_swing", "Последний взмах", 0x3AD8B0, "✹", 60, 0);
+            super("swift.last_swing", "Последний взмах", 0x3AD8B0, "✹", 48, 0);
             blocks("range", 4);
             count("cost", 50);
             damage("damage", 2.2);

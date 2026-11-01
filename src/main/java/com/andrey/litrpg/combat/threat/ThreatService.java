@@ -33,9 +33,14 @@ public final class ThreatService {
         return mob.getData(ModAttachments.THREAT);
     }
 
+    /** Игрок невидим (покров тени): враги его не видят, не выбирают целью и не копят на него угрозу. */
+    public static boolean hidden(LivingEntity e) {
+        return e != null && e.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY);
+    }
+
     /** Угроза от урона или лечения: сырое число × множитель угрозы игрока (танк ×5). */
     public static void add(Mob mob, ServerPlayer p, double raw) {
-        if (raw <= 0 || p.isSpectator()) return;
+        if (raw <= 0 || p.isSpectator() || hidden(p)) return;
         table(mob).add(p.getUUID(), raw * PlayerService.breakdown(p).get(Derived.THREAT));
     }
 
@@ -59,8 +64,12 @@ public final class ThreatService {
 
     private static final java.util.Map<Mob, Decoy> DECOYS = new java.util.WeakHashMap<>();
 
-    /** Перевести врага на приманку: пока она цела и время не вышло, таблица угрозы молчит. */
+    /**
+     * Перевести врага на приманку: пока она цела и время не вышло, таблица угрозы молчит.
+     * Хранителя приманкой не обмануть — его бой строится вокруг танка и разметки, а увод в сторону его ломал.
+     */
     public static void decoy(Mob mob, LivingEntity decoy, int ticks) {
+        if (com.andrey.litrpg.combat.DamageService.isBoss(mob)) return;
         DECOYS.put(mob, new Decoy(decoy, mob.level().getGameTime() + ticks));
         retarget(mob, decoy);
         broadcast(mob);
@@ -91,7 +100,7 @@ public final class ThreatService {
         List<UUID> gone = new ArrayList<>();
         for (UUID id : t.view().keySet()) {
             ServerPlayer p = level.getServer().getPlayerList().getPlayer(id);
-            if (p == null || !p.isAlive() || p.isSpectator() || p.level() != level
+            if (p == null || !p.isAlive() || p.isSpectator() || p.level() != level || hidden(p)
                     || p.distanceTo(mob) > cfg.forgetRange()) gone.add(id);
         }
         gone.forEach(t::remove);
@@ -104,6 +113,7 @@ public final class ThreatService {
         ServerPlayer target = chosen == null ? null : level.getServer().getPlayerList().getPlayer(chosen);
         if (target != null && mob.getTarget() != target) retarget(mob, target);
         if (chosen == null && mob.getTarget() instanceof ServerPlayer) retarget(mob, null);
+        if (chosen == null && hidden(mob.getTarget())) retarget(mob, null);
         if (!java.util.Objects.equals(before, chosen) || mob.tickCount % 40 == 0) broadcast(mob);
     }
 
@@ -122,6 +132,13 @@ public final class ThreatService {
         LivingEntity decoy = decoyOf(mob);
         if (decoy != null) {
             if (e.getNewAboutToBeSetTarget() != decoy) e.setNewAboutToBeSetTarget(decoy);
+            return;
+        }
+        // Невидимого не замечают: ни сами, ни от удара, ни за стаей.
+        if (hidden(e.getNewAboutToBeSetTarget())) {
+            UUID cur = mob.hasData(ModAttachments.THREAT) ? table(mob).current() : null;
+            ServerPlayer other = cur == null ? null : mob.getServer().getPlayerList().getPlayer(cur);
+            e.setNewAboutToBeSetTarget(other != null && !hidden(other) ? other : null);
             return;
         }
         // Таблицу заводим только тем, кто воюет с игроками — у мирных существ её нет вовсе.

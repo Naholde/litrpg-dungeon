@@ -218,7 +218,7 @@ public final class ShadowPriestSkills {
     /** Пожирание тени: отнять у всех врагов разом и раздать группе. */
     public static final class Devour extends Skill {
         public Devour() {
-            super("priest.devour", "Пожирание тени", 0x1A0A2A, "✹", 140, 0);
+            super("priest.devour", "Пожирание тени", 0x1A0A2A, "✹", 112, 0);
             blocks("radius", 10);
             damage("damage", 2.6);
             percent("share", 0.8);

@@ -39,6 +39,48 @@ public final class MobTests {
         return m;
     }
 
+    /** Двойник-приманка: монстр, переведённый на него, подходит и бьёт его рукой (а не стоит рядом). */
+    @GameTest(template = "arena", timeoutTicks = 300)
+    public static void meleeMobHitsDecoy(GameTestHelper h) {
+        ServerPlayer p = player(h, 10, 1.5, 1.5);
+        DungeonMob m = mob(h, Bestiary.CRYPT_WARRIOR, 10, MobRank.NORMAL, 6, 6);
+        h.runAfterDelay(10, () -> {
+            // В точку на полметра над полом: двойник сам встаёт на пол, иначе к нему не подойти.
+            Vec3 at = new Vec3(m.getX() - 4, m.getY() + 0.5, m.getZ());
+            var d = com.andrey.litrpg.skill.prop.ClassProp.spawn(h.getLevel(),
+                    com.andrey.litrpg.skill.prop.ModProps.type(com.andrey.litrpg.skill.prop.PropKind.ILLUSION), at, p,
+                    500, 0, 600);
+            h.assertTrue(Math.abs(d.getY() - m.getY()) < 0.01, "двойник стоит на полу: " + d.getY() + " / " + m.getY());
+            com.andrey.litrpg.combat.threat.ThreatService.decoy(m, d, 400);
+            float hp = d.getHealth();
+            h.runAfterDelay(140, () -> {
+                h.assertTrue(m.getTarget() == d, "цель монстра — двойник: " + m.getTarget());
+                h.assertTrue(d.getHealth() < hp, "двойник получил удары: " + d.getHealth() + " из " + hp
+                        + ", до него " + m.distanceTo(d));
+                h.succeed();
+            });
+        });
+    }
+
+    /** Невидимого (покров тени) монстр забывает и снова не находит, пока тот невидим. */
+    @GameTest(template = "arena", timeoutTicks = 200)
+    public static void invisiblePlayerIsLost(GameTestHelper h) {
+        ServerPlayer p = player(h, 10, 3.5, 3.5);
+        DungeonMob m = mob(h, Bestiary.CRYPT_WARRIOR, 10, MobRank.NORMAL, 6, 6);
+        com.andrey.litrpg.combat.threat.ThreatService.add(m, p, 50);
+        com.andrey.litrpg.combat.threat.ThreatService.tick(m);
+        h.assertTrue(m.getTarget() == p, "сначала монстр бьёт игрока");
+        p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.INVISIBILITY, 200));
+        com.andrey.litrpg.combat.threat.ThreatService.forget(p, 30);
+        h.runAfterDelay(60, () -> {
+            com.andrey.litrpg.combat.threat.ThreatService.add(m, p, 50); // удар из невидимости угрозы не даёт
+            m.setTarget(p);                                            // и ИИ сам его не выбирает
+            com.andrey.litrpg.combat.threat.ThreatService.tick(m);
+            h.assertTrue(m.getTarget() == null, "невидимый не цель: " + m.getTarget());
+            h.succeed();
+        });
+    }
+
     /** Здоровье — доли «единицы» уровня × ранг; элитный крепче обычного в 2,2 раза. */
     @GameTest(template = "arena")
     public static void healthByLevelAndRank(GameTestHelper h) {

@@ -31,7 +31,7 @@ public final class RiftSkills {
     /** Разлом: трещина в мире тянет и режет. */
     public static final class Rift extends Skill {
         public Rift() {
-            super("rift.rift", "Разлом", 0x9B5CFF, "◇", 14, 0);
+            super("rift.rift", "Разлом", 0x9B5CFF, "◇", 7, 0);
             blocks("range", 16);
             blocks("radius", 5);
             shield("hp", 2.0);
@@ -102,7 +102,7 @@ public final class RiftSkills {
             blocks("leash", 5);
             seconds("duration", 4);
             damage("damage", 2.6);
-            percent("extra", 0.2);
+            percent("extra", 0.3);
         }
 
         @Override
@@ -142,7 +142,7 @@ public final class RiftSkills {
     /** Схлопывание: все разломы закрываются разом. */
     public static final class Collapse extends Skill {
         public Collapse() {
-            super("rift.collapse", "Схлопывание", 0x4A2A8B, "✸", 30, 0);
+            super("rift.collapse", "Схлопывание", 0x4A2A8B, "✸", 20, 0);
             blocks("search", 40);
             blocks("radius", 6);
             damage("damage", 2.2);
@@ -230,11 +230,11 @@ public final class RiftSkills {
     /** Изнанка: разломщик уходит в пустоту — снаряды мимо, шаг без перезарядки. */
     public static final class Inside extends Skill {
         public Inside() {
-            super("rift.inside", "Изнанка", 0xE8D6FF, "✺", 120, 0);
+            super("rift.inside", "Изнанка", 0xE8D6FF, "✺", 96, 0);
             seconds("duration", 6);
-            percent("reduce", 0.5);
-            percent("speed", 0.25);
-            percent("miss", 0.4);
+            percent("reduce", 0.75);
+            percent("speed", 0.625);
+            percent("miss", 0.6);
         }
 
         @Override

@@ -214,7 +214,7 @@ public final class MechanicSkills {
     /** Полный арсенал: всё сразу, а потом перегрев. */
     public static final class FullArsenal extends Skill {
         public FullArsenal() {
-            super("mech.arsenal", "Полный арсенал", 0xFF4A2E, "✹", 150, 0);
+            super("mech.arsenal", "Полный арсенал", 0xFF4A2E, "✹", 120, 0);
             blocks("radius", 12);
             shield("hp", 3.0);
             damage("damage", 1.2);

@@ -60,7 +60,7 @@ public record SkillsBalance(Common common, Map<String, Map<String, Double>> skil
             SKILLS.fieldOf("skills").forGetter(SkillsBalance::skills)
     ).apply(i, SkillsBalance::new));
 
-    public static final Common DEFAULT_COMMON = new Common(1.0, 8, 2.4, 0.08, 0.04, 0.06, 5, 5, 1.6);
+    public static final Common DEFAULT_COMMON = new Common(1.0, 8, 2.4, 0.08, 0.04, 0.06, 5, 3.5, 1.6);
 
     /** По умолчанию — все навыки со значениями из кода (так же выглядит и файл). */
     public static SkillsBalance defaults() {

@@ -35,7 +35,7 @@ public final class BannermanSkills {
             blocks("range", 10);
             blocks("radius", 8);
             shield("hp", 3.5);
-            percent("power", 0.15);
+            percent("power", 0.225);
             heal("heal", 0.18);
             seconds("duration", 16);
         }
@@ -74,7 +74,7 @@ public final class BannermanSkills {
             blocks("range", 10);
             blocks("radius", 8);
             shield("hp", 3.5);
-            percent("reduce", 0.15);
+            percent("reduce", 0.225);
             heal("heal", 0.18);
             seconds("duration", 16);
         }
@@ -149,8 +149,8 @@ public final class BannermanSkills {
             blocks("range", 10);
             blocks("radius", 8);
             shield("hp", 3.0);
-            percent("speed", 0.2);
-            percent("haste", 0.15);
+            percent("speed", 0.5);
+            percent("haste", 0.225);
             heal("heal", 0.18);
             seconds("duration", 16);
         }
@@ -225,7 +225,7 @@ public final class BannermanSkills {
     /** Последний бой: пока знамя стоит, никто в его радиусе не умирает. */
     public static final class LastStand extends Skill {
         public LastStand() {
-            super("banner.last_stand", "Последний бой", 0xFFFFFF, "✠", 180, 0);
+            super("banner.last_stand", "Последний бой", 0xFFFFFF, "✠", 144, 0);
             blocks("radius", 10);
             shield("hp", 8.0);
             seconds("duration", 10);
@@ -259,7 +259,7 @@ public final class BannermanSkills {
                     StatusService.removeFrom(a, StatusType.WARD, ctx.caster.getUUID());
                 }
             });
-            Fx.pillar(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 5f, ctx.ticks("duration"), 0xFFFFFF);
+            Fx.pillarOn(ctx.level, banner, (float) ctx.v("radius"), 5f, ctx.ticks("duration"), 0xFFFFFF);
             ctx.sound(SoundEvents.RAID_HORN.value(), 1.2f, 0.8f);
         }
     }

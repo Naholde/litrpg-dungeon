@@ -161,8 +161,8 @@ public final class ShamanSkills {
             blocks("range", 10);
             blocks("radius", 7);
             shield("hp", 4.0);
-            percent("reduce", 0.15);
-            percent("speed", 0.18);
+            percent("reduce", 0.225);
+            percent("speed", 0.45);
             seconds("duration", 14);
         }
 
@@ -245,9 +245,9 @@ public final class ShamanSkills {
     /** Поглотить тотемы: снять свои тотемы и отдать их силу отряду. */
     public static final class Consume extends Skill {
         public Consume() {
-            super("shaman.consume", "Поглотить тотемы", 0xFFD27A, "✹", 100, 0);
+            super("shaman.consume", "Поглотить тотемы", 0xFFD27A, "✹", 80, 0);
             blocks("radius", 30);
-            percent("power", 0.08);
+            percent("power", 0.12);
             shield("shield", 1.2);
             seconds("duration", 10);
         }

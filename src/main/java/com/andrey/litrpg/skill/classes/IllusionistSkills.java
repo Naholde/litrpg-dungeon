@@ -23,16 +23,34 @@ public final class IllusionistSkills {
     private IllusionistSkills() {
     }
 
-    /** Поставить двойника, который сам бьёт врагов рядом. */
+    /** Больше двойников сразу не держится: новый гасит самого старого. */
+    static final int MAX_DOUBLES = 5;
+    /** Сколько секунд враг, бивший иллюзиониста, бьёт появившегося рядом двойника. */
+    private static final int LURE_TICKS = 60;
+
+    /**
+     * Поставить двойника, который сам бьёт врагов рядом. Появившись, он перехватывает обычных врагов в своём
+     * радиусе, которые били иллюзиониста, — на 3 с (хранителя не обмануть).
+     */
     private static ClassProp makeDouble(SkillContext ctx, Vec3 at) {
+        List<ClassProp> mine = ctx.myProps(PropKind.ILLUSION, 128);
+        if (mine.size() >= MAX_DOUBLES) {
+            mine.stream().max(Comparator.comparingInt(p -> p.tickCount)).ifPresent(ClassProp::vanish);
+        }
         ClassProp d = ctx.prop(PropKind.ILLUSION, at, "hp", ctx.v("radius"), "duration");
         d.onPulse(20, p -> {
             LivingEntity foe = ctx.enemiesAround(p.position(), p.radius()).stream()
                     .min(Comparator.comparingDouble(e -> e.distanceToSqr(p))).orElse(null);
             if (foe == null) return;
             ctx.hit(foe, "damage");
-            Fx.slash(ctx.level, p, 2f, 60, 5, 0xD6A6FF);
+            p.strikeAt(foe);
+            Fx.arc(ctx.level, p, 2f, 120, 6, 0xD6A6FF);
         });
+        for (LivingEntity e : ctx.enemiesAround(d.position(), ctx.v("radius"))) {
+            if (e instanceof net.minecraft.world.entity.Mob m && m.getTarget() == ctx.caster) {
+                com.andrey.litrpg.combat.threat.ThreatService.decoy(m, d, LURE_TICKS);
+            }
+        }
         Fx.burst(ctx.level, at.add(0, 1, 0), 1.0f, 8, 0xD6A6FF);
         return d;
     }
@@ -40,12 +58,12 @@ public final class IllusionistSkills {
     /** Двойник: копия с здоровьем, которая бьёт сама. */
     public static final class Phantom extends Skill {
         public Phantom() {
-            super("illusion.double", "Двойник", 0xD6A6FF, "⧈", 12, 0);
+            super("illusion.double", "Двойник", 0xD6A6FF, "⧈", 5, 0);
             blocks("range", 10);
             blocks("radius", 6);
             shield("hp", 2.0);
-            damage("damage", 0.5);
-            seconds("duration", 20);
+            damage("damage", 0.45);
+            seconds("duration", 22);
         }
 
         @Override
@@ -55,8 +73,9 @@ public final class IllusionistSkills {
 
         @Override
         public String template() {
-            return "Двойник с {hp} здоровья на {duration}: сам бьёт ближайшего врага в {radius} на {damage}. "
-                    + "Его можно разбить — он для этого и стоит.";
+            return "Двойник с {hp} здоровья на {duration}: сам бьёт ближайшего врага в {radius} на {damage}, "
+                    + "а враги рядом, что били вас, 3 с бьют его. Перезарядка короче жизни двойника — держится до пяти "
+                    + "сразу (шестой гасит самого старого). Его можно разбить — он для этого и стоит.";
         }
 
         @Override
@@ -69,10 +88,10 @@ public final class IllusionistSkills {
     /** Подмена: поменяться местами с ближайшим двойником. */
     public static final class Swap extends Skill {
         public Swap() {
-            super("illusion.swap", "Подмена", 0xB8A6FF, "⇄", 10, 0);
+            super("illusion.swap", "Подмена", 0xB8A6FF, "⇄", 6, 0);
             blocks("search", 30);
             seconds("blur_time", 3);
-            percent("miss", 0.3);
+            percent("miss", 0.45);
         }
 
         @Override
@@ -106,7 +125,7 @@ public final class IllusionistSkills {
     /** Морок: враг переключается на двойника. */
     public static final class Charm extends Skill {
         public Charm() {
-            super("illusion.charm", "Морок", 0x9B5CFF, "☍", 16, 0);
+            super("illusion.charm", "Морок", 0x9B5CFF, "☍", 10, 0);
             blocks("range", 20);
             blocks("search", 25);
             seconds("duration", 6);
@@ -119,11 +138,17 @@ public final class IllusionistSkills {
 
         @Override
         public String template() {
-            return "Враг {duration} считает двойника настоящим и бьёт его. Нет двойника — морок не сработает.";
+            return "Враг {duration} считает двойника настоящим и бьёт его. Нет двойника — морок не сработает, "
+                    + "хранителя — не обманет.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
+            if (com.andrey.litrpg.combat.DamageService.isBoss(ctx.target)) {
+                com.andrey.litrpg.core.SystemChat.send(ctx.caster, "Хранителя морок не обманывает.");
+                ctx.readyNow();
+                return;
+            }
             ClassProp d = ctx.myProps(PropKind.ILLUSION, ctx.v("search")).stream()
                     .min(Comparator.comparingDouble(p -> p.distanceToSqr(ctx.target))).orElse(null);
             if (d == null) {
@@ -141,7 +166,7 @@ public final class IllusionistSkills {
     /** Калейдоскоп: три двойника сразу. */
     public static final class Kaleidoscope extends Skill {
         public Kaleidoscope() {
-            super("illusion.kaleidoscope", "Калейдоскоп", 0xE8D6FF, "✤", 40, 0);
+            super("illusion.kaleidoscope", "Калейдоскоп", 0xE8D6FF, "✤", 24, 0);
             blocks("radius", 6);
             shield("hp", 1.6);
             damage("damage", 0.45);
@@ -176,7 +201,7 @@ public final class IllusionistSkills {
     /** Отражённый удар: удар, который повторяют все двойники. */
     public static final class MirroredStrike extends Skill {
         public MirroredStrike() {
-            super("illusion.strike", "Отражённый удар", 0xC9A6FF, "✶", 14, 0);
+            super("illusion.strike", "Отражённый удар", 0xC9A6FF, "✶", 8, 0);
             blocks("range", 18);
             blocks("search", 30);
             damage("damage", 1.6);
@@ -204,8 +229,13 @@ public final class IllusionistSkills {
                 ctx.later(3 + i * 3, () -> {
                     if (!d.isAlive() || !ctx.target.isAlive()) return;
                     ctx.hitShare(ctx.target, echo);
-                    Fx.beam(ctx.level, d.position().add(0, 1.2, 0), ctx.target.position().add(0, 1, 0), 0.12f, 6,
+                    // Повтор удара видно: двойник замахивается к цели, перед ним — полумесяц, к цели — росчерк.
+                    d.strikeAt(ctx.target);
+                    Fx.arc(ctx.level, d, 2.4f, 140, 8, 0xC9A6FF);
+                    Fx.bolt(ctx.level, d.position().add(0, 1.2, 0), ctx.target.position().add(0, 1, 0), 0.14f, 6,
                             0xC9A6FF);
+                    Fx.burst(ctx.level, ctx.target.position().add(0, 1, 0), 0.8f, 6, 0xC9A6FF);
+                    ctx.soundAt(d.position(), SoundEvents.PLAYER_ATTACK_SWEEP, 0.7f, 1.6f);
                 });
             }
             Fx.slash(ctx.level, ctx.caster, 2.4f, 60, 6, 0xC9A6FF);
@@ -216,12 +246,12 @@ public final class IllusionistSkills {
     /** Исчезновение: двойники лопаются, враги теряют всех из виду. */
     public static final class Vanish extends Skill {
         public Vanish() {
-            super("illusion.vanish", "Исчезновение", 0xFFFFFF, "✺", 110, 0);
+            super("illusion.vanish", "Исчезновение", 0xFFFFFF, "✺", 68, 0);
             blocks("search", 30);
             blocks("radius", 6);
             damage("damage", 1.8);
             seconds("duration", 4);
-            percent("miss", 0.5);
+            percent("miss", 0.75);
         }
 
         @Override

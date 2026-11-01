@@ -36,7 +36,7 @@ public final class MonkSkills {
     /** Печать удара: удар по врагу и печать под ним. */
     public static final class SealStrike extends Skill {
         public SealStrike() {
-            super("monk.seal_strike", "Печать удара", 0xFFD27A, "✶", 5, 0);
+            super("monk.seal_strike", "Печать удара", 0xFFD27A, "✶", 4, 0);
             blocks("range", 4);
             damage("damage", 1.2);
             shield("seal_hp", 1.0);
@@ -66,7 +66,7 @@ public final class MonkSkills {
     /** Печать связи: между двумя печатями натягивается связь, которая стягивает врагов. */
     public static final class SealBind extends Skill {
         public SealBind() {
-            super("monk.seal_bind", "Печать связи", 0xFFE8A6, "⌖", 10, 0);
+            super("monk.seal_bind", "Печать связи", 0xFFE8A6, "⌖", 7, 0);
             blocks("range", 12);
             shield("seal_hp", 1.0);
             seconds("seal_time", 12);
@@ -117,7 +117,7 @@ public final class MonkSkills {
     /** Круг сомкнулся: три печати складываются в фигуру и взрываются. */
     public static final class CircleClosed extends Skill {
         public CircleClosed() {
-            super("monk.circle", "Круг сомкнулся", 0xFFF3B0, "◎", 18, 0);
+            super("monk.circle", "Круг сомкнулся", 0xFFF3B0, "◎", 14, 0);
             blocks("search", 40);
             count("need", 3);
             damage("damage", 2.6);
@@ -245,7 +245,7 @@ public final class MonkSkills {
     /** Гора падает: вся ци — в один удар по площади с оглушением. */
     public static final class MountainFalls extends Skill {
         public MountainFalls() {
-            super("monk.mountain", "Гора падает", 0xC9A055, "⛰", 70, 0);
+            super("monk.mountain", "Гора падает", 0xC9A055, "⛰", 56, 0);
             blocks("radius", 6);
             count("cost", 30);
             param("per_chi", 0.035, com.andrey.litrpg.skill.SkillParam.Unit.DAMAGE,

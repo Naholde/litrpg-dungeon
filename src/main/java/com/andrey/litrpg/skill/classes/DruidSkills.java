@@ -222,7 +222,7 @@ public final class DruidSkills {
     /** Весна: всё, что растёт, начинает биться вдвое чаще. */
     public static final class Spring extends Skill {
         public Spring() {
-            super("druid.spring", "Весна", 0x7BF5A0, "✺", 120, 0);
+            super("druid.spring", "Весна", 0x7BF5A0, "✺", 96, 0);
             blocks("radius", 25);
             seconds("duration", 8);
         }

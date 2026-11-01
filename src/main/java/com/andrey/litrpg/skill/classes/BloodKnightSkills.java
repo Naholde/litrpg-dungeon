@@ -61,7 +61,7 @@ public final class BloodKnightSkills {
         public Brand() {
             super("blood.brand", "Клеймо", 0xD8343A, "⛒", 16, 0);
             blocks("range", 20);
-            percent("extra", 0.22);
+            percent("extra", 0.33);
             percent("siphon", 0.1);
             seconds("duration", 12);
         }
@@ -168,7 +168,7 @@ public final class BloodKnightSkills {
      */
     public static final class Threads extends Skill {
         public Threads() {
-            super("blood.threads", "Кровавые нити", 0xB0001A, "⁂", 120, 0);
+            super("blood.threads", "Кровавые нити", 0xB0001A, "⁂", 96, 0);
             blocks("radius", 10);
             seconds("duration", 6);
             percent("drain", 0.03);

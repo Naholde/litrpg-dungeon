@@ -29,7 +29,7 @@ public final class PaladinSkills {
             super("paladin.oath", "Клятва света", 0xFFE27A, "✥", 26, 0);
             blocks("radius", 8);
             seconds("duration", 10);
-            percent("reduce", 0.18);
+            percent("reduce", 0.27);
         }
 
         @Override
@@ -163,7 +163,7 @@ public final class PaladinSkills {
     /** Суд света: одна зона — врагам урон, своим лечение. */
     public static final class Judgment extends Skill {
         public Judgment() {
-            super("paladin.judgment", "Суд света", 0xFFFACD, "✺", 45, 0);
+            super("paladin.judgment", "Суд света", 0xFFFACD, "✺", 36, 0);
             blocks("range", 14);
             blocks("radius", 6);
             seconds("duration", 6);

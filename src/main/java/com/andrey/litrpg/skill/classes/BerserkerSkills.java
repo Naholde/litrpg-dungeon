@@ -128,8 +128,8 @@ public final class BerserkerSkills {
             super("berserker.frenzy", "Исступление", 0xFF4A2E, "♨", 30, 0);
             count("cost", 40);
             seconds("duration", 8);
-            percent("leech", 0.2);
-            percent("bonus", 0.15);
+            percent("leech", 0.3);
+            percent("bonus", 0.225);
         }
 
         @Override
@@ -183,7 +183,7 @@ public final class BerserkerSkills {
     /** Кровавая баня: вся ярость — в удар по площади. */
     public static final class Bloodbath extends Skill {
         public Bloodbath() {
-            super("berserker.bloodbath", "Кровавая баня", 0xB0001A, "✹", 45, 0);
+            super("berserker.bloodbath", "Кровавая баня", 0xB0001A, "✹", 36, 0);
             blocks("radius", 5);
             count("min_rage", 20);
             param("per_rage", 0.05, com.andrey.litrpg.skill.SkillParam.Unit.DAMAGE, com.andrey.litrpg.skill.SkillParam.Scale.POWER);

@@ -235,7 +235,7 @@ public final class StormcallerSkills {
     /** Буря: гроза над площадкой боя. */
     public static final class Tempest extends Skill {
         public Tempest() {
-            super("storm.tempest", "Буря", 0x4A5A9B, "✹", 120, 0);
+            super("storm.tempest", "Буря", 0x4A5A9B, "✹", 96, 0);
             blocks("range", 18);
             blocks("radius", 9);
             seconds("duration", 8);

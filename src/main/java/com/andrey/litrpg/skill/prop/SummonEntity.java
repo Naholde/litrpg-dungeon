@@ -96,6 +96,26 @@ public class SummonEntity extends net.minecraft.world.entity.PathfinderMob imple
         return BuiltInRegistries.ENTITY_TYPE.getKey(getType()).getPath();
     }
 
+    /**
+     * Удар помощника — с движением замаха. Голем бьёт двумя кулаками в землю: цель получает полный удар,
+     * а враги вокруг неё в 2,5 блока — половину, и по полу расходится волна.
+     */
+    @Override
+    public boolean doHurtTarget(net.minecraft.world.entity.Entity target) {
+        triggerAnim("main", "attack");
+        boolean hit = super.doHurtTarget(target);
+        if (hit && kindId().equals(SummonKind.GOLEM.id()) && level() instanceof ServerLevel sl) {
+            float splash = (float) (getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.5);
+            for (Mob m : sl.getEntitiesOfClass(Mob.class, target.getBoundingBox().inflate(2.5),
+                    m -> m != target && m.isAlive() && (m instanceof DungeonMob || m instanceof BossEntity))) {
+                m.hurt(damageSources().mobAttack(this), splash);
+            }
+            Fx.wave(sl, target.position(), 2.5f, 0.8f, 10, 0xE8E8D8);
+            sl.playSound(null, target.blockPosition(), SoundEvents.IRON_GOLEM_ATTACK, SoundSource.PLAYERS, 1f, 0.6f);
+        }
+        return hit;
+    }
+
     /** Союзники помощника не бьют: ни игроки, ни другие помощники. */
     @Override
     public boolean hurt(DamageSource source, float amount) {
@@ -132,7 +152,7 @@ public class SummonEntity extends net.minecraft.world.entity.PathfinderMob imple
         controllers.add(new AnimationController<>(this, "main", 4, state -> {
             String anim = state.isMoving() ? "walk" : "idle";
             return state.setAndContinue(RawAnimation.begin().thenLoop("animation." + kindId() + "." + anim));
-        }));
+        }).triggerableAnim("attack", RawAnimation.begin().thenPlay("animation." + kindId() + ".attack")));
     }
 
     @Override
