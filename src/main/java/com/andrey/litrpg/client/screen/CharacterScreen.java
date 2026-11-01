@@ -282,12 +282,16 @@ public final class CharacterScreen extends Screen {
             g.fill(x, y - 2, x + w, y + SKILL_ROW - 4, hover ? 0x30A6E1FF : 0x40000000);
             int slot = loadout.indexOf(s);
             UiKit.text(g, font, slot >= 0 ? keys[slot] : "", x + 3, y + 4, 0xFF5F7790);
-            var pose = g.pose();
-            pose.pushPose();
-            pose.translate(x + 20, y + 1, 0);
-            pose.scale(1.5f, 1.5f, 1);
-            g.drawString(font, s.glyph, -font.width(s.glyph) / 2, 0, open ? 0xFF000000 | s.color : 0xFF4A5A6E, true);
-            pose.popPose();
+            if (!com.andrey.litrpg.client.ui.SkillIcons.draw(g, s.id, x + 12, y - 1, 16)) {
+                var pose = g.pose();
+                pose.pushPose();
+                pose.translate(x + 20, y + 1, 0);
+                pose.scale(1.5f, 1.5f, 1);
+                g.drawString(font, s.glyph, -font.width(s.glyph) / 2, 0, open ? 0xFF000000 | s.color : 0xFF4A5A6E, true);
+                pose.popPose();
+            } else if (!open) {
+                g.fill(x + 12, y - 1, x + 28, y + 15, 0xA0000000); // ещё не открыт — значок притушен
+            }
             UiKit.text(g, font, s.name, x + 32, y, open ? UiKit.TEXT : UiKit.MUTED);
             String sub = open ? font.plainSubstrByWidth(SkillText.body(s, ClientPlayerData.rank(s.id), ClientPlayerData.viewer()), 170)
                     : "откроется на " + u.level() + " уровне";

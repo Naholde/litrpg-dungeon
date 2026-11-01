@@ -47,7 +47,9 @@ public final class SkillBar {
         }
         int c = 0xFF000000 | s.color;
         g.fillGradient(x + 1, y + 1, x + SLOT - 1, y + SLOT - 1, (c & 0x00FFFFFF) | 0x50000000, (c & 0x00FFFFFF) | 0x18000000);
-        glyph(g, f, s.glyph, x + SLOT / 2, y + 5, c);
+        if (!com.andrey.litrpg.client.ui.SkillIcons.draw(g, s.id, x + (SLOT - 16) / 2, y + (SLOT - 16) / 2, 16)) {
+            glyph(g, f, s.glyph, x + SLOT / 2, y + 5, c);
+        }
         double cd = ClientSkills.cooldownFraction(s.id, partial);
         double shade = Math.max(cd, gcd);
         if (shade > 0) {
@@ -147,8 +149,10 @@ public final class SkillBar {
             Skill src = SkillRegistry.get(s.entry().icon());
             int c = src != null ? 0xFF000000 | src.color : t.good ? UiKit.GOOD : UiKit.BAD;
             g.fill(bx, y, bx + 16, y + 16, 0xC0080E18);
-            String gl = src != null ? src.glyph : t.title.substring(0, 1);
-            UiKit.textCenter(g, f, gl, bx + 8, y + 4, c);
+            if (src == null || !com.andrey.litrpg.client.ui.SkillIcons.draw(g, src.id, bx, y, 16)) {
+                String gl = src != null ? src.glyph : t.title.substring(0, 1);
+                UiKit.textCenter(g, f, gl, bx + 8, y + 4, c);
+            }
             UiKit.border(g, bx, y, 16, 16, t.good ? 0xFF3FA05A : 0xFFB03A3A);
             var pose = g.pose();
             pose.pushPose();

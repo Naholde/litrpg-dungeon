@@ -138,7 +138,16 @@ public final class ClassChoiceScreen extends Screen {
             boolean hover = UiKit.inside(mx, my, sx - 1, sy - 1, colW - 2, 10);
             if (hover) g.fill(sx - 1, sy - 1, sx + colW - 3, sy + 9, 0x303FB6FF);
             UiKit.text(g, font, u.level() + "", sx, sy, 0xFF5F7790);
-            UiKit.text(g, font, u.skill().glyph, sx + 14, sy, 0xFF000000 | u.skill().color);
+            var pose = g.pose();
+            pose.pushPose();
+            pose.translate(sx + 13, sy - 1, 0);
+            pose.scale(0.625f, 0.625f, 1);
+            if (!com.andrey.litrpg.client.ui.SkillIcons.draw(g, u.skill().id, 0, 0, 16)) {
+                pose.popPose();
+                UiKit.text(g, font, u.skill().glyph, sx + 14, sy, 0xFF000000 | u.skill().color);
+            } else {
+                pose.popPose();
+            }
             UiKit.text(g, font, font.plainSubstrByWidth(u.skill().name, colW - 30), sx + 24, sy, UiKit.TEXT);
             if (hover) tooltip = SkillText.tooltip(u.skill(), 0, c.resource(), ClientPlayerData.viewer());
         }
