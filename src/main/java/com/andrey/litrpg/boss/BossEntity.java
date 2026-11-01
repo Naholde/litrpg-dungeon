@@ -131,6 +131,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     /** Давление (фаза 12): когда следующая волна по отряду и следующая метка. */
     private long nextPulse, nextMark;
     private boolean pressureTold;
+    private long nextRush;
+    private boolean rushMelee;
     private int partySize = 3;
     private int phase;
     private int enrageStage;
@@ -374,6 +376,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         }
         updateEnrage(now);
         if (!dormant()) pressure(now, players);
+        if (!dormant()) rush(now, players);
         tickPools(now);
         updatePhase();
         if (arena2 != null && !relocated && getHealth() <= getMaxHealth() * 0.5f) relocate();
@@ -530,6 +533,33 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             Fx.ring((ServerLevel) level(), position(), 8, 16, Fx.DANGER);
             level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 1f, 0.6f);
         }
+    }
+
+    /**
+     * Давка между навыками: хранитель всё время заставляет двигаться. Разметка горит меньше секунды —
+     * шагом из неё не выйти, только рывком или заранее встав правильно. Чередуются выпады по бойцам
+     * и круг у ног хранителя, чтобы ближний бой не стоял в куче.
+     */
+    private void rush(long now, List<ServerPlayer> players) {
+        if (players.isEmpty() || casting != null || now < nextRush) return;
+        BossesBalance.Rush r = Balance.get(Balance.BOSSES).common().rush();
+        nextRush = now + Math.round(r.seconds() * 20 * (0.8 + random.nextDouble() * 0.4));
+        int warn = Math.max(6, (int) Math.round(r.warn() * 20));
+        rushMelee = !rushMelee;
+        if (rushMelee) {
+            Telegraph.circle(testCast(warn), position(), (float) r.meleeRadius(), r.meleeUnits() * enrageMultiplier());
+            level().playSound(null, blockPosition(), SoundEvents.RAVAGER_STEP, SoundSource.HOSTILE, 1.2f, 0.6f);
+            return;
+        }
+        List<ServerPlayer> aim = new ArrayList<>(players);
+        aim.remove(getTarget());
+        if (aim.isEmpty()) aim = players;
+        java.util.Collections.shuffle(aim, new java.util.Random(now));
+        int n = Math.max(1, Math.min(aim.size(), (players.size() + 1) / 2));
+        for (int i = 0; i < n; i++) {
+            Telegraph.circle(testCast(warn), aim.get(i).position(), (float) r.radius(), r.units() * enrageMultiplier());
+        }
+        level().playSound(null, blockPosition(), SoundEvents.BREEZE_SHOOT, SoundSource.HOSTILE, 1.1f, 0.8f);
     }
 
     private void updatePhase() {

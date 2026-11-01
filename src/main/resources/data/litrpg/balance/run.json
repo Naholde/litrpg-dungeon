@@ -18,8 +18,10 @@
   },
   "spirits": {
     "wipe_seconds": 3,
-    "revive_seconds": 3,
-    "revive_combat_seconds": 7,
+    "revive_support_seconds": 5,
+    "revive_other_seconds": 10,
+    "revive_cooldown_support": 15,
+    "revive_cooldown_other": 45,
     "revive_radius": 2.5,
     "revive_health": 0.3,
     "boss_revive_health": 0.5,

@@ -49,12 +49,19 @@ public record RunBalance(Party party, Xp xp, World world, Spirits spirits) {
      * @param bossReviveHealth    с каким здоровьем возвращаются павшие, когда хранитель повержен
      * @param leash               дух не отходит от места гибели дальше этого
      */
-    public record Spirits(double wipeSeconds, double reviveSeconds, double reviveCombatSeconds, double reviveRadius,
+    /**
+     * Подъём павшего: встать над телом и держать Shift. Поддержка поднимает вдвое быстрее и может повторять
+     * это часто, остальные — долго и редко, поэтому за лекаря в бою держатся.
+     */
+    public record Spirits(double wipeSeconds, double reviveSupportSeconds, double reviveOtherSeconds,
+                          double reviveCooldownSupport, double reviveCooldownOther, double reviveRadius,
                           double reviveHealth, double bossReviveHealth, double leash) {
         static final Codec<Spirits> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("wipe_seconds").forGetter(Spirits::wipeSeconds),
-                Codec.DOUBLE.fieldOf("revive_seconds").forGetter(Spirits::reviveSeconds),
-                Codec.DOUBLE.fieldOf("revive_combat_seconds").forGetter(Spirits::reviveCombatSeconds),
+                Codec.DOUBLE.fieldOf("revive_support_seconds").forGetter(Spirits::reviveSupportSeconds),
+                Codec.DOUBLE.fieldOf("revive_other_seconds").forGetter(Spirits::reviveOtherSeconds),
+                Codec.DOUBLE.fieldOf("revive_cooldown_support").forGetter(Spirits::reviveCooldownSupport),
+                Codec.DOUBLE.fieldOf("revive_cooldown_other").forGetter(Spirits::reviveCooldownOther),
                 Codec.DOUBLE.fieldOf("revive_radius").forGetter(Spirits::reviveRadius),
                 Codec.DOUBLE.fieldOf("revive_health").forGetter(Spirits::reviveHealth),
                 Codec.DOUBLE.fieldOf("boss_revive_health").forGetter(Spirits::bossReviveHealth),
@@ -70,5 +77,5 @@ public record RunBalance(Party party, Xp xp, World world, Spirits spirits) {
     ).apply(i, RunBalance::new));
 
     public static final RunBalance DEFAULT = new RunBalance(new Party(3, 6, 10), new Xp(0.5, 0.45, 0.05),
-            new World(40, 34, 5, 5, 0.2), new Spirits(3, 3, 7, 2.5, 0.3, 0.5, 7));
+            new World(40, 34, 5, 5, 0.2), new Spirits(3, 5, 10, 15, 45, 2.5, 0.3, 0.5, 7));
 }

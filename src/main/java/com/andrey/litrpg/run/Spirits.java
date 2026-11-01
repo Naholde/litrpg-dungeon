@@ -29,9 +29,13 @@ import java.util.UUID;
  * Воскрешает союзник — стоит рядом с духом, зажав Shift (в бою дольше). Хранитель повержен — павшие возвращаются сами.
  */
 public final class Spirits {
-    /** Сколько тиков союзник уже воскрешает духа. */
+    /** Сколько тиков союзник уже поднимает павшего. */
     private static final Map<UUID, Integer> CHANNEL = new HashMap<>();
     private static final Map<UUID, Integer> NEED = new HashMap<>();
+    /** Кто поднимает это тело — если сменился, счёт начинается заново. */
+    private static final Map<UUID, UUID> WHO = new HashMap<>();
+    /** Когда каждый игрок снова сможет поднимать: у поддержки часто, у остальных редко. */
+    private static final Map<UUID, Long> READY = new HashMap<>();
 
     private Spirits() {
     }
@@ -60,9 +64,9 @@ public final class Spirits {
         Fx.pillar(level, Vec3.atBottomCenterOf(at), 0.8f, 3f, 30, 0xB0C8FF);
         level.playSound(null, at, SoundEvents.SOUL_ESCAPE.value(), SoundSource.PLAYERS, 1.5f, 0.8f);
         SystemChat.title(p, Component.literal("Вы пали").withStyle(ChatFormatting.DARK_RED),
-                Component.literal("Союзник воскресит вас: Shift рядом с вашим духом").withStyle(ChatFormatting.GRAY));
+                Component.literal("Союзник поднимет вас: встать над телом и держать Shift").withStyle(ChatFormatting.GRAY));
         for (ServerPlayer m : RunService.onlineMembers(p.server)) {
-            if (m != p) SystemChat.send(m, Component.literal(p.getGameProfile().getName() + " пал. Подойдите и зажмите Shift рядом с духом.")
+            if (m != p) SystemChat.send(m, Component.literal(p.getGameProfile().getName() + " пал. Встаньте над телом и держите Shift.")
                     .withStyle(ChatFormatting.RED));
         }
         RunService.syncAll(p.server);
@@ -73,6 +77,7 @@ public final class Spirits {
         RunState s = RunService.state(p.server);
         BlockPos at = s.spirits.remove(p.getUUID());
         CHANNEL.remove(p.getUUID());
+        WHO.remove(p.getUUID());
         s.setDirty();
         if (at == null) return;
         p.setGameMode(GameType.SURVIVAL);
@@ -117,7 +122,25 @@ public final class Spirits {
         if (p.getHealth() < 1) p.setHealth(1);
     }
 
-    /** Раз в полсекунды: дух не уходит далеко, светится; союзники с Shift рядом — воскрешают. */
+    /** Время подъёма: поддержке — быстро, остальным — долго. */
+    private static double seconds(ServerPlayer reviver, RunBalance.Spirits cfg) {
+        return PlayerService.data(reviver).role() == com.andrey.litrpg.player.Role.SUPPORT
+                ? cfg.reviveSupportSeconds() : cfg.reviveOtherSeconds();
+    }
+
+    /** Перезарядка подъёма у этого игрока. */
+    private static double cooldown(ServerPlayer reviver, RunBalance.Spirits cfg) {
+        return PlayerService.data(reviver).role() == com.andrey.litrpg.player.Role.SUPPORT
+                ? cfg.reviveCooldownSupport() : cfg.reviveCooldownOther();
+    }
+
+    /** Через сколько секунд игрок снова сможет поднимать (0 — может сейчас). */
+    public static double reviveReadyIn(ServerPlayer p) {
+        long left = READY.getOrDefault(p.getUUID(), 0L) - p.level().getGameTime();
+        return left <= 0 ? 0 : left / 20.0;
+    }
+
+    /** Раз в полсекунды: дух не уходит далеко, светится; союзник с Shift над телом — поднимает. */
     static void tick(MinecraftServer server, RunState s, List<ServerPlayer> alive) {
         if (s.spirits.isEmpty()) return;
         RunBalance.Spirits cfg = Balance.get(Balance.RUN).spirits();
@@ -132,29 +155,43 @@ public final class Spirits {
             if (spirit.getCamera() == spirit && spirit.position().distanceTo(at) > cfg.leash()) {
                 spirit.teleportTo(level, at.x, at.y + 1, at.z, spirit.getYRot(), spirit.getXRot());
             }
+            long time = level.getGameTime();
             ServerPlayer reviver = null;
             for (ServerPlayer a : alive) {
-                if (a.isShiftKeyDown() && a.position().distanceTo(at) <= cfg.reviveRadius()) {
-                    reviver = a;
-                    break;
+                if (!a.isShiftKeyDown() || a.position().distanceTo(at) > cfg.reviveRadius()) continue;
+                if (READY.getOrDefault(a.getUUID(), 0L) > time) {
+                    a.displayClientMessage(Component.literal("Поднять павшего можно через "
+                            + (int) Math.ceil(reviveReadyIn(a)) + " с").withStyle(ChatFormatting.DARK_GRAY), true);
+                    continue;
                 }
+                reviver = a;
+                break;
             }
-            if (reviver == null) {
-                if (CHANNEL.remove(id) != null) NEED.remove(id);
-                continue;
+            // Отошёл, сбили с ног, отбросило ударом — счёт сбрасывается, начинать заново.
+            if (reviver == null || !reviver.getUUID().equals(WHO.get(id))) {
+                CHANNEL.remove(id);
+                NEED.remove(id);
+                WHO.remove(id);
+                if (reviver == null) continue;
+                WHO.put(id, reviver.getUUID());
             }
-            int need = (int) Math.round((PlayerService.inCombat(reviver) ? cfg.reviveCombatSeconds() : cfg.reviveSeconds()) * 20);
+            int need = (int) Math.round(seconds(reviver, cfg) * 20);
             NEED.put(id, need);
             int now = CHANNEL.merge(id, 10, Integer::sum);
             String name = s.names.getOrDefault(id, "?");
             int bars = Math.min(10, now * 10 / Math.max(1, need));
-            reviver.displayClientMessage(Component.literal("Воскрешение: " + name + " ")
+            reviver.displayClientMessage(Component.literal("Поднимаю: " + name + " ")
                     .append(Component.literal("▮".repeat(bars)).withStyle(ChatFormatting.GREEN))
                     .append(Component.literal("▮".repeat(10 - bars)).withStyle(ChatFormatting.DARK_GRAY)), true);
             level.sendParticles(ParticleTypes.END_ROD, at.x, at.y + 0.5, at.z, 3, 0.4, 0.6, 0.4, 0.02);
+            Fx.spiralOn(level, reviver, 0.8f, 2f, 12, Fx.HOLY);
             if (now >= need) {
                 NEED.remove(id);
-                revive(spirit, cfg.reviveHealth(), "Вас воскресил " + reviver.getGameProfile().getName());
+                WHO.remove(id);
+                READY.put(reviver.getUUID(), time + Math.round(cooldown(reviver, cfg) * 20));
+                SystemChat.send(reviver, Component.literal("Вы подняли " + name + ". Снова поднимать — через "
+                        + (int) Math.round(cooldown(reviver, cfg)) + " с.").withStyle(ChatFormatting.GRAY));
+                revive(spirit, cfg.reviveHealth(), "Вас поднял " + reviver.getGameProfile().getName());
             }
         }
     }

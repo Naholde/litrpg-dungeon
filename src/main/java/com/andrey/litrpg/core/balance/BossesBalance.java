@@ -24,7 +24,7 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
      * @param pressure        общее давление всех хранителей: волна по отряду и метка на бойце
      */
     public record Common(double enrageSeconds, double enrageMult, double resetSeconds, double autoAttackSeconds,
-                         List<Double> hpScale, Pressure pressure) {
+                         List<Double> hpScale, Pressure pressure, Rush rush) {
         static final Codec<Common> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("enrage_seconds").forGetter(Common::enrageSeconds),
                 Codec.DOUBLE.fieldOf("enrage_mult").forGetter(Common::enrageMult),
@@ -32,7 +32,8 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
                 Codec.DOUBLE.fieldOf("auto_attack_seconds").forGetter(Common::autoAttackSeconds),
                 Codec.DOUBLE.listOf().validate(l -> l.size() == 6 ? DataResult.success(l)
                         : DataResult.error(() -> "hp_scale: нужно 6 чисел (отряд 1…6)")).fieldOf("hp_scale").forGetter(Common::hpScale),
-                Pressure.CODEC.fieldOf("pressure").forGetter(Common::pressure)
+                Pressure.CODEC.fieldOf("pressure").forGetter(Common::pressure),
+                Rush.CODEC.fieldOf("rush").forGetter(Common::rush)
         ).apply(i, Common::new));
 
         public double hpScale(int partySize) {
@@ -59,6 +60,26 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
         ).apply(i, Pressure::new));
     }
 
+    /**
+     * Давка: между своими навыками хранитель не даёт стоять. Раз в {@code seconds} он бьёт одним из двух способов,
+     * и разметка горит всего {@code warn} секунд — шагом из неё не выйти, нужен рывок или заранее занятое место.
+     * <ul>
+     *   <li>выпад: круги {@code radius} под бойцами (не под танком) на {@code units};</li>
+     *   <li>круг у ног: {@code meleeRadius} вокруг самого хранителя на {@code meleeUnits} — чтобы ближний бой
+     *       не стоял в куче, а выходил и возвращался.</li>
+     * </ul>
+     */
+    public record Rush(double seconds, double warn, double radius, double units, double meleeRadius, double meleeUnits) {
+        static final Codec<Rush> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.DOUBLE.fieldOf("seconds").forGetter(Rush::seconds),
+                Codec.DOUBLE.fieldOf("warn").forGetter(Rush::warn),
+                Codec.DOUBLE.fieldOf("radius").forGetter(Rush::radius),
+                Codec.DOUBLE.fieldOf("units").forGetter(Rush::units),
+                Codec.DOUBLE.fieldOf("melee_radius").forGetter(Rush::meleeRadius),
+                Codec.DOUBLE.fieldOf("melee_units").forGetter(Rush::meleeUnits)
+        ).apply(i, Rush::new));
+    }
+
     private static final Codec<Map<String, Map<String, Double>>> BOSSES =
             Codec.unboundedMap(Codec.STRING, Codec.unboundedMap(Codec.STRING, Codec.DOUBLE)).validate(m -> {
                 for (var e : m.entrySet()) {
@@ -81,7 +102,8 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
      * давит, но не душит. Хранитель бьёт танка раз в 1,5 с.
      */
     public static final Common DEFAULT_COMMON = new Common(60, 1.15, 6, 1.5, List.of(0.4, 0.7, 1.0, 1.4, 1.8, 2.2),
-            new Pressure(9, 0.3, 14, 0.08, 6, 0.5, 3));
+            new Pressure(9, 0.3, 14, 0.08, 6, 0.5, 3),
+            new Rush(3.2, 0.7, 3.2, 0.55, 4.5, 0.75));
 
     public static BossesBalance defaults() {
         return new BossesBalance(DEFAULT_COMMON, BossRegistry.defaultValues());
