@@ -1269,6 +1269,20 @@ def monk_seal():
     return bones, anims
 
 
+def headsman_block():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("block", [0, 0, 0], "root", [Cube([-8, 0, -8], [16, 2, 16], "wood"),
+                                          Cube([-6, 2, -6], [12, 2, 12], "bark_dark"),
+                                          Cube([-2, 4, -2], [4, 3, 4], "wood"),
+                                          Cube([-3, 4, -3.5], [6, 1, 1], "rust")]),
+    ]
+    anims = {"idle": loop(4, {"block": {"position": kf([(0, [0, 0, 0]), (2, [0, 0.2, 0]), (4, [0, 0, 0])])}}),
+             "walk": loop(4, {}), "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                                            "bones": {"block": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.2, 0.2, 0.2])])}}}}
+    return bones, anims
+
+
 def hunter_trap():
     bones = [
         Bone("root", [0, 0, 0]),
@@ -1404,7 +1418,8 @@ def minion_golem():
 
 MODELS.update({"totem_heal": totem_heal, "totem_storm": totem_storm, "totem_earth": totem_earth,
                "banner_power": banner_power, "banner_guard": banner_guard, "banner_speed": banner_speed,
-               "tree_life": tree_life, "monk_seal": monk_seal, "hunter_trap": hunter_trap, "turret": turret,
+               "tree_life": tree_life, "monk_seal": monk_seal, "headsman_block": headsman_block,
+               "hunter_trap": hunter_trap, "turret": turret,
                "mine": mine, "star": star, "tentacle": tentacle, "mirror_double": mirror_double,
                "illusion": illusion, "void_rift": void_rift, "minion_skeleton": minion_skeleton,
                "minion_wolf": minion_wolf, "minion_golem": minion_golem})

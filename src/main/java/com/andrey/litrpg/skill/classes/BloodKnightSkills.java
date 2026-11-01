@@ -160,15 +160,20 @@ public final class BloodKnightSkills {
         }
     }
 
-    /** Неумирающий: за всю кровь — рыцарь не умирает, но потом расплачивается. */
-    public static final class Undying extends Skill {
-        public Undying() {
-            super("blood.undying", "Неумирающий", 0xFF2020, "✠", 120, 0);
-            count("cost", 40);
+    /**
+     * Кровавые нити — главный приём рыцаря. Он протягивает нить к каждому врагу вокруг и тянет по ней их
+     * здоровье себе: врагам — урон долей их здоровья, рыцарю — лечение с каждой нити. Чем больше врагов,
+     * тем сильнее он лечится; с хранителей тянется меньше, но тоже тянется.
+     */
+    public static final class Threads extends Skill {
+        public Threads() {
+            super("blood.threads", "Кровавые нити", 0xB0001A, "⁂", 120, 0);
+            blocks("radius", 10);
             seconds("duration", 6);
-            percent("reduce", 0.3);
-            percent("payback", 0.3);
-            seconds("payback_time", 6);
+            percent("drain", 0.03);
+            percent("back", 0.7);
+            percent("boss_part", 0.25);
+            count("cost", 40);
         }
 
         @Override
@@ -178,29 +183,33 @@ public final class BloodKnightSkills {
 
         @Override
         public String template() {
-            return "За {cost} крови (и всю, что есть сверху): {duration} никакой удар не убьёт, а урон по вам меньше "
-                    + "на {reduce} — тем сильнее, чем больше крови ушло. После — расплата: {payback_time} вы получаете "
-                    + "на {payback} больше урона.";
+            return "За {cost} крови протягивает нити ко всем врагам в {radius} на {duration}: два раза в секунду "
+                    + "каждый теряет {drain} своего здоровья, а {back} отнятого становится здоровьем рыцаря. "
+                    + "С хранителей тянется {boss_part} от этого. Чем больше врагов на нитях, тем больше лечение.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
-            double spent = ctx.v("cost") + ctx.spendAllResource();
-            double extra = Math.min(0.3, spent / 400.0);
-            double reduce = Math.min(0.85, ctx.v("reduce") + extra);
-            ctx.status(ctx.caster, StatusType.WARD, 1, "duration");
-            ctx.status(ctx.caster, StatusType.DAMAGE_TAKEN, 1 - reduce, "duration");
             int dur = ctx.ticks("duration");
-            Fx.pillar(ctx.level, ctx.caster.position(), 1.2f, 4.5f, dur, 0xFF2020);
-            Fx.discOn(ctx.level, ctx.caster, 1.6f, dur, 0xFF2020, false);
-            double payback = 1 + ctx.v("payback");
-            int paybackTime = ctx.ticks("payback_time");
-            ctx.later(dur, () -> {
-                StatusService.apply(ctx.caster, com.andrey.litrpg.status.Status.of(StatusType.DAMAGE_TAKEN,
-                        "blood.undying.payback", ctx.caster.getUUID(), payback, ctx.level.getGameTime(), paybackTime));
-                Fx.mark(ctx.level, ctx.caster, "☠", paybackTime, 0x8B1A1A);
+            double r = ctx.v("radius");
+            double drain = ctx.v("drain"), back = ctx.v("back"), bossPart = ctx.v("boss_part");
+            Fx.disc(ctx.level, ctx.caster.position(), (float) r, dur, 0xB0001A, false);
+            Fx.pillar(ctx.level, ctx.caster.position(), 1.2f, 4f, dur, 0xB0001A);
+            com.andrey.litrpg.skill.Zones.add(ctx.level, ctx.caster.position(), r, ctx.caster.getUUID(), dur, 10, z -> {
+                if (!ctx.caster.isAlive()) return;
+                for (LivingEntity e : ctx.enemiesAround(ctx.caster.position(), r)) {
+                    boolean boss = com.andrey.litrpg.combat.DamageService.isBoss(e);
+                    double part = e.getMaxHealth() * drain * (boss ? bossPart : 1);
+                    float before = e.getHealth();
+                    com.andrey.litrpg.combat.DamageService.deal(ctx.caster, null, e, part,
+                            com.andrey.litrpg.combat.WeaponKind.FIXED);
+                    double taken = Math.max(0, before - e.getHealth());
+                    if (taken > 0) HealService.healFixed(ctx.caster, ctx.caster, taken * back);
+                    ctx.threat(e, taken);
+                    Fx.beam(z.level, e, ctx.caster, 0.14f, 12, 0xD8343A);
+                }
             });
-            ctx.sound(SoundEvents.TOTEM_USE, 1f, 0.7f);
+            ctx.sound(SoundEvents.WITHER_SPAWN, 0.7f, 1.4f);
         }
     }
 

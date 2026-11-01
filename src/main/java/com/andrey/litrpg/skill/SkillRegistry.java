@@ -47,7 +47,7 @@ public final class SkillRegistry {
     public static final Skill BLOOD_BRAND = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Brand());
     public static final Skill BLOOD_CHAINS = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Chains());
     public static final Skill BLOOD_FEAST = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Feast());
-    public static final Skill BLOOD_UNDYING = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Undying());
+    public static final Skill BLOOD_THREADS = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Threads());
     // Зерцало
     public static final Skill MIRROR_GLASS = reg(new com.andrey.litrpg.skill.classes.MirrorSkills.Glass());
     public static final Skill MIRROR_REPAY = reg(new com.andrey.litrpg.skill.classes.MirrorSkills.Repay());
@@ -72,6 +72,48 @@ public final class SkillRegistry {
     public static final Skill PAL_DIVINE = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.DivineShield());
     public static final Skill PAL_HANDS = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.LayOnHands());
     public static final Skill PAL_JUDGMENT = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.Judgment());
+    // Стриж
+    public static final Skill SWIFT_RUSH = reg(new com.andrey.litrpg.skill.classes.SwiftSkills.Rush());
+    public static final Skill SWIFT_FAN = reg(new com.andrey.litrpg.skill.classes.SwiftSkills.Fan());
+    public static final Skill SWIFT_PIROUETTE = reg(new com.andrey.litrpg.skill.classes.SwiftSkills.Pirouette());
+    public static final Skill SWIFT_DANCE = reg(new com.andrey.litrpg.skill.classes.SwiftSkills.Dance());
+    public static final Skill SWIFT_DRAFT = reg(new com.andrey.litrpg.skill.classes.SwiftSkills.Draft());
+    public static final Skill SWIFT_LAST_SWING = reg(new com.andrey.litrpg.skill.classes.SwiftSkills.LastSwing());
+    // Монах
+    public static final Skill MONK_SEAL_STRIKE = reg(new com.andrey.litrpg.skill.classes.MonkSkills.SealStrike());
+    public static final Skill MONK_SEAL_BIND = reg(new com.andrey.litrpg.skill.classes.MonkSkills.SealBind());
+    public static final Skill MONK_CIRCLE = reg(new com.andrey.litrpg.skill.classes.MonkSkills.CircleClosed());
+    public static final Skill MONK_PALM = reg(new com.andrey.litrpg.skill.classes.MonkSkills.PalmOfChi());
+    public static final Skill MONK_HUNDRED = reg(new com.andrey.litrpg.skill.classes.MonkSkills.HundredPalms());
+    public static final Skill MONK_MOUNTAIN = reg(new com.andrey.litrpg.skill.classes.MonkSkills.MountainFalls());
+    // Тень
+    public static final Skill SHADOW_FROM_DARK = reg(new com.andrey.litrpg.skill.classes.ShadowSkills.FromDark());
+    public static final Skill SHADOW_KNIVES = reg(new com.andrey.litrpg.skill.classes.ShadowSkills.KnifeFan());
+    public static final Skill SHADOW_CLOAK = reg(new com.andrey.litrpg.skill.classes.ShadowSkills.Cloak());
+    public static final Skill SHADOW_NIGHT = reg(new com.andrey.litrpg.skill.classes.ShadowSkills.Night());
+    public static final Skill SHADOW_POISON = reg(new com.andrey.litrpg.skill.classes.ShadowSkills.BladePoison());
+    public static final Skill SHADOW_CUT = reg(new com.andrey.litrpg.skill.classes.ShadowSkills.Cut());
+    // Жнец
+    public static final Skill REAPER_SCYTHE = reg(new com.andrey.litrpg.skill.classes.ReaperSkills.Scythe());
+    public static final Skill REAPER_SICKLE = reg(new com.andrey.litrpg.skill.classes.ReaperSkills.ChainSickle());
+    public static final Skill REAPER_MARK = reg(new com.andrey.litrpg.skill.classes.ReaperSkills.DeathMark());
+    public static final Skill REAPER_HARVEST = reg(new com.andrey.litrpg.skill.classes.ReaperSkills.Harvest());
+    public static final Skill REAPER_FERRYMAN = reg(new com.andrey.litrpg.skill.classes.ReaperSkills.Ferryman());
+    public static final Skill REAPER_SENTENCE = reg(new com.andrey.litrpg.skill.classes.ReaperSkills.Sentence());
+    // Гарпунёр
+    public static final Skill HARPOON_THROW = reg(new com.andrey.litrpg.skill.classes.HarpoonerSkills.Harpoon());
+    public static final Skill HARPOON_DOUBLE = reg(new com.andrey.litrpg.skill.classes.HarpoonerSkills.DoubleChain());
+    public static final Skill HARPOON_WINDUP = reg(new com.andrey.litrpg.skill.classes.HarpoonerSkills.Windup());
+    public static final Skill HARPOON_SHACKLES = reg(new com.andrey.litrpg.skill.classes.HarpoonerSkills.Shackles());
+    public static final Skill HARPOON_PULL_SELF = reg(new com.andrey.litrpg.skill.classes.HarpoonerSkills.ChainPull());
+    public static final Skill HARPOON_ABYSS = reg(new com.andrey.litrpg.skill.classes.HarpoonerSkills.AbyssPull());
+    // Палач
+    public static final Skill HEADSMAN_SWING = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.HeavySwing());
+    public static final Skill HEADSMAN_HOOK = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Hook());
+    public static final Skill HEADSMAN_WHEEL = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Wheel());
+    public static final Skill HEADSMAN_VERDICT = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Verdict());
+    public static final Skill HEADSMAN_BLOCK = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Block());
+    public static final Skill HEADSMAN_SCAFFOLD = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Scaffold());
     // Хронолог
     public static final Skill CHRONO_REWIND = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Rewind());
     public static final Skill CHRONO_STASIS = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Stasis());

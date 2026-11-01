@@ -289,6 +289,19 @@ public final class SkillContext {
 
     // ------------------------------------------------------------------ отложенные действия и звук
 
+    /** Снять перезарядку этого навыка (добивание, которое обнуляет откат, если цель умерла). */
+    public void readyNow() {
+        SkillService.state(caster).cooldowns.remove(skill.id);
+        SkillService.state(caster).dirty = true;
+    }
+
+    /** Невидимость заклинателя на {@code secondsKey}: враги рядом тоже теряют его из виду. */
+    public void invisible(String secondsKey) {
+        caster.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                net.minecraft.world.effect.MobEffects.INVISIBILITY, ticks(secondsKey), 0, false, false, true));
+        forgetMe(30);
+    }
+
     /** Сделать через {@code ticks} тиков (отложенный удар, мина, приговор). */
     public void later(int ticks, Runnable action) {
         Later.run(level, ticks, action);

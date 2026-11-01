@@ -34,6 +34,7 @@ public record PropKind(String id, String title, float width, float height, float
 
     // ---------------------------------------------------------------- бойцы
     public static final PropKind SEAL = reg("monk_seal", "Печать", 1.0f, 0.3f, 1.0f, 0xFFD27A);
+    public static final PropKind BLOCK = reg("headsman_block", "Плаха", 1.4f, 0.5f, 1.0f, 0x6B2A2A);
     public static final PropKind TRAP = reg("hunter_trap", "Капкан", 1.0f, 0.4f, 1.0f, 0xC9D6E8);
     public static final PropKind TURRET = reg("turret", "Турель", 0.9f, 1.3f, 1.0f, 0xC9D6E8);
     public static final PropKind MINE = reg("mine", "Мина", 0.7f, 0.4f, 1.0f, 0xFF7A2E);

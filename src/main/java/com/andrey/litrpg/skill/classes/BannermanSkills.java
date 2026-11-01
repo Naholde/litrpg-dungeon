@@ -36,6 +36,7 @@ public final class BannermanSkills {
             blocks("radius", 8);
             shield("hp", 3.5);
             percent("power", 0.15);
+            heal("heal", 0.18);
             seconds("duration", 16);
         }
 
@@ -46,18 +47,20 @@ public final class BannermanSkills {
 
         @Override
         public String template() {
-            return "Знамя с {hp} здоровья на {duration}: союзники в {radius} бьют на {power} сильнее. "
-                    + "Сломали знамя — аура пропала.";
+            return "Знамя с {hp} здоровья на {duration}: союзники в {radius} бьют на {power} сильнее и каждую "
+                    + "секунду получают {heal} здоровья. Сломали знамя — аура пропала.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
             double power = 1 + ctx.v("power");
+            double heal = ctx.v("heal") * ctx.unit() * 0.5;
             var banner = ctx.prop(PropKind.BANNER_POWER, ctx.point, "hp", ctx.v("radius"), "duration");
             banner.onPulse(10, p -> {
                 for (LivingEntity a : ctx.alliesAround(p.position(), p.radius())) {
                     StatusService.apply(a, Status.of(StatusType.DAMAGE_DEALT, "banner.power", ctx.caster.getUUID(),
                             power, levelOf(p, ctx).getGameTime(), 14));
+                    com.andrey.litrpg.combat.HealService.healFixed(ctx.caster, a, heal);
                 }
             });
             ctx.soundAt(ctx.point, SoundEvents.WOOL_PLACE, 1.1f, 1f);
@@ -72,6 +75,7 @@ public final class BannermanSkills {
             blocks("radius", 8);
             shield("hp", 3.5);
             percent("reduce", 0.15);
+            heal("heal", 0.18);
             seconds("duration", 16);
         }
 
@@ -82,17 +86,20 @@ public final class BannermanSkills {
 
         @Override
         public String template() {
-            return "Знамя с {hp} здоровья на {duration}: союзники в {radius} получают на {reduce} меньше урона.";
+            return "Знамя с {hp} здоровья на {duration}: союзники в {radius} получают на {reduce} меньше урона "
+                    + "и каждую секунду восстанавливают {heal} здоровья.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
             double factor = 1 - Math.min(0.9, ctx.v("reduce"));
+            double heal = ctx.v("heal") * ctx.unit() * 0.5;
             var banner = ctx.prop(PropKind.BANNER_GUARD, ctx.point, "hp", ctx.v("radius"), "duration");
             banner.onPulse(10, p -> {
                 for (LivingEntity a : ctx.alliesAround(p.position(), p.radius())) {
                     StatusService.apply(a, Status.of(StatusType.DAMAGE_TAKEN, "banner.guard", ctx.caster.getUUID(),
                             factor, levelOf(p, ctx).getGameTime(), 14));
+                    com.andrey.litrpg.combat.HealService.healFixed(ctx.caster, a, heal);
                 }
             });
             ctx.soundAt(ctx.point, SoundEvents.WOOL_PLACE, 1.1f, 0.9f);
@@ -105,6 +112,7 @@ public final class BannermanSkills {
             super("banner.shout", "Клич", 0xFFE27A, "❖", 40, 0);
             blocks("radius", 20);
             seconds("duration", 6);
+            heal("heal", 1.2);
         }
 
         @Override
@@ -115,7 +123,7 @@ public final class BannermanSkills {
         @Override
         public String template() {
             return "Клич на {radius}: с группы слетают оглушение, обездвиживание, замедление и обморожение, "
-                    + "и {duration} они не действуют вовсе.";
+                    + "{duration} они не действуют вовсе, и каждый сразу получает {heal} здоровья.";
         }
 
         @Override
@@ -126,6 +134,7 @@ public final class BannermanSkills {
                     if (t.controlling()) StatusService.removeAll(a, t);
                 }
                 ctx.status(a, StatusType.STEADFAST, 1, "duration");
+                ctx.heal(a, "heal");
                 Fx.mark(ctx.level, a, "❖", dur, 0xFFE27A);
             }
             Fx.ring(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 16, 0xFFE27A);
@@ -142,6 +151,7 @@ public final class BannermanSkills {
             shield("hp", 3.0);
             percent("speed", 0.2);
             percent("haste", 0.15);
+            heal("heal", 0.18);
             seconds("duration", 16);
         }
 
@@ -153,12 +163,13 @@ public final class BannermanSkills {
         @Override
         public String template() {
             return "Знамя с {hp} здоровья на {duration}: союзники в {radius} бегут на {speed} быстрее, "
-                    + "а перезарядки у них короче на {haste}.";
+                    + "перезарядки у них короче на {haste}, и каждую секунду они получают {heal} здоровья.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
             double speed = ctx.v("speed"), haste = ctx.v("haste");
+            double heal = ctx.v("heal") * ctx.unit() * 0.5;
             var banner = ctx.prop(PropKind.BANNER_SPEED, ctx.point, "hp", ctx.v("radius"), "duration");
             banner.onPulse(10, p -> {
                 long now = levelOf(p, ctx).getGameTime();
@@ -167,6 +178,7 @@ public final class BannermanSkills {
                             now, 14));
                     StatusService.apply(a, Status.of(StatusType.HASTE, "banner.speed", ctx.caster.getUUID(), haste,
                             now, 14));
+                    com.andrey.litrpg.combat.HealService.healFixed(ctx.caster, a, heal);
                 }
             });
             ctx.soundAt(ctx.point, SoundEvents.WOOL_PLACE, 1.1f, 1.3f);

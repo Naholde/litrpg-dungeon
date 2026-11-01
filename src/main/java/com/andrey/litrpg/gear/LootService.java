@@ -35,6 +35,24 @@ public final class LootService {
     private LootService() {
     }
 
+    /**
+     * Враг с меткой пал: тот, кто метку поставил, получает ресурс класса (сила метки — сколько) и немного
+     * здоровья. На этом держится «Метка смерти» жнеца.
+     */
+    private static void markedDeath(Mob mob) {
+        if (!mob.hasData(com.andrey.litrpg.core.ModAttachments.STATUSES) || !(mob.level() instanceof ServerLevel sl)) return;
+        long now = sl.getGameTime();
+        for (var s : com.andrey.litrpg.status.StatusService.list(mob).all()) {
+            if (s.type() != com.andrey.litrpg.status.StatusType.MARK || s.expired(now) || s.source() == null) continue;
+            ServerPlayer owner = sl.getServer().getPlayerList().getPlayer(s.source());
+            if (owner == null || !owner.isAlive()) continue;
+            com.andrey.litrpg.skill.SkillService.add(owner, s.magnitude());
+            com.andrey.litrpg.combat.HealService.healFixed(owner, owner, owner.getMaxHealth() * 0.06);
+            com.andrey.litrpg.fx.Fx.beam(sl, mob.position().add(0, 1, 0), owner.position().add(0, 1, 0), 0.16f, 12,
+                    com.andrey.litrpg.fx.Fx.SHADOW);
+        }
+    }
+
     /** Ванильная добыча мобов (гнилая плоть, кости) в подземелье не нужна. */
     public static void onDrops(LivingDropsEvent e) {
         if (e.getEntity() instanceof Mob && !(e.getEntity() instanceof net.minecraft.world.entity.player.Player)) {
@@ -44,6 +62,10 @@ public final class LootService {
 
     public static void onDeath(LivingDeathEvent e) {
         if (!(e.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel)) return;
+        if (e.getSource().getEntity() instanceof ServerPlayer killer) {
+            com.andrey.litrpg.skill.SkillService.onKill(killer);
+        }
+        markedDeath(mob);
         // Повтор после вайпа (награда уже выдана) — без добычи.
         if (mob.getPersistentData().getBoolean(NO_LOOT)) return;
         if (mob instanceof BossEntity boss) {

@@ -31,7 +31,7 @@ public final class ClassRegistry {
             "Кровавый рыцарь не держит удар — он его покупает. Своей кровью, за чужую, и всегда с выгодой для отряда.",
             Resource.BLOOD, new StatSet(1.6, 0.5, 2.0, 0.5, 0.4),
             List.of(u(10, TAUNT), u(10, BLOOD_STRIKE), u(10, BLOOD_BRAND), u(20, BLOOD_CHAINS), u(32, BLOOD_FEAST),
-                    u(44, BLOOD_UNDYING)),
+                    u(44, BLOOD_THREADS)),
             Map.of(Style.TANKING, 1.0, Style.MELEE, 0.9, Style.HEALING, 0.2)));
 
     public static final PlayerClass MIRROR = reg(new PlayerClass("mirror", Role.TANK, "Зерцало", 0xFFB0E8FF, "◫",
@@ -81,6 +81,55 @@ public final class ClassRegistry {
             Resource.NONE, new StatSet(0.4, 0.7, 1.1, 2.2, 0.7),
             List.of(u(10, BANDAGE), u(10, PRAYER), u(10, RENEW), u(20, SANCTUARY), u(32, SMITE), u(44, MIRACLE)),
             Map.of(Style.HEALING, 1.0, Style.MAGIC, 0.5, Style.SKILLS, 0.3)));
+
+    public static final PlayerClass SWIFT = reg(new PlayerClass("swift", Role.DAMAGE, "Стриж", 0xFF7FF0D0, "➤",
+            "Дуэлянт в движении: разгон копится от его же приёмов и быстро тает, если стоять — на разгоне он бьёт вдвое больнее.",
+            "Стриж не стоит в строю. Он всё время в движении, и чем быстрее движется, тем меньше шансов, что по нему попадут.",
+            Resource.MOMENTUM, new StatSet(1.0, 2.0, 0.8, 0.6, 0.8),
+            List.of(u(10, SWIFT_RUSH), u(10, SWIFT_FAN), u(10, SWIFT_PIROUETTE), u(20, SWIFT_DANCE),
+                    u(32, SWIFT_DRAFT), u(44, SWIFT_LAST_SWING)),
+            Map.of(Style.MELEE, 1.0, Style.SKILLS, 0.7)));
+
+    public static final PlayerClass MONK = reg(new PlayerClass("monk", Role.DAMAGE, "Монах", 0xFFFFD27A, "✶",
+            "Ставит печати на землю: две стягивают врагов между собой, три складываются в «Круг сомкнулся». Ци копится от его ударов.",
+            "Монах не спешит. Он расставляет печати, и бой идёт туда, куда он нарисовал.",
+            Resource.CHI, new StatSet(1.3, 1.3, 1.0, 0.9, 0.5),
+            List.of(u(10, MONK_SEAL_STRIKE), u(10, MONK_SEAL_BIND), u(10, MONK_CIRCLE), u(20, MONK_PALM),
+                    u(32, MONK_HUNDRED), u(44, MONK_MOUNTAIN)),
+            Map.of(Style.MELEE, 0.9, Style.SKILLS, 1.0)));
+
+    public static final PlayerClass SHADOW = reg(new PlayerClass("shadow", Role.DAMAGE, "Тень", 0xFF9B5CFF, "◖",
+            "Со спины и из темноты: шаг за спину, невидимость, отравленный клинок и добивание, которое обнуляет свою перезарядку.",
+            "Тень не дерётся — она заканчивает. Её замечают, когда уже поздно.",
+            Resource.SHADE, new StatSet(1.1, 1.9, 0.7, 0.6, 0.9),
+            List.of(u(10, SHADOW_FROM_DARK), u(10, SHADOW_KNIVES), u(10, SHADOW_CLOAK), u(20, SHADOW_NIGHT),
+                    u(32, SHADOW_POISON), u(44, SHADOW_CUT)),
+            Map.of(Style.MELEE, 1.0, Style.SKILLS, 0.8)));
+
+    public static final PlayerClass REAPER = reg(new PlayerClass("reaper", Role.DAMAGE, "Жнец", 0xFF6B7A8B, "⚒",
+            "Считает чужие смерти: души за убитых и за отмеченных уходят в жатву, а приговор повторяет врагу всё, что тот получил.",
+            "Жнец не торопит смерть. Он просто помечает тех, кто уже её не минует, и приходит за своей долей.",
+            Resource.SOULS, new StatSet(1.6, 1.0, 0.9, 0.8, 0.6),
+            List.of(u(10, REAPER_SCYTHE), u(10, REAPER_SICKLE), u(10, REAPER_MARK), u(20, REAPER_HARVEST),
+                    u(32, REAPER_FERRYMAN), u(44, REAPER_SENTENCE)),
+            Map.of(Style.MELEE, 1.0, Style.SKILLS, 0.75)));
+
+    public static final PlayerClass HARPOONER = reg(new PlayerClass("harpooner", Role.DAMAGE, "Гарпунёр",
+            0xFF8B8B8B, "⚓",
+            "Решает, кто где стоит: гарпун тянет врага к себе, двойная цепь связывает двух врагов, кандалы не дают уйти.",
+            "Гарпунёру всё равно, куда враг собирался. У него есть цепь, и он уже решил.",
+            Resource.NONE, new StatSet(1.5, 1.1, 1.1, 0.6, 0.5),
+            List.of(u(10, HARPOON_THROW), u(10, HARPOON_DOUBLE), u(10, HARPOON_WINDUP), u(20, HARPOON_SHACKLES),
+                    u(32, HARPOON_PULL_SELF), u(44, HARPOON_ABYSS)),
+            Map.of(Style.MELEE, 0.9, Style.SKILLS, 0.8, Style.TANKING, 0.3)));
+
+    public static final PlayerClass HEADSMAN = reg(new PlayerClass("headsman", Role.DAMAGE, "Палач", 0xFF8B2A2A, "☠",
+            "Медленно и окончательно: замах нельзя сбить ничем, плаха удваивает его, а удачная казнь сразу снимает перезарядку.",
+            "Палач не отбивается и не уклоняется. Он замахивается — и всё, что может сделать враг, это успеть отойти.",
+            Resource.NONE, new StatSet(2.0, 0.6, 1.1, 0.4, 0.6),
+            List.of(u(10, HEADSMAN_SWING), u(10, HEADSMAN_HOOK), u(10, HEADSMAN_WHEEL), u(20, HEADSMAN_VERDICT),
+                    u(32, HEADSMAN_BLOCK), u(44, HEADSMAN_SCAFFOLD)),
+            Map.of(Style.MELEE, 1.0, Style.TANKING, 0.6, Style.SKILLS, 0.4)));
 
     public static final PlayerClass CHRONOLOG = reg(new PlayerClass("chronolog", Role.SUPPORT, "Хронолог",
             0xFFFFE27A, "⧗",
