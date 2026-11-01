@@ -20,6 +20,13 @@ public final class Telegraph {
     private Telegraph() {
     }
 
+    /** Проверка «от всего можно уйти» (стенд фазы 12): сюда пишется каждая разметка — фигура, размер, время. */
+    public static java.util.function.BiConsumer<BossEntity.Cast, String> audit;
+
+    private static void note(BossEntity.Cast c, String shape, double size) {
+        if (audit != null) audit.accept(c, shape + ";" + String.format(java.util.Locale.ROOT, "%.1f", size) + ";" + c.ticks);
+    }
+
     private static ServerLevel level(BossEntity.Cast c) {
         return (ServerLevel) c.boss().level();
     }
@@ -31,6 +38,7 @@ public final class Telegraph {
 
     /** Круг с добавкой: {@code extra} — что ещё случается с попавшим (оковы, яд). */
     public static void circle(BossEntity.Cast c, Vec3 center, float radius, double units, java.util.function.Consumer<ServerPlayer> extra) {
+        note(c, "circle", radius);
         Fx.disc(level(c), center, radius, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
@@ -45,6 +53,7 @@ public final class Telegraph {
 
     /** Кольцо: безопасно ближе {@code inner} (у хранителя) — остальным до {@code outer} достаётся. */
     public static void donut(BossEntity.Cast c, Vec3 center, float inner, float outer, double units) {
+        note(c, "donut", (outer - inner) / 2.0);
         Fx.donut(level(c), center, inner, outer, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
@@ -58,6 +67,8 @@ public final class Telegraph {
     /** Конус от хранителя в сторону {@code dir}. */
     public static void cone(BossEntity.Cast c, Vec3 origin, Vec3 dir, float radius, float angleDeg, double units) {
         Vec3 d = dir.multiply(1, 0, 1).normalize();
+        // Уйти из конуса: стоящему вплотную (2 блока) — вбок, а если конус шире полукруга — за его край.
+        note(c, "cone", angleDeg >= 180 ? radius - 1 : Math.min(radius - 2, 2 * Math.sin(Math.toRadians(angleDeg / 2)) + 0.5));
         Fx.cone(level(c), origin, d, radius, angleDeg, c.ticks, Fx.DANGER, true);
         double cos = Math.cos(Math.toRadians(angleDeg / 2));
         c.at(c.ticks, () -> {
@@ -76,6 +87,7 @@ public final class Telegraph {
     }
 
     public static void line(BossEntity.Cast c, Vec3 from, Vec3 to, float width, double units, java.util.function.Consumer<ServerPlayer> extra) {
+        note(c, "line", width / 2.0 + 0.3);
         Fx.line(level(c), from, to, width, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             Vec3 ab = to.subtract(from).multiply(1, 0, 1);
@@ -98,6 +110,7 @@ public final class Telegraph {
      * удар полной силой бьёт ВСЕХ на арене — разметку нужно закрыть телами.
      */
     public static void soak(BossEntity.Cast c, Vec3 center, float radius, double totalUnits, int need) {
+        note(c, "soak", 0);
         Fx.disc(level(c), center, radius, c.ticks, SOAK, true);
         Fx.pillar(level(c), center, radius * 0.3f, 3, c.ticks, SOAK);
         c.at(c.ticks, () -> {

@@ -111,10 +111,11 @@ public class Morena extends BossEntity {
         Telegraph.donut(c, position(), 4, r + 2, p("inside_units"));
         Vec3 at = position();
         schedule(c.ticks + 10, () -> {
-            Cast second = testCast(30);
+            // Из-под ведьмы до края круга — 8 блоков: 0,5 с на реакцию и 1,6 с бега.
+            Cast second = testCast(45);
             Telegraph.circle(second, at, 8, p("inside_units"));
-            schedule(40, () -> {
-                Cast third = testCast(30);
+            schedule(55, () -> {
+                Cast third = testCast(40);
                 Telegraph.donut(third, at, 4, r + 2, p("inside_units"));
             });
         });

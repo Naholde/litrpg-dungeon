@@ -38,7 +38,7 @@ public final class MonkSkills {
         public SealStrike() {
             super("monk.seal_strike", "Печать удара", 0xFFD27A, "✶", 4, 0);
             blocks("range", 4);
-            damage("damage", 1.2);
+            damage("damage", 1.715);
             shield("seal_hp", 1.0);
             seconds("seal_time", 12);
         }
@@ -71,7 +71,7 @@ public final class MonkSkills {
             shield("seal_hp", 1.0);
             seconds("seal_time", 12);
             percent("slow", 0.35);
-            damage("damage", 0.4);
+            damage("damage", 0.572);
         }
 
         @Override
@@ -120,7 +120,7 @@ public final class MonkSkills {
             super("monk.circle", "Круг сомкнулся", 0xFFF3B0, "◎", 14, 0);
             blocks("search", 40);
             count("need", 3);
-            damage("damage", 2.6);
+            damage("damage", 3.714);
             seconds("stun", 1.5);
         }
 
@@ -172,7 +172,7 @@ public final class MonkSkills {
             super("monk.palm", "Ладонь ци", 0xFFD27A, "☛", 12, 0);
             blocks("length", 10);
             blocks("width", 1.6);
-            damage("damage", 1.8);
+            damage("damage", 2.572);
             count("cost", 20);
         }
 
@@ -210,7 +210,7 @@ public final class MonkSkills {
         public HundredPalms() {
             super("monk.hundred", "Сто ладоней", 0xFFE8A6, "⁙", 20, 0);
             blocks("range", 4);
-            damage("damage", 0.45);
+            damage("damage", 0.643);
             count("hits", 6);
             count("chi", 6);
         }

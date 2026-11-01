@@ -50,4 +50,31 @@ public final class BossGuide {
     public static Entry of(String id) {
         return ALL.getOrDefault(id, new Entry("", ""));
     }
+
+    /** Давление хранителя (фаза 12): как зовутся его волна по отряду и метка на бойце, цвет. */
+    public record Pressure(String pulse, String mark, int color) {
+    }
+
+    private static final Map<String, Pressure> PRESSURE = Map.ofEntries(
+            Map.entry("trial_warden", new Pressure("Давление Системы", "Метка Системы", 0x7FB8FF)),
+            Map.entry("gatekeeper", new Pressure("Гул врат", "Костяная заноза", 0xE8E0C8)),
+            Map.entry("morra", new Pressure("Шёпот сестёр", "Метка жатвы", 0x9B5CFF)),
+            Map.entry("lich", new Pressure("Дыхание склепа", "Метка холода", 0x8FE3FF)),
+            Map.entry("arachna", new Pressure("Ядовитые испарения", "Укус паучонка", 0x8FD14F)),
+            Map.entry("rot_ent", new Pressure("Гнилой ветер", "Спора в крови", 0x9BB84A)),
+            Map.entry("morena", new Pressure("Шёпот страха", "Порча", 0xB04AD8)),
+            Map.entry("tide_warden", new Pressure("Холод прилива", "Метка глубины", 0x4AA8E8)),
+            Map.entry("leviathan", new Pressure("Давление глубин", "Солёная рана", 0x2A7AB8)),
+            Map.entry("naiad", new Pressure("Песнь в воде", "Метка сирены", 0x7FE8E0)),
+            Map.entry("smelter", new Pressure("Жар горна", "Окалина", 0xFF8A2E)),
+            Map.entry("chariot", new Pressure("Раскалённый ветер", "Метка колеи", 0xFFB04A)),
+            Map.entry("ash_lord", new Pressure("Пепельный дождь", "Тлеющее клеймо", 0xD8542A)),
+            Map.entry("doppel", new Pressure("Отражение боли", "Метка двойника", 0xC8C8E0)),
+            Map.entry("chronophage", new Pressure("Тиканье", "Метка времени", 0xFFE27A)),
+            Map.entry("xalathar", new Pressure("Шёпот Бездны", "Метка пустоты", 0x6A2AB8)));
+
+    /** Давление хранителя или null (вторая сестра молчит — давит первая). */
+    public static Pressure pressure(String id) {
+        return PRESSURE.get(id);
+    }
 }

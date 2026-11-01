@@ -24,7 +24,7 @@ public final class ReaperSkills {
             super("reaper.scythe", "Коса", 0x6B7A8B, "⚒", 5, 0);
             blocks("radius", 5);
             param("angle", 150, com.andrey.litrpg.skill.SkillParam.Unit.FLAT, com.andrey.litrpg.skill.SkillParam.Scale.NONE);
-            damage("damage", 1.25);
+            damage("damage", 2.22);
         }
 
         @Override
@@ -50,7 +50,7 @@ public final class ReaperSkills {
         public ChainSickle() {
             super("reaper.sickle", "Серп на цепи", 0x8B8B8B, "⌇", 11, 0);
             blocks("range", 15);
-            damage("damage", 0.9);
+            damage("damage", 1.599);
             percent("slow", 0.3);
             seconds("duration", 3);
         }

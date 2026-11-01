@@ -50,6 +50,10 @@ neoForge {
         // Запускает все автотесты GameTest и выходит; код выхода ≠ 0, если тест упал.
         gameTestServer {
             type = 'gameTestServer'
+            systemProperty 'litrpg.root', projectDir.absolutePath
+            // gradlew runGameTestServer -Pbench — ещё и стенд классов (фаза 12): build/reports/bench/
+            if (project.hasProperty('bench')) systemProperty 'litrpg.bench', 'true'
+            if (project.hasProperty('benchOnly')) systemProperty 'litrpg.bench.only', project.property('benchOnly').toString()
         }
         configureEach {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id

@@ -27,7 +27,7 @@ public final class HeadsmanSkills {
             super("headsman.swing", "Тяжёлый замах", 0x8B2A2A, "⚒", 10, 1.6);
             blocks("range", 4.5);
             blocks("radius", 3);
-            damage("damage", 3.2);
+            damage("damage", 5.02);
             percent("block_bonus", 1.0);
         }
 
@@ -71,7 +71,7 @@ public final class HeadsmanSkills {
         public Hook() {
             super("headsman.hook", "Крюк палача", 0x6B4A2E, "⌐", 16, 0);
             blocks("range", 12);
-            damage("damage", 0.8);
+            damage("damage", 1.255);
             seconds("stun", 1.5);
         }
 
@@ -101,7 +101,7 @@ public final class HeadsmanSkills {
         public Wheel() {
             super("headsman.wheel", "Колесо", 0xA03A3A, "◍", 12, 0);
             blocks("radius", 4);
-            damage("damage", 1.4);
+            damage("damage", 2.197);
         }
 
         @Override
@@ -128,7 +128,7 @@ public final class HeadsmanSkills {
         public Verdict() {
             super("headsman.verdict", "Приговор исполнен", 0x4A0A0A, "☠", 22, 0);
             blocks("range", 4);
-            damage("damage", 2.4);
+            damage("damage", 3.766);
             percent("threshold", 0.35);
             percent("bonus", 1.2);
         }

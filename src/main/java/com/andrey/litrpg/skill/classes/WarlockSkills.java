@@ -61,7 +61,7 @@ public final class WarlockSkills {
             super("warlock.corruption", "Порча", 0x5A2A6B, "≀", 8, 0);
             blocks("range", 22);
             blocks("jump", 8);
-            damage("damage", 2.6);
+            damage("damage", 1.975);
             seconds("duration", 10);
         }
 
@@ -137,7 +137,7 @@ public final class WarlockSkills {
             blocks("range", 14);
             blocks("radius", 6);
             seconds("duration", 8);
-            damage("damage", 0.45);
+            damage("damage", 0.342);
             percent("back", 0.6);
         }
 
@@ -179,7 +179,7 @@ public final class WarlockSkills {
             blocks("range", 14);
             blocks("radius", 4);
             shield("hp", 2.0);
-            damage("damage", 0.6);
+            damage("damage", 0.456);
             count("count", 3);
             seconds("duration", 12);
             seconds("root", 1.5);
@@ -224,7 +224,7 @@ public final class WarlockSkills {
             blocks("range", 20);
             count("cost", 40);
             percent("price", 0.5);
-            damage("damage", 3.0);
+            damage("damage", 2.278);
             percent("per_health", 0.9);
         }
 

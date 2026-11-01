@@ -16,6 +16,7 @@ public final class SkillMath {
 
     /** Перезарядка с ускорением (доля, срезанная Интеллектом). */
     public static int cooldownTicks(double seconds, double haste) {
-        return (int) Math.round(seconds * 20 * (1 - Math.max(0, Math.min(0.9, haste))));
+        // Ускорение перезарядки складывается (вещи, «Ускорить», часы, знамя), но не дальше −60%.
+        return (int) Math.round(seconds * 20 * (1 - Math.max(0, Math.min(0.6, haste))));
     }
 }

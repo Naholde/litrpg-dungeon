@@ -105,7 +105,8 @@ public final class DamageService {
         amount *= levelGap(attacker, victim);
 
         // 2. Метки жертвы: уязвимость/защита, затем «защитник» забирает долю себе.
-        amount *= StatusService.product(victim, StatusType.DAMAGE_TAKEN);
+        // Снижения урона перемножаются (купол × знамя × стойка…), но вместе — не больше −75%: бессмертия нет.
+        amount *= Math.max(0.25, StatusService.product(victim, StatusType.DAMAGE_TAKEN));
         if (!REDIRECTING.get()) amount = redirectToGuardian(victim, src, amount);
 
         // 3. Жертва — игрок.

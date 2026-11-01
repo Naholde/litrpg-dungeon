@@ -35,7 +35,7 @@ public final class RiftSkills {
             blocks("range", 16);
             blocks("radius", 5);
             shield("hp", 2.0);
-            damage("damage", 0.5);
+            damage("damage", 0.924);
             seconds("duration", 14);
         }
 
@@ -69,7 +69,7 @@ public final class RiftSkills {
         public VoidStep() {
             super("rift.step", "Шаг в пустоту", 0xD6A6FF, "⇅", 9, 0);
             blocks("range", 14);
-            damage("damage", 0.8);
+            damage("damage", 1.479);
             blocks("radius", 3);
         }
 
@@ -101,7 +101,7 @@ public final class RiftSkills {
             blocks("range", 20);
             blocks("leash", 5);
             seconds("duration", 4);
-            damage("damage", 2.6);
+            damage("damage", 4.805);
             percent("extra", 0.3);
         }
 
@@ -145,7 +145,7 @@ public final class RiftSkills {
             super("rift.collapse", "Схлопывание", 0x4A2A8B, "✸", 20, 0);
             blocks("search", 40);
             blocks("radius", 6);
-            damage("damage", 2.2);
+            damage("damage", 4.065);
             seconds("stun", 1);
         }
 
@@ -187,7 +187,7 @@ public final class RiftSkills {
             blocks("range", 16);
             blocks("radius", 7);
             seconds("duration", 10);
-            damage("damage", 0.5);
+            damage("damage", 0.924);
             percent("slow", 0.3);
         }
 

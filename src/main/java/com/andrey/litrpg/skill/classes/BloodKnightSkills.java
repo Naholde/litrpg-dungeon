@@ -171,7 +171,7 @@ public final class BloodKnightSkills {
             super("blood.threads", "Кровавые нити", 0xB0001A, "⁂", 96, 0);
             blocks("radius", 10);
             seconds("duration", 6);
-            percent("drain", 0.03);
+            percent("drain", 0.02);
             percent("back", 0.7);
             percent("boss_part", 0.25);
             count("cost", 40);

@@ -115,11 +115,23 @@ public class DungeonMob extends Monster implements GeoEntity {
         this.rank = rank;
         this.setUp = true;
         double unit = BossDamage.unit(this.level);
-        set(Attributes.MAX_HEALTH, p("hp_units") * unit * rank.health);
-        set(Attributes.ATTACK_DAMAGE, p("dmg_units") * unit * rank.damage);
+        set(Attributes.MAX_HEALTH, p("hp_units") * unit * rank.health * growHp(level));
+        set(Attributes.ATTACK_DAMAGE, p("dmg_units") * unit * rank.damage * growDamage(level));
         set(Attributes.MOVEMENT_SPEED, p("speed"));
         setHealth(getMaxHealth());
         updateName();
+    }
+
+    /**
+     * Вещи отряда к концу подземелья растут быстрее «единицы» уровня — монстры дальних этапов крепче
+     * (с 15-го уровня: к 50-му ×2,4 здоровья и ×1,8 урона), чтобы отряд и там бился 15–40 с.
+     */
+    public static double growHp(int level) {
+        return 1 + Math.max(0, level - 15) / 25.0;
+    }
+
+    public static double growDamage(int level) {
+        return 1 + Math.max(0, level - 15) / 45.0;
     }
 
     private void set(net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> a, double v) {

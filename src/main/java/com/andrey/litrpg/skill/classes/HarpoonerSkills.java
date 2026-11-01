@@ -27,7 +27,7 @@ public final class HarpoonerSkills {
         public Harpoon() {
             super("harpoon.throw", "Гарпун", 0x8B8B8B, "⚓", 8, 0);
             blocks("range", 18);
-            damage("damage", 1.0);
+            damage("damage", 2.192);
             seconds("slow_time", 2);
             percent("slow", 0.3);
         }
@@ -59,7 +59,7 @@ public final class HarpoonerSkills {
             blocks("range", 16);
             blocks("link", 14);
             seconds("duration", 6);
-            damage("damage", 0.45);
+            damage("damage", 0.987);
         }
 
         @Override
@@ -105,7 +105,7 @@ public final class HarpoonerSkills {
         public Windup() {
             super("harpoon.windup", "Намотка", 0xB0B0B0, "✸", 14, 0);
             blocks("radius", 4.5);
-            damage("damage", 1.1);
+            damage("damage", 2.412);
             count("spins", 3);
         }
 
@@ -144,7 +144,7 @@ public final class HarpoonerSkills {
             blocks("range", 14);
             blocks("leash", 6);
             seconds("duration", 6);
-            damage("damage", 0.5);
+            damage("damage", 1.096);
         }
 
         @Override
@@ -184,7 +184,7 @@ public final class HarpoonerSkills {
         public ChainPull() {
             super("harpoon.pull_self", "Рывок на цепи", 0xD6E8FF, "➤", 12, 0);
             blocks("range", 20);
-            damage("damage", 1.3);
+            damage("damage", 2.85);
         }
 
         @Override
@@ -217,7 +217,7 @@ public final class HarpoonerSkills {
             blocks("range", 16);
             blocks("radius", 10);
             seconds("duration", 3);
-            damage("damage", 1.4);
+            damage("damage", 3.069);
             percent("slow", 0.4);
         }
 

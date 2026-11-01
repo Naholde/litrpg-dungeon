@@ -62,7 +62,7 @@ public final class IllusionistSkills {
             blocks("range", 10);
             blocks("radius", 6);
             shield("hp", 2.0);
-            damage("damage", 0.45);
+            damage("damage", 0.842);
             seconds("duration", 22);
         }
 
@@ -169,7 +169,7 @@ public final class IllusionistSkills {
             super("illusion.kaleidoscope", "Калейдоскоп", 0xE8D6FF, "✤", 24, 0);
             blocks("radius", 6);
             shield("hp", 1.6);
-            damage("damage", 0.45);
+            damage("damage", 0.842);
             count("count", 3);
             seconds("duration", 12);
             count("cost", 25);
@@ -204,7 +204,7 @@ public final class IllusionistSkills {
             super("illusion.strike", "Отражённый удар", 0xC9A6FF, "✶", 8, 0);
             blocks("range", 18);
             blocks("search", 30);
-            damage("damage", 1.6);
+            damage("damage", 2.997);
             percent("echo", 0.6);
         }
 
@@ -249,7 +249,7 @@ public final class IllusionistSkills {
             super("illusion.vanish", "Исчезновение", 0xFFFFFF, "✺", 68, 0);
             blocks("search", 30);
             blocks("radius", 6);
-            damage("damage", 1.8);
+            damage("damage", 3.371);
             seconds("duration", 4);
             percent("miss", 0.75);
         }

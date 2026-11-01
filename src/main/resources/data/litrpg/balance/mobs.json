@@ -4,187 +4,187 @@
   "aggro_radius": 10.0,
   "species": {
     "acolyte": {
-      "hp_units": 0.6,
-      "dmg_units": 0.035,
+      "hp_units": 2.1,
+      "dmg_units": 0.0875,
       "speed": 0.25,
       "heal_share": 0.2
     },
     "ash_crossbow": {
-      "hp_units": 0.55,
-      "dmg_units": 0.048,
+      "hp_units": 1.925,
+      "dmg_units": 0.12,
       "speed": 0.25,
       "hit_dot": 0.15,
       "dot_seconds": 3.0
     },
     "bone_guard": {
-      "hp_units": 1.3,
-      "dmg_units": 0.06,
+      "hp_units": 4.55,
+      "dmg_units": 0.15,
       "speed": 0.2
     },
     "bone_rat": {
-      "hp_units": 0.25,
-      "dmg_units": 0.02,
+      "hp_units": 0.875,
+      "dmg_units": 0.05,
       "speed": 0.34
     },
     "colossus": {
-      "hp_units": 1.7,
-      "dmg_units": 0.072,
+      "hp_units": 5.95,
+      "dmg_units": 0.18,
       "speed": 0.19
     },
     "crab": {
-      "hp_units": 1.5,
-      "dmg_units": 0.065,
+      "hp_units": 5.25,
+      "dmg_units": 0.1625,
       "speed": 0.2
     },
     "crypt_archer": {
-      "hp_units": 0.55,
-      "dmg_units": 0.05,
+      "hp_units": 1.925,
+      "dmg_units": 0.125,
       "speed": 0.26
     },
     "crypt_warrior": {
-      "hp_units": 0.8,
-      "dmg_units": 0.055,
+      "hp_units": 2.8,
+      "dmg_units": 0.1375,
       "speed": 0.24
     },
     "deep_priest": {
-      "hp_units": 0.6,
-      "dmg_units": 0.035,
+      "hp_units": 2.1,
+      "dmg_units": 0.0875,
       "speed": 0.24,
       "heal_share": 0.2
     },
     "drowned_guard": {
-      "hp_units": 1.3,
-      "dmg_units": 0.06,
+      "hp_units": 4.55,
+      "dmg_units": 0.15,
       "speed": 0.21
     },
     "fire_shaman": {
-      "hp_units": 0.6,
-      "dmg_units": 0.036,
+      "hp_units": 2.1,
+      "dmg_units": 0.09,
       "speed": 0.25,
       "heal_share": 0.2
     },
     "forest_witch": {
-      "hp_units": 0.6,
-      "dmg_units": 0.035,
+      "hp_units": 2.1,
+      "dmg_units": 0.0875,
       "speed": 0.25,
       "heal_share": 0.2
     },
     "forge_construct": {
-      "hp_units": 1.5,
-      "dmg_units": 0.068,
+      "hp_units": 5.25,
+      "dmg_units": 0.17,
       "speed": 0.2
     },
     "ghoul": {
-      "hp_units": 0.65,
-      "dmg_units": 0.04,
+      "hp_units": 2.275,
+      "dmg_units": 0.1,
       "speed": 0.33,
       "hit_dot": 0.25,
       "dot_seconds": 4.0
     },
     "harpooner": {
-      "hp_units": 0.55,
-      "dmg_units": 0.045,
+      "hp_units": 1.925,
+      "dmg_units": 0.1125,
       "speed": 0.25,
       "hit_pull": 3.0
     },
     "imp": {
-      "hp_units": 0.24,
-      "dmg_units": 0.024,
+      "hp_units": 0.84,
+      "dmg_units": 0.06,
       "speed": 0.36,
       "hit_dot": 0.2,
       "dot_seconds": 3.0
     },
     "jelly": {
-      "hp_units": 0.25,
-      "dmg_units": 0.024,
+      "hp_units": 0.875,
+      "dmg_units": 0.06,
       "speed": 0.3,
       "hit_dot": 0.2,
       "dot_seconds": 3.0
     },
     "jumper": {
-      "hp_units": 0.55,
-      "dmg_units": 0.05,
+      "hp_units": 1.925,
+      "dmg_units": 0.125,
       "speed": 0.34,
       "leap": 4.0
     },
     "light_eater": {
-      "hp_units": 0.62,
-      "dmg_units": 0.04,
+      "hp_units": 2.17,
+      "dmg_units": 0.1,
       "speed": 0.25,
       "heal_share": 0.22
     },
     "molten_golem": {
-      "hp_units": 1.35,
-      "dmg_units": 0.062,
+      "hp_units": 4.725,
+      "dmg_units": 0.155,
       "speed": 0.2
     },
     "moray": {
-      "hp_units": 0.55,
-      "dmg_units": 0.05,
+      "hp_units": 1.925,
+      "dmg_units": 0.125,
       "speed": 0.35,
       "leap": 5.0,
       "hit_dot": 0.2,
       "dot_seconds": 3.0
     },
     "salamander": {
-      "hp_units": 0.6,
-      "dmg_units": 0.052,
+      "hp_units": 2.1,
+      "dmg_units": 0.13,
       "speed": 0.34,
       "leap": 5.0,
       "hit_dot": 0.15,
       "dot_seconds": 3.0
     },
     "shadow": {
-      "hp_units": 1.6,
-      "dmg_units": 0.05,
+      "hp_units": 5.6,
+      "dmg_units": 0.125,
       "speed": 0.3
     },
     "shard": {
-      "hp_units": 0.26,
-      "dmg_units": 0.026,
+      "hp_units": 0.91,
+      "dmg_units": 0.065,
       "speed": 0.36,
       "hit_dot": 0.15,
       "dot_seconds": 3.0
     },
     "spitter": {
-      "hp_units": 0.5,
-      "dmg_units": 0.04,
+      "hp_units": 1.75,
+      "dmg_units": 0.1,
       "speed": 0.25,
       "hit_dot": 0.3,
       "dot_seconds": 4.0
     },
     "treant_guard": {
-      "hp_units": 1.4,
-      "dmg_units": 0.065,
+      "hp_units": 4.9,
+      "dmg_units": 0.1625,
       "speed": 0.2
     },
     "void_sentinel": {
-      "hp_units": 1.35,
-      "dmg_units": 0.064,
+      "hp_units": 4.725,
+      "dmg_units": 0.16,
       "speed": 0.21
     },
     "wanderer": {
-      "hp_units": 0.62,
-      "dmg_units": 0.055,
+      "hp_units": 2.17,
+      "dmg_units": 0.1375,
       "speed": 0.35,
       "leap": 4.0
     },
     "warped_archer": {
-      "hp_units": 0.56,
-      "dmg_units": 0.05,
+      "hp_units": 1.96,
+      "dmg_units": 0.125,
       "speed": 0.25,
       "hit_root": 1.0
     },
     "wasp": {
-      "hp_units": 0.22,
-      "dmg_units": 0.022,
+      "hp_units": 0.77,
+      "dmg_units": 0.055,
       "speed": 0.36,
       "hit_dot": 0.15,
       "dot_seconds": 3.0
     },
     "weaver": {
-      "hp_units": 0.6,
-      "dmg_units": 0.045,
+      "hp_units": 2.1,
+      "dmg_units": 0.1125,
       "speed": 0.26,
       "hit_root": 1.5
     }

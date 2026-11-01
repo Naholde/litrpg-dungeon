@@ -128,6 +128,9 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private long combatStart;
     private long lastPlayerSeen;
     private long nextAuto;
+    /** Давление (фаза 12): когда следующая волна по отряду и следующая метка. */
+    private long nextPulse, nextMark;
+    private boolean pressureTold;
     private int partySize = 3;
     private int phase;
     private int enrageStage;
@@ -199,7 +202,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     }
 
     public double enrageMultiplier() {
-        return Math.pow(Balance.get(Balance.BOSSES).common().enrageMult(), enrageStage);
+        return 1 + (Balance.get(Balance.BOSSES).common().enrageMult() - 1) * enrageStage;
     }
 
     public int phase() {
@@ -370,6 +373,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             ThreatService.tick(this);
         }
         updateEnrage(now);
+        if (!dormant()) pressure(now, players);
         tickPools(now);
         updatePhase();
         if (arena2 != null && !relocated && getHealth() <= getMaxHealth() * 0.5f) relocate();
@@ -395,6 +399,9 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         combatStart = level().getGameTime();
         lastPlayerSeen = combatStart;
         nextAuto = combatStart + 20;
+        nextPulse = combatStart + 8 * 20;
+        nextMark = combatStart + 12 * 20;
+        pressureTold = false;
         partySize = Math.max(1, Math.min(com.andrey.litrpg.party.Party.MAX, fixedParty > 0 ? fixedParty : players.size()));
         double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize);
         var hp = getAttribute(Attributes.MAX_HEALTH);
@@ -444,6 +451,75 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         }
     }
 
+    /**
+     * Давление — у каждого хранителя под своим именем ({@link BossGuide#pressure}). Волна: кольцо расходится
+     * от хранителя 1,5 с, потом бьёт всех на арене — уйти нельзя, лечить нужно. Метка: боец не-цель горит
+     * {@code mark_duration} секунд, вокруг него на полу заполняется круг; в конец — удар всем, кто внутри.
+     * Отойди от союзников — и метка заденет только тебя.
+     */
+    private void pressure(long now, List<ServerPlayer> players) {
+        BossGuide.Pressure names = BossGuide.pressure(type().id());
+        if (names == null || players.isEmpty()) return;
+        BossesBalance.Pressure pr = Balance.get(Balance.BOSSES).common().pressure();
+        double grow = pressureGrow(bossLevel(), partySize);
+        ServerLevel sl = (ServerLevel) level();
+        if (!pressureTold) {
+            pressureTold = true;
+            tell(Component.literal("«" + names.pulse() + "» бьёт весь отряд — лекарь, держите всех. «" + names.mark()
+                    + "» — меченый, отойди от своих, пока круг не заполнился.").withStyle(ChatFormatting.GRAY));
+        }
+        if (now >= nextPulse) {
+            nextPulse = now + Math.round(pr.pulseSeconds() * 20 * (0.85 + random.nextDouble() * 0.3));
+            int wind = 30;
+            Fx.wave(sl, position(), (float) arenaRadius, 2.5f, wind, names.color());
+            Fx.pillar(sl, position(), 1.2f, 5, wind, names.color());
+            sl.playSound(null, blockPosition(), SoundEvents.WARDEN_SONIC_CHARGE, SoundSource.HOSTILE, 0.8f, 1.4f);
+            schedule(wind, () -> {
+                for (ServerPlayer p : playersInArena()) {
+                    BossDamage.hit(this, p, pr.pulseUnits() * grow);
+                    Fx.burst(sl, p.position().add(0, 1, 0), 0.6f, 6, names.color());
+                }
+                sl.playSound(null, blockPosition(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.HOSTILE, 0.6f, 1.2f);
+            });
+        }
+        if (now >= nextMark) {
+            nextMark = now + Math.round(pr.markSeconds() * 20 * (0.85 + random.nextDouble() * 0.3));
+            List<ServerPlayer> pool = new ArrayList<>(players);
+            pool.remove(getTarget());
+            java.util.Collections.shuffle(pool, new java.util.Random(random.nextLong()));
+            int count = Math.min(pool.size(), partySize >= 5 ? 2 : 1);
+            int dur = (int) Math.round(pr.markDuration() * 20);
+            float r = (float) pr.markRadius();
+            for (ServerPlayer p : pool.subList(0, count)) {
+                Fx.discOn(sl, p, r, dur, Fx.DANGER, true);
+                Fx.mark(sl, p, "☠", dur, names.color());
+                SystemChat.send(p, Component.literal("На вас «" + names.mark() + "»: отойдите от своих — через "
+                        + Math.round(pr.markDuration()) + " с рванёт по всем рядом!").withStyle(ChatFormatting.RED));
+                for (int t = 20; t <= dur; t += 20) {
+                    schedule(t, () -> {
+                        if (p.isAlive() && !p.isSpectator()) BossDamage.hit(this, p, pr.markUnits() * grow);
+                    });
+                }
+                schedule(dur, () -> {
+                    if (!p.isAlive() || p.isSpectator()) return;
+                    for (ServerPlayer o : playersInArena()) {
+                        if (o != p && o.distanceTo(p) <= r) BossDamage.hit(this, o, pr.markBurstUnits());
+                    }
+                    Fx.ring(sl, p.position(), r, 10, names.color());
+                    sl.playSound(null, p.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 0.5f, 1.5f);
+                });
+            }
+        }
+    }
+
+    /**
+     * Сила давления: растёт с уровнем хранителя (вещи лекаря к концу подземелья лечат втрое сильнее, чем в начале),
+     * а для отряда больше трёх — тише на каждого (волна бьёт всех, а лекарь, скорее всего, один).
+     */
+    public static double pressureGrow(int level, int party) {
+        return (1 + level / 25.0) * (1 + Math.max(0, level - 25) / 30.0) * Math.pow(3.0 / Math.max(3, party), 0.8);
+    }
+
     private void updateEnrage(long now) {
         int stage = (int) ((now - combatStart) / Math.max(20, Math.round(Balance.get(Balance.BOSSES).common().enrageSeconds() * 20)));
         if (stage > enrageStage) {
@@ -485,6 +561,19 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             return true;
         }
         return false;
+    }
+
+    /** Навыки хранителя (стенд и проверки). */
+    public List<Ability> debugAbilities() {
+        return abilities();
+    }
+
+    /** Начать подготовку навыка в обход перезарядки и условий (стенд «от всего можно уйти»). */
+    public void debugCast(Ability a) {
+        long now = level().getGameTime();
+        int ticks = (int) Math.round(p(a.key() + "_cast") * 20);
+        casting = new Cast(a, getTarget(), ticks, ++castCounter, now + ticks);
+        a.start().accept(casting);
     }
 
     private void endCast() {
@@ -737,6 +826,12 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (mob == null) return null;
         mob.moveTo(at.x, at.y, at.z, random.nextFloat() * 360, 0);
         mob.setup(bossLevel(), rank);
+        // Бестиарий в фазе 12 стал крепче втрое — подручные хранителя остаются «между делом»: ÷2,5.
+        var mhp = mob.getAttribute(Attributes.MAX_HEALTH);
+        if (mhp != null) {
+            mhp.setBaseValue(mhp.getBaseValue() / 2.5);
+            mob.setHealth(mob.getMaxHealth());
+        }
         mob.setPersistenceRequired();
         mob.getPersistentData().putBoolean(com.andrey.litrpg.gear.LootService.NO_LOOT, true);
         sl.addFreshEntity(mob);

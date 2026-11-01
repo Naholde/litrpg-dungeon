@@ -30,7 +30,7 @@ public final class MechanicSkills {
             blocks("range", 8);
             blocks("radius", 12);
             shield("hp", 3.0);
-            damage("damage", 0.6);
+            damage("damage", 0.689);
             seconds("duration", 20);
         }
 
@@ -66,7 +66,7 @@ public final class MechanicSkills {
             super("mech.shotgun", "Дробовик", 0xFF7A2E, "⁂", 7, 0);
             blocks("radius", 6);
             param("angle", 55, com.andrey.litrpg.skill.SkillParam.Unit.FLAT, com.andrey.litrpg.skill.SkillParam.Scale.NONE);
-            damage("damage", 1.5);
+            damage("damage", 1.723);
             percent("close", 0.6);
         }
 
@@ -100,7 +100,7 @@ public final class MechanicSkills {
             blocks("range", 10);
             blocks("radius", 3);
             shield("hp", 1.2);
-            damage("damage", 2.2);
+            damage("damage", 2.528);
             seconds("duration", 30);
         }
 
@@ -136,7 +136,7 @@ public final class MechanicSkills {
             super("mech.mortar", "Мортира", 0xE07A3A, "⇡", 35, 0);
             blocks("range", 25);
             blocks("radius", 3.5);
-            damage("damage", 1.6);
+            damage("damage", 1.838);
             count("shells", 3);
             seconds("delay", 1.2);
         }
@@ -217,7 +217,7 @@ public final class MechanicSkills {
             super("mech.arsenal", "Полный арсенал", 0xFF4A2E, "✹", 120, 0);
             blocks("radius", 12);
             shield("hp", 3.0);
-            damage("damage", 1.2);
+            damage("damage", 1.379);
             seconds("duration", 14);
             count("turrets", 3);
             percent("overheat", 0.3);

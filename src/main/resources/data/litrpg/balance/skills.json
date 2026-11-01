@@ -16,7 +16,7 @@
       "cast": 0.0,
       "range": 24.0,
       "near": 6.0,
-      "damage": 1.3,
+      "damage": 1.437,
       "amplify": 0.5
     },
     "astro.constellation": {
@@ -24,7 +24,7 @@
       "cast": 0.0,
       "search": 40.0,
       "width": 2.0,
-      "damage": 1.6,
+      "damage": 1.769,
       "times": 3.0,
       "duration": 3.0
     },
@@ -33,7 +33,7 @@
       "cast": 0.0,
       "range": 24.0,
       "radius": 4.0,
-      "damage": 1.8,
+      "damage": 1.99,
       "delay": 1.0
     },
     "astro.luminary": {
@@ -42,7 +42,7 @@
       "range": 16.0,
       "radius": 5.0,
       "hp": 2.0,
-      "damage": 0.45,
+      "damage": 0.497,
       "duration": 24.0
     },
     "astro.pull": {
@@ -51,14 +51,14 @@
       "search": 40.0,
       "duration": 4.0,
       "slow": 0.35,
-      "damage": 0.4
+      "damage": 0.442
     },
     "astro.supernova": {
       "cooldown": 68.0,
       "cast": 0.0,
       "search": 40.0,
       "radius": 7.0,
-      "damage": 2.8,
+      "damage": 3.095,
       "center": 1.0,
       "stun": 1.0
     },
@@ -67,16 +67,16 @@
       "cast": 0.0,
       "range": 10.0,
       "radius": 8.0,
-      "hp": 3.5,
+      "hp": 5.121,
       "reduce": 0.225,
-      "heal": 0.18,
+      "heal": 0.263,
       "duration": 16.0
     },
     "banner.last_stand": {
       "cooldown": 144.0,
       "cast": 0.0,
       "radius": 10.0,
-      "hp": 8.0,
+      "hp": 11.705,
       "duration": 10.0
     },
     "banner.power": {
@@ -84,16 +84,16 @@
       "cast": 0.0,
       "range": 10.0,
       "radius": 8.0,
-      "hp": 3.5,
+      "hp": 5.121,
       "power": 0.225,
-      "heal": 0.18,
+      "heal": 0.263,
       "duration": 16.0
     },
     "banner.ranks": {
       "cooldown": 45.0,
       "cast": 0.0,
       "radius": 25.0,
-      "shield": 2.0,
+      "shield": 2.926,
       "duration": 8.0
     },
     "banner.shout": {
@@ -101,17 +101,17 @@
       "cast": 0.0,
       "radius": 20.0,
       "duration": 6.0,
-      "heal": 1.2
+      "heal": 1.756
     },
     "banner.speed": {
       "cooldown": 30.0,
       "cast": 0.0,
       "range": 10.0,
       "radius": 8.0,
-      "hp": 3.0,
+      "hp": 4.389,
       "speed": 0.5,
       "haste": 0.225,
-      "heal": 0.18,
+      "heal": 0.263,
       "duration": 16.0
     },
     "bastion.armor": {
@@ -233,7 +233,7 @@
       "cast": 0.0,
       "radius": 10.0,
       "duration": 6.0,
-      "drain": 0.03,
+      "drain": 0.02,
       "back": 0.7,
       "boss_part": 0.25,
       "cost": 40.0
@@ -272,10 +272,11 @@
       "cost": 40.0
     },
     "chrono.rewind": {
-      "cooldown": 14.0,
+      "cooldown": 5.0,
       "cast": 0.0,
       "range": 30.0,
       "back": 5.0,
+      "heal": 7.0,
       "cost": 30.0
     },
     "chrono.stasis": {
@@ -289,21 +290,21 @@
       "cooldown": 3.0,
       "cast": 0.0,
       "range": 30.0,
-      "heal": 1.8
+      "heal": 1.323
     },
     "cleric.miracle": {
       "cooldown": 144.0,
       "cast": 0.0,
       "radius": 30.0,
-      "heal": 5.0,
-      "shield": 1.5,
+      "heal": 3.674,
+      "shield": 1.102,
       "duration": 8.0
     },
     "cleric.prayer": {
       "cooldown": 0.0,
       "cast": 2.0,
       "range": 30.0,
-      "heal": 4.0
+      "heal": 2.939
     },
     "cleric.sanctuary": {
       "cooldown": 30.0,
@@ -311,7 +312,7 @@
       "range": 20.0,
       "radius": 5.0,
       "duration": 8.0,
-      "heal": 0.35,
+      "heal": 0.258,
       "reduce": 0.225
     },
     "cryo.blizzard": {
@@ -320,13 +321,13 @@
       "range": 16.0,
       "radius": 6.0,
       "duration": 8.0,
-      "damage": 0.3
+      "damage": 0.331
     },
     "cryo.freeze": {
       "cooldown": 14.0,
       "cast": 0.0,
       "range": 20.0,
-      "damage": 0.8,
+      "damage": 0.883,
       "duration": 10.0,
       "stacks": 2.0
     },
@@ -334,7 +335,7 @@
       "cooldown": 3.0,
       "cast": 0.0,
       "range": 22.0,
-      "damage": 1.0,
+      "damage": 1.103,
       "duration": 10.0
     },
     "cryo.shatter": {
@@ -342,23 +343,23 @@
       "cast": 0.0,
       "range": 20.0,
       "radius": 4.0,
-      "damage": 1.6,
+      "damage": 1.766,
       "frozen": 2.0,
-      "shards": 0.8
+      "shards": 0.883
     },
     "cryo.spikes": {
       "cooldown": 26.0,
       "cast": 0.0,
       "length": 12.0,
       "width": 2.0,
-      "damage": 1.5,
+      "damage": 1.655,
       "duration": 10.0
     },
     "cryo.zero": {
       "cooldown": 96.0,
       "cast": 0.0,
       "radius": 9.0,
-      "damage": 1.8,
+      "damage": 1.986,
       "duration": 3.0
     },
     "dps.heavy_strike": {
@@ -509,7 +510,7 @@
       "range": 16.0,
       "radius": 10.0,
       "duration": 3.0,
-      "damage": 1.4,
+      "damage": 3.069,
       "slow": 0.4
     },
     "harpoon.double": {
@@ -518,13 +519,13 @@
       "range": 16.0,
       "link": 14.0,
       "duration": 6.0,
-      "damage": 0.45
+      "damage": 0.987
     },
     "harpoon.pull_self": {
       "cooldown": 12.0,
       "cast": 0.0,
       "range": 20.0,
-      "damage": 1.3
+      "damage": 2.85
     },
     "harpoon.shackles": {
       "cooldown": 26.0,
@@ -532,13 +533,13 @@
       "range": 14.0,
       "leash": 6.0,
       "duration": 6.0,
-      "damage": 0.5
+      "damage": 1.096
     },
     "harpoon.throw": {
       "cooldown": 8.0,
       "cast": 0.0,
       "range": 18.0,
-      "damage": 1.0,
+      "damage": 2.192,
       "slow_time": 2.0,
       "slow": 0.3
     },
@@ -546,7 +547,7 @@
       "cooldown": 14.0,
       "cast": 0.0,
       "radius": 4.5,
-      "damage": 1.1,
+      "damage": 2.412,
       "spins": 3.0
     },
     "headsman.block": {
@@ -562,7 +563,7 @@
       "cooldown": 16.0,
       "cast": 0.0,
       "range": 12.0,
-      "damage": 0.8,
+      "damage": 1.255,
       "stun": 1.5
     },
     "headsman.scaffold": {
@@ -576,14 +577,14 @@
       "cast": 1.6,
       "range": 4.5,
       "radius": 3.0,
-      "damage": 3.2,
+      "damage": 5.02,
       "block_bonus": 1.0
     },
     "headsman.verdict": {
       "cooldown": 22.0,
       "cast": 0.0,
       "range": 4.0,
-      "damage": 2.4,
+      "damage": 3.766,
       "threshold": 0.35,
       "bonus": 1.2
     },
@@ -591,7 +592,7 @@
       "cooldown": 12.0,
       "cast": 0.0,
       "radius": 4.0,
-      "damage": 1.4
+      "damage": 2.197
     },
     "illusion.charm": {
       "cooldown": 10.0,
@@ -606,7 +607,7 @@
       "range": 10.0,
       "radius": 6.0,
       "hp": 2.0,
-      "damage": 0.45,
+      "damage": 0.842,
       "duration": 22.0
     },
     "illusion.kaleidoscope": {
@@ -614,7 +615,7 @@
       "cast": 0.0,
       "radius": 6.0,
       "hp": 1.6,
-      "damage": 0.45,
+      "damage": 0.842,
       "count": 3.0,
       "duration": 12.0,
       "cost": 25.0
@@ -624,7 +625,7 @@
       "cast": 0.0,
       "range": 18.0,
       "search": 30.0,
-      "damage": 1.6,
+      "damage": 2.997,
       "echo": 0.6
     },
     "illusion.swap": {
@@ -639,7 +640,7 @@
       "cast": 0.0,
       "search": 30.0,
       "radius": 6.0,
-      "damage": 1.8,
+      "damage": 3.371,
       "duration": 4.0,
       "miss": 0.75
     },
@@ -648,7 +649,7 @@
       "cast": 0.0,
       "radius": 12.0,
       "hp": 3.0,
-      "damage": 1.2,
+      "damage": 1.379,
       "duration": 14.0,
       "turrets": 3.0,
       "overheat": 0.3,
@@ -660,7 +661,7 @@
       "range": 10.0,
       "radius": 3.0,
       "hp": 1.2,
-      "damage": 2.2,
+      "damage": 2.528,
       "duration": 30.0
     },
     "mech.mortar": {
@@ -668,7 +669,7 @@
       "cast": 0.0,
       "range": 25.0,
       "radius": 3.5,
-      "damage": 1.6,
+      "damage": 1.838,
       "shells": 3.0,
       "delay": 1.2
     },
@@ -685,7 +686,7 @@
       "cast": 0.0,
       "radius": 6.0,
       "angle": 55.0,
-      "damage": 1.5,
+      "damage": 1.723,
       "close": 0.6
     },
     "mech.turret": {
@@ -694,7 +695,7 @@
       "range": 8.0,
       "radius": 12.0,
       "hp": 3.0,
-      "damage": 0.6,
+      "damage": 0.689,
       "duration": 20.0
     },
     "mirror.double": {
@@ -738,14 +739,14 @@
       "cast": 0.0,
       "search": 40.0,
       "need": 3.0,
-      "damage": 2.6,
+      "damage": 3.714,
       "stun": 1.5
     },
     "monk.hundred": {
       "cooldown": 20.0,
       "cast": 0.0,
       "range": 4.0,
-      "damage": 0.45,
+      "damage": 0.643,
       "hits": 6.0,
       "chi": 6.0
     },
@@ -762,7 +763,7 @@
       "cast": 0.0,
       "length": 10.0,
       "width": 1.6,
-      "damage": 1.8,
+      "damage": 2.572,
       "cost": 20.0
     },
     "monk.seal_bind": {
@@ -772,13 +773,13 @@
       "seal_hp": 1.0,
       "seal_time": 12.0,
       "slow": 0.35,
-      "damage": 0.4
+      "damage": 0.572
     },
     "monk.seal_strike": {
       "cooldown": 4.0,
       "cast": 0.0,
       "range": 4.0,
-      "damage": 1.2,
+      "damage": 1.715,
       "seal_hp": 1.0,
       "seal_time": 12.0
     },
@@ -824,15 +825,15 @@
       "radius": 14.0,
       "per_stack": 0.85,
       "spread": 2.0,
-      "rot": 1.2,
+      "rot": 0.819,
       "duration": 12.0
     },
     "plague.plague": {
       "cooldown": 3.0,
       "cast": 0.0,
       "range": 20.0,
-      "damage": 0.7,
-      "rot": 1.6,
+      "damage": 0.478,
+      "rot": 1.092,
       "duration": 12.0
     },
     "plague.spread": {
@@ -841,7 +842,7 @@
       "range": 20.0,
       "radius": 7.0,
       "targets": 4.0,
-      "rot": 1.2,
+      "rot": 0.819,
       "duration": 12.0
     },
     "plague.swarm": {
@@ -850,8 +851,8 @@
       "range": 16.0,
       "radius": 6.0,
       "duration": 10.0,
-      "damage": 0.3,
-      "rot": 0.8
+      "damage": 0.205,
+      "rot": 0.546
     },
     "plague.turn": {
       "cooldown": 45.0,
@@ -867,14 +868,14 @@
       "range": 20.0,
       "duration": 8.0,
       "heal_cut": 0.7,
-      "damage": 1.0
+      "damage": 0.683
     },
     "priest.atonement": {
       "cooldown": 12.0,
       "cast": 0.0,
       "range": 30.0,
       "duration": 10.0,
-      "share": 0.45
+      "share": 0.9
     },
     "priest.bargain": {
       "cooldown": 24.0,
@@ -896,7 +897,7 @@
       "cooldown": 6.0,
       "cast": 0.0,
       "range": 22.0,
-      "damage": 2.2,
+      "damage": 3.0,
       "duration": 6.0
     },
     "priest.twilight": {
@@ -905,14 +906,14 @@
       "range": 18.0,
       "radius": 6.0,
       "duration": 8.0,
-      "damage": 0.45,
-      "share": 0.6
+      "damage": 0.6,
+      "share": 0.8
     },
     "priest.veil": {
       "cooldown": 30.0,
       "cast": 0.0,
       "range": 25.0,
-      "shield": 2.2,
+      "shield": 5.475,
       "duration": 8.0,
       "burst": 1.3,
       "burst_radius": 4.0
@@ -922,8 +923,8 @@
       "cast": 0.0,
       "radius": 8.0,
       "angle": 70.0,
-      "damage": 1.3,
-      "burn": 0.6,
+      "damage": 0.768,
+      "burn": 0.354,
       "duration": 8.0
     },
     "pyro.detonate": {
@@ -940,7 +941,7 @@
       "radius": 8.0,
       "meteor": 3.0,
       "meteors": 5.0,
-      "damage": 1.5,
+      "damage": 0.885,
       "delay": 1.2
     },
     "pyro.ground": {
@@ -949,14 +950,14 @@
       "range": 16.0,
       "radius": 4.0,
       "duration": 8.0,
-      "damage": 0.35,
-      "burn": 0.5
+      "damage": 0.206,
+      "burn": 0.295
     },
     "pyro.inferno": {
       "cooldown": 88.0,
       "cast": 0.0,
       "radius": 10.0,
-      "damage": 2.0,
+      "damage": 1.181,
       "per_burning": 0.35,
       "self_burn": 0.1,
       "duration": 6.0
@@ -965,8 +966,8 @@
       "cooldown": 3.0,
       "cast": 0.0,
       "range": 22.0,
-      "damage": 0.9,
-      "burn": 0.8,
+      "damage": 0.531,
+      "burn": 0.472,
       "duration": 8.0
     },
     "reaper.ferryman": {
@@ -996,7 +997,7 @@
       "cast": 0.0,
       "radius": 5.0,
       "angle": 150.0,
-      "damage": 1.25
+      "damage": 2.22
     },
     "reaper.sentence": {
       "cooldown": 64.0,
@@ -1009,7 +1010,7 @@
       "cooldown": 11.0,
       "cast": 0.0,
       "range": 15.0,
-      "damage": 0.9,
+      "damage": 1.599,
       "slow": 0.3,
       "duration": 3.0
     },
@@ -1018,7 +1019,7 @@
       "cast": 0.0,
       "search": 40.0,
       "radius": 6.0,
-      "damage": 2.2,
+      "damage": 4.065,
       "stun": 1.0
     },
     "rift.inside": {
@@ -1035,7 +1036,7 @@
       "range": 20.0,
       "leash": 5.0,
       "duration": 4.0,
-      "damage": 2.6,
+      "damage": 4.805,
       "extra": 0.3
     },
     "rift.maw": {
@@ -1044,7 +1045,7 @@
       "range": 16.0,
       "radius": 7.0,
       "duration": 10.0,
-      "damage": 0.5,
+      "damage": 0.924,
       "slow": 0.3
     },
     "rift.rift": {
@@ -1053,14 +1054,14 @@
       "range": 16.0,
       "radius": 5.0,
       "hp": 2.0,
-      "damage": 0.5,
+      "damage": 0.924,
       "duration": 14.0
     },
     "rift.step": {
       "cooldown": 9.0,
       "cast": 0.0,
       "range": 14.0,
-      "damage": 0.8,
+      "damage": 1.479,
       "radius": 3.0
     },
     "shadow.cloak": {
@@ -1074,7 +1075,7 @@
       "cooldown": 20.0,
       "cast": 0.0,
       "range": 4.0,
-      "damage": 2.2,
+      "damage": 2.379,
       "threshold": 0.3,
       "bonus": 1.5
     },
@@ -1082,7 +1083,7 @@
       "cooldown": 10.0,
       "cast": 0.0,
       "range": 14.0,
-      "damage": 1.3,
+      "damage": 1.406,
       "behind": 1.0
     },
     "shadow.knives": {
@@ -1090,7 +1091,7 @@
       "cast": 0.0,
       "radius": 9.0,
       "angle": 70.0,
-      "damage": 0.75,
+      "damage": 0.811,
       "knives": 5.0
     },
     "shadow.night": {
@@ -1105,7 +1106,7 @@
       "cooldown": 16.0,
       "cast": 0.0,
       "range": 4.0,
-      "damage": 2.4,
+      "damage": 2.595,
       "duration": 8.0,
       "extra": 0.375
     },
@@ -1122,7 +1123,7 @@
       "cast": 0.0,
       "radius": 30.0,
       "power": 0.12,
-      "shield": 1.2,
+      "shield": 3.072,
       "duration": 10.0
     },
     "shaman.lightning": {
@@ -1139,7 +1140,7 @@
       "cast": 0.0,
       "range": 10.0,
       "radius": 7.0,
-      "hp": 4.0,
+      "hp": 10.24,
       "reduce": 0.225,
       "speed": 0.45,
       "duration": 14.0
@@ -1149,8 +1150,8 @@
       "cast": 0.0,
       "range": 10.0,
       "radius": 6.0,
-      "hp": 3.0,
-      "heal": 0.55,
+      "hp": 7.68,
+      "heal": 2.1,
       "duration": 14.0
     },
     "shaman.totem_storm": {
@@ -1158,7 +1159,7 @@
       "cast": 0.0,
       "range": 10.0,
       "radius": 7.0,
-      "hp": 2.6,
+      "hp": 6.656,
       "damage": 0.8,
       "duration": 12.0
     },
@@ -1166,7 +1167,7 @@
       "cooldown": 6.0,
       "cast": 0.0,
       "range": 40.0,
-      "damage": 1.4,
+      "damage": 0.977,
       "full": 3.0,
       "bonus": 1.5
     },
@@ -1181,7 +1182,7 @@
       "cooldown": 36.0,
       "cast": 0.0,
       "range": 50.0,
-      "damage": 4.5,
+      "damage": 3.142,
       "marked": 1.0
     },
     "sniper.mark": {
@@ -1196,7 +1197,7 @@
       "cast": 0.8,
       "length": 30.0,
       "width": 1.2,
-      "damage": 2.0
+      "damage": 1.397
     },
     "sniper.trap": {
       "cooldown": 26.0,
@@ -1205,15 +1206,15 @@
       "radius": 1.8,
       "hp": 1.5,
       "duration": 30.0,
-      "damage": 1.2,
+      "damage": 0.838,
       "hold": 3.0
     },
     "storm.chain": {
       "cooldown": 7.0,
       "cast": 0.0,
       "range": 24.0,
-      "damage": 1.3,
-      "burst": 0.8,
+      "damage": 1.011,
+      "burst": 0.622,
       "targets": 4.0,
       "falloff": 0.2,
       "jump": 8.0,
@@ -1225,17 +1226,17 @@
       "range": 22.0,
       "radius": 4.0,
       "duration": 8.0,
-      "damage": 0.6,
-      "burst": 0.8,
+      "damage": 0.467,
+      "burst": 0.622,
       "static_time": 8.0
     },
     "storm.jolt": {
       "cooldown": 4.0,
       "cast": 0.0,
       "range": 20.0,
-      "damage": 1.1,
+      "damage": 0.855,
       "charged": 1.0,
-      "burst": 0.8,
+      "burst": 0.622,
       "duration": 8.0
     },
     "storm.static": {
@@ -1244,7 +1245,7 @@
       "range": 20.0,
       "radius": 5.0,
       "stacks": 2.0,
-      "burst": 1.0,
+      "burst": 0.778,
       "duration": 10.0
     },
     "storm.step": {
@@ -1252,7 +1253,7 @@
       "cast": 0.0,
       "range": 16.0,
       "radius": 3.5,
-      "damage": 1.6,
+      "damage": 1.244,
       "stun": 1.0
     },
     "storm.tempest": {
@@ -1261,9 +1262,9 @@
       "range": 18.0,
       "radius": 9.0,
       "duration": 8.0,
-      "damage": 1.1,
+      "damage": 0.855,
       "strikes": 2.0,
-      "burst": 0.8,
+      "burst": 0.622,
       "static_time": 8.0
     },
     "summon.burst": {
@@ -1359,7 +1360,7 @@
       "cast": 0.0,
       "radius": 4.0,
       "angle": 100.0,
-      "damage": 0.6,
+      "damage": 1.293,
       "hits": 3.0
     },
     "swift.last_swing": {
@@ -1367,7 +1368,7 @@
       "cast": 0.0,
       "range": 4.0,
       "cost": 50.0,
-      "damage": 2.2,
+      "damage": 4.741,
       "per_momentum": 0.03
     },
     "swift.pirouette": {
@@ -1381,7 +1382,7 @@
       "cooldown": 6.0,
       "cast": 0.0,
       "range": 12.0,
-      "damage": 1.1,
+      "damage": 2.37,
       "behind": 0.5
     },
     "tank.bulwark": {
@@ -1409,7 +1410,7 @@
       "range": 14.0,
       "radius": 6.0,
       "duration": 8.0,
-      "damage": 0.45,
+      "damage": 0.342,
       "back": 0.6
     },
     "warlock.corruption": {
@@ -1417,7 +1418,7 @@
       "cast": 0.0,
       "range": 22.0,
       "jump": 8.0,
-      "damage": 2.6,
+      "damage": 1.975,
       "duration": 10.0
     },
     "warlock.curse": {
@@ -1442,7 +1443,7 @@
       "range": 20.0,
       "cost": 40.0,
       "price": 0.5,
-      "damage": 3.0,
+      "damage": 2.278,
       "per_health": 0.9
     },
     "warlock.tentacles": {
@@ -1451,7 +1452,7 @@
       "range": 14.0,
       "radius": 4.0,
       "hp": 2.0,
-      "damage": 0.6,
+      "damage": 0.456,
       "count": 3.0,
       "duration": 12.0,
       "root": 1.5

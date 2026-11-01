@@ -28,7 +28,7 @@ public final class ShadowPriestSkills {
         public Lash() {
             super("priest.lash", "Теневая плеть", 0x6B4AA8, "≀", 6, 0);
             blocks("range", 22);
-            damage("damage", 2.2);
+            damage("damage", 3.0);
             seconds("duration", 6);
         }
 
@@ -58,7 +58,7 @@ public final class ShadowPriestSkills {
             super("priest.atonement", "Искупление", 0xB8A6FF, "✛", 12, 0);
             blocks("range", 30);
             seconds("duration", 10);
-            percent("share", 0.45);
+            percent("share", 0.9);
         }
 
         @Override
@@ -89,8 +89,8 @@ public final class ShadowPriestSkills {
             blocks("range", 18);
             blocks("radius", 6);
             seconds("duration", 8);
-            damage("damage", 0.45);
-            percent("share", 0.6);
+            damage("damage", 0.6);
+            percent("share", 0.8);
         }
 
         @Override
@@ -177,7 +177,7 @@ public final class ShadowPriestSkills {
         public Veil() {
             super("priest.veil", "Покров тьмы", 0x3A2A5A, "◘", 30, 0);
             blocks("range", 25);
-            shield("shield", 2.2);
+            shield("shield", 5.475);
             seconds("duration", 8);
             damage("burst", 1.3);
             blocks("burst_radius", 4);

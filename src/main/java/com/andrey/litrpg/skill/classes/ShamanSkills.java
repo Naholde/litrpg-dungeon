@@ -36,8 +36,8 @@ public final class ShamanSkills {
             super("shaman.totem_heal", "Тотем исцеления", 0x7BF5A0, "⌂", 22, 0);
             blocks("range", 10);
             blocks("radius", 6);
-            shield("hp", 3.0);
-            heal("heal", 0.55);
+            shield("hp", 7.68);
+            heal("heal", 2.1);
             seconds("duration", 14);
         }
 
@@ -72,7 +72,7 @@ public final class ShamanSkills {
             super("shaman.totem_storm", "Тотем бури", 0xB8C6FF, "⌁", 26, 0);
             blocks("range", 10);
             blocks("radius", 7);
-            shield("hp", 2.6);
+            shield("hp", 6.656);
             damage("damage", 0.8);
             seconds("duration", 12);
         }
@@ -160,7 +160,7 @@ public final class ShamanSkills {
             super("shaman.totem_earth", "Тотем земли", 0xC9A055, "⌸", 32, 0);
             blocks("range", 10);
             blocks("radius", 7);
-            shield("hp", 4.0);
+            shield("hp", 10.24);
             percent("reduce", 0.225);
             percent("speed", 0.45);
             seconds("duration", 14);
@@ -248,7 +248,7 @@ public final class ShamanSkills {
             super("shaman.consume", "Поглотить тотемы", 0xFFD27A, "✹", 80, 0);
             blocks("radius", 30);
             percent("power", 0.12);
-            shield("shield", 1.2);
+            shield("shield", 3.072);
             seconds("duration", 10);
         }
 

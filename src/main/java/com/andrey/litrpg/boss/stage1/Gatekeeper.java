@@ -68,7 +68,7 @@ public class Gatekeeper extends BossEntity {
             if (other == null) return;
             Vec3 dir2 = other.position().subtract(position());
             schedule(c.ticks, () -> {
-                Cast second = testCast(20);
+                Cast second = testCast(28);
                 Telegraph.cone(second, position(), dir2, 8, 60, p("chain_units") * 0.8);
             });
         }

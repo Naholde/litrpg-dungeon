@@ -86,6 +86,9 @@ public final class CodexScreen extends Screen {
         add.accept("Роли", UiKit.GOLD);
         add.accept("Танк держит врагов провокацией и стоит к ним лицом. Боец наносит урон и не стоит в разметке. Поддержка лечит: Ctrl+1…6 — выбрать союзника. Без всех трёх ролей пройти почти невозможно.", UiKit.TEXT);
         add.accept("", 0);
+        add.accept("Давление хранителей", UiKit.GOLD);
+        add.accept("Каждый хранитель, кроме своих приёмов, давит на весь отряд. Волна (расходится кольцом от хранителя) бьёт всех — уйти нельзя, лекарь держит отряд. Метка ложится на бойца: она жжёт его, а когда круг под ним заполнится — бьёт всех, кто стоит рядом. Меченый — отойди от своих. Чем дольше бой, тем сильнее неистовство: +15% урона хранителя за минуту.", UiKit.TEXT);
+        add.accept("", 0);
         add.accept("Опыт и класс", UiKit.GOLD);
         add.accept("Опыт этапа точный: половина — за отряды, почти половина — за хранителей, немного — за загадки и секретки. Награда выдаётся один раз. На 10 уровне Система предлагает три класса по вашему стилю игры.", UiKit.TEXT);
         add.accept("", 0);
@@ -127,6 +130,8 @@ public final class CodexScreen extends Screen {
                 BossGuide.Entry e = BossGuide.of(t.id());
                 if (!e.quote().isEmpty()) add.accept("«" + e.quote() + "»", 0xFFC8A0A0);
                 add.accept(e.tactic(), UiKit.TEXT);
+                BossGuide.Pressure pr = BossGuide.pressure(t.id());
+                if (pr != null) add.accept("Давление: волна «" + pr.pulse() + "», метка «" + pr.mark() + "».", 0xFFB8A6FF);
                 add.accept("", 0);
             }
         }

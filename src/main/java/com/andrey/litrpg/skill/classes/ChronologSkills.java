@@ -28,9 +28,10 @@ public final class ChronologSkills {
     /** Полный откат: здоровье союзника — как было несколько секунд назад. */
     public static final class Rewind extends Skill {
         public Rewind() {
-            super("chrono.rewind", "Полный откат", 0xFFE27A, "↺", 14, 0);
+            super("chrono.rewind", "Полный откат", 0xFFE27A, "↺", 5, 0);
             blocks("range", 30);
             seconds("back", 5);
+            heal("heal", 7.0);
             count("cost", 30);
         }
 
@@ -41,8 +42,8 @@ public final class ChronologSkills {
 
         @Override
         public String template() {
-            return "За {cost} песка: у союзника снова столько здоровья, сколько было {back} назад. "
-                    + "Если за это время он не ранен — ничего не изменится.";
+            return "За {cost} песка: у союзника снова столько здоровья, сколько было {back} назад, "
+                    + "но не меньше чем +{heal}.";
         }
 
         @Override
@@ -50,7 +51,7 @@ public final class ChronologSkills {
             LivingEntity who = ctx.target != null ? ctx.target : ctx.caster;
             if (!(who instanceof ServerPlayer sp)) return;
             double then = History.healthAgo(sp, ctx.v("back"));
-            double back = then - sp.getHealth();
+            double back = Math.max(then - sp.getHealth(), ctx.v("heal") * ctx.unit());
             if (back > 0) HealService.healFixed(ctx.caster, sp, back);
             Fx.pillar(ctx.level, sp.position(), 0.9f, 3.5f, 20, 0xFFE27A);
             Fx.mark(ctx.level, sp, "↺", 20, 0xFFE27A);

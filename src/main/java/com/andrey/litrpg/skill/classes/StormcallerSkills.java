@@ -40,8 +40,8 @@ public final class StormcallerSkills {
         public ChainLightning() {
             super("storm.chain", "Цепь молний", 0x8FA6FF, "↯", 7, 0);
             blocks("range", 24);
-            damage("damage", 1.3);
-            damage("burst", 0.8);
+            damage("damage", 1.011);
+            damage("burst", 0.622);
             count("targets", 4);
             percent("falloff", 0.2);
             blocks("jump", 8);
@@ -93,9 +93,9 @@ public final class StormcallerSkills {
         public Jolt() {
             super("storm.jolt", "Разряд", 0xD6E8FF, "⚡", 4, 0);
             blocks("range", 20);
-            damage("damage", 1.1);
+            damage("damage", 0.855);
             percent("charged", 1.0);
-            damage("burst", 0.8);
+            damage("burst", 0.622);
             seconds("duration", 8);
         }
 
@@ -128,7 +128,7 @@ public final class StormcallerSkills {
             blocks("range", 20);
             blocks("radius", 5);
             count("stacks", 2);
-            damage("burst", 1.0);
+            damage("burst", 0.778);
             seconds("duration", 10);
         }
 
@@ -162,8 +162,8 @@ public final class StormcallerSkills {
             blocks("range", 22);
             blocks("radius", 4);
             seconds("duration", 8);
-            damage("damage", 0.6);
-            damage("burst", 0.8);
+            damage("damage", 0.467);
+            damage("burst", 0.622);
             seconds("static_time", 8);
         }
 
@@ -203,7 +203,7 @@ public final class StormcallerSkills {
             super("storm.step", "Громовой шаг", 0xE8F0FF, "⇅", 22, 0);
             blocks("range", 16);
             blocks("radius", 3.5);
-            damage("damage", 1.6);
+            damage("damage", 1.244);
             seconds("stun", 1);
         }
 
@@ -239,9 +239,9 @@ public final class StormcallerSkills {
             blocks("range", 18);
             blocks("radius", 9);
             seconds("duration", 8);
-            damage("damage", 1.1);
+            damage("damage", 0.855);
             count("strikes", 2);
-            damage("burst", 0.8);
+            damage("burst", 0.622);
             seconds("static_time", 8);
         }
 

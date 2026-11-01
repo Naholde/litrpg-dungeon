@@ -36,8 +36,8 @@ public final class PlagueSkills {
         public Plague() {
             super("plague.plague", "Мор", 0x8FA83A, "☣", 3, 0);
             blocks("range", 20);
-            damage("damage", 0.7);
-            damage("rot", 1.6);
+            damage("damage", 0.478);
+            damage("rot", 1.092);
             seconds("duration", 12);
         }
 
@@ -69,7 +69,7 @@ public final class PlagueSkills {
             blocks("range", 20);
             blocks("radius", 7);
             count("targets", 4);
-            damage("rot", 1.2);
+            damage("rot", 0.819);
             seconds("duration", 12);
         }
 
@@ -109,7 +109,7 @@ public final class PlagueSkills {
             blocks("range", 20);
             seconds("duration", 8);
             percent("heal_cut", 0.7);
-            damage("damage", 1.0);
+            damage("damage", 0.683);
         }
 
         @Override
@@ -139,8 +139,8 @@ public final class PlagueSkills {
             blocks("range", 16);
             blocks("radius", 6);
             seconds("duration", 10);
-            damage("damage", 0.3);
-            damage("rot", 0.8);
+            damage("damage", 0.205);
+            damage("rot", 0.546);
         }
 
         @Override
@@ -219,7 +219,7 @@ public final class PlagueSkills {
             param("per_stack", 0.85, com.andrey.litrpg.skill.SkillParam.Unit.DAMAGE,
                     com.andrey.litrpg.skill.SkillParam.Scale.POWER);
             count("spread", 2);
-            damage("rot", 1.2);
+            damage("rot", 0.819);
             seconds("duration", 12);
         }
 
