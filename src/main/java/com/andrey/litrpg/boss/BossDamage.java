@@ -33,9 +33,37 @@ public final class BossDamage {
     }
 
     /** Ударить игрока на {@code units} единиц (с неистовством). Конвейер урона добавит роль и стойкость. */
+    /**
+     * Ранние этапы мягче (отзыв группы 02.11.2026: первый хранитель ваншотил, монстров били по 15 минут).
+     * 0 на 1-м уровне → 1 к 30-му: до него здоровье, урон и темп хранителей и монстров плавно растут до полных.
+     */
+    public static double early(int level) {
+        return Math.max(0, Math.min(1, (level - 1) / 29.0));
+    }
+
+    /** Урон хранителя: ×0,45 в начале → ×1 к 30-му уровню. */
+    public static double earlyDamage(int level) {
+        return 0.45 + 0.55 * early(level);
+    }
+
+    /** Здоровье хранителя: ×0,2 в начале → ×1 к 30-му уровню. */
+    public static double earlyHp(int level) {
+        return 0.2 + 0.8 * early(level);
+    }
+
+    /** Откаты хранителя и «давки»: ×1,6 в начале → ×1. */
+    public static double earlyCooldown(int level) {
+        return 1.6 - 0.6 * early(level);
+    }
+
+    /** Замах (время на уход из разметки): ×1,4 в начале → ×1. */
+    public static double earlyCast(int level) {
+        return 1.4 - 0.4 * early(level);
+    }
+
     public static boolean hit(BossEntity boss, LivingEntity target, double units) {
         if (target == null || !target.isAlive() || (target instanceof ServerPlayer p && p.isSpectator())) return false;
-        double amount = units * unit(boss.bossLevel()) * boss.enrageMultiplier();
+        double amount = units * unit(boss.bossLevel()) * boss.enrageMultiplier() * earlyDamage(boss.bossLevel());
         target.invulnerableTime = 0;
         return target.hurt(boss.damageSources().mobAttack(boss), (float) amount);
     }

@@ -127,10 +127,13 @@ public class DungeonMob extends Monster implements GeoEntity {
      * (с 15-го уровня: к 50-му ×2,4 здоровья и ×1,8 урона), чтобы отряд и там бился 15–40 с.
      */
     public static double growHp(int level) {
-        return 1 + Math.max(0, level - 15) / 25.0;
+        // Ранние монстры (отзыв группы 02.11.2026: били по 15 минут) — ×0,25 на 1-м уровне → ×1 к 30-му.
+        double early = 0.25 + 0.75 * com.andrey.litrpg.boss.BossDamage.early(level);
+        return early * (1 + Math.max(0, level - 15) / 25.0);
     }
 
     public static double growDamage(int level) {
+        if (level < 30) return (0.7 + 0.3 * com.andrey.litrpg.boss.BossDamage.early(level)) * (1 + Math.max(0, level - 15) / 45.0);
         return 1 + Math.max(0, level - 15) / 45.0;
     }
 

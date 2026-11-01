@@ -406,7 +406,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         nextMark = combatStart + 12 * 20;
         pressureTold = false;
         partySize = Math.max(1, Math.min(com.andrey.litrpg.party.Party.MAX, fixedParty > 0 ? fixedParty : players.size()));
-        double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize);
+        double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize)
+                * BossDamage.earlyHp(bossLevel());
         var hp = getAttribute(Attributes.MAX_HEALTH);
         if (hp != null) hp.setBaseValue(max);
         setHealth((float) max);
@@ -543,8 +544,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private void rush(long now, List<ServerPlayer> players) {
         if (players.isEmpty() || casting != null || now < nextRush) return;
         BossesBalance.Rush r = Balance.get(Balance.BOSSES).common().rush();
-        nextRush = now + Math.round(r.seconds() * 20 * (0.8 + random.nextDouble() * 0.4));
-        int warn = Math.max(6, (int) Math.round(r.warn() * 20));
+        nextRush = now + Math.round(r.seconds() * 20 * (0.8 + random.nextDouble() * 0.4) * BossDamage.earlyCooldown(bossLevel()));
+        int warn = Math.max(6, (int) Math.round(r.warn() * 20 * BossDamage.earlyCast(bossLevel())));
         rushMelee = !rushMelee;
         if (rushMelee) {
             Telegraph.circle(testCast(warn), position(), (float) r.meleeRadius(), r.meleeUnits() * enrageMultiplier());
@@ -578,8 +579,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (getTarget() == null) return false;
         for (Ability a : abilities()) {
             if (now < readyAt.getOrDefault(a.key(), 0L) || !a.usable().test(this)) continue;
-            readyAt.put(a.key(), now + Math.round(p(a.key() + "_cd") * 20));
-            int ticks = (int) Math.round(p(a.key() + "_cast") * 20);
+            readyAt.put(a.key(), now + Math.round(p(a.key() + "_cd") * 20 * BossDamage.earlyCooldown(bossLevel())));
+            int ticks = (int) Math.round(p(a.key() + "_cast") * 20 * BossDamage.earlyCast(bossLevel()));
             casting = new Cast(a, getTarget(), ticks, ++castCounter, now + ticks);
             entityData.set(CAST_NAME, a.name() + (a.interruptible() ? "|1" : "|0") + "|" + ticks + "|" + (now + ticks));
             getNavigation().stop();
