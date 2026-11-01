@@ -1426,6 +1426,48 @@ MODELS.update({"totem_heal": totem_heal, "totem_storm": totem_storm, "totem_eart
                "minion_wolf": minion_wolf, "minion_golem": minion_golem})
 
 
+# ---------------------------------------------------------------------------- монстры: полный набор движений
+
+MOBS = set(__import__("re").findall(r'reg\("(\w+)"', (Path(__file__).resolve().parent.parent
+                                                      / "src/main/java/com/andrey/litrpg/mob/Bestiary.java").read_text(encoding="utf-8")))
+
+
+def mob_anims(name, bones, anims):
+    """Монстру — выстрел, заклинание, щит, прыжок и «больно»: у человекоподобных — свои движения рук,
+    у остальных — движения тела. Чего нет у шаблона — достраивается."""
+    names = {b.name for b in bones}
+    z = [0, 0, 0]
+    if {"right_arm", "left_arm", "body"} <= names:
+        anims.setdefault("shoot", once(0.7, {
+            "left_arm": {"rotation": kf([(0, z), (0.25, [-90, 10, 0]), (0.6, [-90, 10, 0]), (0.7, z)])},
+            "right_arm": {"rotation": kf([(0, z), (0.25, [-90, -30, 0]), (0.5, [-80, -55, 0]), (0.55, [-90, -10, 0]), (0.7, z)])},
+            "body": {"rotation": kf([(0, z), (0.3, [0, 20, 0]), (0.7, z)])}}))
+        anims.setdefault("cast", once(0.8, {
+            "right_arm": {"rotation": kf([(0, z), (0.4, [-160, 0, 20]), (0.6, [-80, 0, 5]), (0.8, z)])},
+            "left_arm": {"rotation": kf([(0, z), (0.4, [-40, 0, -30]), (0.8, z)])},
+            "head": {"rotation": kf([(0, z), (0.4, [-20, 0, 0]), (0.8, z)])}}))
+        anims.setdefault("block", once(0.5, {
+            "left_arm": {"rotation": kf([(0, z), (0.1, [-70, 30, 0]), (0.4, [-70, 30, 0]), (0.5, z)])},
+            "body": {"rotation": kf([(0, z), (0.1, [-8, 0, 0]), (0.5, z)])}}))
+        anims.setdefault("leap", once(0.6, {
+            "body": {"rotation": kf([(0, z), (0.15, [30, 0, 0]), (0.4, [-15, 0, 0]), (0.6, z)])},
+            "right_arm": {"rotation": kf([(0, z), (0.15, [40, 0, 0]), (0.4, [-150, 0, 0]), (0.6, z)])},
+            "left_arm": {"rotation": kf([(0, z), (0.15, [40, 0, 0]), (0.4, [-150, 0, 0]), (0.6, z)])}}))
+        anims.setdefault("hurt", once(0.3, {
+            "body": {"rotation": kf([(0, z), (0.08, [-14, 0, 6]), (0.3, z)])},
+            "head": {"rotation": kf([(0, z), (0.08, [-20, 0, 0]), (0.3, z)])}}))
+    else:
+        core = "body" if "body" in names else ("bell" if "bell" in names else ("core" if "core" in names else "root"))
+        head = "head" if "head" in names else core
+        anims.setdefault("shoot", once(0.6, {head: {"rotation": kf([(0, z), (0.25, [-35, 0, 0]), (0.4, [20, 0, 0]), (0.6, z)])}}))
+        anims.setdefault("cast", once(0.8, {core: {"scale": kf([(0, [1, 1, 1]), (0.4, [1.15, 0.9, 1.15]), (0.8, [1, 1, 1])])}}))
+        anims.setdefault("block", once(0.5, {core: {"rotation": kf([(0, z), (0.1, [-15, 0, 0]), (0.5, z)])}}))
+        anims.setdefault("leap", once(0.6, {core: {"scale": kf([(0, [1, 1, 1]), (0.15, [1.15, 0.8, 1.15]), (0.35, [0.9, 1.2, 0.9]), (0.6, [1, 1, 1])]),
+                                                   "rotation": kf([(0, z), (0.35, [-25, 0, 0]), (0.6, z)])}}))
+        anims.setdefault("hurt", once(0.3, {core: {"rotation": kf([(0, z), (0.08, [0, 0, 10]), (0.3, z)]),
+                                                   "scale": kf([(0, [1, 1, 1]), (0.08, [0.92, 1.05, 0.92]), (0.3, [1, 1, 1])])}}))
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None
@@ -1434,6 +1476,8 @@ def main():
             continue
         bones, anims = fn()
         boss_anims.add(name, anims)
+        if name in MOBS:
+            mob_anims(name, bones, anims)
         geo, anim, tex, glow = build(name, bones, anims, tex_w=128, tex_h=64 if name == "power_node" else 128)
         (ASSETS / "geo/entity").mkdir(parents=True, exist_ok=True)
         (ASSETS / "animations/entity").mkdir(parents=True, exist_ok=True)

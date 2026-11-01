@@ -287,13 +287,16 @@ public class DungeonMob extends Monster implements GeoEntity {
         Vec3 dir = t.position().subtract(position()).multiply(1, 0, 1).normalize();
         setDeltaMovement(dir.x * Math.min(1.3, d * 0.16), 0.45, dir.z * Math.min(1.3, d * 0.16));
         hasImpulse = true;
-        triggerAnim("main", "attack");
+        triggerAnim("main", "leap");
         level().playSound(null, blockPosition(), SoundEvents.SPIDER_AMBIENT, SoundSource.HOSTILE, 1f, 1.4f);
     }
+
+    private long lastFlinch;
 
     /** Страж: щит спереди — урон в лицо втрое меньше. Тень: урон не от хозяина почти не проходит. */
     @Override
     public boolean hurt(DamageSource source, float amount) {
+        boolean blocked = false;
         if (!level().isClientSide && getPersistentData().hasUUID("litrpg_owner") && source.getEntity() instanceof ServerPlayer p
                 && !p.getUUID().equals(getPersistentData().getUUID("litrpg_owner"))) {
             amount *= 0.1f;
@@ -304,13 +307,21 @@ public class DungeonMob extends Monster implements GeoEntity {
             Vec3 facing = Vec3.directionFromRotation(0, yBodyRot);
             if (to.dot(facing) > 0.35) {
                 amount *= 0.33f;
+                triggerAnim("main", "block");
+                blocked = true;
                 if (level() instanceof ServerLevel sl) {
                     Fx.burst(sl, position().add(facing.scale(0.6)).add(0, 1.2, 0), 0.7f, 5, 0xC8D0E0);
                     sl.playSound(null, blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.HOSTILE, 0.8f, 0.9f);
                 }
             }
         }
-        return super.hurt(source, amount);
+        boolean hit = super.hurt(source, amount);
+        // «Больно» — вздрогнуть (не чаще раза в полсекунды и не когда удар принял щит).
+        if (hit && !blocked && !level().isClientSide && amount > 0 && level().getGameTime() - lastFlinch > 10) {
+            lastFlinch = level().getGameTime();
+            triggerAnim("main", "hurt");
+        }
+        return hit;
     }
 
     // ------------------------------------------------------------------ цели: стрельба и лечение
@@ -433,8 +444,11 @@ public class DungeonMob extends Monster implements GeoEntity {
         controllers.add(new AnimationController<>(this, "main", 4,
                 state -> state.setAndContinue(state.isMoving() ? walk : idle))
                 .triggerableAnim("attack", RawAnimation.begin().thenPlay(m + "attack"))
-                .triggerableAnim("shoot", RawAnimation.begin().thenPlay(m + "attack"))
-                .triggerableAnim("cast", RawAnimation.begin().thenPlay(m + "attack")));
+                .triggerableAnim("shoot", RawAnimation.begin().thenPlay(m + "shoot"))
+                .triggerableAnim("cast", RawAnimation.begin().thenPlay(m + "cast"))
+                .triggerableAnim("block", RawAnimation.begin().thenPlay(m + "block"))
+                .triggerableAnim("leap", RawAnimation.begin().thenPlay(m + "leap"))
+                .triggerableAnim("hurt", RawAnimation.begin().thenPlay(m + "hurt")));
     }
 
     @Override

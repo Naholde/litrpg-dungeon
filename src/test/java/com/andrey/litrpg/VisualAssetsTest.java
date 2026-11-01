@@ -1,6 +1,7 @@
 package com.andrey.litrpg;
 
 import com.andrey.litrpg.boss.BossRegistry;
+import com.andrey.litrpg.mob.Bestiary;
 import com.andrey.litrpg.skill.Skill;
 import com.google.gson.JsonParser;
 import com.andrey.litrpg.skill.SkillRegistry;
@@ -34,6 +35,27 @@ class VisualAssetsTest {
             }
         }
         assertTrue(missing.isEmpty(), "нет анимаций (запустите tools/gen_models.py): " + missing);
+    }
+
+    /** У каждого вида существ — модель и полный набор движений: ходьба, удар, выстрел, заклинание, щит, прыжок, «больно». */
+    @Test
+    void everyCreatureHasModelAndMoves() throws Exception {
+        List<String> missing = new ArrayList<>();
+        for (Bestiary.Species sp : Bestiary.all()) {
+            if (getClass().getResource("/assets/litrpg/geo/entity/" + sp.model() + ".geo.json") == null) missing.add(sp.id() + ": модель");
+            try (var in = getClass().getResourceAsStream("/assets/litrpg/animations/entity/" + sp.model() + ".animation.json")) {
+                if (in == null) {
+                    missing.add(sp.id() + ": анимации");
+                    continue;
+                }
+                var anims = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject()
+                        .getAsJsonObject("animations");
+                for (String n : List.of("idle", "walk", "attack", "shoot", "cast", "block", "leap", "hurt")) {
+                    if (!anims.has("animation." + sp.model() + "." + n)) missing.add(sp.id() + "." + n);
+                }
+            }
+        }
+        assertTrue(missing.isEmpty(), "у существ не хватает (tools/gen_models.py): " + missing);
     }
 
     @Test
