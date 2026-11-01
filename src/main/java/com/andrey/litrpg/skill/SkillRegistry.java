@@ -156,6 +156,44 @@ public final class SkillRegistry {
     public static final Skill PLAGUE_SWARM = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.FlySwarm());
     public static final Skill PLAGUE_TURN = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.Turn());
     public static final Skill PLAGUE_PANDEMIC = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.Pandemic());
+    // Астромант
+    public static final Skill ASTRO_FALLING = reg(new com.andrey.litrpg.skill.classes.AstromancerSkills.FallingStar());
+    public static final Skill ASTRO_LUMINARY = reg(new com.andrey.litrpg.skill.classes.AstromancerSkills.Luminary());
+    public static final Skill ASTRO_BEAM = reg(new com.andrey.litrpg.skill.classes.AstromancerSkills.StarBeam());
+    public static final Skill ASTRO_CONSTELLATION =
+            reg(new com.andrey.litrpg.skill.classes.AstromancerSkills.Constellation());
+    public static final Skill ASTRO_PULL = reg(new com.andrey.litrpg.skill.classes.AstromancerSkills.StarPull());
+    public static final Skill ASTRO_SUPERNOVA = reg(new com.andrey.litrpg.skill.classes.AstromancerSkills.Supernova());
+    // Призыватель
+    public static final Skill SUMMON_SKELETON = reg(new com.andrey.litrpg.skill.classes.SummonerSkills.RaiseSkeleton());
+    public static final Skill SUMMON_WOLVES = reg(new com.andrey.litrpg.skill.classes.SummonerSkills.ShadowWolves());
+    public static final Skill SUMMON_ORDER = reg(new com.andrey.litrpg.skill.classes.SummonerSkills.Order());
+    public static final Skill SUMMON_GOLEM = reg(new com.andrey.litrpg.skill.classes.SummonerSkills.BoneGolem());
+    public static final Skill SUMMON_BURST = reg(new com.andrey.litrpg.skill.classes.SummonerSkills.SoulBurst());
+    public static final Skill SUMMON_LEGION = reg(new com.andrey.litrpg.skill.classes.SummonerSkills.Legion());
+    // Иллюзионист
+    public static final Skill ILLUSION_DOUBLE = reg(new com.andrey.litrpg.skill.classes.IllusionistSkills.Phantom());
+    public static final Skill ILLUSION_SWAP = reg(new com.andrey.litrpg.skill.classes.IllusionistSkills.Swap());
+    public static final Skill ILLUSION_CHARM = reg(new com.andrey.litrpg.skill.classes.IllusionistSkills.Charm());
+    public static final Skill ILLUSION_KALEIDOSCOPE =
+            reg(new com.andrey.litrpg.skill.classes.IllusionistSkills.Kaleidoscope());
+    public static final Skill ILLUSION_STRIKE =
+            reg(new com.andrey.litrpg.skill.classes.IllusionistSkills.MirroredStrike());
+    public static final Skill ILLUSION_VANISH = reg(new com.andrey.litrpg.skill.classes.IllusionistSkills.Vanish());
+    // Чернокнижник
+    public static final Skill WARLOCK_CURSE = reg(new com.andrey.litrpg.skill.classes.WarlockSkills.CurseOfWeakness());
+    public static final Skill WARLOCK_CORRUPTION = reg(new com.andrey.litrpg.skill.classes.WarlockSkills.Corruption());
+    public static final Skill WARLOCK_PACT = reg(new com.andrey.litrpg.skill.classes.WarlockSkills.Pact());
+    public static final Skill WARLOCK_CIRCLE = reg(new com.andrey.litrpg.skill.classes.WarlockSkills.BloodCircle());
+    public static final Skill WARLOCK_TENTACLES = reg(new com.andrey.litrpg.skill.classes.WarlockSkills.Tentacles());
+    public static final Skill WARLOCK_SACRIFICE = reg(new com.andrey.litrpg.skill.classes.WarlockSkills.Sacrifice());
+    // Разломщик
+    public static final Skill RIFT_RIFT = reg(new com.andrey.litrpg.skill.classes.RiftSkills.Rift());
+    public static final Skill RIFT_STEP = reg(new com.andrey.litrpg.skill.classes.RiftSkills.VoidStep());
+    public static final Skill RIFT_MARK = reg(new com.andrey.litrpg.skill.classes.RiftSkills.VoidMark());
+    public static final Skill RIFT_COLLAPSE = reg(new com.andrey.litrpg.skill.classes.RiftSkills.Collapse());
+    public static final Skill RIFT_MAW = reg(new com.andrey.litrpg.skill.classes.RiftSkills.Maw());
+    public static final Skill RIFT_INSIDE = reg(new com.andrey.litrpg.skill.classes.RiftSkills.Inside());
     // Хронолог
     public static final Skill CHRONO_REWIND = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Rewind());
     public static final Skill CHRONO_STASIS = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Stasis());

@@ -68,6 +68,48 @@ class SkillDefinitionsTest {
         }
     }
 
+    /** Решение владельца: отряд — 1 танк, 1 лекарь и 3 бойца, поэтому классов 6 / 18 / 6. */
+    @Test
+    void rosterMatchesOwnersDecision() {
+        assertEquals(6, ClassRegistry.ofRole(Role.TANK).size(), "танков должно быть 6");
+        assertEquals(18, ClassRegistry.ofRole(Role.DAMAGE).size(), "бойцов должно быть 18");
+        assertEquals(6, ClassRegistry.ofRole(Role.SUPPORT).size(), "поддержки должно быть 6");
+        assertEquals(30, ClassRegistry.all().size(), "всего классов 30");
+    }
+
+    /** Навык класса принадлежит только ему: общими бывают лишь навыки роли. */
+    @Test
+    void classSkillsAreNotShared() {
+        Set<Skill> roleSkills = new HashSet<>();
+        ClassRegistry.ROLE_KITS.values().forEach(roleSkills::addAll);
+        Map<Skill, String> owner = new java.util.HashMap<>();
+        for (PlayerClass c : ClassRegistry.all()) {
+            for (var u : c.skills()) {
+                if (roleSkills.contains(u.skill())) continue;
+                String before = owner.put(u.skill(), c.id());
+                assertTrue(before == null, u.skill().id + ": навык и у «" + before + "», и у «" + c.id() + "»");
+            }
+        }
+    }
+
+    /** У каждого класса шесть способностей — столько ячеек на панели. */
+    @Test
+    void everyClassHasSixSkills() {
+        for (PlayerClass c : ClassRegistry.all()) {
+            assertEquals(6, c.skills().size(), c.id() + ": должно быть 6 способностей");
+        }
+    }
+
+    /** Пассивный навык не применяется с панели, но у него есть перезарядка. */
+    @Test
+    void passiveSkillsHaveCooldown() {
+        for (Skill s : SkillRegistry.all()) {
+            if (!s.passive()) continue;
+            assertTrue(s.value("cooldown", 0) > 0, s.id + ": у пассивного навыка должна быть перезарядка");
+            assertEquals(0, s.value("cast", 0), s.id + ": пассивный навык не читается");
+        }
+    }
+
     @Test
     void offersPreferMatchingStyle() {
         // Игрок-боец, который только и делал, что бил вблизи, — первым получает Берсерка.

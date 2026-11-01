@@ -88,7 +88,7 @@ public final class SniperSkills {
             super("sniper.mark", "Метка", 0xFFD27A, "⌖", 12, 0);
             blocks("range", 45);
             seconds("duration", 20);
-            percent("extra", 0.12);
+            percent("extra", 0.25);
         }
 
         @Override

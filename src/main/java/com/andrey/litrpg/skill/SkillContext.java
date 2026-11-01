@@ -291,7 +291,12 @@ public final class SkillContext {
 
     /** Снять перезарядку этого навыка (добивание, которое обнуляет откат, если цель умерла). */
     public void readyNow() {
-        SkillService.state(caster).cooldowns.remove(skill.id);
+        readyNow(skill.id);
+    }
+
+    /** Снять перезарядку другого навыка класса (на «Изнанке» шаг в пустоту всегда готов). */
+    public void readyNow(String skillId) {
+        SkillService.state(caster).cooldowns.remove(skillId);
         SkillService.state(caster).dirty = true;
     }
 

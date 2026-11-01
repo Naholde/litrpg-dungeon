@@ -61,7 +61,7 @@ public final class BloodKnightSkills {
         public Brand() {
             super("blood.brand", "Клеймо", 0xD8343A, "⛒", 16, 0);
             blocks("range", 20);
-            percent("extra", 0.12);
+            percent("extra", 0.22);
             percent("siphon", 0.1);
             seconds("duration", 12);
         }

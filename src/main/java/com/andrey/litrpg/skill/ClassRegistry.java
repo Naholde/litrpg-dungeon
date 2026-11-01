@@ -183,6 +183,50 @@ public final class ClassRegistry {
                     u(32, PLAGUE_TURN), u(44, PLAGUE_PANDEMIC)),
             Map.of(Style.MAGIC, 0.9, Style.SKILLS, 1.0)));
 
+    public static final PlayerClass ASTROMANCER = reg(new PlayerClass("astromancer", Role.DAMAGE, "Астромант",
+            0xFF7FD8FF, "✧",
+            "Воюет светилами: звёзды висят в мире, бьют сами, усиливают его луч, тянут врагов, а в конце гаснут сверхновыми.",
+            "Астромант не торопится бить. Он расставляет светила — и когда рисунок сложился, небо падает всё сразу.",
+            Resource.NONE, new StatSet(0.4, 0.9, 0.8, 2.3, 0.7),
+            List.of(u(10, ASTRO_FALLING), u(10, ASTRO_LUMINARY), u(10, ASTRO_BEAM), u(20, ASTRO_CONSTELLATION),
+                    u(32, ASTRO_PULL), u(44, ASTRO_SUPERNOVA)),
+            Map.of(Style.MAGIC, 1.0, Style.SKILLS, 0.8)));
+
+    public static final PlayerClass SUMMONER = reg(new PlayerClass("summoner", Role.DAMAGE, "Призыватель",
+            0xFFBFE8FF, "☗",
+            "Играет армией: скелеты, теневые волки и костяной голем — настоящие существа, ходят за хозяином и сами бросаются на врагов.",
+            "Призыватель редко бьёт сам. Он поднимает тех, кто уже не против послужить, и смотрит, как они работают.",
+            Resource.SOULS, new StatSet(0.5, 0.9, 1.0, 2.1, 0.6),
+            List.of(u(10, SUMMON_SKELETON), u(10, SUMMON_WOLVES), u(10, SUMMON_ORDER), u(20, SUMMON_GOLEM),
+                    u(32, SUMMON_BURST), u(44, SUMMON_LEGION)),
+            Map.of(Style.MAGIC, 0.8, Style.SKILLS, 1.0)));
+
+    public static final PlayerClass ILLUSIONIST = reg(new PlayerClass("illusionist", Role.DAMAGE, "Иллюзионист",
+            0xFFD6A6FF, "⧈",
+            "Бой двойниками: копии стоят в мире, бьют сами, забирают на себя врагов, с ними можно поменяться местами и лопнуть их все разом.",
+            "Иллюзионисту всё равно, по кому бьют. Главное, чтобы бил не по нему.",
+            Resource.MIRAGE, new StatSet(0.6, 1.4, 0.8, 1.9, 0.8),
+            List.of(u(10, ILLUSION_DOUBLE), u(10, ILLUSION_SWAP), u(10, ILLUSION_CHARM), u(20, ILLUSION_KALEIDOSCOPE),
+                    u(32, ILLUSION_STRIKE), u(44, ILLUSION_VANISH)),
+            Map.of(Style.MAGIC, 0.9, Style.SKILLS, 1.0)));
+
+    public static final PlayerClass WARLOCK = reg(new PlayerClass("warlock", Role.DAMAGE, "Чернокнижник",
+            0xFFB0001A, "⚯",
+            "Платит своим здоровьем за чужую боль: пакт превращает кровь в урон, круг тянет здоровье врагов, приговор стоит половины жизни.",
+            "Чернокнижник знает цену и платит её сам. Поэтому с ним не спорят даже те, кто сильнее.",
+            Resource.PACT, new StatSet(0.5, 0.8, 1.1, 2.2, 0.6),
+            List.of(u(10, WARLOCK_CURSE), u(10, WARLOCK_CORRUPTION), u(10, WARLOCK_PACT), u(20, WARLOCK_CIRCLE),
+                    u(32, WARLOCK_TENTACLES), u(44, WARLOCK_SACRIFICE)),
+            Map.of(Style.MAGIC, 1.0, Style.SKILLS, 0.7)));
+
+    public static final PlayerClass RIFTER = reg(new PlayerClass("rifter", Role.DAMAGE, "Разломщик", 0xFF9B5CFF, "◇",
+            "Рвёт мир: разломы тянут врагов, шаг в пустоту переносит сквозь стены, зев гасит снаряды, а схлопывание закрывает всё разом.",
+            "Разломщик не ищет дорогу. Он делает дыру там, где ему нужно пройти, и закрывает её за собой.",
+            Resource.NONE, new StatSet(0.5, 1.2, 0.9, 2.2, 0.6),
+            List.of(u(10, RIFT_RIFT), u(10, RIFT_STEP), u(10, RIFT_MARK), u(20, RIFT_COLLAPSE), u(32, RIFT_MAW),
+                    u(44, RIFT_INSIDE)),
+            Map.of(Style.MAGIC, 1.0, Style.SKILLS, 0.85)));
+
     public static final PlayerClass CHRONOLOG = reg(new PlayerClass("chronolog", Role.SUPPORT, "Хронолог",
             0xFFFFE27A, "⧗",
             "Лечит временем: возвращает союзнику здоровье, которое было пять секунд назад, останавливает врага и ускоряет своих.",

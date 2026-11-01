@@ -172,7 +172,7 @@ public final class ShadowSkills {
             blocks("range", 4);
             damage("damage", 2.4);
             seconds("duration", 8);
-            percent("extra", 0.2);
+            percent("extra", 0.25);
         }
 
         @Override

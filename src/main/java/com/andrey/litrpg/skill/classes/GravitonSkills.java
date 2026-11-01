@@ -71,7 +71,7 @@ public final class GravitonSkills {
             blocks("range", 14);
             blocks("radius", 6);
             seconds("duration", 8);
-            percent("extra", 0.2);
+            percent("extra", 0.25);
             percent("slow", 0.35);
         }
 

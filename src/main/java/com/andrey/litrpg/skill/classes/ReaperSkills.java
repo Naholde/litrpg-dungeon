@@ -83,7 +83,7 @@ public final class ReaperSkills {
             blocks("range", 20);
             seconds("duration", 15);
             count("souls", 25);
-            percent("extra", 0.1);
+            percent("extra", 0.2);
         }
 
         @Override
