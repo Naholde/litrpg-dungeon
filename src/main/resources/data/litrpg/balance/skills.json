@@ -1,0 +1,184 @@
+{
+  "common": {
+    "max_rank": 5,
+    "dash_cooldown": 5.0,
+    "dash_strength": 1.6,
+    "rank_cooldown": 0.04,
+    "rank_duration": 0.06,
+    "gcd_seconds": 1.0,
+    "power_base": 8.0,
+    "power_per_level": 2.4,
+    "rank_power": 0.08
+  },
+  "skills": {
+    "berserker.bloodbath": {
+      "cooldown": 45.0,
+      "cast": 0.0,
+      "radius": 5.0,
+      "min_rage": 20.0,
+      "per_rage": 0.05
+    },
+    "berserker.cleave": {
+      "cooldown": 4.0,
+      "cast": 0.0,
+      "radius": 4.0,
+      "angle": 120.0,
+      "damage": 1.3
+    },
+    "berserker.execute": {
+      "cooldown": 8.0,
+      "cast": 0.0,
+      "range": 4.0,
+      "cost": 30.0,
+      "damage": 2.0,
+      "threshold": 0.3
+    },
+    "berserker.frenzy": {
+      "cooldown": 30.0,
+      "cast": 0.0,
+      "cost": 40.0,
+      "duration": 8.0,
+      "leech": 0.2,
+      "bonus": 0.15
+    },
+    "berserker.leap": {
+      "cooldown": 14.0,
+      "cast": 0.0,
+      "range": 12.0,
+      "radius": 3.0,
+      "damage": 1.2,
+      "slow": 0.4,
+      "duration": 3.0
+    },
+    "berserker.rend": {
+      "cooldown": 8.0,
+      "cast": 0.0,
+      "range": 4.0,
+      "damage": 2.4,
+      "duration": 8.0
+    },
+    "cleric.bandage": {
+      "cooldown": 3.0,
+      "cast": 0.0,
+      "range": 30.0,
+      "heal": 1.8
+    },
+    "cleric.miracle": {
+      "cooldown": 180.0,
+      "cast": 0.0,
+      "radius": 30.0,
+      "heal": 5.0,
+      "shield": 1.5,
+      "duration": 8.0
+    },
+    "cleric.prayer": {
+      "cooldown": 0.0,
+      "cast": 2.0,
+      "range": 30.0,
+      "heal": 4.0
+    },
+    "cleric.sanctuary": {
+      "cooldown": 30.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "radius": 5.0,
+      "duration": 8.0,
+      "heal": 0.35,
+      "reduce": 0.15
+    },
+    "dps.heavy_strike": {
+      "cooldown": 6.0,
+      "cast": 0.0,
+      "range": 4.0,
+      "damage": 2.2
+    },
+    "dps.throwing_knife": {
+      "cooldown": 7.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "damage": 1.4,
+      "slow": 0.3,
+      "duration": 3.0
+    },
+    "dps.whirlwind": {
+      "cooldown": 9.0,
+      "cast": 0.0,
+      "radius": 4.0,
+      "damage": 1.0
+    },
+    "guardian.brace": {
+      "cooldown": 18.0,
+      "cast": 0.0,
+      "duration": 4.0,
+      "reduce": 0.2,
+      "reflect": 0.4
+    },
+    "guardian.charge": {
+      "cooldown": 14.0,
+      "cast": 0.0,
+      "range": 12.0,
+      "damage": 1.0,
+      "stun": 1.0
+    },
+    "guardian.cover": {
+      "cooldown": 15.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "share": 0.3,
+      "duration": 8.0
+    },
+    "guardian.dome": {
+      "cooldown": 40.0,
+      "cast": 0.0,
+      "radius": 5.0,
+      "duration": 6.0,
+      "reduce": 0.25
+    },
+    "guardian.unbreakable": {
+      "cooldown": 120.0,
+      "cast": 0.0,
+      "duration": 8.0,
+      "reduce": 0.5
+    },
+    "sup.mend": {
+      "cooldown": 0.0,
+      "cast": 1.5,
+      "range": 30.0,
+      "heal": 2.5
+    },
+    "sup.renew": {
+      "cooldown": 6.0,
+      "cast": 0.0,
+      "range": 30.0,
+      "heal": 3.0,
+      "duration": 8.0
+    },
+    "sup.smite": {
+      "cooldown": 4.0,
+      "cast": 0.0,
+      "range": 25.0,
+      "damage": 1.6,
+      "share": 0.5,
+      "heal_range": 20.0
+    },
+    "tank.bulwark": {
+      "cooldown": 20.0,
+      "cast": 0.0,
+      "duration": 5.0,
+      "reduce": 0.35
+    },
+    "tank.shield_bash": {
+      "cooldown": 10.0,
+      "cast": 0.0,
+      "range": 4.0,
+      "damage": 1.2,
+      "stun": 1.5
+    },
+    "tank.taunt": {
+      "cooldown": 8.0,
+      "cast": 0.0,
+      "range": 14.0,
+      "duration": 4.0
+    }
+  }
+}

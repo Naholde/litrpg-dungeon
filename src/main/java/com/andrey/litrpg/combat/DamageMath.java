@@ -14,7 +14,7 @@ public final class DamageMath {
             case MELEE -> b.get(Derived.WEAPON_POWER);
             case RANGED -> b.get(Derived.RANGED_POWER);
             case MAGIC, SKILL -> b.get(Derived.SKILL_POWER);
-            case PLAIN -> 0;
+            case PLAIN, FIXED -> 0;
         };
     }
 

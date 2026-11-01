@@ -17,6 +17,11 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import com.andrey.litrpg.net.Net;
+import com.andrey.litrpg.skill.ClassOffers;
+import com.andrey.litrpg.skill.ClassRegistry;
+import com.andrey.litrpg.skill.PlayerClass;
+import com.andrey.litrpg.skill.SkillService;
+import com.andrey.litrpg.skill.Style;
 
 /** Всё, что меняет персонажа, идёт через этот класс: изменение → пересчёт → отправка клиенту. */
 public final class PlayerService {
@@ -62,7 +67,9 @@ public final class PlayerService {
 
     public static void sync(ServerPlayer player) {
         PlayerData d = data(player);
-        Net.send(player, new PlayerSyncPayload(d.role, d.level, d.xp, d.allocatedCopy()));
+        Net.send(player, new PlayerSyncPayload(d.role, d.level, d.xp, d.allocatedCopy(), d.classId,
+                new java.util.HashMap<>(d.ranks), new java.util.ArrayList<>(d.offers)));
+        SkillService.sync(player);
     }
 
     // ------------------------------------------------------------------ опыт и уровни
@@ -88,6 +95,7 @@ public final class PlayerService {
         if (d.freeStatPoints(p) < 0) java.util.Arrays.fill(d.allocated, 0);
         if (d.level > before) onLevelUp(player, before, d.level);
         else refresh(player);
+        // Понизили уровень ниже открытия класса — класс остаётся (его снимает только торговец).
     }
 
     private static void onLevelUp(ServerPlayer player, int from, int to) {
@@ -102,10 +110,82 @@ public final class PlayerService {
         SystemChat.title(player, Component.literal("Уровень " + to).withStyle(ChatFormatting.GOLD),
                 Component.literal("Здоровье восстановлено").withStyle(ChatFormatting.GRAY));
         player.level().playSound(null, player.blockPosition(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.8f, 1f);
-        if (from < p.classLevel() && to >= p.classLevel()) {
-            SystemChat.send(player, Component.literal("Достигнут уровень " + p.classLevel()
-                    + ". Система подберёт вам класс по стилю игры.").withStyle(ChatFormatting.LIGHT_PURPLE));
+        if (d.classId.isEmpty() && to >= p.classLevel()) offerClasses(player);
+        else if (d.playerClass() != null) announceUnlocks(player, from, to);
+    }
+
+    // ------------------------------------------------------------------ класс
+
+    /** Подобрать классы по стилю игры (если класса нет, роль выбрана и уровень позволяет). */
+    public static void offerClasses(ServerPlayer player) {
+        PlayerData d = data(player);
+        Progression p = Balance.get(Balance.PROGRESSION);
+        if (!d.classId.isEmpty() || !d.role.chosen() || d.level < p.classLevel()) return;
+        java.util.Set<String> taken = new java.util.HashSet<>();
+        for (ServerPlayer m : com.andrey.litrpg.party.PartyService.online(player.server, player)) {
+            if (m != player) taken.add(data(m).classId);
         }
+        d.offers.clear();
+        for (var s : ClassOffers.offer(d.role, d.style, taken, 3)) d.offers.add(s.cls().id());
+        if (d.offers.isEmpty()) return;
+        SystemChat.send(player, Component.literal("Уровень " + p.classLevel() + ". Система изучила ваш стиль боя и подобрала "
+                + "классы — окно выбора уже открыто (или клавиша K).").withStyle(ChatFormatting.LIGHT_PURPLE));
+        SystemChat.title(player, Component.literal("Выбор класса").withStyle(ChatFormatting.LIGHT_PURPLE),
+                Component.literal("Система подобрала классы по стилю игры").withStyle(ChatFormatting.GRAY));
+        sync(player);
+    }
+
+    /** Игрок выбрал класс из предложенных. */
+    public static boolean chooseClass(ServerPlayer player, String classId) {
+        PlayerData d = data(player);
+        if (!d.classId.isEmpty() || !d.offers.contains(classId)) return false;
+        setClass(player, classId);
+        PlayerClass c = d.playerClass();
+        SystemChat.send(player, Component.literal("Класс получен: ").append(
+                Component.literal(c.name()).withColor(c.color() & 0xFFFFFF)).append(Component.literal(". " + c.idea())));
+        SystemChat.title(player, Component.literal(c.icon() + " " + c.name()).withColor(c.color() & 0xFFFFFF),
+                Component.literal("Класс получен").withStyle(ChatFormatting.GRAY));
+        player.level().playSound(null, player.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.7f, 1f);
+        return true;
+    }
+
+    /** Назначить класс (выбор игрока, торговец, команда): ранги сбрасываются, перезарядки тоже. */
+    public static void setClass(ServerPlayer player, String classId) {
+        PlayerData d = data(player);
+        d.classId = ClassRegistry.get(classId) != null ? classId : "";
+        d.offers.clear();
+        d.ranks.clear();
+        SkillService.reset(player);
+        refresh(player);
+        if (d.classId.isEmpty()) offerClasses(player); // класс сброшен — Система предлагает заново
+    }
+
+    /** Поднять ранг навыка класса: ранг n стоит n очков класса. */
+    public static boolean rankUp(ServerPlayer player, String skillId) {
+        PlayerData d = data(player);
+        PlayerClass c = d.playerClass();
+        if (c == null) return false;
+        boolean open = c.unlocked(d.level).stream().anyMatch(s -> s.id.equals(skillId));
+        int max = Balance.get(Balance.SKILLS).common().maxRank();
+        int cur = d.rank(skillId);
+        if (!open || cur >= max || d.freeClassPoints(Balance.get(Balance.PROGRESSION)) < cur + 1) return false;
+        d.ranks.put(skillId, cur + 1);
+        sync(player);
+        return true;
+    }
+
+    private static void announceUnlocks(ServerPlayer player, int from, int to) {
+        PlayerClass c = data(player).playerClass();
+        for (var u : c.skills()) {
+            if (u.level() > from && u.level() <= to) {
+                SystemChat.send(player, Component.literal("Новый навык: ").append(
+                        Component.literal(u.skill().name).withColor(u.skill().color)));
+            }
+        }
+    }
+
+    public static void addStyle(ServerPlayer player, Style s, int n) {
+        data(player).style.merge(s, n, Integer::sum);
     }
 
     // ------------------------------------------------------------------ роль и характеристики

@@ -8,8 +8,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+import java.util.List;
+import java.util.Map;
+
 /** Сервер → клиент: данные своего персонажа. Характеристики клиент считает сам тем же {@code StatBreakdown}. */
-public record PlayerSyncPayload(Role role, int level, long xp, int[] allocated) implements CustomPacketPayload {
+public record PlayerSyncPayload(Role role, int level, long xp, int[] allocated, String classId,
+                                Map<String, Integer> ranks, List<String> offers) implements CustomPacketPayload {
     public static final Type<PlayerSyncPayload> TYPE = new Type<>(LitRPG.id("player_sync"));
     public static final StreamCodec<FriendlyByteBuf, PlayerSyncPayload> STREAM_CODEC =
             StreamCodec.ofMember(PlayerSyncPayload::write, PlayerSyncPayload::read);
@@ -19,10 +23,14 @@ public record PlayerSyncPayload(Role role, int level, long xp, int[] allocated) 
         buf.writeVarInt(level);
         buf.writeVarLong(xp);
         buf.writeVarIntArray(allocated);
+        buf.writeUtf(classId, 64);
+        buf.writeMap(ranks, (b, k) -> b.writeUtf(k, 64), FriendlyByteBuf::writeVarInt);
+        buf.writeCollection(offers, (b, s) -> b.writeUtf(s, 64));
     }
 
     private static PlayerSyncPayload read(FriendlyByteBuf buf) {
-        return new PlayerSyncPayload(buf.readEnum(Role.class), buf.readVarInt(), buf.readVarLong(), buf.readVarIntArray());
+        return new PlayerSyncPayload(buf.readEnum(Role.class), buf.readVarInt(), buf.readVarLong(), buf.readVarIntArray(16),
+                buf.readUtf(64), buf.readMap(b -> b.readUtf(64), FriendlyByteBuf::readVarInt), buf.readList(b -> b.readUtf(64)));
     }
 
     @Override

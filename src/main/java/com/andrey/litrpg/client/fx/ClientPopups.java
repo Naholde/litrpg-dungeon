@@ -51,6 +51,7 @@ public final class ClientPopups {
                 case TAKEN -> HUD.add(new Hud("−" + num, 0xFFFF5A5A, 1f, now, lane));
                 case HEAL -> HUD.add(new Hud("+" + num, 0xFF6BE38A, 1f, now, lane));
                 case DODGE -> HUD.add(new Hud("Уклонение", 0xFFA6E1FF, 1f, now, lane));
+                case ABSORB -> HUD.add(new Hud("Поглощено", 0xFFFFF176, 1f, now, lane));
                 default -> {
                 }
             }
@@ -64,6 +65,7 @@ public final class ClientPopups {
             case DEALT -> WORLD.add(new World(pos, num, 0xFFFFFFFF, 2.0f, now));
             case CRIT -> WORLD.add(new World(pos, num + "!", 0xFFFFC857, 3.0f, now));
             case HEAL -> WORLD.add(new World(pos, "+" + num, 0xFF6BE38A, 2.0f, now));
+            case ABSORB -> WORLD.add(new World(pos, "поглощено", 0xFFFFF176, 1.4f, now));
             default -> {
             }
         }

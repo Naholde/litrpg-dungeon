@@ -2,13 +2,16 @@ package com.andrey.litrpg.client;
 
 import com.andrey.litrpg.LitRPG;
 import com.andrey.litrpg.client.screen.CharacterScreen;
+import com.andrey.litrpg.client.screen.ClassChoiceScreen;
 import com.andrey.litrpg.client.screen.RoleScreen;
+import com.andrey.litrpg.net.SkillActionPayload;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import com.andrey.litrpg.client.fx.ClientAggro;
 import com.andrey.litrpg.client.fx.ClientPopups;
+import com.andrey.litrpg.client.fx.FxRenderer;
 import com.andrey.litrpg.client.render.MagicBoltRenderer;
 import com.andrey.litrpg.client.render.TrainingDummyRenderer;
 import com.andrey.litrpg.combat.item.StaffItem;
@@ -38,6 +41,8 @@ public final class ClientSetup {
         public static void keys(RegisterKeyMappingsEvent e) {
             e.register(KeyBinds.CHARACTER);
             for (var k : KeyBinds.PARTY_TARGET) e.register(k);
+            for (var k : KeyBinds.SKILL) e.register(k);
+            e.register(KeyBinds.DASH);
         }
 
         @SubscribeEvent
@@ -64,6 +69,8 @@ public final class ClientSetup {
             if (HIDDEN.contains(e.getName())) e.setCanceled(true);
         }
 
+        private static boolean classWindowShown;
+
         @SubscribeEvent
         public static void tick(ClientTickEvent.Post e) {
             Minecraft mc = Minecraft.getInstance();
@@ -72,11 +79,34 @@ public final class ClientSetup {
             for (int i = 0; i < KeyBinds.PARTY_TARGET.length; i++) {
                 while (KeyBinds.PARTY_TARGET[i].consumeClick()) ClientParty.toggle(i);
             }
+            for (int i = 0; i < KeyBinds.SKILL.length; i++) {
+                while (KeyBinds.SKILL[i].consumeClick()) {
+                    if (i < ClientPlayerData.loadout().size()) PacketDistributor.sendToServer(SkillActionPayload.use(i));
+                }
+            }
+            while (KeyBinds.DASH.consumeClick()) {
+                // Рывок — в сторону, куда игрок идёт (WASD); стоит — вперёд по взгляду.
+                var in = mc.player.input;
+                float fw = in.forwardImpulse, st = in.leftImpulse;
+                double yaw = Math.toRadians(mc.player.getYRot());
+                double x = -Math.sin(yaw) * fw + Math.cos(yaw) * st, z = Math.cos(yaw) * fw + Math.sin(yaw) * st;
+                PacketDistributor.sendToServer(SkillActionPayload.dash((float) x, (float) z));
+            }
+            boolean needClass = ClientPlayerData.received() && ClientPlayerData.classId().isEmpty()
+                    && !ClientPlayerData.offers().isEmpty();
             while (KeyBinds.CHARACTER.consumeClick()) {
-                if (mc.screen == null) mc.setScreen(needRole ? new RoleScreen() : new CharacterScreen());
+                if (mc.screen == null) {
+                    mc.setScreen(needRole ? new RoleScreen() : needClass ? new ClassChoiceScreen() : new CharacterScreen());
+                }
             }
             // Роль не выбрана — Система сразу предлагает выбрать (как только закрыты другие окна).
             if (needRole && mc.screen == null && mc.getOverlay() == null) mc.setScreen(new RoleScreen());
+            // Предложены классы — окно открывается само один раз; закрыли — вернутся клавишей K.
+            if (needClass && !classWindowShown && mc.screen == null && mc.getOverlay() == null) {
+                classWindowShown = true;
+                mc.setScreen(new ClassChoiceScreen());
+            }
+            if (!needClass) classWindowShown = false;
         }
 
         /**
@@ -115,6 +145,7 @@ public final class ClientSetup {
             if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
             var buf = Minecraft.getInstance().renderBuffers().bufferSource();
             float partial = e.getPartialTick().getGameTimeDeltaPartialTick(true);
+            FxRenderer.render(e.getPoseStack(), buf, e.getCamera(), partial);
             ClientAggro.renderWorld(e.getPoseStack(), buf, e.getCamera(), partial);
             ClientPopups.renderWorld(e.getPoseStack(), buf, e.getCamera(), partial);
             buf.endBatch();
@@ -126,6 +157,9 @@ public final class ClientSetup {
             ClientParty.reset();
             ClientAggro.clear();
             ClientPopups.clear();
+            FxRenderer.clear();
+            ClientStatuses.reset();
+            ClientSkills.reset();
         }
     }
 }

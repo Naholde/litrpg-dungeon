@@ -20,7 +20,10 @@ public final class PlayerEvents {
 
     public static void register(IEventBus modBus, IEventBus game) {
         modBus.addListener((FMLCommonSetupEvent e) -> e.enqueueWork(PlayerEvents::raiseHealthCap));
-        game.addListener((PlayerEvent.PlayerLoggedInEvent e) -> refresh(e.getEntity()));
+        game.addListener((PlayerEvent.PlayerLoggedInEvent e) -> {
+            refresh(e.getEntity());
+            if (e.getEntity() instanceof ServerPlayer sp) PlayerService.offerClasses(sp);
+        });
         game.addListener((PlayerEvent.PlayerRespawnEvent e) -> refresh(e.getEntity()));
         game.addListener((PlayerEvent.PlayerChangedDimensionEvent e) -> refresh(e.getEntity()));
         game.addListener((ServerStartedEvent e) -> {
@@ -45,7 +48,9 @@ public final class PlayerEvents {
     }
 
     private static void onTick(PlayerTickEvent.Post e) {
-        if (!(e.getEntity() instanceof ServerPlayer p) || p.tickCount % 20 != 0 || !p.isAlive()) return;
+        if (!(e.getEntity() instanceof ServerPlayer p)) return;
+        com.andrey.litrpg.skill.SkillService.tick(p);
+        if (p.tickCount % 20 != 0 || !p.isAlive()) return;
         // Голода нет: еда всегда полная (бег разрешён), но сытость не лечит — правило мира выше.
         p.getFoodData().setFoodLevel(20);
         p.getFoodData().setSaturation(0);

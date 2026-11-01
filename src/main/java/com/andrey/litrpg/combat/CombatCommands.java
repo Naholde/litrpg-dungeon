@@ -3,6 +3,7 @@ package com.andrey.litrpg.combat;
 import com.andrey.litrpg.combat.entity.TrainingDummy;
 import com.andrey.litrpg.combat.threat.ThreatService;
 import com.andrey.litrpg.core.ModEntities;
+import com.andrey.litrpg.fx.Fx;
 import com.andrey.litrpg.party.PartyService;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -57,6 +58,24 @@ public final class CombatCommands {
                 String name = who != null ? who.getGameProfile().getName() : e.getKey().toString().substring(0, 8);
                 c.getSource().sendSuccess(() -> Component.literal("  " + name + ": " + Math.round(e.getValue())), false);
             }
+            return 1;
+        }));
+        root.then(Commands.literal("fx").requires(s -> s.hasPermission(2)).executes(c -> {
+            // Витрина эффектов вокруг игрока — для проверки отрисовки.
+            ServerPlayer p = c.getSource().getPlayerOrException();
+            var l = p.serverLevel();
+            var o = p.position();
+            var fwd = p.getViewVector(1).multiply(1, 0, 1).normalize();
+            var side = new net.minecraft.world.phys.Vec3(-fwd.z, 0, fwd.x);
+            Fx.disc(l, o.add(fwd.scale(6)), 2.5f, 80, Fx.DANGER, true);
+            Fx.donut(l, o.add(fwd.scale(6)).add(side.scale(7)), 1.5f, 3.5f, 80, Fx.DANGER, true);
+            Fx.cone(l, o.add(fwd.scale(3)).add(side.scale(-6)), fwd, 5, 60, 80, Fx.FIRE, true);
+            Fx.line(l, o.add(side.scale(3)), o.add(side.scale(3)).add(fwd.scale(10)), 2, 80, Fx.STORM, true);
+            Fx.ring(l, o, 8, 30, Fx.ICE);
+            Fx.pillar(l, o.add(fwd.scale(11)), 0.8f, 6, 80, Fx.HOLY);
+            Fx.burst(l, o.add(fwd.scale(4)).add(0, 1.5, 0), 1.5f, 20, Fx.ARCANE);
+            Fx.slash(l, p, 2.5f, 120, 10, Fx.BLOOD);
+            Fx.mark(l, p, "⛨", 80, Fx.SHIELD);
             return 1;
         }));
         root.then(Commands.literal("party")

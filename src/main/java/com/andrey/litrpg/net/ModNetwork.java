@@ -1,6 +1,7 @@
 package com.andrey.litrpg.net;
 
 import com.andrey.litrpg.core.balance.Balance;
+import com.andrey.litrpg.fx.FxPayload;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -21,6 +22,10 @@ public final class ModNetwork {
         r.playToClient(PartySyncPayload.TYPE, PartySyncPayload.STREAM_CODEC, PartySyncPayload::handle);
         r.playToServer(SelectTargetPayload.TYPE, SelectTargetPayload.STREAM_CODEC, SelectTargetPayload::handle);
         r.playToServer(StaffCastPayload.TYPE, StaffCastPayload.STREAM_CODEC, StaffCastPayload::handle);
+        r.playToClient(StatusSyncPayload.TYPE, StatusSyncPayload.STREAM_CODEC, StatusSyncPayload::handle);
+        r.playToClient(FxPayload.TYPE, FxPayload.STREAM_CODEC, FxPayload::handle);
+        r.playToClient(SkillSyncPayload.TYPE, SkillSyncPayload.STREAM_CODEC, SkillSyncPayload::handle);
+        r.playToServer(SkillActionPayload.TYPE, SkillActionPayload.STREAM_CODEC, SkillActionPayload::handle);
     }
 
     /** При входе игрока и после {@code /reload} — разослать баланс. */

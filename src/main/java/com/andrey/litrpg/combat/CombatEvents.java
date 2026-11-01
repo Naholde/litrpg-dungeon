@@ -1,7 +1,15 @@
 package com.andrey.litrpg.combat;
 
 import com.andrey.litrpg.combat.threat.ThreatService;
+import com.andrey.litrpg.combat.entity.MagicBolt;
 import com.andrey.litrpg.party.PartyService;
+import com.andrey.litrpg.skill.SkillService;
+import com.andrey.litrpg.skill.Style;
+import com.andrey.litrpg.skill.StyleTracker;
+import com.andrey.litrpg.skill.Zones;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import com.andrey.litrpg.status.StatusService;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -22,10 +30,13 @@ public final class CombatEvents {
         game.addListener(CombatEvents::afterDamage);
         game.addListener((LivingChangeTargetEvent e) -> ThreatService.onChangeTarget(e));
         game.addListener((EntityTickEvent.Post e) -> {
-            if (e.getEntity() instanceof Mob m && !m.level().isClientSide && m.tickCount % 10 == 0) ThreatService.tick(m);
+            if (e.getEntity().level().isClientSide || !(e.getEntity() instanceof LivingEntity l)) return;
+            StatusService.tick(l);
+            if (l instanceof Mob m && m.tickCount % 10 == 0) ThreatService.tick(m);
         });
         game.addListener((ServerTickEvent.Post e) -> {
             if (e.getServer().getTickCount() % 10 == 0) PartyService.sync(e.getServer());
+            for (var level : e.getServer().getAllLevels()) Zones.tick(level);
         });
     }
 
@@ -37,6 +48,17 @@ public final class CombatEvents {
         boolean crit = DamageService.wasCrit(victim);
         LivingEntity attacker = e.getSource().getEntity() instanceof LivingEntity l ? l : null;
         Popups.damage(victim, attacker, dealt, crit);
+        DamageService.afterHit(victim, e.getSource(), dealt);
         if (victim instanceof Mob mob && attacker instanceof ServerPlayer p) ThreatService.add(mob, p, dealt);
+        if (dealt > 0 && attacker instanceof ServerPlayer p && attacker != victim && !(victim instanceof ServerPlayer)) {
+            SkillService.onDealt(p);
+            Entity direct = e.getSource().getDirectEntity();
+            StyleTracker.add(p, direct instanceof AbstractArrow ? Style.RANGED
+                    : direct instanceof MagicBolt ? Style.MAGIC : direct == p ? Style.MELEE : Style.SKILLS, 1);
+        }
+        if (dealt > 0 && victim instanceof ServerPlayer vp && attacker != null && !(attacker instanceof ServerPlayer)) {
+            SkillService.onTaken(vp);
+            StyleTracker.add(vp, Style.TANKING, 1);
+        }
     }
 }

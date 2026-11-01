@@ -6,6 +6,8 @@ import com.andrey.litrpg.core.balance.Balance;
 import com.andrey.litrpg.party.PartyService;
 import com.andrey.litrpg.player.Derived;
 import com.andrey.litrpg.player.PlayerService;
+import com.andrey.litrpg.status.StatusService;
+import com.andrey.litrpg.status.StatusType;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -68,10 +70,22 @@ public final class HealService {
      * Вылечить: {@code base} × сила лечения лекаря. Возвращает сколько реально восстановлено (без перелечения).
      */
     public static float heal(ServerPlayer healer, LivingEntity target, double base) {
-        double amount = base * PlayerService.breakdown(healer).get(Derived.HEAL_POWER);
+        return healFixed(healer, target, base * PlayerService.breakdown(healer).get(Derived.HEAL_POWER));
+    }
+
+    /**
+     * Вылечить уже посчитанное количество (лечение со временем, вампиризм) — без силы лечения лекаря,
+     * но с метками цели («нельзя лечиться» и т.п.).
+     */
+    public static float healFixed(ServerPlayer healer, LivingEntity target, double amount) {
+        amount *= StatusService.product(target, StatusType.HEAL_TAKEN);
+        if (amount <= 0 || !target.isAlive()) return 0;
         float before = target.getHealth();
         target.heal((float) amount);
         float real = target.getHealth() - before;
+        if (healer != null && real > 0 && target != healer) {
+            com.andrey.litrpg.skill.StyleTracker.add(healer, com.andrey.litrpg.skill.Style.HEALING, 1);
+        }
         Popups.heal(target, healer, (float) amount);
         if (real > 0) addHealThreat(healer, target, real);
         return real;

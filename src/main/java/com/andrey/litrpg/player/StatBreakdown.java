@@ -22,9 +22,13 @@ public final class StatBreakdown {
     }
 
     /** Всё, от чего зависит расчёт. Экипировка и класс добавятся в следующих фазах. */
-    public record Inputs(Role role, int level, int[] allocated, StatSet gear) {
+    public record Inputs(Role role, int level, int[] allocated, StatSet gear, StatSet classGrowth, String className) {
         public Inputs {
             if (allocated.length != Stat.ALL.length) throw new IllegalArgumentException("allocated");
+        }
+
+        public Inputs(Role role, int level, int[] allocated, StatSet gear) {
+            this(role, level, allocated, gear, null, null);
         }
     }
 
@@ -62,8 +66,12 @@ public final class StatBreakdown {
         for (Stat s : Stat.ALL) {
             List<Line> l = new ArrayList<>();
             l.add(new Line("Основа", cb.baseStat()));
-            double growth = role.growth().get(s) * (lv - 1);
-            if (growth != 0) l.add(new Line("Рост роли за " + (lv - 1) + " ур.", growth));
+            boolean byClass = in.classGrowth() != null;
+            double growth = (byClass ? in.classGrowth() : role.growth()).get(s) * (lv - 1);
+            if (growth != 0) {
+                l.add(new Line((byClass ? "Рост класса «" + in.className() + "»" : "Рост роли") + " за " + (lv - 1) + " ур.",
+                        growth));
+            }
             int pts = in.allocated()[s.ordinal()];
             if (pts != 0) l.add(new Line("Вложено: " + pts + " очк. × " + Derived.trim(prog.statPointValue()),
                     pts * prog.statPointValue()));

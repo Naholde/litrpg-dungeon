@@ -38,6 +38,9 @@ public final class HudOverlay {
         Font f = mc.font;
         int w = g.guiWidth(), h = g.guiHeight();
         if (!p.isCreative()) health(g, f, p, w, h);
+        if (ClientPlayerData.received() && ClientPlayerData.role().chosen()) {
+            SkillBar.render(g, f, w, h, delta.getGameTimeDeltaPartialTick(true));
+        }
         levelBlock(g, f, mc);
         partyFrames(g, f, mc);
         targetFrame(g, f, mc, w, delta.getGameTimeDeltaPartialTick(true));
@@ -70,7 +73,7 @@ public final class HudOverlay {
         if (aggro > 0) {
             String warn = "⚠ На вас: " + aggro;
             int c = (p.tickCount / 6) % 2 == 0 ? 0xFFFF5050 : 0xFFFF9A9A;
-            UiKit.text(g, f, warn, x, y - 11, c);
+            UiKit.textRight(g, f, warn, (w + SkillBar.WIDTH) / 2, SkillBar.top(h) - 12, c);
         }
         ClientPopups.renderHud(g, f, x, y, HB_W);
     }
@@ -85,7 +88,9 @@ public final class HudOverlay {
         int lv = ClientPlayerData.level();
         UiKit.text(g, f, "Ур. " + lv, x + 5, y + 5, UiKit.GOLD);
         int lvw = f.width("Ур. " + lv);
-        UiKit.text(g, f, role.icon + " " + role.title, x + 10 + lvw, y + 5, role.color);
+        var cls = ClientPlayerData.playerClass();
+        String who = cls != null ? cls.icon() + " " + cls.name() : role.icon + " " + role.title;
+        UiKit.text(g, f, f.plainSubstrByWidth(who, bw - 18 - lvw), x + 10 + lvw, y + 5, cls != null ? cls.color() : role.color);
         long need = ClientPlayerData.xpToNext();
         double ratio = need > 0 ? (double) ClientPlayerData.xp() / need : 1;
         UiKit.bar(g, x + 5, y + 16, bw - 10, 4, ratio, 0xFFC6B5FF, UiKit.XP);

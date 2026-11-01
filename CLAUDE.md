@@ -21,6 +21,9 @@
 - Перед новым запуском — убить java-процессы с `litrpg-dungeon` в командной строке.
 - Python 3.10 без PIL. Текстуры — `python tools/gen_textures.py [--preview build/preview]` (не править png руками).
 - Ванильная сложность закреплена на «Нормально»: на «Тяжело» мобы бьют ×1,5 мимо наших формул.
+- Длинные многострочные python-heredoc в bash ломаются — правки класть в `build/preview/*.py` и запускать.
+- GameTest: проверки «по взгляду» — только на шаблоне `arena` (вокруг `empty` тестовый сервер ставит барьер).
+  У мок-игрока нет игрового тика — таймеры навыков в тесте двигать `SkillService.tick(p)`.
 - GameTest: мок-игрок в творческом режиме и 3 с неуязвим после входа — `setGameMode(SURVIVAL)` и `runAfterDelay(70)`;
   PvP на тестовом сервере выключен — `setPvpAllowed(true)`.
 
@@ -51,6 +54,11 @@
   (один расчёт для боя и окна), `Derived`, `Stat`, `Role`, `RoleInfo`, `Leveling`, `PlayerCommands`.
 - `combat/` — `DamageService` (конвейер урона), `DamageMath`, `WeaponKind`, `HealService`, `Popups`, `StarterKit`,
   `threat/` (`ThreatTable`, `ThreatService`), `item/StaffItem`, `entity/` (`MagicBolt`, `TrainingDummy`), `CombatCommands`.
+- `status/` — метки со сроком (`StatusType`, `StatusList`, `StatusService`). `fx/` — `Fx`, `FxPayload` (фигуры эффектов).
+- `skill/` — `Skill`, `SkillParam`, `SkillContext`, `SkillService`, `SkillText`, `SkillRegistry`, `ClassRegistry`,
+  `PlayerClass`, `ClassOffers`, `Style`, `StyleTracker`, `Resource`, `Zones`; `role/` и `classes/` — навыки.
+  **Новый навык:** класс в `skill/classes/<Класс>Skills.java`, параметры через `damage()/heal()/seconds()/…`,
+  шаблон с `{ключами}`, регистрация в `SkillRegistry`, затем `gradlew test -Pregen` (обновит skills.json).
 - `party/` — `Party`, `PartyService`. `core/` — `ModItems`, `ModEntities`, `ModTags`, `ModAttachments`, `SystemChat`.
 - `client/` — `HudOverlay`, `fx/` (`ClientPopups`, `ClientAggro`, `WorldText`), `render/`, `ClientParty`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).

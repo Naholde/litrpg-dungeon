@@ -29,6 +29,7 @@ public final class Balance {
     public static final BalanceKey<CharacterBalance> CHARACTER = register("character", CharacterBalance.CODEC, CharacterBalance.DEFAULT);
     public static final BalanceKey<RolesBalance> ROLES = register("roles", RolesBalance.CODEC, RolesBalance.DEFAULT);
     public static final BalanceKey<CombatBalance> COMBAT = register("combat", CombatBalance.CODEC, CombatBalance.DEFAULT);
+    public static final BalanceKey<SkillsBalance> SKILLS = register("skills", SkillsBalance.CODEC, SkillsBalance.defaults());
 
     private Balance() {
     }

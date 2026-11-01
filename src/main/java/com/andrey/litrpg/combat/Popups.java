@@ -30,6 +30,12 @@ public final class Popups {
         if (target instanceof ServerPlayer tp && tp != healer) Net.send(tp, payload);
     }
 
+    /** Удар целиком ушёл в щит. */
+    public static void absorbed(LivingEntity victim, LivingEntity attacker) {
+        if (victim instanceof ServerPlayer vp) Net.send(vp, new PopupPayload(vp.getId(), 0, PopupPayload.Kind.ABSORB));
+        if (attacker instanceof ServerPlayer ap) Net.send(ap, new PopupPayload(victim.getId(), 0, PopupPayload.Kind.ABSORB));
+    }
+
     public static void dodge(ServerPlayer victim) {
         Net.send(victim, new PopupPayload(victim.getId(), 0, PopupPayload.Kind.DODGE));
     }

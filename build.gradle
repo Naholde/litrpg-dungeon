@@ -79,6 +79,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    // gradlew test -Pregen — тесты-генераторы перепишут файлы данных (skills.json).
+    systemProperty 'litrpg.root', projectDir.absolutePath
+    if (project.hasProperty('regen')) systemProperty 'litrpg.regen', 'true'
 }
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {

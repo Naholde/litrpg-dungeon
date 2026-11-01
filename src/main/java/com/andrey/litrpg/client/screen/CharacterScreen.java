@@ -4,6 +4,11 @@ import com.andrey.litrpg.client.ClientPlayerData;
 import com.andrey.litrpg.client.ui.SysButton;
 import com.andrey.litrpg.client.ui.UiKit;
 import com.andrey.litrpg.net.AllocateStatsPayload;
+import com.andrey.litrpg.net.SkillActionPayload;
+import com.andrey.litrpg.skill.ClassRegistry;
+import com.andrey.litrpg.skill.PlayerClass;
+import com.andrey.litrpg.skill.Skill;
+import com.andrey.litrpg.skill.SkillText;
 import com.andrey.litrpg.player.Derived;
 import com.andrey.litrpg.player.Role;
 import com.andrey.litrpg.player.Stat;
@@ -37,6 +42,7 @@ public final class CharacterScreen extends Screen {
     private SysButton apply, clear;
     private final SysButton[] plus = new SysButton[Stat.ALL.length];
     private final SysButton[] minus = new SysButton[Stat.ALL.length];
+    private final SysButton[] rankUp = new SysButton[6];
 
     public CharacterScreen() {
         super(Component.literal("Персонаж"));
@@ -56,7 +62,7 @@ public final class CharacterScreen extends Screen {
         String[] names = {"Статус", "Навыки", "Расчёт"};
         for (int i = 0; i < names.length; i++) {
             Tab t = Tab.values()[i];
-            SysButton b = addRenderableWidget(new SysButton(left + 8 + i * 66, top + 6, 62, 16, names[i], () -> switchTab(t)));
+            SysButton b = addRenderableWidget(new SysButton(left + 8 + i * 60, top + 6, 56, 16, names[i], () -> switchTab(t)));
             tabButtons.add(b);
         }
         for (Stat s : Stat.ALL) {
@@ -64,6 +70,14 @@ public final class CharacterScreen extends Screen {
             int i = s.ordinal();
             minus[i] = addRenderableWidget(new SysButton(left + 128, y - 3, 13, 13, "−", () -> change(s, -1)));
             plus[i] = addRenderableWidget(new SysButton(left + 143, y - 3, 13, 13, "+", () -> change(s, +1)));
+        }
+        for (int i = 0; i < rankUp.length; i++) {
+            final int row = i;
+            rankUp[i] = addRenderableWidget(new SysButton(left + W - 24, skillRowY(i) + 1, 13, 13, "+", () -> {
+                var rows = skillRows();
+                if (row < rows.size()) PacketDistributor.sendToServer(SkillActionPayload.rankUp(rows.get(row).skill().id));
+            }));
+            rankUp[i].accent = UiKit.GOLD;
         }
         apply = addRenderableWidget(new SysButton(left + 10, top + H - 24, 72, 16, "Применить", this::applyPending));
         apply.accent = UiKit.GOLD;
@@ -113,6 +127,19 @@ public final class CharacterScreen extends Screen {
         }
         apply.visible = clear.visible = status;
         apply.active = clear.active = any;
+        PlayerClass c = ClientPlayerData.playerClass();
+        var rows = skillRows();
+        var loadout = ClientPlayerData.loadout();
+        int max = com.andrey.litrpg.core.balance.Balance.get(com.andrey.litrpg.core.balance.Balance.SKILLS).common().maxRank();
+        for (int i = 0; i < rankUp.length; i++) {
+            boolean show = tab == Tab.SKILLS && c != null && i < rows.size();
+            rankUp[i].visible = show;
+            if (show) {
+                Skill s = rows.get(i).skill();
+                int r = ClientPlayerData.rank(s.id);
+                rankUp[i].active = loadout.contains(s) && r < max && ClientPlayerData.freeClassPoints() >= r + 1;
+            }
+        }
     }
 
     @Override
@@ -127,12 +154,13 @@ public final class CharacterScreen extends Screen {
         renderTransparentBackground(g);
         UiKit.panel(g, left, top, W, H);
         Role role = ClientPlayerData.role();
-        String head = "Ур. " + ClientPlayerData.level() + "  " + role.icon + " " + role.title;
+        PlayerClass pc = ClientPlayerData.playerClass();
+        String head = "Ур. " + ClientPlayerData.level() + "  " + (pc != null ? pc.icon() + " " + pc.name() : role.icon + " " + role.title);
         UiKit.textRight(g, font, head, left + W - 10, top + 10, role.color);
         super.render(g, mx, my, pt);
         switch (tab) {
             case STATUS -> renderStatus(g, mx, my);
-            case SKILLS -> renderSkills(g);
+            case SKILLS -> renderSkills(g, mx, my);
             case BREAKDOWN -> renderBreakdown(g, mx, my);
         }
     }
@@ -213,21 +241,89 @@ public final class CharacterScreen extends Screen {
 
     // ------------------------------------------------------------------ Навыки
 
-    private void renderSkills(GuiGraphics g) {
-        int x = left + 10;
-        UiKit.heading(g, font, "Панель навыков", x, top + 30, W - 20);
-        String[] keys = {"Z", "X", "C", "V", "B", "G"};
-        int slot = 30, gap = 8, total = 7 * slot + 6 * gap, sx = left + (W - total) / 2, sy = top + 60;
-        for (int i = 0; i < 7; i++) {
-            int bx = sx + i * (slot + gap);
-            g.fill(bx, sy, bx + slot, sy + slot, UiKit.GLASS_LIGHT);
-            UiKit.border(g, bx, sy, slot, slot, i == 6 ? UiKit.GOLD : UiKit.FRAME_DIM);
-            UiKit.textCenter(g, font, i == 6 ? "Alt" : keys[i], bx + slot / 2, sy + slot + 4, UiKit.MUTED);
+    private static final int SKILL_ROW = 22;
+
+    private int skillRowY(int i) {
+        return top + 44 + i * SKILL_ROW;
+    }
+
+    /** Навыки класса (все, с уровнями открытия) или, пока класса нет, навыки роли. */
+    private List<PlayerClass.Unlock> skillRows() {
+        PlayerClass c = ClientPlayerData.playerClass();
+        if (c != null) return c.skills();
+        List<PlayerClass.Unlock> out = new ArrayList<>();
+        for (Skill s : ClassRegistry.ROLE_KITS.getOrDefault(ClientPlayerData.role(), List.of())) {
+            out.add(new PlayerClass.Unlock(1, s));
         }
-        UiKit.textCenter(g, font, "Рывок есть у всех — клавиша Alt.", left + W / 2, sy + slot + 22, UiKit.TEXT);
-        UiKit.textCenter(g, font, "Навыки роли и класса Система выдаст позже.", left + W / 2, sy + slot + 36, UiKit.MUTED);
-        UiKit.textCenter(g, font, "Класс — на " + ClientPlayerData.progression().classLevel() + " уровне, по стилю игры.",
-                left + W / 2, sy + slot + 48, UiKit.MUTED);
+        return out;
+    }
+
+    private void renderSkills(GuiGraphics g, int mx, int my) {
+        int x = left + 10, w = W - 20;
+        PlayerClass c = ClientPlayerData.playerClass();
+        String head = c != null ? c.icon() + " " + c.name() : "Навыки роли (класс — на "
+                + ClientPlayerData.progression().classLevel() + " уровне)";
+        UiKit.heading(g, font, head, x, top + 28, w);
+        if (c != null) {
+            int free = ClientPlayerData.freeClassPoints();
+            UiKit.textRight(g, font, "Очки класса: " + free, x + w, top + 28, free > 0 ? UiKit.GOLD : UiKit.MUTED);
+        }
+        String[] keys = com.andrey.litrpg.client.KeyBinds.SKILL_LABELS;
+        List<PlayerClass.Unlock> rows = skillRows();
+        List<Skill> loadout = ClientPlayerData.loadout();
+        List<String> tip = null;
+        int max = com.andrey.litrpg.core.balance.Balance.get(com.andrey.litrpg.core.balance.Balance.SKILLS).common().maxRank();
+        for (int i = 0; i < rows.size(); i++) {
+            var u = rows.get(i);
+            Skill s = u.skill();
+            int y = skillRowY(i);
+            boolean open = loadout.contains(s);
+            boolean hover = UiKit.inside(mx, my, x, y - 2, w - 24, SKILL_ROW - 2);
+            g.fill(x, y - 2, x + w, y + SKILL_ROW - 4, hover ? 0x30A6E1FF : 0x40000000);
+            int slot = loadout.indexOf(s);
+            UiKit.text(g, font, slot >= 0 ? keys[slot] : "", x + 3, y + 4, 0xFF5F7790);
+            var pose = g.pose();
+            pose.pushPose();
+            pose.translate(x + 20, y + 1, 0);
+            pose.scale(1.5f, 1.5f, 1);
+            g.drawString(font, s.glyph, -font.width(s.glyph) / 2, 0, open ? 0xFF000000 | s.color : 0xFF4A5A6E, true);
+            pose.popPose();
+            UiKit.text(g, font, s.name, x + 32, y, open ? UiKit.TEXT : UiKit.MUTED);
+            String sub = open ? font.plainSubstrByWidth(SkillText.body(s, ClientPlayerData.rank(s.id), ClientPlayerData.viewer()), 170)
+                    : "откроется на " + u.level() + " уровне";
+            var p2 = g.pose();
+            p2.pushPose();
+            p2.translate(x + 32, y + 10, 0);
+            p2.scale(0.75f, 0.75f, 1);
+            g.drawString(font, open ? sub + "…" : sub, 0, 0, 0xFF7A8DA3, true);
+            p2.popPose();
+            if (c != null) {
+                int rank = ClientPlayerData.rank(s.id);
+                for (int r = 0; r < max; r++) {
+                    int px = x + w - 62 + r * 7;
+                    g.fill(px, y + 4, px + 5, y + 9, r < rank ? UiKit.GOLD : 0xFF2A3A4E);
+                }
+            }
+            if (hover) {
+                tip = new ArrayList<>(SkillText.tooltip(s, ClientPlayerData.rank(s.id),
+                        c != null ? c.resource() : com.andrey.litrpg.skill.Resource.NONE, ClientPlayerData.viewer()));
+                if (c != null && ClientPlayerData.rank(s.id) < max) {
+                    int next = ClientPlayerData.rank(s.id) + 1;
+                    tip.add("Ранг " + next + " (" + next + " очк.): сила +8%, перезарядка −4%, длительность +6%");
+                }
+            }
+        }
+        if (c == null) {
+            UiKit.textCenter(g, font, "Рывок — Alt. Цель лечения — Ctrl+1…5.", left + W / 2, top + H - 20, UiKit.MUTED);
+        }
+        if (tip != null) {
+            List<net.minecraft.util.FormattedCharSequence> out = new ArrayList<>();
+            for (int i = 0; i < tip.size(); i++) {
+                int color = i == 0 ? 0xFFE27A : i == 1 ? 0xE8F4FF : 0x8EA4BC;
+                out.addAll(font.split(Component.literal(tip.get(i)).withColor(color), 230));
+            }
+            g.renderTooltip(font, out, mx, my);
+        }
     }
 
     // ------------------------------------------------------------------ Расчёт

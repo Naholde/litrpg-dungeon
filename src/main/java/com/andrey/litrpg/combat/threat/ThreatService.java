@@ -42,8 +42,13 @@ public final class ThreatService {
     /** Провокация: враг сразу бьёт провокатора и не отвлекается несколько секунд. */
     public static void taunt(Mob mob, ServerPlayer p) {
         CombatBalance.Threat t = Balance.get(Balance.COMBAT).threat();
+        taunt(mob, p, (int) Math.round(t.tauntSeconds() * 20));
+    }
+
+    /** Провокация на {@code ticks} тиков (навык задаёт свою длительность). */
+    public static void taunt(Mob mob, ServerPlayer p, int ticks) {
         long now = mob.level().getGameTime();
-        table(mob).taunt(p.getUUID(), now, now + Math.round(t.tauntSeconds() * 20));
+        table(mob).taunt(p.getUUID(), now, now + ticks);
         retarget(mob, p);
         broadcast(mob);
     }

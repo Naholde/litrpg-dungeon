@@ -3,6 +3,8 @@ package com.andrey.litrpg.core;
 import com.andrey.litrpg.LitRPG;
 import com.andrey.litrpg.combat.threat.ThreatTable;
 import com.andrey.litrpg.player.PlayerData;
+import com.andrey.litrpg.skill.SkillState;
+import com.andrey.litrpg.status.StatusList;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -21,6 +23,14 @@ public final class ModAttachments {
     /** Таблица угрозы врага — не сохраняется: после перезапуска бой начинается заново. */
     public static final Supplier<AttachmentType<ThreatTable>> THREAT = REG.register("threat",
             () -> AttachmentType.builder(ThreatTable::new).build());
+
+    /** Состояние навыков: перезарядки, чтение, ресурс — не сохраняются. */
+    public static final Supplier<AttachmentType<SkillState>> SKILL_STATE = REG.register("skill_state",
+            () -> AttachmentType.builder(SkillState::new).build());
+
+    /** Метки со сроком (оглушения, щиты, уязвимости…) — живут секунды, не сохраняются. */
+    public static final Supplier<AttachmentType<StatusList>> STATUSES = REG.register("statuses",
+            () -> AttachmentType.builder(StatusList::new).build());
 
     private ModAttachments() {
     }

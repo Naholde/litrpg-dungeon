@@ -1,4 +1,5 @@
-"""Пишет шаблон GameTest data/litrpg/structure/empty.nbt — площадка 1×1×1 с воздухом.
+"""Шаблоны GameTest: empty.nbt — 1×1×1 воздух; arena.nbt — 9×6×9, каменный пол и воздух
+(тестовый сервер обносит площадку барьером — для проверок «по взгляду» нужна просторная арена).
 
 Запуск: python tools/make_empty_structure.py
 """
@@ -6,7 +7,7 @@ import gzip
 import struct
 from pathlib import Path
 
-OUT = Path(__file__).resolve().parent.parent / "src/main/resources/data/litrpg/structure/empty.nbt"
+DIR = Path(__file__).resolve().parent.parent / "src/main/resources/data/litrpg/structure"
 DATA_VERSION = 3955  # Minecraft 1.21.1
 
 END, INT, LIST, COMPOUND, STRING = 0, 3, 9, 10, 8
@@ -31,15 +32,27 @@ def compound_list(items):
     return bytes([COMPOUND]) + struct.pack(">i", len(items)) + b"".join(i + bytes([END]) for i in items)
 
 
-root = b"".join([
-    tag(INT, "DataVersion", struct.pack(">i", DATA_VERSION)),
-    tag(LIST, "size", int_list([1, 1, 1])),
-    tag(LIST, "palette", compound_list([tag(STRING, "Name", name("minecraft:air"))])),
-    tag(LIST, "blocks", compound_list([
-        tag(LIST, "pos", int_list([0, 0, 0])) + tag(INT, "state", struct.pack(">i", 0)),
-    ])),
-    tag(LIST, "entities", compound_list([])),
-])
-OUT.parent.mkdir(parents=True, exist_ok=True)
-OUT.write_bytes(gzip.compress(tag(COMPOUND, "", root + bytes([END]))))
-print("written", OUT)
+def structure(name, size, palette, blocks):
+    root = b"".join([
+        tag(INT, "DataVersion", struct.pack(">i", DATA_VERSION)),
+        tag(LIST, "size", int_list(list(size))),
+        tag(LIST, "palette", compound_list([tag(STRING, "Name", name_(b)) for b in palette])),
+        tag(LIST, "blocks", compound_list([
+            tag(LIST, "pos", int_list(list(pos))) + tag(INT, "state", struct.pack(">i", st)) for pos, st in blocks
+        ])),
+        tag(LIST, "entities", compound_list([])),
+    ])
+    out = DIR / f"{name}.nbt"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes(gzip.compress(tag(COMPOUND, "", root + bytes([END]))))
+    print("written", out)
+
+
+def name_(block):
+    return name(block)
+
+
+structure("empty", (1, 1, 1), ["minecraft:air"], [((0, 0, 0), 0)])
+W, H = 9, 6
+structure("arena", (W, H, W), ["minecraft:air", "minecraft:smooth_stone"],
+          [((x, y, z), 1 if y == 0 else 0) for x in range(W) for y in range(H) for z in range(W)])
