@@ -31,6 +31,32 @@ public final class Telegraph {
         return (ServerLevel) c.boss().level();
     }
 
+    private static com.andrey.litrpg.core.balance.BossesBalance.Common cfg() {
+        return com.andrey.litrpg.core.balance.Balance.get(com.andrey.litrpg.core.balance.Balance.BOSSES).common();
+    }
+
+    /**
+     * Общий множитель размера разметки (решение владельца: удары должны быть широкими, чтобы уходить
+     * приходилось рывком и заранее, а не шагом в сторону).
+     */
+    private static float scale(float size) {
+        return (float) (size * cfg().telegraphScale());
+    }
+
+    /**
+     * Урон по правилу владельца: если из разметки можно успеть выйти (шагом за её время плюс рывок) —
+     * удар бьёт в полную силу, это ошибка игрока. Если уйти нельзя никак — удар становится «щипком»:
+     * давит и даёт работу лекарю, но не наказывает за неизбежное.
+     */
+    private static double units(BossEntity.Cast c, double units, double escape) {
+        double seconds = c.ticks / 20.0;
+        double reach = WALK * seconds + cfg().dashReach();
+        return escape <= reach ? units : Math.min(units, cfg().chipUnits());
+    }
+
+    /** Сколько блоков в секунду проходит игрок шагом (с учётом задержки на реакцию). */
+    private static final double WALK = 4.0;
+
     /** Круг: всем внутри — {@code units}. */
     public static void circle(BossEntity.Cast c, Vec3 center, float radius, double units) {
         circle(c, center, radius, units, null);
@@ -38,44 +64,51 @@ public final class Telegraph {
 
     /** Круг с добавкой: {@code extra} — что ещё случается с попавшим (оковы, яд). */
     public static void circle(BossEntity.Cast c, Vec3 center, float radius, double units, java.util.function.Consumer<ServerPlayer> extra) {
-        note(c, "circle", radius);
-        Fx.disc(level(c), center, radius, c.ticks, Fx.DANGER, true);
+        final float r = scale(radius);
+        final double dmg = units(c, units, r);
+        note(c, "circle", r);
+        Fx.disc(level(c), center, r, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
-                if (flat(p.position(), center) <= radius) {
-                    BossDamage.hit(c.boss(), p, units);
+                if (flat(p.position(), center) <= r) {
+                    BossDamage.hit(c.boss(), p, dmg);
                     if (extra != null && p.isAlive()) extra.accept(p);
                 }
             }
-            Fx.burst(level(c), center.add(0, 0.5, 0), radius * 0.8f, 8, Fx.DANGER);
+            Fx.burst(level(c), center.add(0, 0.5, 0), r * 0.8f, 8, Fx.DANGER);
         });
     }
 
     /** Кольцо: безопасно ближе {@code inner} (у хранителя) — остальным до {@code outer} достаётся. */
     public static void donut(BossEntity.Cast c, Vec3 center, float inner, float outer, double units) {
-        note(c, "donut", (outer - inner) / 2.0);
-        Fx.donut(level(c), center, inner, outer, c.ticks, Fx.DANGER, true);
+        final float out = scale(outer);
+        final double dmg = units(c, units, (out - inner) / 2.0);
+        note(c, "donut", (out - inner) / 2.0);
+        Fx.donut(level(c), center, inner, out, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
                 double d = flat(p.position(), center);
-                if (d >= inner && d <= outer) BossDamage.hit(c.boss(), p, units);
+                if (d >= inner && d <= out) BossDamage.hit(c.boss(), p, dmg);
             }
-            Fx.ring(level(c), center, outer, 12, Fx.DANGER);
+            Fx.ring(level(c), center, out, 12, Fx.DANGER);
         });
     }
 
     /** Конус от хранителя в сторону {@code dir}. */
     public static void cone(BossEntity.Cast c, Vec3 origin, Vec3 dir, float radius, float angleDeg, double units) {
+        final float r = scale(radius);
         Vec3 d = dir.multiply(1, 0, 1).normalize();
         // Уйти из конуса: стоящему вплотную (2 блока) — вбок, а если конус шире полукруга — за его край.
-        note(c, "cone", angleDeg >= 180 ? radius - 1 : Math.min(radius - 2, 2 * Math.sin(Math.toRadians(angleDeg / 2)) + 0.5));
-        Fx.cone(level(c), origin, d, radius, angleDeg, c.ticks, Fx.DANGER, true);
+        final double escape = angleDeg >= 180 ? r - 1 : Math.min(r - 2, 2 * Math.sin(Math.toRadians(angleDeg / 2)) + 0.5);
+        final double dmg = units(c, units, escape);
+        note(c, "cone", escape);
+        Fx.cone(level(c), origin, d, r, angleDeg, c.ticks, Fx.DANGER, true);
         double cos = Math.cos(Math.toRadians(angleDeg / 2));
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
                 Vec3 to = p.position().subtract(origin).multiply(1, 0, 1);
-                if (to.length() <= radius && (to.lengthSqr() < 0.5 || to.normalize().dot(d) >= cos)) {
-                    BossDamage.hit(c.boss(), p, units);
+                if (to.length() <= r && (to.lengthSqr() < 0.5 || to.normalize().dot(d) >= cos)) {
+                    BossDamage.hit(c.boss(), p, dmg);
                 }
             }
         });
@@ -87,8 +120,10 @@ public final class Telegraph {
     }
 
     public static void line(BossEntity.Cast c, Vec3 from, Vec3 to, float width, double units, java.util.function.Consumer<ServerPlayer> extra) {
-        note(c, "line", width / 2.0 + 0.3);
-        Fx.line(level(c), from, to, width, c.ticks, Fx.DANGER, true);
+        final float w = scale(width);
+        final double dmg = units(c, units, w / 2.0 + 0.3);
+        note(c, "line", w / 2.0 + 0.3);
+        Fx.line(level(c), from, to, w, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             Vec3 ab = to.subtract(from).multiply(1, 0, 1);
             double len = ab.length();
@@ -97,8 +132,8 @@ public final class Telegraph {
                 Vec3 ap = p.position().subtract(from).multiply(1, 0, 1);
                 double along = ap.dot(n);
                 double across = ap.subtract(n.scale(along)).length();
-                if (along >= -0.5 && along <= len + 0.5 && across <= width / 2) {
-                    BossDamage.hit(c.boss(), p, units);
+                if (along >= -0.5 && along <= len + 0.5 && across <= w / 2) {
+                    BossDamage.hit(c.boss(), p, dmg);
                     if (extra != null && p.isAlive()) extra.accept(p);
                 }
             }

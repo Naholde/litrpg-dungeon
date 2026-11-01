@@ -20,16 +20,24 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
      * @param enrageMult      урон за ступень: множитель 1 + (enrageMult − 1) × ступень
      * @param resetSeconds    сколько секунд без живых бойцов на арене до сброса боя
      * @param autoAttackSeconds как часто хранитель бьёт цель вблизи
+     * @param telegraphScale  общий множитель размера разметки: крупнее — попасть легче, а уходить надо раньше
+     * @param dashReach       сколько блоков даёт рывок: по нему считается, можно ли вообще уйти от разметки
+     * @param chipUnits       урон тех ударов, от которых уйти нельзя (решение владельца: за неизбежное
+     *                        сильно не бьют — такой удар только давит и даёт работу лекарю)
      * @param hpScale         множитель здоровья для отряда из 1…6 человек (рассчитано на троих = 1)
      * @param pressure        общее давление всех хранителей: волна по отряду и метка на бойце
      */
     public record Common(double enrageSeconds, double enrageMult, double resetSeconds, double autoAttackSeconds,
+                         double telegraphScale, double dashReach, double chipUnits,
                          List<Double> hpScale, Pressure pressure, Rush rush) {
         static final Codec<Common> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("enrage_seconds").forGetter(Common::enrageSeconds),
                 Codec.DOUBLE.fieldOf("enrage_mult").forGetter(Common::enrageMult),
                 Codec.DOUBLE.fieldOf("reset_seconds").forGetter(Common::resetSeconds),
                 Codec.DOUBLE.fieldOf("auto_attack_seconds").forGetter(Common::autoAttackSeconds),
+                Codec.DOUBLE.fieldOf("telegraph_scale").forGetter(Common::telegraphScale),
+                Codec.DOUBLE.fieldOf("dash_reach").forGetter(Common::dashReach),
+                Codec.DOUBLE.fieldOf("chip_units").forGetter(Common::chipUnits),
                 Codec.DOUBLE.listOf().validate(l -> l.size() == 6 ? DataResult.success(l)
                         : DataResult.error(() -> "hp_scale: нужно 6 чисел (отряд 1…6)")).fieldOf("hp_scale").forGetter(Common::hpScale),
                 Pressure.CODEC.fieldOf("pressure").forGetter(Common::pressure),
@@ -101,9 +109,10 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
      * Неистовство — ровная прибавка (+15% урона за минуту боя, а не ×1,3 от прежнего): к шестой минуте ×1,9,
      * давит, но не душит. Хранитель бьёт танка раз в 1,5 с.
      */
-    public static final Common DEFAULT_COMMON = new Common(60, 1.15, 6, 1.5, List.of(0.4, 0.7, 1.0, 1.4, 1.8, 2.2),
+    public static final Common DEFAULT_COMMON = new Common(60, 1.15, 6, 1.5, 1.35, 5.5, 0.22,
+            List.of(0.4, 0.7, 1.0, 1.4, 1.8, 2.2),
             new Pressure(9, 0.3, 14, 0.08, 6, 0.5, 3),
-            new Rush(3.2, 0.7, 3.2, 0.55, 4.5, 0.75));
+            new Rush(3.2, 1.1, 4.5, 0.55, 5, 0.75));
 
     public static BossesBalance defaults() {
         return new BossesBalance(DEFAULT_COMMON, BossRegistry.defaultValues());

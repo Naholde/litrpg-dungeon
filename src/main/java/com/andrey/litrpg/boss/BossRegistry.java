@@ -16,9 +16,9 @@ public final class BossRegistry {
 
     public static final Type TRIAL_WARDEN = reg("trial_warden", "Испытатель Системы", "", p(
             "level", 10, "hp_units", 60, "melee_units", 0.33,
-            "smash_units", 0.9, "smash_cd", 5, "smash_cast", 0.8,
+            "smash_units", 0.9, "smash_cd", 5, "smash_cast", 1,
             "wave_units", 0.6, "wave_cd", 9, "wave_cast", 1.1,
-            "meteor_units", 0.5, "meteor_cd", 7, "meteor_cast", 0.9,
+            "meteor_units", 0.5, "meteor_cd", 7, "meteor_cast", 1,
             "burden_units", 2.4, "burden_cd", 11, "burden_cast", 1.4,
             "mend_share", 0.1, "mend_cd", 12, "mend_cast", 1.6,
             "node_hp_units", 4, "spark_hp_units", 1.2, "spark_units", 0.06));
@@ -26,115 +26,115 @@ public final class BossRegistry {
     // ---------------------------------------------------------------- Этап 1 · Склеп Забытых
     public static final Type GATEKEEPER = reg("gatekeeper", "Привратник Склепа", "fragment", p(
             "level", 4, "hp_units", 38, "melee_units", 0.308,
-            "chain_units", 0.75, "chain_cd", 4, "chain_cast", 0.7,
+            "chain_units", 0.75, "chain_cd", 4, "chain_cast", 1,
             "rampart_units", 0.55, "rampart_cd", 9, "rampart_cast", 1.2,
-            "call_cd", 12, "call_cast", 0.9,
+            "call_cd", 12, "call_cast", 1,
             "shield_share", 0.08, "shield_cd", 12, "shield_cast", 1.4));
 
     /** Сёстры: Морра (бьёт) — хранитель из схемы; Весса (колдует) появляется вместе с ней. */
     public static final Type MORRA = reg("morra", "Морра", "fight_club", p(
             "level", 7, "hp_units", 24, "melee_units", 0.352,
-            "reap_units", 0.8, "reap_cd", 4, "reap_cast", 0.7,
+            "reap_units", 0.8, "reap_cd", 4, "reap_cast", 1,
             "spears_units", 0.5, "spears_cd", 8, "spears_cast", 1,
             "revive_seconds", 12, "link_cut", 0.5, "link_units", 0.06));
     public static final Type VESSA = reg("vessa", "Весса", "fight_club", p(
             "level", 7, "hp_units", 20, "melee_units", 0.176,
             "mend_share", 0.08, "mend_cd", 9, "mend_cast", 1.4,
-            "curse_units", 0.05, "curse_seconds", 10, "curse_cd", 6, "curse_cast", 0.7,
+            "curse_units", 0.05, "curse_seconds", 10, "curse_cd", 6, "curse_cast", 1,
             "nova_units", 0.5, "nova_cd", 9, "nova_cast", 1.1));
 
     public static final Type LICH = reg("lich", "Король-лич Карн", "kurayami", p(
             "level", 10, "hp_units", 56, "melee_units", 0.396,
-            "scythe_units", 0.9, "scythe_cd", 5, "scythe_cast", 0.8,
+            "scythe_units", 0.9, "scythe_cd", 5, "scythe_cast", 1,
             "storm_units", 0.5, "storm_cd", 7, "storm_cast", 1,
-            "tomb_units", 0.75, "tomb_seconds", 8, "tomb_hp_units", 1.0, "tomb_cd", 11, "tomb_cast", 0.7,
+            "tomb_units", 0.75, "tomb_seconds", 8, "tomb_hp_units", 1.0, "tomb_cd", 11, "tomb_cast", 1,
             "raise_cd", 12, "raise_cast", 1.1,
-            "dark_units", 0.07, "dark_seconds", 8, "dark_cd", 12, "dark_cast", 0.9,
+            "dark_units", 0.07, "dark_seconds", 8, "dark_cd", 12, "dark_cast", 1,
             "phylactery_hp_units", 5));
 
     // ---------------------------------------------------------------- Этап 2 · Паучья чаща
     public static final Type ARACHNA = reg("arachna", "Аракна, Королева пауков", "blud", p(
             "level", 14, "hp_units", 60, "melee_units", 0.352,
-            "bite_units", 0.85, "poison_units", 0.04, "bite_cd", 4, "bite_cast", 0.6,
-            "web_units", 0.5, "web_cd", 6, "web_cast", 0.8,
-            "cocoon_units", 0.8, "cocoon_seconds", 9, "cocoon_hp_units", 1.1, "cocoon_poison_units", 0.04, "cocoon_cd", 10, "cocoon_cast", 0.6,
-            "eggs_cd", 12, "eggs_cast", 0.9, "egg_hp_units", 0.7, "egg_seconds", 12,
+            "bite_units", 0.85, "poison_units", 0.04, "bite_cd", 4, "bite_cast", 1,
+            "web_units", 0.5, "web_cd", 6, "web_cast", 1,
+            "cocoon_units", 0.8, "cocoon_seconds", 9, "cocoon_hp_units", 1.1, "cocoon_poison_units", 0.04, "cocoon_cd", 10, "cocoon_cast", 1,
+            "eggs_cd", 12, "eggs_cast", 1, "egg_hp_units", 0.7, "egg_seconds", 12,
             "aloft_seconds", 12, "rain_units", 0.5, "drop_units", 0.85));
 
     public static final Type ROT_ENT = reg("rot_ent", "Гнилой Древень", "jane", p(
             "level", 17, "hp_units", 66, "melee_units", 0.396,
-            "slam_units", 0.95, "slam_cd", 4, "slam_cast", 0.8,
-            "roots_units", 0.5, "roots_cd", 7, "roots_cast", 0.9,
-            "spore_units", 0.08, "spore_grow", 0.25, "spore_seconds", 26, "spores_cd", 8, "spores_cast", 0.7,
+            "slam_units", 0.95, "slam_cd", 4, "slam_cast", 1,
+            "roots_units", 0.5, "roots_cd", 7, "roots_cast", 1,
+            "spore_units", 0.08, "spore_grow", 0.25, "spore_seconds", 26, "spores_cd", 8, "spores_cast", 1,
             "heart_share", 0.1, "heart_cd", 12, "heart_cast", 1.6));
 
     public static final Type MORENA = reg("morena", "Морена, Ведьма Изнанки", "fear", p(
             "level", 20, "hp_units", 74, "melee_units", 0.396,
-            "hex_units", 0.55, "hex_cd", 4, "hex_cast", 0.7,
-            "fear_seconds", 7, "fear_cd", 8, "fear_cast", 0.6,
-            "cauldron_units", 0.09, "cauldron_seconds", 20, "cauldron_cd", 7, "cauldron_cast", 0.7,
+            "hex_units", 0.55, "hex_cd", 4, "hex_cast", 1,
+            "fear_seconds", 7, "fear_cd", 8, "fear_cast", 1,
+            "cauldron_units", 0.09, "cauldron_seconds", 20, "cauldron_cd", 7, "cauldron_cast", 1,
             "inside_units", 0.7, "inside_cd", 10, "inside_cast", 1));
 
     // ---------------------------------------------------------------- Этап 3 · Затопленный храм
     public static final Type TIDE_WARDEN = reg("tide_warden", "Страж Прилива", "woops", p(
             "level", 24, "hp_units", 85, "melee_units", 0.396,
-            "trident_units", 0.95, "trident_cd", 4, "trident_cast", 0.7,
+            "trident_units", 0.95, "trident_cd", 4, "trident_cast", 1,
             "wave_units", 0.85, "wave_cd", 9, "wave_cast", 1.6,
-            "whirl_units", 0.1, "whirl_seconds", 12, "whirl_cd", 12, "whirl_cast", 0.7,
-            "bubble_units", 0.5, "bubbles_cd", 6, "bubbles_cast", 0.9));
+            "whirl_units", 0.1, "whirl_seconds", 12, "whirl_cd", 12, "whirl_cast", 1,
+            "bubble_units", 0.5, "bubbles_cd", 6, "bubbles_cast", 1));
 
     public static final Type LEVIATHAN = reg("leviathan", "Левиафан", "red", p(
             "level", 27, "hp_units", 93, "melee_units", 0.44,
-            "bite_units", 1.0, "bite_cd", 4, "bite_cast", 0.7,
+            "bite_units", 1.0, "bite_cd", 4, "bite_cast", 1,
             "tail_units", 0.6, "tail_cd", 6, "tail_cast", 1,
-            "emerge_units", 0.8, "dive_cd", 10, "dive_cast", 0.6,
+            "emerge_units", 0.8, "dive_cd", 10, "dive_cast", 1,
             "tide_units", 0.12, "tide_seconds", 22));
 
     public static final Type NAIAD = reg("naiad", "Наяра, Жрица Глубин", "aura", p(
             "level", 30, "hp_units", 100, "melee_units", 0.44,
-            "staff_units", 0.95, "staff_cd", 4, "staff_cast", 0.7,
-            "spears_units", 0.55, "spears_cd", 6, "spears_cast", 0.9,
+            "staff_units", 0.95, "staff_cd", 4, "staff_cast", 1,
+            "spears_units", 0.55, "spears_cd", 6, "spears_cast", 1,
             "song_units", 0.6, "song_cd", 12, "song_cast", 1.6,
-            "radiance_seconds", 10, "radiance_cut", 0.9, "radiance_cd", 12, "radiance_cast", 0.9));
+            "radiance_seconds", 10, "radiance_cut", 0.9, "radiance_cd", 12, "radiance_cast", 1));
 
     // ---------------------------------------------------------------- Этап 4 · Кузни Пепла
     public static final Type SMELTER = reg("smelter", "Плавильный голем", "ring_frei", p(
             "level", 34, "hp_units", 112, "melee_units", 0.44,
-            "hammer_units", 1.0, "hammer_cd", 4, "hammer_cast", 0.8,
-            "pour_units", 0.55, "pour_burn_units", 0.1, "pour_seconds", 10, "pour_cd", 7, "pour_cast", 0.9,
+            "hammer_units", 1.0, "hammer_cd", 4, "hammer_cast", 1,
+            "pour_units", 0.55, "pour_burn_units", 0.1, "pour_seconds", 10, "pour_cd", 7, "pour_cast", 1,
             "heat_radius", 5, "heat_max", 6, "melt_units", 0.55, "rivet_hp_units", 3.0));
 
     public static final Type CHARIOT = reg("chariot", "Колесница Пламени", "formula", p(
             "level", 37, "hp_units", 121, "melee_units", 0.44,
             "charge_units", 0.85, "charge_cd", 4, "charge_cast", 1,
-            "ring_units", 0.6, "ring_cd", 7, "ring_cast", 0.9,
+            "ring_units", 0.6, "ring_cd", 7, "ring_cast", 1,
             "trail_units", 0.1, "trail_seconds", 9, "pit_seconds", 7, "pit_damage", 1.6));
 
     public static final Type ASH_LORD = reg("ash_lord", "Владыка Пепла", "blue_lock", p(
             "level", 40, "hp_units", 129, "melee_units", 0.484,
-            "sword_units", 1.05, "sword_cd", 4, "sword_cast", 0.8,
+            "sword_units", 1.05, "sword_cd", 4, "sword_cast", 1,
             "storm_units", 0.6, "storm_cd", 8, "storm_cast", 1.4,
-            "collapse_units", 0.5, "lava_units", 0.13, "lava_seconds", 16, "collapse_cd", 6, "collapse_cast", 0.9,
-            "duel_units", 0.5, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 12, "ego_cast", 0.7,
-            "erupt_units", 0.5, "erupt_cd", 4, "erupt_cast", 0.8));
+            "collapse_units", 0.5, "lava_units", 0.13, "lava_seconds", 16, "collapse_cd", 6, "collapse_cast", 1,
+            "duel_units", 0.5, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 12, "ego_cast", 1,
+            "erupt_units", 0.5, "erupt_cd", 4, "erupt_cast", 1));
 
     // ---------------------------------------------------------------- Этап 5 · Шпиль Бездны
     public static final Type DOPPEL = reg("doppel", "Двойник", "next_opponent", p(
             "level", 44, "hp_units", 143, "melee_units", 0.484,
-            "strike_units", 1.05, "strike_cd", 4, "strike_cast", 0.7,
+            "strike_units", 1.05, "strike_cd", 4, "strike_cast", 1,
             "mirror_seconds", 4, "mirror_share", 0.6, "mirror_cd", 11, "mirror_cast", 1.1,
-            "swap_cd", 9, "swap_cast", 0.9, "shadow_cut", 0.9));
+            "swap_cd", 9, "swap_cast", 1, "shadow_cut", 0.9));
 
     public static final Type CHRONOPHAGE = reg("chronophage", "Хронофаг", "no_time", p(
             "level", 47, "hp_units", 151, "melee_units", 0.484,
-            "slash_units", 1.05, "slash_cd", 4, "slash_cast", 0.7,
-            "glass_hp_units", 1.4, "glass_seconds", 16, "stop_units", 0.5, "glass_cd", 12, "glass_cast", 0.9,
-            "rewind_units", 0.7, "rewind_seconds", 6, "rewind_cd", 10, "rewind_cast", 0.6));
+            "slash_units", 1.05, "slash_cd", 4, "slash_cast", 1,
+            "glass_hp_units", 1.4, "glass_seconds", 16, "stop_units", 0.5, "glass_cd", 12, "glass_cast", 1,
+            "rewind_units", 0.7, "rewind_seconds", 6, "rewind_cd", 10, "rewind_cast", 1));
 
     public static final Type XALATHAR = reg("xalathar", "Ксалатар, Голод Бездны", "wutiwant", p(
             "level", 50, "hp_units", 155, "melee_units", 0.528,
-            "smash_units", 1.1, "smash_cd", 4, "smash_cast", 0.8,
-            "gaze_units", 0.7, "gaze_cd", 5, "gaze_cast", 0.7,
+            "smash_units", 1.1, "smash_cd", 4, "smash_cast", 1,
+            "gaze_units", 0.7, "gaze_cd", 5, "gaze_cast", 1,
             "hunger_units", 0.8, "hunger_cd", 8, "hunger_cast", 1.1,
             "edge_units", 0.7, "void_units", 0.5, "edge_cd", 12, "edge_cast", 1.1,
             "end_units", 0.18, "end_period", 10));
