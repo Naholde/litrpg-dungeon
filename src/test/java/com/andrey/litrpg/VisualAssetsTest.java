@@ -58,6 +58,40 @@ class VisualAssetsTest {
         assertTrue(missing.isEmpty(), "у существ не хватает (tools/gen_models.py): " + missing);
     }
 
+
+    /**
+     * Пустая карта свечения роняет игру прямо в бою: GeckoLib на ней кидает
+     * «Invalid glow layer texture provided, must have at least one pixel!».
+     * Поэтому такой файл не должен вообще лежать в моде (генератор их больше не пишет).
+     */
+    @Test
+    void noEmptyGlowMasks() throws Exception {
+        java.nio.file.Path dir = java.nio.file.Path.of(System.getProperty("litrpg.root", "."))
+                .resolve("src/main/resources/assets/litrpg/textures/entity");
+        if (!java.nio.file.Files.isDirectory(dir)) return;
+        List<String> empty = new ArrayList<>();
+        try (var files = java.nio.file.Files.list(dir)) {
+            for (java.nio.file.Path f : files.filter(x -> x.getFileName().toString().endsWith("_glowmask.png")).toList()) {
+                java.awt.image.BufferedImage img = javax.imageio.ImageIO.read(f.toFile());
+                if (img == null) {
+                    empty.add(f.getFileName() + " (не читается)");
+                    continue;
+                }
+                boolean lit = false;
+                for (int y = 0; y < img.getHeight() && !lit; y++) {
+                    for (int x = 0; x < img.getWidth(); x++) {
+                        if ((img.getRGB(x, y) >>> 24) != 0) {
+                            lit = true;
+                            break;
+                        }
+                    }
+                }
+                if (!lit) empty.add(f.getFileName().toString());
+            }
+        }
+        assertTrue(empty.isEmpty(), "пустые карты свечения — игра упадёт при отрисовке: " + empty);
+    }
+
     @Test
     void everySkillHasAnIcon() {
         List<String> missing = new ArrayList<>();

@@ -1203,15 +1203,16 @@ def _totem(pole, head, glow):
     return bones, anims
 
 
-def _banner(cloth, trim):
-    """Знамя: древко, перекладина и полотно, которое колышется."""
+def _banner(cloth, trim, light):
+    """Знамя: древко, перекладина и полотно, которое колышется. Кайма светится — видно издалека."""
     bones = [
         Bone("root", [0, 0, 0]),
         Bone("staff", [0, 0, 0], "root", [Cube([-1, 0, -1], [2, 28, 2], "wood"),
                                           Cube([-3, 1, -3], [6, 2, 6], "iron_dark"),
-                                          Cube([-5, 26, -0.5], [10, 1, 1], trim)]),
+                                          Cube([-5, 26, -0.5], [10, 1, 1], trim),
+                                          Cube([-1.5, 28, -1.5], [3, 3, 3], light)]),
         Bone("cloth", [0, 26, 0], "staff", [Cube([-4.5, 14, -0.3], [9, 12, 1], cloth),
-                                            Cube([-4.5, 12, -0.3], [9, 2, 1], trim)]),
+                                            Cube([-4.5, 12, -0.3], [9, 2, 1], light)]),
     ]
     anims = {"idle": loop(2.4, {"cloth": {"rotation": kf([(0, [0, 0, 2]), (1.2, [0, 0, -4]), (2.4, [0, 0, 2])])}}),
              "walk": loop(2.4, {}), "death": _dies_falling()}
@@ -1231,15 +1232,15 @@ def totem_earth():
 
 
 def banner_power():
-    return _banner("cloth_red", "gold")
+    return _banner("cloth_red", "gold", "gold_glow")
 
 
 def banner_guard():
-    return _banner("cloth_blue", "steel")
+    return _banner("cloth_blue", "steel", "eye_blue")
 
 
 def banner_speed():
-    return _banner("cloth_green", "bronze")
+    return _banner("cloth_green", "bronze", "eye_green")
 
 
 def tree_life():
@@ -1484,7 +1485,13 @@ def main():
         (ASSETS / f"geo/entity/{name}.geo.json").write_text(json.dumps(geo, indent=1), encoding="utf-8", newline="\n")
         (ASSETS / f"animations/entity/{name}.animation.json").write_text(json.dumps(anim, indent=1), encoding="utf-8", newline="\n")
         tex.save(ASSETS / f"textures/entity/{name}.png")
-        glow.save(ASSETS / f"textures/entity/{name}_glowmask.png")
+        # Пустая карта свечения роняет GeckoLib («must have at least one pixel»), поэтому
+        # пишем её только когда в модели есть хоть один светящийся материал, а пустую — убираем.
+        glow_file = ASSETS / f"textures/entity/{name}_glowmask.png"
+        if any(px[3] for px in glow.px):
+            glow.save(glow_file)
+        elif glow_file.exists():
+            glow_file.unlink()
         if preview:
             tex.scaled(4).save(preview / f"{name}_tex.png")
         print("written", name)
