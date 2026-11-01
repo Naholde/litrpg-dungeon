@@ -282,6 +282,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
      */
     private void relocate() {
         relocated = true;
+        triggerAnim("main", "relocate");
         tell(Component.literal(type().name() + " уходит в " + secondArenaName() + " — Система переносит отряд следом!")
                 .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
         Fx.pillar((ServerLevel) level(), position(), 2, 8, 60, Fx.SHADOW);
@@ -441,6 +442,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         int stage = (int) ((now - combatStart) / Math.max(20, Math.round(Balance.get(Balance.BOSSES).common().enrageSeconds() * 20)));
         if (stage > enrageStage) {
             enrageStage = stage;
+            triggerAnim("main", "enrage");
             tell(Component.literal(type().name() + " впадает в неистовство: удары сильнее (×"
                     + Derived.trim2(enrageMultiplier()) + ").").withStyle(ChatFormatting.DARK_RED));
             Fx.ring((ServerLevel) level(), position(), 8, 16, Fx.DANGER);
@@ -453,6 +455,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         double ratio = getHealth() / getMaxHealth();
         while (phase < th.length && ratio <= th[phase]) {
             phase++;
+            triggerAnim("main", "phase");
             onPhase(phase);
         }
     }
@@ -471,6 +474,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             tell(Component.literal(type().name() + " готовит: ").withStyle(ChatFormatting.GOLD)
                     .append(Component.literal(a.name()).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD))
                     .append(Component.literal(a.interruptible() ? " — можно сбить оглушением!" : "").withStyle(ChatFormatting.AQUA)));
+            triggerAnim("main", "a_" + a.key());
             a.start().accept(casting);
             return true;
         }
@@ -656,12 +660,19 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         RawAnimation idle = RawAnimation.begin().thenLoop(m + "idle");
         RawAnimation walk = RawAnimation.begin().thenLoop(m + "walk");
         RawAnimation cast = RawAnimation.begin().thenLoop(m + "cast");
-        controllers.add(new AnimationController<>(this, "main", 4, state -> {
+        var main = new AnimationController<>(this, "main", 4, state -> {
             if (!castName().isEmpty()) return state.setAndContinue(cast);
             return state.setAndContinue(state.isMoving() ? walk : idle);
-        }).triggerableAnim("attack", RawAnimation.begin().thenPlay(m + "attack"))
+        });
+        main.triggerableAnim("attack", RawAnimation.begin().thenPlay(m + "attack"))
                 .triggerableAnim("slam", RawAnimation.begin().thenPlay(m + "slam"))
-                .triggerableAnim("death", RawAnimation.begin().thenPlayAndHold(m + "death")));
+                .triggerableAnim("death", RawAnimation.begin().thenPlayAndHold(m + "death"))
+                .triggerableAnim("phase", RawAnimation.begin().thenPlay(m + "phase"))
+                .triggerableAnim("enrage", RawAnimation.begin().thenPlay(m + "enrage"))
+                .triggerableAnim("relocate", RawAnimation.begin().thenPlay(m + "relocate"));
+        // У каждого навыка — своя анимация замаха длиной в его подготовку (tools/gen_models.py).
+        for (Ability a : abilities()) main.triggerableAnim("a_" + a.key(), RawAnimation.begin().thenPlay(m + "a_" + a.key()));
+        controllers.add(main);
     }
 
     @Override

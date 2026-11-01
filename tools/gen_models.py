@@ -14,6 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from png import Canvas, hexrgb, shade  # noqa: E402
+import boss_anims  # noqa: E402
 
 ASSETS = Path(__file__).resolve().parent.parent / "src/main/resources/assets/litrpg"
 
@@ -1432,6 +1433,7 @@ def main():
         if only and name != only:
             continue
         bones, anims = fn()
+        boss_anims.add(name, anims)
         geo, anim, tex, glow = build(name, bones, anims, tex_w=128, tex_h=64 if name == "power_node" else 128)
         (ASSETS / "geo/entity").mkdir(parents=True, exist_ok=True)
         (ASSETS / "animations/entity").mkdir(parents=True, exist_ok=True)
