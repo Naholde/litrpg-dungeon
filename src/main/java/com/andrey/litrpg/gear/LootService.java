@@ -41,9 +41,16 @@ public final class LootService {
 
     public static void onDeath(LivingDeathEvent e) {
         if (!(e.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel)) return;
-        if (mob instanceof BossEntity) return; // трофеи хранителей — отдельно (фаза хранителей подземелья)
+        // Повтор после вайпа (награда уже выдана) — без добычи.
+        if (mob.getPersistentData().getBoolean(com.andrey.litrpg.run.StageWorld.NO_LOOT)) return;
+        if (mob instanceof BossEntity boss) {
+            bossLoot(boss);
+            return;
+        }
         Set<ServerPlayer> winners = participants(mob, e);
         if (winners.isEmpty()) return;
+        // Монстры прохождения опыта поштучно не дают: опыт этапа выдаётся за отряд целиком.
+        boolean runMob = com.andrey.litrpg.run.StageWorld.tagOf(mob) != null;
         GearBalance g = Balance.get(Balance.GEAR);
         var rank = mob instanceof com.andrey.litrpg.mob.DungeonMob dm ? dm.rank() : com.andrey.litrpg.mob.MobRank.NORMAL;
         int mobLevel = com.andrey.litrpg.combat.DamageService.levelOf(mob);
@@ -52,7 +59,7 @@ public final class LootService {
             // Опыт за монстра (пока нет точного бюджета этапа): доля опыта до следующего уровня × ранг.
             var prog = Balance.get(Balance.PROGRESSION);
             long xp = Math.round(prog.xpToNext(PlayerService.data(p).level()) * Balance.get(Balance.MOBS).xpPerKillShare() * rank.reward);
-            if (mob instanceof com.andrey.litrpg.mob.DungeonMob) PlayerService.addXp(p, Math.max(1, xp));
+            if (mob instanceof com.andrey.litrpg.mob.DungeonMob && !runMob) PlayerService.addXp(p, Math.max(1, xp));
             double find = PlayerService.breakdown(p).get(Derived.FIND);
             long coins = Math.round(g.drops().coinsPerLevel() * level * (0.8 + level % 3 * 0.1 + p.getRandom().nextDouble() * 0.4)
                     * (1 + find) * rank.reward);
@@ -68,6 +75,21 @@ public final class LootService {
                 ItemStack item = GearGen.roll(p.getRandom(), PlayerService.data(p).role(), level, r);
                 dropFor(level, p, mob, item);
             }
+        }
+    }
+
+    /**
+     * Хранитель: каждому на арене — горсть монет и вещь не ниже редкой. Свои трофеи у каждого хранителя появятся
+     * вместе с хранителями этапов.
+     */
+    private static void bossLoot(BossEntity boss) {
+        GearBalance g = Balance.get(Balance.GEAR);
+        int level = boss.bossLevel();
+        for (ServerPlayer p : boss.playersInArena()) {
+            double find = PlayerService.breakdown(p).get(Derived.FIND);
+            Wallet.give(p, Math.round(g.drops().coinsPerLevel() * level * 12 * (1 + find)));
+            Rarity r = GearGen.rollRarity(p.getRandom(), find, Rarity.RARE);
+            dropFor(level, p, boss, GearGen.roll(p.getRandom(), PlayerService.data(p).role(), level, r));
         }
     }
 

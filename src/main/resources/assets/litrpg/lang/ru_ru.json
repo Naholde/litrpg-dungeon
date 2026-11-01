@@ -34,5 +34,9 @@
   "entity.litrpg.ghoul": "Упырь",
   "entity.litrpg.bone_guard": "Костяной страж",
   "entity.litrpg.acolyte": "Послушник некроманта",
-  "entity.litrpg.bone_rat": "Костяная крыса"
+  "entity.litrpg.bone_rat": "Костяная крыса",
+  "block.litrpg.seal": "Печать",
+  "block.litrpg.sealed_gate": "Печать-преграда",
+  "block.litrpg.rift": "Разлом",
+  "biome.litrpg.lobby": "Преддверие"
 }

@@ -1,0 +1,138 @@
+{
+  "music.woops": {
+    "sounds": [
+      {
+        "name": "litrpg:music/woops",
+        "stream": true
+      }
+    ]
+  },
+  "music.formula": {
+    "sounds": [
+      {
+        "name": "litrpg:music/formula",
+        "stream": true
+      }
+    ]
+  },
+  "music.kurayami": {
+    "sounds": [
+      {
+        "name": "litrpg:music/kurayami",
+        "stream": true
+      }
+    ]
+  },
+  "music.ecstasy": {
+    "sounds": [
+      {
+        "name": "litrpg:music/ecstasy",
+        "stream": true
+      }
+    ]
+  },
+  "music.aura": {
+    "sounds": [
+      {
+        "name": "litrpg:music/aura",
+        "stream": true
+      }
+    ]
+  },
+  "music.fight_club": {
+    "sounds": [
+      {
+        "name": "litrpg:music/fight_club",
+        "stream": true
+      }
+    ]
+  },
+  "music.no_time": {
+    "sounds": [
+      {
+        "name": "litrpg:music/no_time",
+        "stream": true
+      }
+    ]
+  },
+  "music.fear": {
+    "sounds": [
+      {
+        "name": "litrpg:music/fear",
+        "stream": true
+      }
+    ]
+  },
+  "music.blue_lock": {
+    "sounds": [
+      {
+        "name": "litrpg:music/blue_lock",
+        "stream": true
+      }
+    ]
+  },
+  "music.jane": {
+    "sounds": [
+      {
+        "name": "litrpg:music/jane",
+        "stream": true
+      }
+    ]
+  },
+  "music.fragment": {
+    "sounds": [
+      {
+        "name": "litrpg:music/fragment",
+        "stream": true
+      }
+    ]
+  },
+  "music.ring_frei": {
+    "sounds": [
+      {
+        "name": "litrpg:music/ring_frei",
+        "stream": true
+      }
+    ]
+  },
+  "music.time_flies": {
+    "sounds": [
+      {
+        "name": "litrpg:music/time_flies",
+        "stream": true
+      }
+    ]
+  },
+  "music.red": {
+    "sounds": [
+      {
+        "name": "litrpg:music/red",
+        "stream": true
+      }
+    ]
+  },
+  "music.blud": {
+    "sounds": [
+      {
+        "name": "litrpg:music/blud",
+        "stream": true
+      }
+    ]
+  },
+  "music.next_opponent": {
+    "sounds": [
+      {
+        "name": "litrpg:music/next_opponent",
+        "stream": true
+      }
+    ]
+  },
+  "music.wutiwant": {
+    "sounds": [
+      {
+        "name": "litrpg:music/wutiwant",
+        "stream": true
+      }
+    ]
+  }
+}

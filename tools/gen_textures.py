@@ -309,6 +309,107 @@ def scroll():
     return c
 
 
+# ---------------------------------------------------------------------------- блоки подземелья
+
+@texture("block/seal_top.png")
+def seal_top():
+    """Печать сверху: золотой круг с рунами на чёрном камне."""
+    c = Canvas(16, 16)
+    stone, stone_l = hexrgb("#1E1A22"), hexrgb("#2C2732")
+    gold, gold_l, gold_d = hexrgb("#C9962E"), hexrgb("#F2D27A"), hexrgb("#7A5418")
+    rune = hexrgb("#B88CFF")
+    for y in range(16):
+        for x in range(16):
+            c.set(x, y, stone_l if (x * 7 + y * 3) % 11 == 0 else stone)
+    for y in range(16):
+        for x in range(16):
+            d = math.hypot(x - 7.5, y - 7.5)
+            if 6.0 <= d < 7.2:
+                c.set(x, y, gold_l if (x + y) % 3 == 0 else gold)
+            elif 3.4 <= d < 4.2:
+                c.set(x, y, gold_d)
+    for (x, y) in [(7, 2), (8, 2), (13, 7), (13, 8), (7, 13), (8, 13), (2, 7), (2, 8)]:
+        c.set(x, y, rune)
+    for (x, y) in [(7, 7), (8, 8), (7, 8), (8, 7)]:
+        c.set(x, y, (255, 240, 200, 255))
+    for (x, y) in [(6, 7), (9, 8), (7, 6), (8, 9)]:
+        c.set(x, y, gold_l)
+    return c
+
+
+@texture("block/seal_side.png")
+def seal_side():
+    c = Canvas(16, 16)
+    stone, stone_l, stone_d = hexrgb("#1E1A22"), hexrgb("#2C2732"), hexrgb("#141117")
+    gold, gold_l = hexrgb("#C9962E"), hexrgb("#F2D27A")
+    for y in range(16):
+        for x in range(16):
+            c.set(x, y, stone_d if y in (0, 15) else stone_l if (x * 5 + y * 3) % 9 == 0 else stone)
+    for x in range(16):
+        c.set(x, 2, gold if x % 4 else gold_l)
+        c.set(x, 13, gold if x % 4 else gold_l)
+    for x in (3, 7, 8, 12):
+        for y in (6, 7, 8, 9):
+            c.set(x, y, hexrgb("#9B6CFF") if (x + y) % 2 else hexrgb("#6A44C0"))
+    return c
+
+
+@texture("block/sealed_gate.png")
+def sealed_gate():
+    """Печать-преграда: полупрозрачная фиолетовая решётка рун, 4 кадра мерцания."""
+    frames = 4
+    c = Canvas(16, 16 * frames)
+    for f in range(frames):
+        for y in range(16):
+            for x in range(16):
+                wave = 0.5 + 0.5 * math.sin((x + y * 0.7 + f * 4) * 0.8)
+                a = int(95 + 50 * wave)
+                base = (int(120 + 40 * wave), int(60 + 30 * wave), 230, a)
+                if x % 8 == 0 or y % 8 == 0:
+                    base = (200, 150, 255, 200)
+                if (x + y + f) % 8 == 3 and (x - y) % 4 == 0:
+                    base = (240, 220, 255, 230)
+                c.set(x, 16 * f + y, base)
+    return c
+
+
+@texture("block/rift_on.png")
+def rift_on():
+    """Открытый разлом: вихрь пурпура и черноты, 8 кадров."""
+    frames = 8
+    c = Canvas(16, 16 * frames)
+    for f in range(frames):
+        t = f / frames * math.tau
+        for y in range(16):
+            for x in range(16):
+                dx, dy = x - 7.5, y - 7.5
+                r = math.hypot(dx, dy)
+                ang = math.atan2(dy, dx)
+                v = 0.5 + 0.5 * math.sin(ang * 3 + r * 0.9 - t * 2)
+                k = max(0.0, 1 - r / 11)
+                col = (int(40 + 200 * v * k), int(10 + 40 * v * k), int(70 + 170 * k), int(170 + 70 * k))
+                if v > 0.92 and r < 7:
+                    col = (255, 200, 255, 255)
+                c.set(x, 16 * f + y, col)
+    return c
+
+
+@texture("block/rift_off.png")
+def rift_off():
+    """Закрытый разлом: тёмная трещина с тусклыми искрами."""
+    c = Canvas(16, 16)
+    for y in range(16):
+        for x in range(16):
+            c.set(x, y, (12, 6, 20, 150))
+    for y in range(16):
+        x = int(7.5 + 2.5 * math.sin(y * 0.9))
+        c.set(x, y, (120, 50, 160, 220))
+        c.set(x + 1, y, (70, 25, 100, 200))
+    for (x, y) in [(3, 4), (12, 9), (5, 13), (11, 2)]:
+        c.set(x, y, (180, 90, 220, 200))
+    return c
+
+
 def main():
     preview = None
     if "--preview" in sys.argv:

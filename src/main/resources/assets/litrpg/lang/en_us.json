@@ -34,5 +34,9 @@
   "entity.litrpg.ghoul": "Ghoul",
   "entity.litrpg.bone_guard": "Bone Guard",
   "entity.litrpg.acolyte": "Necromancer's Acolyte",
-  "entity.litrpg.bone_rat": "Bone Rat"
+  "entity.litrpg.bone_rat": "Bone Rat",
+  "block.litrpg.seal": "Seal",
+  "block.litrpg.sealed_gate": "Sealed Gate",
+  "block.litrpg.rift": "Rift",
+  "biome.litrpg.lobby": "Antechamber"
 }

@@ -1,0 +1,17 @@
+{
+  "type": "litrpg:dungeon",
+  "generator": {
+    "type": "litrpg:dungeon",
+    "biome_source": {
+      "type": "litrpg:stages",
+      "stages": [
+        "litrpg:lobby",
+        "litrpg:crypt",
+        "litrpg:thicket",
+        "litrpg:temple",
+        "litrpg:forge",
+        "litrpg:spire"
+      ]
+    }
+  }
+}

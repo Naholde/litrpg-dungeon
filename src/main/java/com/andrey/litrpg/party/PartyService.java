@@ -48,6 +48,18 @@ public final class PartyService {
         return party;
     }
 
+    /** Отряд прохождения после перезапуска сервера (по сохранённым UUID, в сети или нет). */
+    public static void restore(List<UUID> members) {
+        Party party = BY_PLAYER.get(members.isEmpty() ? null : members.get(0));
+        if (party != null && party.members.containsAll(members)) return;
+        party = new Party();
+        for (UUID id : members) {
+            leaveQuietly(id);
+            party.members.add(id);
+            BY_PLAYER.put(id, party);
+        }
+    }
+
     public static void leave(ServerPlayer p) {
         if (leaveQuietly(p.getUUID())) {
             SystemChat.send(p, "Вы покинули отряд.");

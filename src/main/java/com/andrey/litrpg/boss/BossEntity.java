@@ -107,6 +107,9 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private int phase;
     private int enrageStage;
     private int syncTimer;
+    /** Хранитель прохождения: id из схемы и размер отряда на старте (0 — считать по игрокам на арене). */
+    private String runId;
+    private int fixedParty;
 
     protected BossEntity(EntityType<? extends BossEntity> type, Level level) {
         super(type, level);
@@ -189,6 +192,16 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         arenaRadius = radius;
     }
 
+    /** Поставлен прохождением: id из схемы и размер отряда, под который считаются здоровье и урон. */
+    public void setRun(String id, int partySize) {
+        runId = id;
+        fixedParty = partySize;
+    }
+
+    public String runId() {
+        return runId;
+    }
+
     // ------------------------------------------------------------------ игроки на арене
 
     public List<ServerPlayer> playersInArena() {
@@ -262,7 +275,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         combatStart = level().getGameTime();
         lastPlayerSeen = combatStart;
         nextAuto = combatStart + 20;
-        partySize = Math.max(1, Math.min(5, players.size()));
+        partySize = Math.max(1, Math.min(5, fixedParty > 0 ? fixedParty : players.size()));
         double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize);
         var hp = getAttribute(Attributes.MAX_HEALTH);
         if (hp != null) hp.setBaseValue(max);
@@ -538,6 +551,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             tag.putDouble("homeZ", home.z);
         }
         tag.putDouble("arena", arenaRadius);
+        if (runId != null) tag.putString("runId", runId);
+        tag.putInt("fixedParty", fixedParty);
     }
 
     @Override
@@ -545,6 +560,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         super.readAdditionalSaveData(tag);
         if (tag.contains("homeX")) home = new Vec3(tag.getDouble("homeX"), tag.getDouble("homeY"), tag.getDouble("homeZ"));
         if (tag.contains("arena")) arenaRadius = tag.getDouble("arena");
+        if (tag.contains("runId")) runId = tag.getString("runId");
+        fixedParty = tag.getInt("fixedParty");
     }
 
     // ------------------------------------------------------------------ для автотестов

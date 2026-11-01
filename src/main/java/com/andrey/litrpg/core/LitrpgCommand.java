@@ -34,6 +34,7 @@ public final class LitrpgCommand {
                                 .executes(c -> showSection(c.getSource(), StringArgumentType.getString(c, "section")))));
         PlayerCommands.addTo(root);
         CombatCommands.addTo(root);
+        com.andrey.litrpg.run.RunCommands.addTo(root);
         d.register(root);
     }
 

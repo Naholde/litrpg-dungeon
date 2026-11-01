@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "litrpg:block/sealed_gate"
+    }
+  }
+}

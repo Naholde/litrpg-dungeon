@@ -1,0 +1,28 @@
+{
+  "party": {
+    "min_players": 3,
+    "max_players": 5,
+    "seal_confirm_seconds": 10
+  },
+  "xp": {
+    "packs": 0.5,
+    "bosses": 0.45,
+    "extra": 0.05
+  },
+  "world": {
+    "spawn_radius": 40,
+    "mob_leash": 34,
+    "rift_radius": 5,
+    "rift_seconds": 5,
+    "rescue_damage": 0.2
+  },
+  "spirits": {
+    "wipe_seconds": 3,
+    "revive_seconds": 3,
+    "revive_combat_seconds": 7,
+    "revive_radius": 2.5,
+    "revive_health": 0.3,
+    "boss_revive_health": 0.5,
+    "leash": 7
+  }
+}

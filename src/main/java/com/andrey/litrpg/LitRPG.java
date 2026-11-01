@@ -33,6 +33,8 @@ public final class LitRPG {
         ModAttachments.register(modBus);
         ModItems.register(modBus);
         ModComponents.register(modBus);
+        com.andrey.litrpg.core.ModBlocks.register(modBus);
+        com.andrey.litrpg.world.ModWorld.register(modBus);
         ModEntities.register(modBus);
         com.andrey.litrpg.mob.ModMobs.register(modBus);
         modBus.addListener(ModNetwork::register);
@@ -43,6 +45,7 @@ public final class LitRPG {
         game.addListener((RegisterCommandsEvent e) -> LitrpgCommand.register(e.getDispatcher()));
         PlayerEvents.register(modBus, game);
         CombatEvents.register(game);
+        com.andrey.litrpg.run.RunEvents.register(game);
         DevFiles.register(game);
 
         LOG.info("[LitRPG] Мод загружен, версия {}", container.getModInfo().getVersion());

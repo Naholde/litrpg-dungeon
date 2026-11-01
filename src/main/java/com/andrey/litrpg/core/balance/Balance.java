@@ -34,6 +34,7 @@ public final class Balance {
     public static final BalanceKey<GearBalance> GEAR = register("gear", GearBalance.CODEC, GearBalance.DEFAULT);
     public static final BalanceKey<ShopBalance> SHOP = register("shop", ShopBalance.CODEC, ShopBalance.DEFAULT);
     public static final BalanceKey<MobsBalance> MOBS = register("mobs", MobsBalance.CODEC, MobsBalance.defaults());
+    public static final BalanceKey<RunBalance> RUN = register("run", RunBalance.CODEC, RunBalance.DEFAULT);
 
     private Balance() {
     }

@@ -29,6 +29,8 @@ import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 
+import net.minecraft.world.phys.Vec3;
+
 import java.util.Set;
 
 /** Подключение клиентской части: клавиши, HUD, открытие окон. */
@@ -62,6 +64,24 @@ public final class ClientSetup {
         @SubscribeEvent
         public static void layers(RegisterGuiLayersEvent e) {
             e.registerAbove(VanillaGuiLayers.HOTBAR, LitRPG.id("hud"), HudOverlay::render);
+            e.registerAbove(LitRPG.id("hud"), LitRPG.id("run"), ClientRun::render);
+        }
+
+        /** Небо подземелья: ни облаков, ни солнца — цвет тумана биома этапа. */
+        @SubscribeEvent
+        public static void skies(net.neoforged.neoforge.client.event.RegisterDimensionSpecialEffectsEvent e) {
+            e.register(LitRPG.id("dungeon"), new net.minecraft.client.renderer.DimensionSpecialEffects(Float.NaN, false,
+                    net.minecraft.client.renderer.DimensionSpecialEffects.SkyType.NONE, false, false) {
+                @Override
+                public Vec3 getBrightnessDependentFogColor(Vec3 fog, float brightness) {
+                    return fog;
+                }
+
+                @Override
+                public boolean isFoggyAt(int x, int y) {
+                    return false;
+                }
+            });
         }
     }
 
@@ -156,6 +176,7 @@ public final class ClientSetup {
             FxRenderer.render(e.getPoseStack(), buf, e.getCamera(), partial);
             ClientAggro.renderWorld(e.getPoseStack(), buf, e.getCamera(), partial);
             ClientPopups.renderWorld(e.getPoseStack(), buf, e.getCamera(), partial);
+            ClientRun.renderWorld(e.getPoseStack(), buf, e.getCamera());
             buf.endBatch();
         }
 
@@ -169,6 +190,7 @@ public final class ClientSetup {
             ClientStatuses.reset();
             ClientSkills.reset();
             ClientBoss.reset();
+            ClientRun.reset();
         }
     }
 }

@@ -11,7 +11,8 @@
 - После каждой фазы: сборка + тесты, проверка на сервере, коммит в `main`, `git push origin main`, запись в `HANDOVER.md`.
   В конце сообщения коммита — строка Co-Authored-By от системы.
 - Отчёт — по-русски, коротко, по пунктам, с командами проверки.
-- **Напомнить про музыку**: в фазе 9 попросить у Андрея его фонк-треки для хранителей.
+- Музыка Андрея получена (17 треков): `python tools/gen_music.py --src C:/Users/arsen/Downloads` → `sounds/music/*.ogg`
+  (папка в .gitignore — на GitHub нет, в jar есть). mp4-файлы из Загрузок — не музыка, не трогать.
 
 ## Окружение
 - Проект: `C:\Users\arsen\litrpg-dungeon`. JDK 21: `C:\Users\arsen\.litrpg-tools\jdk-21.0.13+9`.
@@ -69,12 +70,30 @@
 - `mob/` — `DungeonMob`, `Bestiary` (виды и цифры), `ModMobs` (типы сущностей по видам), `MobRole`, `MobRank`.
   **Новый вид:** запись в `Bestiary`, модель в `tools/gen_models.py` (шаблоны `humanoid`/`quadruped`), строка в lang,
   `gradlew test -Pregen` (mobs.json).
+- `world/` — `ModWorld` (измерение `litrpg:dungeon`), `DungeonMap` (блоки карты из `/litrpg_map/map.bin`),
+  `DungeonChunkGenerator` (ставит карту в чанки, текст табличек — из схемы), `StageBiomeSource` (биом по x: этап n — x ∈ [1024n, 1024n+1024)),
+  `block/` (`SealBlock` — Печать, `SealedGateBlock` — преграда, `RiftBlock` — разлом). Блоки — `core/ModBlocks`.
+- `run/` — прохождение: `Layout` (схема из `/litrpg_map/layout.json`), `RunState` (SavedData `litrpg_run`), `RunService`
+  (Печать, этапы, вайп, разлом, вход), `StageWorld` (появление отрядов/хранителей, преграды, разлом, метки сущностей с эпохой),
+  `Spirits` (духи, воскрешение Shift), `Rewards` (точный опыт этапа), `Protect` (защита мира, спасение из пропасти/лавы),
+  `RunEvents`, `RunCommands` (`/litrpg run status|start|stage N|wipe|reset|minplayers N|done <id>|lobby`).
+  Цифры — `balance/run.json`. Карта сменилась → на сервере мир подземелья пересоздаётся сам (`litrpg_map_version.txt`).
 - `party/` — `Party`, `PartyService`. `core/` — `ModItems`, `ModEntities`, `ModTags`, `ModAttachments`, `SystemChat`.
 - `client/` — `HudOverlay`, `fx/` (`ClientPopups`, `ClientAggro`, `WorldText`), `render/`, `ClientParty`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).
+
+## Карта подземелья
+- Генератор: `python tools/gen_dungeon.py [--preview build/preview/map]` → `src/main/resources/litrpg_map/{map.bin,layout.json}`.
+  Не прошла проверка (схема, проходимость пешком с открытием преград) — файлы не пишутся.
+- Набор: `tools/dungeon/kit.py` (Map: carve/room/round_room/cave/corridor/pit, `shell`, свет; Stage: pack/boss/gate; выгрузка),
+  `check.py`, `lobby.py`, `draft.py` (черновые этапы — заменяются настоящими в фазе 8), биомы — `tools/gen_dimension.py`.
+- Сервер автотестов не грузит измерения из данных: там «подземелье» — обычный мир (`RunService.dungeon`), чанки карты
+  в тесте генерируются напрямую (`RunTests`).
 
 ## Dev-проверка без человека
 - `run/dev_commands.txt` — сервер выполняет строки раз в секунду (лог `run/logs/latest.log`).
 - `run/dev_screenshot.txt` с именем → `run/screenshots/<имя>.png` (смотреть через Read).
 - Помощники: `bash tools/dev/shot.sh имя`, `bash tools/dev/open.sh character 2|role tank|respawn|camera back`,
   `bash tools/dev/srv.sh "litrpg level set Dev 20"`. Телепорт на высоту — только ПОСЛЕ того, как там есть пол.
+- Прохождение в одиночку: `litrpg run start Dev`, телепорт — `execute in litrpg:dungeon run tp Dev x y z`,
+  неуязвимость — `effect give Dev minecraft:resistance 600 4 true`, пропустить — `litrpg run done boss:s1_b1`.

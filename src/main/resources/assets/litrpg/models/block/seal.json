@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "litrpg:block/seal_top",
+    "side": "litrpg:block/seal_side",
+    "bottom": "minecraft:block/polished_blackstone"
+  }
+}

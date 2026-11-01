@@ -21,6 +21,7 @@ public final class TestPlayers {
     }
 
     public static ServerPlayer create(GameTestHelper h) {
+        com.andrey.litrpg.combat.DamageService.deterministic = true;
         var cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-player"), false);
         ServerPlayer p = new ServerPlayer(h.getLevel().getServer(), h.getLevel(), cookie.gameProfile(), cookie.clientInformation());
         Connection connection = new Connection(PacketFlow.SERVERBOUND);

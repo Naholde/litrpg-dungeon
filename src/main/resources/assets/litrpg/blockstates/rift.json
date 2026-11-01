@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "litrpg:block/rift_off"
+    },
+    "active=true": {
+      "model": "litrpg:block/rift_on"
+    }
+  }
+}

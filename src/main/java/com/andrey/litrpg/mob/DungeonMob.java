@@ -55,6 +55,8 @@ public class DungeonMob extends Monster implements GeoEntity {
     private int level = 1;
     private MobRank rank = MobRank.NORMAL;
     private boolean setUp;
+    /** Место монстра отряда: утащили дальше поводка — возвращается и лечится. */
+    private net.minecraft.core.BlockPos home;
     private final List<long[]> pending = new ArrayList<>();
     private final List<Runnable> pendingRun = new ArrayList<>();
 
@@ -78,6 +80,10 @@ public class DungeonMob extends Monster implements GeoEntity {
 
     public MobRank rank() {
         return rank;
+    }
+
+    public void setHome(net.minecraft.core.BlockPos pos) {
+        home = pos;
     }
 
     private double p(String key) {
@@ -140,6 +146,7 @@ public class DungeonMob extends Monster implements GeoEntity {
             Player near = level().getNearestPlayer(this, 32);
             setup(near instanceof ServerPlayer sp ? com.andrey.litrpg.player.PlayerService.data(sp).level() : 1, MobRank.NORMAL);
         }
+        if (home != null && tickCount % 10 == 0) leash();
         long now = level().getGameTime();
         for (int i = pending.size() - 1; i >= 0; i--) {
             if (now >= pending.get(i)[0]) {
@@ -152,6 +159,22 @@ public class DungeonMob extends Monster implements GeoEntity {
         if (species().role() == MobRole.BRUTE && rank != MobRank.NORMAL && getTarget() != null
                 && distanceTo(getTarget()) < 4 && tickCount % 160 == 0) {
             slam();
+        }
+    }
+
+    /** Поводок: монстра не утащить через полкарты — возвращается на место с полным здоровьем. */
+    private void leash() {
+        double d = position().distanceTo(net.minecraft.world.phys.Vec3.atBottomCenterOf(home));
+        if (d > Balance.get(Balance.RUN).world().mobLeash()) {
+            teleportTo(home.getX() + 0.5, home.getY(), home.getZ() + 0.5);
+            getNavigation().stop();
+            if (hasData(ModAttachments.THREAT)) ThreatService.table(this).clear();
+            setTarget(null);
+            StatusService.clear(this);
+            setHealth(getMaxHealth());
+            if (level() instanceof ServerLevel sl) Fx.burst(sl, position().add(0, 1, 0), 1.5f, 10, Fx.ARCANE);
+        } else if (getTarget() == null && d > 3 && getNavigation().isDone()) {
+            getNavigation().moveTo(home.getX() + 0.5, home.getY(), home.getZ() + 0.5, 1.0);
         }
     }
 
@@ -319,6 +342,7 @@ public class DungeonMob extends Monster implements GeoEntity {
         tag.putInt("mobLevel", level);
         tag.putString("rank", rank.name());
         tag.putBoolean("setUp", setUp);
+        if (home != null) tag.putLong("home", home.asLong());
     }
 
     @Override
@@ -331,6 +355,7 @@ public class DungeonMob extends Monster implements GeoEntity {
             rank = MobRank.NORMAL;
         }
         setUp = tag.getBoolean("setUp");
+        if (tag.contains("home")) home = net.minecraft.core.BlockPos.of(tag.getLong("home"));
     }
 
     @Override

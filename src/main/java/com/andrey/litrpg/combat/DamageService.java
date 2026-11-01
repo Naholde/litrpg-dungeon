@@ -56,6 +56,9 @@ public final class DamageService {
         }
     }
 
+    /** Автотесты: без случайных критов и уклонений, чтобы цифры сравнивались точно. */
+    public static boolean deterministic;
+
     public static boolean wasCrit(LivingEntity victim) {
         return Boolean.TRUE.equals(CRIT.remove(victim));
     }
@@ -83,7 +86,7 @@ public final class DamageService {
             StatBreakdown b = PlayerService.breakdown(p);
             WeaponKind kind = ctx != null ? ctx.kind() : kindOf(src, p);
             amount = DamageMath.outgoing(amount, kind, b);
-            if (p.getRandom().nextDouble() < b.get(Derived.CRIT_CHANCE)) {
+            if (!deterministic && p.getRandom().nextDouble() < b.get(Derived.CRIT_CHANCE)) {
                 amount *= b.get(Derived.CRIT_DAMAGE);
                 CRIT.put(victim, true);
             }
@@ -109,7 +112,7 @@ public final class DamageService {
                     amount = DamageMath.environment(amount, vp.getMaxHealth());
                 }
             } else if (attacker instanceof LivingEntity && !isBoss(attacker) && vp.invulnerableTime <= 10
-                    && vp.getRandom().nextDouble() < b.get(Derived.DODGE)) {
+                    && !deterministic && vp.getRandom().nextDouble() < b.get(Derived.DODGE)) {
                 // Уклонение — только от монстров; удары хранителей читаются по разметке, от них уходят ногами.
                 e.setCanceled(true);
                 Popups.dodge(vp);
