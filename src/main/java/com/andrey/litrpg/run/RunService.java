@@ -237,6 +237,7 @@ public final class RunService {
             p.teleportTo(dungeon(server), sp.x(), sp.y(), sp.z(), sp.yaw(), 0);
             SystemChat.title(p, Component.literal("Подземелье пройдено").withStyle(ChatFormatting.GOLD), time);
             SystemChat.send(p, Component.literal("Система: испытание окончено. Вы дошли до конца.").withStyle(ChatFormatting.GOLD));
+            Net.send(p, new com.andrey.litrpg.net.CreditsPayload(List.copyOf(s.names.values()), secs, s.wipes));
         }
         syncAll(server);
     }

@@ -61,6 +61,9 @@ public final class DevClientFiles {
                     ? new com.andrey.litrpg.client.screen.RoleScreen(com.andrey.litrpg.player.Role.byId(cmd[1]))
                     : new com.andrey.litrpg.client.screen.RoleScreen());
             case "close" -> mc.setScreen(null);
+            case "codex" -> mc.setScreen(new com.andrey.litrpg.client.screen.CodexScreen(cmd.length > 1 ? Integer.parseInt(cmd[1]) : 0));
+            case "credits" -> mc.setScreen(new com.andrey.litrpg.client.screen.CreditsScreen(
+                    new com.andrey.litrpg.net.CreditsPayload(java.util.List.of("Dev", "Друг"), 3 * 3600 + 12 * 60, 4)));
             case "camera" -> mc.options.setCameraType(cmd.length > 1 && cmd[1].equals("back")
                     ? net.minecraft.client.CameraType.THIRD_PERSON_BACK
                     : cmd.length > 1 && cmd[1].equals("front") ? net.minecraft.client.CameraType.THIRD_PERSON_FRONT

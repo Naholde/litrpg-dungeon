@@ -46,6 +46,7 @@ public final class ClientSetup {
             for (var k : KeyBinds.PARTY_TARGET) e.register(k);
             for (var k : KeyBinds.SKILL) e.register(k);
             e.register(KeyBinds.DASH);
+            e.register(KeyBinds.CODEX);
         }
 
         @SubscribeEvent
@@ -151,6 +152,10 @@ public final class ClientSetup {
             }
             boolean needClass = ClientPlayerData.received() && ClientPlayerData.classId().isEmpty()
                     && !ClientPlayerData.offers().isEmpty();
+            while (KeyBinds.CODEX.consumeClick()) {
+                if (mc.screen == null) mc.setScreen(new com.andrey.litrpg.client.screen.CodexScreen());
+            }
+            com.andrey.litrpg.client.music.MusicController.tick();
             while (KeyBinds.CHARACTER.consumeClick()) {
                 if (mc.screen == null) {
                     mc.setScreen(needRole ? new RoleScreen() : needClass ? new ClassChoiceScreen() : new CharacterScreen());
@@ -171,6 +176,12 @@ public final class ClientSetup {
          * первые секунды после входа прячем эту всплывашку.
          */
         private static int quietTicks;
+
+        /** В подземелье ванильная музыка молчит — играет своя (хранители, преддверие, титры). */
+        @SubscribeEvent
+        public static void music(net.neoforged.neoforge.client.event.SelectMusicEvent e) {
+            if (com.andrey.litrpg.client.music.MusicController.inDungeon()) e.setMusic(null);
+        }
 
         @SubscribeEvent
         public static void loggedIn(ClientPlayerNetworkEvent.LoggingIn e) {
@@ -220,6 +231,7 @@ public final class ClientSetup {
             ClientSkills.reset();
             ClientBoss.reset();
             ClientRun.reset();
+            com.andrey.litrpg.client.music.MusicController.stopAll();
         }
     }
 }

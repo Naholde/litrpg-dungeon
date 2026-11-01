@@ -27,6 +27,10 @@ public final class ClientRun {
         data = RunSyncPayload.EMPTY;
     }
 
+    public static int stage() {
+        return data.stage();
+    }
+
     public static boolean spirit() {
         return data.spirit();
     }

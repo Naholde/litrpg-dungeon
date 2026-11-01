@@ -30,6 +30,7 @@ public final class ModNetwork {
         r.playToClient(ShopPayload.TYPE, ShopPayload.STREAM_CODEC, ShopPayload::handle);
         r.playToServer(ShopPayload.Act.TYPE, ShopPayload.Act.STREAM_CODEC, ShopPayload.Act::handle);
         r.playToClient(RunSyncPayload.TYPE, RunSyncPayload.STREAM_CODEC, RunSyncPayload::handle);
+        r.playToClient(CreditsPayload.TYPE, CreditsPayload.STREAM_CODEC, CreditsPayload::handle);
     }
 
     /** При входе игрока и после {@code /reload} — разослать баланс. */

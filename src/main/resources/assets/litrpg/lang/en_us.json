@@ -89,5 +89,6 @@
   "entity.litrpg.doppel": "Doppelganger",
   "entity.litrpg.chronophage": "Chronophage",
   "entity.litrpg.xalathar": "Xalathar, Hunger of the Abyss",
-  "entity.litrpg.hourglass": "Hourglass"
+  "entity.litrpg.hourglass": "Hourglass",
+  "key.litrpg.codex": "System Codex"
 }

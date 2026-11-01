@@ -400,6 +400,10 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         for (Ability a : abilities()) readyAt.put(a.key(), combatStart + Math.round(p(a.key() + "_cd") * 10));
         tell(Component.literal(type().name() + " вступает в бой. Отряд: " + partySize + ", ур. " + bossLevel() + ".")
                 .withStyle(ChatFormatting.RED));
+        String quote = BossGuide.of(type().id()).quote();
+        if (!quote.isEmpty()) {
+            tell(Component.literal(type().name() + ": «" + quote + "»").withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC));
+        }
         onEngage(players);
         level().playSound(null, blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.6f, 1.4f);
     }

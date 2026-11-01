@@ -91,6 +91,8 @@ test {
     // gradlew test -Pregen — тесты-генераторы перепишут файлы данных (skills.json).
     systemProperty 'litrpg.root', projectDir.absolutePath
     if (project.hasProperty('regen')) systemProperty 'litrpg.regen', 'true'
+    // gradlew test -Pbalance — симуляция баланса не только пишет отчёт, но и роняет сборку, если что-то вне пределов.
+    if (project.hasProperty('balance')) systemProperty 'litrpg.balance', 'true'
 }
 
 var generateModMetadata = tasks.register('generateModMetadata', ProcessResources) {
