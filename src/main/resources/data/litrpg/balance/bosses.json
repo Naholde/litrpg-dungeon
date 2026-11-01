@@ -1,0 +1,40 @@
+{
+  "common": {
+    "reset_seconds": 6.0,
+    "auto_attack_seconds": 2.0,
+    "hp_scale": [
+      0.4,
+      0.7,
+      1.0,
+      1.3,
+      1.6
+    ],
+    "enrage_seconds": 60.0,
+    "enrage_mult": 1.3
+  },
+  "bosses": {
+    "trial_warden": {
+      "level": 10.0,
+      "hp_units": 60.0,
+      "melee_units": 0.15,
+      "smash_units": 0.9,
+      "smash_cd": 12.0,
+      "smash_cast": 1.8,
+      "wave_units": 0.6,
+      "wave_cd": 20.0,
+      "wave_cast": 2.5,
+      "meteor_units": 0.5,
+      "meteor_cd": 16.0,
+      "meteor_cast": 2.0,
+      "burden_units": 2.4,
+      "burden_cd": 24.0,
+      "burden_cast": 3.0,
+      "mend_share": 0.1,
+      "mend_cd": 30.0,
+      "mend_cast": 4.0,
+      "node_hp_units": 4.0,
+      "spark_hp_units": 1.2,
+      "spark_units": 0.06
+    }
+  }
+}

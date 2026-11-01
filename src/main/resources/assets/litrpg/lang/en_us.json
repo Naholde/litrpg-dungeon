@@ -9,5 +9,14 @@
   "key.litrpg.party_target_2": "Heal target: member 2",
   "key.litrpg.party_target_3": "Heal target: member 3",
   "key.litrpg.party_target_4": "Heal target: member 4",
-  "key.litrpg.party_target_5": "Heal target: member 5"
+  "key.litrpg.party_target_5": "Heal target: member 5",
+  "entity.litrpg.trial_warden": "Trial Warden",
+  "entity.litrpg.power_node": "Power Node",
+  "key.litrpg.dash": "Dash",
+  "key.litrpg.skill_1": "Skill 1",
+  "key.litrpg.skill_2": "Skill 2",
+  "key.litrpg.skill_3": "Skill 3",
+  "key.litrpg.skill_4": "Skill 4",
+  "key.litrpg.skill_5": "Skill 5",
+  "key.litrpg.skill_6": "Skill 6"
 }

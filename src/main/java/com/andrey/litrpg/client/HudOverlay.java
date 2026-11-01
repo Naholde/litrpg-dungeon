@@ -43,7 +43,8 @@ public final class HudOverlay {
         }
         levelBlock(g, f, mc);
         partyFrames(g, f, mc);
-        targetFrame(g, f, mc, w, delta.getGameTimeDeltaPartialTick(true));
+        int below = ClientBoss.render(g, f, w, delta.getGameTimeDeltaPartialTick(true));
+        targetFrame(g, f, mc, w, delta.getGameTimeDeltaPartialTick(true), below);
     }
 
     // ------------------------------------------------------------------ здоровье
@@ -144,10 +145,10 @@ public final class HudOverlay {
 
     // ------------------------------------------------------------------ рамка цели
 
-    private static void targetFrame(GuiGraphics g, Font f, Minecraft mc, int w, float partial) {
+    private static void targetFrame(GuiGraphics g, Font f, Minecraft mc, int w, float partial, int below) {
         LivingEntity t = lookedAt(mc, 40, partial);
-        if (t == null) return;
-        int fw = 170, fh = 30, x = (w - fw) / 2, y = 4;
+        if (t == null || t instanceof com.andrey.litrpg.boss.BossEntity) return; // у хранителя своя рамка
+        int fw = 170, fh = 30, x = (w - fw) / 2, y = Math.max(4, below);
         UiKit.panel(g, x, y, fw, fh, t instanceof Player ? UiKit.FRAME : 0xFFE0564F);
         String name = f.plainSubstrByWidth(t.getDisplayName().getString(), fw - 12);
         UiKit.textCenter(g, f, name, x + fw / 2, y + 4, t instanceof Player ? UiKit.TEXT : 0xFFFFB0A8);

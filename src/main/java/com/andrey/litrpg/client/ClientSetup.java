@@ -12,6 +12,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import com.andrey.litrpg.client.fx.ClientAggro;
 import com.andrey.litrpg.client.fx.ClientPopups;
 import com.andrey.litrpg.client.fx.FxRenderer;
+import com.andrey.litrpg.client.render.GeoRenderers;
 import com.andrey.litrpg.client.render.MagicBoltRenderer;
 import com.andrey.litrpg.client.render.TrainingDummyRenderer;
 import com.andrey.litrpg.combat.item.StaffItem;
@@ -49,6 +50,8 @@ public final class ClientSetup {
         public static void renderers(EntityRenderersEvent.RegisterRenderers e) {
             e.registerEntityRenderer(ModEntities.MAGIC_BOLT.get(), MagicBoltRenderer::new);
             e.registerEntityRenderer(ModEntities.TRAINING_DUMMY.get(), TrainingDummyRenderer::new);
+            e.registerEntityRenderer(ModEntities.TRIAL_WARDEN.get(), ctx -> GeoRenderers.glowing(ctx, "trial_warden", 1.6f));
+            e.registerEntityRenderer(ModEntities.POWER_NODE.get(), ctx -> GeoRenderers.glowing(ctx, "power_node", 1.0f));
         }
 
         @SubscribeEvent
@@ -160,6 +163,7 @@ public final class ClientSetup {
             FxRenderer.clear();
             ClientStatuses.reset();
             ClientSkills.reset();
+            ClientBoss.reset();
         }
     }
 }

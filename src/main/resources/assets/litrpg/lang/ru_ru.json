@@ -9,5 +9,14 @@
   "key.litrpg.party_target_2": "Цель лечения: участник 2",
   "key.litrpg.party_target_3": "Цель лечения: участник 3",
   "key.litrpg.party_target_4": "Цель лечения: участник 4",
-  "key.litrpg.party_target_5": "Цель лечения: участник 5"
+  "key.litrpg.party_target_5": "Цель лечения: участник 5",
+  "entity.litrpg.trial_warden": "Испытатель Системы",
+  "entity.litrpg.power_node": "Узел силы",
+  "key.litrpg.dash": "Рывок",
+  "key.litrpg.skill_1": "Навык 1",
+  "key.litrpg.skill_2": "Навык 2",
+  "key.litrpg.skill_3": "Навык 3",
+  "key.litrpg.skill_4": "Навык 4",
+  "key.litrpg.skill_5": "Навык 5",
+  "key.litrpg.skill_6": "Навык 6"
 }

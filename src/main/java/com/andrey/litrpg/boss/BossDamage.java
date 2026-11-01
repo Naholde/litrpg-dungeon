@@ -1,0 +1,34 @@
+package com.andrey.litrpg.boss;
+
+import com.andrey.litrpg.core.balance.Balance;
+import com.andrey.litrpg.core.balance.StatSet;
+import com.andrey.litrpg.player.Derived;
+import com.andrey.litrpg.player.Role;
+import com.andrey.litrpg.player.Stat;
+import com.andrey.litrpg.player.StatBreakdown;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+
+/**
+ * Урон хранителей «по-рейдовому»: сила удара — доля «единицы», здоровья бойца того же уровня.
+ * 0,3 — ощутимо, 0,6 — тяжело, 1+ — смертельно для не-танка. Танк получает меньше половины (роль + стойкость).
+ */
+public final class BossDamage {
+    private BossDamage() {
+    }
+
+    /** Здоровье бойца уровня {@code level} без вложенных очков и вещей — мерило силы ударов. */
+    public static double unit(int level) {
+        StatBreakdown b = StatBreakdown.compute(new StatBreakdown.Inputs(Role.DAMAGE, level, new int[Stat.ALL.length], StatSet.ZERO),
+                Balance.get(Balance.PROGRESSION), Balance.get(Balance.CHARACTER), Balance.get(Balance.ROLES));
+        return b.get(Derived.MAX_HEALTH);
+    }
+
+    /** Ударить игрока на {@code units} единиц (с неистовством). Конвейер урона добавит роль и стойкость. */
+    public static boolean hit(BossEntity boss, LivingEntity target, double units) {
+        if (target == null || !target.isAlive() || (target instanceof ServerPlayer p && p.isSpectator())) return false;
+        double amount = units * unit(boss.bossLevel()) * boss.enrageMultiplier();
+        target.invulnerableTime = 0;
+        return target.hurt(boss.damageSources().mobAttack(boss), (float) amount);
+    }
+}

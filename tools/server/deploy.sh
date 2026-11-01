@@ -13,6 +13,14 @@ if [ "${1:-}" != "--no-build" ]; then
 fi
 JAR="$(ls -t build/libs/litrpg-dungeon-*.jar | head -1)"
 echo "Ставлю $JAR"
+# Зависимости (GeckoLib) — из кэша Gradle, если на сервере их ещё нет.
+GECKO_VER="$(grep '^geckolib_version=' gradle.properties | cut -d= -f2)"
+GECKO="$(find "$HOME/.gradle/caches/modules-2" -name "geckolib-neoforge-1.21.1-$GECKO_VER.jar" | head -1)"
+if [ -n "$GECKO" ] && ! ssh -i "$KEY" "$HOST" "test -f /opt/litrpg/server/mods/$(basename "$GECKO")"; then
+  scp -q -i "$KEY" "$GECKO" "$HOST:/tmp/gecko.jar"
+  ssh -i "$KEY" "$HOST" "rm -f /opt/litrpg/server/mods/geckolib-*.jar; install -o mc -g mc -m 644 /tmp/gecko.jar /opt/litrpg/server/mods/$(basename "$GECKO"); rm /tmp/gecko.jar"
+  echo "GeckoLib $GECKO_VER установлен"
+fi
 scp -q -i "$KEY" "$JAR" "$HOST:/tmp/litrpg-new.jar"
 ssh -i "$KEY" "$HOST" 'set -e
   rm -f /opt/litrpg/server/mods/litrpg-dungeon-*.jar

@@ -78,6 +78,27 @@ public final class CombatCommands {
             Fx.mark(l, p, "⛨", 80, Fx.SHIELD);
             return 1;
         }));
+        root.then(Commands.literal("polygon").requires(s -> s.hasPermission(2)).executes(c -> {
+            ServerPlayer p = c.getSource().getPlayerOrException();
+            var center = p.blockPosition().offset(0, 0, 12);
+            var boss = com.andrey.litrpg.boss.Polygon.build(p.serverLevel(), center);
+            c.getSource().sendSuccess(() -> Component.literal("Полигон построен, Испытатель ждёт в центре."), true);
+            return boss != null ? 1 : 0;
+        }));
+        root.then(Commands.literal("boss").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("reset").executes(c -> {
+                    ServerPlayer p = c.getSource().getPlayerOrException();
+                    p.serverLevel().getEntitiesOfClass(com.andrey.litrpg.boss.BossEntity.class, p.getBoundingBox().inflate(48))
+                            .forEach(com.andrey.litrpg.boss.BossEntity::resetFight);
+                    return 1;
+                }))
+                .then(Commands.literal("hp").then(Commands.argument("percent", DoubleArgumentType.doubleArg(1, 100)).executes(c -> {
+                    ServerPlayer p = c.getSource().getPlayerOrException();
+                    double pct = DoubleArgumentType.getDouble(c, "percent") / 100;
+                    p.serverLevel().getEntitiesOfClass(com.andrey.litrpg.boss.BossEntity.class, p.getBoundingBox().inflate(48))
+                            .forEach(b -> b.setHealth((float) (b.getMaxHealth() * pct)));
+                    return 1;
+                }))));
         root.then(Commands.literal("party")
                 .then(Commands.literal("form").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("players", EntityArgument.players()).executes(c -> {

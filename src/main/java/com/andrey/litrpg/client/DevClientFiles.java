@@ -61,6 +61,10 @@ public final class DevClientFiles {
                     ? new com.andrey.litrpg.client.screen.RoleScreen(com.andrey.litrpg.player.Role.byId(cmd[1]))
                     : new com.andrey.litrpg.client.screen.RoleScreen());
             case "close" -> mc.setScreen(null);
+            case "camera" -> mc.options.setCameraType(cmd.length > 1 && cmd[1].equals("back")
+                    ? net.minecraft.client.CameraType.THIRD_PERSON_BACK
+                    : cmd.length > 1 && cmd[1].equals("front") ? net.minecraft.client.CameraType.THIRD_PERSON_FRONT
+                    : net.minecraft.client.CameraType.FIRST_PERSON);
             case "respawn" -> {
                 mc.player.respawn();
                 mc.setScreen(null);

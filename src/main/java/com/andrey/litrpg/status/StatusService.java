@@ -51,6 +51,10 @@ public final class StatusService {
 
     public static void apply(LivingEntity e, Status s) {
         if (e.level().isClientSide) return;
+        if (e instanceof com.andrey.litrpg.boss.BossEntity boss) {
+            if (s.type() == StatusType.STUN) boss.onStunned();
+            if (boss.immuneTo(s.type())) return;
+        }
         list(e).add(s);
         updateMovement(e);
         if (s.type() == StatusType.STUN && e instanceof Mob m) m.getNavigation().stop();

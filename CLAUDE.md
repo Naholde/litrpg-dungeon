@@ -59,6 +59,9 @@
   `PlayerClass`, `ClassOffers`, `Style`, `StyleTracker`, `Resource`, `Zones`; `role/` и `classes/` — навыки.
   **Новый навык:** класс в `skill/classes/<Класс>Skills.java`, параметры через `damage()/heal()/seconds()/…`,
   шаблон с `{ключами}`, регистрация в `SkillRegistry`, затем `gradlew test -Pregen` (обновит skills.json).
+- `boss/` — `BossEntity` (основа хранителя), `BossRegistry` (типы и цифры), `BossDamage`, `Telegraph`, `PowerNode`,
+  `TrialWarden`, `Polygon`. **Новый хранитель:** класс-наследник `BossEntity` с навыками (`Ability`) и фазами, тип в
+  `BossRegistry`, сущность в `ModEntities`, модель в `tools/gen_models.py`, тег `litrpg:bosses`, `gradlew test -Pregen`.
 - `party/` — `Party`, `PartyService`. `core/` — `ModItems`, `ModEntities`, `ModTags`, `ModAttachments`, `SystemChat`.
 - `client/` — `HudOverlay`, `fx/` (`ClientPopups`, `ClientAggro`, `WorldText`), `render/`, `ClientParty`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).
@@ -66,4 +69,5 @@
 ## Dev-проверка без человека
 - `run/dev_commands.txt` — сервер выполняет строки раз в секунду (лог `run/logs/latest.log`).
 - `run/dev_screenshot.txt` с именем → `run/screenshots/<имя>.png` (смотреть через Read).
-- Помощники: `bash tools/dev/shot.sh имя`, `bash tools/dev/open.sh character 2`, `bash tools/dev/srv.sh "litrpg level set Dev 20"`.
+- Помощники: `bash tools/dev/shot.sh имя`, `bash tools/dev/open.sh character 2|role tank|respawn|camera back`,
+  `bash tools/dev/srv.sh "litrpg level set Dev 20"`. Телепорт на высоту — только ПОСЛЕ того, как там есть пол.
