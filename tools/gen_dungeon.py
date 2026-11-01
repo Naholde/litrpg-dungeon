@@ -14,19 +14,20 @@ import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'dungeon'))
 import check  # noqa: E402
-import draft  # noqa: E402
 import kit  # noqa: E402
 import lobby  # noqa: E402
 import stage1  # noqa: E402
 import stage2  # noqa: E402
 import stage3  # noqa: E402
 import stage4  # noqa: E402
+import stage5  # noqa: E402
 
-STAGES = {n: draft for n in range(1, 6)}  # этапы, у которых есть настоящая карта, заменяют черновик
+STAGES = {}
 STAGES[1] = stage1
 STAGES[2] = stage2
 STAGES[3] = stage3
 STAGES[4] = stage4
+STAGES[5] = stage5
 
 
 def main():

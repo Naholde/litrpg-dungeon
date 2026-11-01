@@ -78,5 +78,16 @@
   "entity.litrpg.salamander": "Salamander",
   "entity.litrpg.smelter": "Smelter Golem",
   "entity.litrpg.chariot": "Chariot of Flame",
-  "entity.litrpg.ash_lord": "Lord of Ash"
+  "entity.litrpg.ash_lord": "Lord of Ash",
+  "entity.litrpg.void_sentinel": "Void Sentinel",
+  "entity.litrpg.light_eater": "Light Eater",
+  "entity.litrpg.shard": "Shardling",
+  "entity.litrpg.wanderer": "Wanderer",
+  "entity.litrpg.warped_archer": "Warped Archer",
+  "entity.litrpg.colossus": "Abyssal Colossus",
+  "entity.litrpg.shadow": "Shadow",
+  "entity.litrpg.doppel": "Doppelganger",
+  "entity.litrpg.chronophage": "Chronophage",
+  "entity.litrpg.xalathar": "Xalathar, Hunger of the Abyss",
+  "entity.litrpg.hourglass": "Hourglass"
 }

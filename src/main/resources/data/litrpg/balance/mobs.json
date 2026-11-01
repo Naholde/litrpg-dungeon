@@ -26,6 +26,11 @@
       "dmg_units": 0.02,
       "speed": 0.34
     },
+    "colossus": {
+      "hp_units": 1.7,
+      "dmg_units": 0.072,
+      "speed": 0.19
+    },
     "crab": {
       "hp_units": 1.5,
       "dmg_units": 0.065,
@@ -102,6 +107,12 @@
       "speed": 0.34,
       "leap": 4.0
     },
+    "light_eater": {
+      "hp_units": 0.62,
+      "dmg_units": 0.04,
+      "speed": 0.25,
+      "heal_share": 0.22
+    },
     "molten_golem": {
       "hp_units": 1.35,
       "dmg_units": 0.062,
@@ -123,6 +134,18 @@
       "hit_dot": 0.15,
       "dot_seconds": 3.0
     },
+    "shadow": {
+      "hp_units": 1.6,
+      "dmg_units": 0.05,
+      "speed": 0.3
+    },
+    "shard": {
+      "hp_units": 0.26,
+      "dmg_units": 0.026,
+      "speed": 0.36,
+      "hit_dot": 0.15,
+      "dot_seconds": 3.0
+    },
     "spitter": {
       "hp_units": 0.5,
       "dmg_units": 0.04,
@@ -134,6 +157,23 @@
       "hp_units": 1.4,
       "dmg_units": 0.065,
       "speed": 0.2
+    },
+    "void_sentinel": {
+      "hp_units": 1.35,
+      "dmg_units": 0.064,
+      "speed": 0.21
+    },
+    "wanderer": {
+      "hp_units": 0.62,
+      "dmg_units": 0.055,
+      "speed": 0.35,
+      "leap": 4.0
+    },
+    "warped_archer": {
+      "hp_units": 0.56,
+      "dmg_units": 0.05,
+      "speed": 0.25,
+      "hit_root": 1.0
     },
     "wasp": {
       "hp_units": 0.22,

@@ -78,5 +78,16 @@
   "entity.litrpg.salamander": "Саламандра",
   "entity.litrpg.smelter": "Плавильный голем",
   "entity.litrpg.chariot": "Колесница Пламени",
-  "entity.litrpg.ash_lord": "Владыка Пепла"
+  "entity.litrpg.ash_lord": "Владыка Пепла",
+  "entity.litrpg.void_sentinel": "Страж пустоты",
+  "entity.litrpg.light_eater": "Пожиратель света",
+  "entity.litrpg.shard": "Осколочный",
+  "entity.litrpg.wanderer": "Странник",
+  "entity.litrpg.warped_archer": "Искажённый лучник",
+  "entity.litrpg.colossus": "Бездновый колосс",
+  "entity.litrpg.shadow": "Тень",
+  "entity.litrpg.doppel": "Двойник",
+  "entity.litrpg.chronophage": "Хронофаг",
+  "entity.litrpg.xalathar": "Ксалатар, Голод Бездны",
+  "entity.litrpg.hourglass": "Песочные часы"
 }

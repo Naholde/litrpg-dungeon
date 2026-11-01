@@ -1,0 +1,106 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.shard.idle": {
+   "loop": true,
+   "animation_length": 2,
+   "bones": {
+    "core": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "2": [
+       0,
+       360,
+       0
+      ]
+     },
+     "position": {
+      "0": [
+       0,
+       1,
+       0
+      ],
+      "1": [
+       0,
+       2.5,
+       0
+      ],
+      "2": [
+       0,
+       1,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.shard.walk": {
+   "loop": true,
+   "animation_length": 1,
+   "bones": {
+    "core": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "1": [
+       0,
+       360,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.shard.attack": {
+   "animation_length": 0.3,
+   "bones": {
+    "core": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.15": [
+       -40,
+       0,
+       0
+      ],
+      "0.3": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.shard.death": {
+   "animation_length": 0.4,
+   "hold_on_last_frame": true,
+   "bones": {
+    "core": {
+     "scale": {
+      "0": [
+       1,
+       1,
+       1
+      ],
+      "0.4": [
+       0.1,
+       0.1,
+       0.1
+      ]
+     }
+    }
+   }
+  }
+ }
+}

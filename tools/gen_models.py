@@ -1052,6 +1052,133 @@ MODELS.update({"imp": imp, "forge_construct": forge_construct, "ash_crossbow": a
                "fire_shaman": fire_shaman, "salamander": salamander, "smelter": smelter, "chariot": chariot, "ash_lord": ash_lord})
 
 
+# ---------------------------------------------------------------------------- этап 5: пустота
+
+MATERIALS.update({
+    "void": ("#1A1028", 0.08, False, "plain"),
+    "void_glow": ("#B04AFF", 0.05, True, "plain"),
+    "purpur": ("#A87AA8", 0.10, False, "plain"),
+    "end_stone": ("#DCDCA0", 0.08, False, "cracks"),
+    "amethyst": ("#9A6AE0", 0.10, True, "facets"),
+    "star": ("#F0E8FF", 0.03, True, "plain"),
+    "shadow": ("#18181E", 0.04, False, "plain"),
+    "cyan_glow": ("#5AF0FF", 0.05, True, "plain"),
+    "obsidian": ("#1E1428", 0.08, False, "plain"),
+    "hourglass_sand": ("#E8C878", 0.05, True, "plain"),
+})
+
+
+def void_sentinel():
+    return humanoid({"head": "obsidian", "face": "void", "body": "obsidian", "arm": "purpur", "leg": "obsidian", "eyes": "void_glow", "extras": [
+        ("head", Cube([-4.5, 29, -4.5], [9, 4, 9], "purpur")), ("head", Cube([-1, 33, -1], [2, 3, 2], "void_glow")),
+        ("left_arm", Cube([1, 4, -6], [8, 18, 2], "void")), ("left_arm", Cube([4, 9, -6.5], [2, 8, 1], "void_glow")),
+        ("right_arm", Cube([-6.5, -6, -1], [1, 18, 1], "purpur")),
+    ]})
+
+
+def light_eater():
+    return humanoid({"head": "void", "face": "void", "body": "void", "arm": "void", "leg": "void", "eyes": "star", "arm_len": 15,
+                     "lean": 10, "extras": [
+        ("head", Cube([-4.5, 24, -4.5], [9, 10, 9], "obsidian")), ("head", Cube([-2, 25, -5], [4, 2, 1], "void_glow")),
+        ("body", Cube([-4.5, 0, -2.5], [9, 12, 5], "void")), ("body", Cube([-6, 14, 2], [12, 10, 1], "obsidian")),
+    ]})
+
+
+def shard():
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 8, 0], "root", [Cube([-2, 4, -2], [4, 8, 4], "amethyst"), Cube([-3, 6, -1], [6, 2, 2], "amethyst"),
+                                              Cube([-1, 12, -1], [2, 3, 2], "star")])]
+    anims = {"idle": loop(2, {"core": {"rotation": kf([(0, [0, 0, 0]), (2, [0, 360, 0])]),
+                                       "position": kf([(0, [0, 1, 0]), (1, [0, 2.5, 0]), (2, [0, 1, 0])])}}),
+             "walk": loop(1, {"core": {"rotation": kf([(0, [0, 0, 0]), (1, [0, 360, 0])])}}),
+             "attack": once(0.3, {"core": {"rotation": kf([(0, [0, 0, 0]), (0.15, [-40, 0, 0]), (0.3, [0, 0, 0])])}}),
+             "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                       "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def wanderer():
+    return humanoid({"head": "void", "face": "void", "body": "cloth_blue", "arm": "void", "leg": "cloth_blue", "eyes": "cyan_glow", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 8, 9], "cloth_blue")),
+        ("body", Cube([-5, 6, 2.5], [10, 18, 1], "cyan_glow")),
+        ("right_arm", Cube([-7, 4, -3], [3, 2, 6], "star")), ("left_arm", Cube([4, 4, -3], [3, 2, 6], "star")),
+    ]})
+
+
+def warped_archer():
+    return humanoid({"head": "purpur", "face": "void", "body": "purpur", "arm": "void", "leg": "obsidian", "eyes": "void_glow", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 8, 9], "obsidian")),
+        ("left_arm", Cube([6, 6, -4], [1, 16, 1], "amethyst")), ("left_arm", Cube([6.2, 6, -3], [0.5, 16, 0.5], "void_glow")),
+        ("body", Cube([2, 13, 2], [3, 10, 3], "void")),
+    ]})
+
+
+def colossus():
+    return humanoid({"head": "obsidian", "face": "void", "body": "obsidian", "arm": "purpur", "leg": "obsidian", "eyes": "void_glow",
+                     "arm_len": 16, "lean": 5, "extras": [
+        ("body", Cube([-6, 18, -3.5], [12, 7, 7], "end_stone")), ("body", Cube([-2, 12, -2.8], [4, 5, 1], "void_glow")),
+        ("head", Cube([-5, 29, -5], [10, 3, 10], "end_stone")),
+        ("right_arm", Cube([-9, 4, -3], [6, 6, 6], "end_stone")), ("left_arm", Cube([3, 4, -3], [6, 6, 6], "end_stone")),
+    ]})
+
+
+def shadow():
+    return humanoid({"head": "shadow", "face": "shadow", "body": "shadow", "arm": "shadow", "leg": "shadow", "eyes": "void_glow",
+                     "extras": [("body", Cube([-4.5, 12, -2.5], [9, 1, 5], "void_glow"))]})
+
+
+# ---------------------------------------------------------------------------- хранители этапа 5
+
+def doppel():
+    """Двойник: зеркальная фигура — половина белая, половина чёрная, лицо-зеркало."""
+    return boss_humanoid({"head": "star", "face": "void_glow", "body": "shadow", "arm": "star", "leg": "shadow", "eyes": "cyan_glow",
+                          "extras": [("body", Cube([0, 12, -2.6], [4, 12, 1], "star")), ("body", Cube([-4, 12, -2.6], [4, 12, 1], "shadow")),
+                                     ("head", Cube([-4.5, 31, -4.5], [9, 1, 9], "void_glow")),
+                                     ("right_arm", Cube([-7, -6, -1.5], [2, 16, 2], "star")),
+                                     ("left_arm", Cube([5, -6, -1.5], [2, 16, 2], "shadow"))]})
+
+
+def chronophage():
+    """Хронофаг: тощее существо с песочными часами в груди и стрелками вместо рук."""
+    return boss_humanoid({"head": "end_stone", "face": "void", "body": "obsidian", "arm": "gold", "leg": "obsidian", "eyes": "hourglass_sand",
+                          "arm_len": 16, "extras": [
+        ("body", Cube([-2, 13, -2.8], [4, 2, 1], "gold")), ("body", Cube([-1.5, 15, -2.8], [3, 3, 1], "hourglass_sand")),
+        ("body", Cube([-1.5, 19, -2.8], [3, 3, 1], "star")), ("body", Cube([-2, 22, -2.8], [4, 2, 1], "gold")),
+        ("head", Cube([-5, 28, -1], [10, 10, 1], "gold")), ("head", Cube([-0.5, 28, -1.5], [1, 9, 1], "void")),
+        ("right_arm", Cube([-6, -10, -1], [1, 22, 1], "gold")), ("left_arm", Cube([5, -6, -1], [1, 18, 1], "gold")),
+    ]})
+
+
+def xalathar():
+    """Ксалатар, Голод Бездны: громада из пустоты, пасть в груди, корона щупалец, множество глаз."""
+    bones, anims = boss_humanoid({"head": "void", "face": "void", "body": "obsidian", "arm": "void", "leg": "obsidian", "eyes": "void_glow",
+                                  "arm_len": 17, "lean": 8, "extras": [
+        ("body", Cube([-4, 13, -2.8], [8, 7, 1], "star")), ("body", Cube([-3, 14, -3], [6, 5, 1], "void")),
+        ("head", Cube([-6, 30, -1], [2, 8, 2], "purpur")), ("head", Cube([4, 30, -1], [2, 8, 2], "purpur")),
+        ("head", Cube([-1, 32, -1], [2, 9, 2], "void_glow")), ("head", Cube([-3, 26, -4.3], [1, 1, 1], "void_glow")),
+        ("head", Cube([2, 26, -4.3], [1, 1, 1], "void_glow")), ("head", Cube([-0.5, 25, -4.3], [1, 1, 1], "void_glow")),
+        ("body", Cube([-7, 6, 3], [14, 18, 1], "void")),
+        ("right_arm", Cube([-10, 2, -3], [7, 6, 6], "obsidian")), ("left_arm", Cube([3, 2, -3], [7, 6, 6], "obsidian")),
+    ]})
+    return bones, anims
+
+
+def hourglass():
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 10, 0], "root", [Cube([-4, 2, -4], [8, 1, 8], "gold"), Cube([-4, 17, -4], [8, 1, 8], "gold"),
+                                               Cube([-3, 3, -3], [6, 6, 6], "hourglass_sand"), Cube([-1, 9, -1], [2, 2, 2], "hourglass_sand"),
+                                               Cube([-3, 11, -3], [6, 6, 6], "star")])]
+    anims = {"idle": loop(4, {"core": {"rotation": kf([(0, [0, 0, 0]), (2, [0, 0, 180]), (4, [0, 0, 360])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.5, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.5, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+MODELS.update({"void_sentinel": void_sentinel, "light_eater": light_eater, "shard": shard, "wanderer": wanderer,
+               "warped_archer": warped_archer, "colossus": colossus, "shadow": shadow, "doppel": doppel,
+               "chronophage": chronophage, "xalathar": xalathar, "hourglass": hourglass})
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None

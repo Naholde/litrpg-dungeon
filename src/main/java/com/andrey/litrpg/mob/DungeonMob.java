@@ -291,9 +291,13 @@ public class DungeonMob extends Monster implements GeoEntity {
         level().playSound(null, blockPosition(), SoundEvents.SPIDER_AMBIENT, SoundSource.HOSTILE, 1f, 1.4f);
     }
 
-    /** Страж: щит спереди — урон в лицо втрое меньше. */
+    /** Страж: щит спереди — урон в лицо втрое меньше. Тень: урон не от хозяина почти не проходит. */
     @Override
     public boolean hurt(DamageSource source, float amount) {
+        if (!level().isClientSide && getPersistentData().hasUUID("litrpg_owner") && source.getEntity() instanceof ServerPlayer p
+                && !p.getUUID().equals(getPersistentData().getUUID("litrpg_owner"))) {
+            amount *= 0.1f;
+        }
         if (!level().isClientSide && species().role() == MobRole.GUARD && source.getEntity() != null
                 && !source.is(net.minecraft.tags.DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             Vec3 to = source.getEntity().position().subtract(position()).multiply(1, 0, 1).normalize();

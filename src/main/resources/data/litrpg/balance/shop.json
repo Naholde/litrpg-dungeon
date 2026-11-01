@@ -9,11 +9,11 @@
   "scroll": 300.0,
   "price_per_level": 20.0,
   "rarity_price": {
-    "uncommon": 2.0,
     "rare": 4.0,
-    "epic": 10.0,
-    "divine": 60.0,
+    "uncommon": 2.0,
+    "legendary": 25.0,
     "common": 1.0,
-    "legendary": 25.0
+    "divine": 60.0,
+    "epic": 10.0
   }
 }

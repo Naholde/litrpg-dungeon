@@ -5,17 +5,25 @@
       "min": 0.03,
       "max": 0.08
     },
-    "crit_chance": {
-      "min": 0.01,
-      "max": 0.04
+    "ranged_power": {
+      "min": 0.03,
+      "max": 0.08
+    },
+    "weapon_power": {
+      "min": 0.03,
+      "max": 0.08
+    },
+    "heal_power": {
+      "min": 0.03,
+      "max": 0.08
     },
     "haste": {
       "min": 0.01,
       "max": 0.04
     },
-    "ranged_power": {
-      "min": 0.03,
-      "max": 0.08
+    "dodge": {
+      "min": 0.01,
+      "max": 0.03
     },
     "move_speed": {
       "min": 0.01,
@@ -25,25 +33,17 @@
       "min": 0.05,
       "max": 0.15
     },
-    "heal_power": {
-      "min": 0.03,
-      "max": 0.08
-    },
-    "weapon_power": {
-      "min": 0.03,
-      "max": 0.08
-    },
     "toughness": {
       "min": 0.01,
       "max": 0.03
     },
+    "crit_chance": {
+      "min": 0.01,
+      "max": 0.04
+    },
     "find": {
       "min": 0.03,
       "max": 0.1
-    },
-    "dodge": {
-      "min": 0.01,
-      "max": 0.03
     }
   },
   "drops": {
@@ -51,29 +51,23 @@
     "gear_chance": 0.04
   },
   "rarities": {
-    "uncommon": {
-      "weight": 350.0,
-      "power": 1.08,
-      "stats": 1,
-      "affixes": 1
-    },
     "rare": {
       "weight": 90.0,
       "power": 1.16,
       "stats": 2,
       "affixes": 2
     },
-    "epic": {
-      "weight": 18.0,
-      "power": 1.26,
-      "stats": 2,
-      "affixes": 3
+    "uncommon": {
+      "weight": 350.0,
+      "power": 1.08,
+      "stats": 1,
+      "affixes": 1
     },
-    "divine": {
-      "weight": 0.0,
-      "power": 1.55,
+    "legendary": {
+      "weight": 3.0,
+      "power": 1.38,
       "stats": 3,
-      "affixes": 5
+      "affixes": 4
     },
     "common": {
       "weight": 1000.0,
@@ -81,11 +75,17 @@
       "stats": 1,
       "affixes": 0
     },
-    "legendary": {
-      "weight": 3.0,
-      "power": 1.38,
+    "divine": {
+      "weight": 0.0,
+      "power": 1.55,
       "stats": 3,
-      "affixes": 4
+      "affixes": 5
+    },
+    "epic": {
+      "weight": 18.0,
+      "power": 1.26,
+      "stats": 2,
+      "affixes": 3
     }
   },
   "weapons": {

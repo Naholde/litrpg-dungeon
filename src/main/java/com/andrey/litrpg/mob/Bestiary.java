@@ -107,6 +107,30 @@ public final class Bestiary {
             1.1f, 0.9f, 0.8f, 0xFF5A1E, "Прыгает на дальних и обжигает.",
             p("hp_units", 0.6, "dmg_units", 0.052, "speed", 0.34, "leap", 5, "hit_dot", 0.15, "dot_seconds", 3));
 
+    // ---------------------------------------------------------------- Этап 5 · Шпиль Бездны (пустота)
+    public static final Species VOID_SENTINEL = reg("void_sentinel", "Страж пустоты", 5, MobRole.GUARD, "void_sentinel",
+            1.1f, 0.8f, 2.2f, 0xB04AFF, "Щит из застывшей пустоты спереди — бить со спины.",
+            p("hp_units", 1.35, "dmg_units", 0.064, "speed", 0.21));
+    public static final Species LIGHT_EATER = reg("light_eater", "Пожиратель света", 5, MobRole.HEALER, "light_eater",
+            1.0f, 0.6f, 2.0f, 0x7F5AFF, "Пьёт свет из врагов и отдаёт сородичам — убивать первым.",
+            p("hp_units", 0.62, "dmg_units", 0.04, "speed", 0.25, "heal_share", 0.22));
+    public static final Species SHARD = reg("shard", "Осколочный", 5, MobRole.SWARM, "shard",
+            0.9f, 0.7f, 1.0f, 0xE07FFF, "Рой осколков; режут и оставляют трещины.",
+            p("hp_units", 0.26, "dmg_units", 0.026, "speed", 0.36, "hit_dot", 0.15, "dot_seconds", 3));
+    public static final Species WANDERER = reg("wanderer", "Странник", 5, MobRole.SKIRMISHER, "wanderer",
+            1.0f, 0.6f, 1.95f, 0x5AF0FF, "Мерцает через пустоту прямо к дальним.",
+            p("hp_units", 0.62, "dmg_units", 0.055, "speed", 0.35, "leap", 4));
+    public static final Species WARPED_ARCHER = reg("warped_archer", "Искажённый лучник", 5, MobRole.ARCHER, "warped_archer",
+            1.0f, 0.6f, 1.95f, 0xB07FFF, "Стрелы пустоты приковывают к месту.",
+            p("hp_units", 0.56, "dmg_units", 0.05, "speed", 0.25, "hit_root", 1.0));
+    public static final Species COLOSSUS = reg("colossus", "Бездновый колосс", 5, MobRole.BRUTE, "colossus",
+            1.5f, 1.3f, 3.2f, 0x6A3AAA, "Огромный и медленный; элитный бьёт по кругу.",
+            p("hp_units", 1.7, "dmg_units", 0.072, "speed", 0.19));
+    /** Тень игрока — только у Двойника (не в отрядах). */
+    public static final Species SHADOW = reg("shadow", "Тень", 5, MobRole.SKIRMISHER, "shadow",
+            1.0f, 0.6f, 1.95f, 0x30303A, "Тень одного из отряда: бить её может по-настоящему только он сам.",
+            p("hp_units", 1.6, "dmg_units", 0.05, "speed", 0.3));
+
     private Bestiary() {
     }
 

@@ -118,6 +118,27 @@ public final class BossRegistry {
             "duel_units", 0.32, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 34, "ego_cast", 1.5,
             "erupt_units", 0.45, "erupt_cd", 9, "erupt_cast", 1.8));
 
+    // ---------------------------------------------------------------- Этап 5 · Шпиль Бездны
+    public static final Type DOPPEL = reg("doppel", "Двойник", "next_opponent", p(
+            "level", 44, "hp_units", 84, "melee_units", 0.22,
+            "strike_units", 1.05, "strike_cd", 9, "strike_cast", 1.6,
+            "mirror_seconds", 4, "mirror_share", 0.6, "mirror_cd", 24, "mirror_cast", 2.5,
+            "swap_cd", 20, "swap_cast", 2.0, "shadow_cut", 0.9));
+
+    public static final Type CHRONOPHAGE = reg("chronophage", "Хронофаг", "no_time", p(
+            "level", 47, "hp_units", 90, "melee_units", 0.22,
+            "slash_units", 1.05, "slash_cd", 9, "slash_cast", 1.6,
+            "glass_hp_units", 1.4, "glass_seconds", 16, "stop_units", 0.25, "glass_cd", 36, "glass_cast", 2.0,
+            "rewind_units", 0.7, "rewind_seconds", 6, "rewind_cd", 22, "rewind_cast", 1.0));
+
+    public static final Type XALATHAR = reg("xalathar", "Ксалатар, Голод Бездны", "wutiwant", p(
+            "level", 50, "hp_units", 110, "melee_units", 0.24,
+            "smash_units", 1.1, "smash_cd", 9, "smash_cast", 1.7,
+            "gaze_units", 0.7, "gaze_cd", 12, "gaze_cast", 1.6,
+            "hunger_units", 0.8, "hunger_cd", 18, "hunger_cast", 2.5,
+            "edge_units", 0.7, "void_units", 0.2, "edge_cd", 30, "edge_cast", 2.5,
+            "end_units", 0.18, "end_period", 10));
+
     private BossRegistry() {
     }
 
