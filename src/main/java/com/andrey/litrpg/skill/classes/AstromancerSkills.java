@@ -66,12 +66,12 @@ public final class AstromancerSkills {
     /** Светило: звезда остаётся в мире и бьёт сама. */
     public static final class Luminary extends Skill {
         public Luminary() {
-            super("astro.luminary", "Светило", 0x7FD8FF, "✧", 14, 0);
+            super("astro.luminary", "Светило", 0x7FD8FF, "✧", 6, 0);
             blocks("range", 16);
             blocks("radius", 5);
             shield("hp", 2.0);
-            damage("damage", 0.5);
-            seconds("duration", 20);
+            damage("damage", 0.45);
+            seconds("duration", 24);
         }
 
         @Override
@@ -82,8 +82,8 @@ public final class AstromancerSkills {
         @Override
         public String template() {
             return "Светило с {hp} прочности висит {duration} и каждую секунду бьёт врагов в {radius} на {damage}. "
-                    + "Светил можно поставить несколько — на них держатся «Созвездие» и «Сверхновая». "
-                    + "Враги могут их разбить.";
+                    + "Перезарядка короче, чем срок жизни светила, поэтому их можно держать четыре сразу — "
+                    + "на них держатся «Созвездие» и «Сверхновая». Враги могут их разбить.";
         }
 
         @Override
@@ -95,7 +95,7 @@ public final class AstromancerSkills {
                     Fx.beam(ctx.level, p.position(), e.position().add(0, 1, 0), 0.1f, 6, 0x7FD8FF);
                 }
             });
-            Fx.orb(ctx.level, ctx.point.add(0, 1.1, 0), 0.6f, ctx.ticks("duration"), 0xFFE27A);
+            Fx.orbOn(ctx.level, star, 0.6f, ctx.ticks("duration"), 0xFFE27A);
             ctx.soundAt(ctx.point, SoundEvents.AMETHYST_CLUSTER_PLACE, 1.1f, 1.4f);
         }
     }
@@ -141,7 +141,7 @@ public final class AstromancerSkills {
     /** Созвездие: линии между светилами режут всё, что между ними. */
     public static final class Constellation extends Skill {
         public Constellation() {
-            super("astro.constellation", "Созвездие", 0xFFFFFF, "✶", 30, 0);
+            super("astro.constellation", "Созвездие", 0xFFFFFF, "✶", 20, 0);
             blocks("search", 40);
             blocks("width", 2);
             damage("damage", 1.6);
@@ -198,7 +198,7 @@ public final class AstromancerSkills {
     /** Притяжение светил: звёзды тянут врагов к себе и держат. */
     public static final class StarPull extends Skill {
         public StarPull() {
-            super("astro.pull", "Притяжение светил", 0x8FA6FF, "◎", 45, 0);
+            super("astro.pull", "Притяжение светил", 0x8FA6FF, "◎", 35, 0);
             blocks("search", 40);
             seconds("duration", 4);
             percent("slow", 0.35);
@@ -246,7 +246,7 @@ public final class AstromancerSkills {
     /** Сверхновая: все светила гаснут, каждое — взрывом. */
     public static final class Supernova extends Skill {
         public Supernova() {
-            super("astro.supernova", "Сверхновая", 0xFFF3B0, "✺", 110, 0);
+            super("astro.supernova", "Сверхновая", 0xFFF3B0, "✺", 85, 0);
             blocks("search", 40);
             blocks("radius", 7);
             damage("damage", 2.8);

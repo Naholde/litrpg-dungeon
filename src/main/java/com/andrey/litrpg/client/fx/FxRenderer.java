@@ -59,7 +59,9 @@ public final class FxRenderer {
             Active a = it.next();
             FxPayload p = a.p;
             float age = now - a.born + partial;
-            if (age > p.duration()) {
+            // Эффект живёт либо свой срок, либо пока жива сущность, к которой он привязан:
+            // разбили светило или тотем — вместе с ним гаснет и его свечение.
+            if (age > p.duration() || (age > 5 && gone(mc, p.entityA())) || (age > 5 && gone(mc, p.entityB()))) {
                 it.remove();
                 continue;
             }
@@ -349,6 +351,11 @@ public final class FxRenderer {
     }
 
     // ------------------------------------------------------------------ помощники
+
+    /** Сущность, к которой привязан эффект, уже исчезла из мира. */
+    private static boolean gone(Minecraft mc, int entityId) {
+        return entityId >= 0 && (mc.level == null || mc.level.getEntity(entityId) == null);
+    }
 
     private static Vec3 follow(int entityId, Vec3 fallback, float partial) {
         if (entityId < 0) return fallback;

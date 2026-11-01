@@ -20,7 +20,7 @@
       "amplify": 0.5
     },
     "astro.constellation": {
-      "cooldown": 30.0,
+      "cooldown": 20.0,
       "cast": 0.0,
       "search": 40.0,
       "width": 2.0,
@@ -37,16 +37,16 @@
       "delay": 1.0
     },
     "astro.luminary": {
-      "cooldown": 14.0,
+      "cooldown": 6.0,
       "cast": 0.0,
       "range": 16.0,
       "radius": 5.0,
       "hp": 2.0,
-      "damage": 0.5,
-      "duration": 20.0
+      "damage": 0.45,
+      "duration": 24.0
     },
     "astro.pull": {
-      "cooldown": 45.0,
+      "cooldown": 35.0,
       "cast": 0.0,
       "search": 40.0,
       "duration": 4.0,
@@ -54,7 +54,7 @@
       "damage": 0.4
     },
     "astro.supernova": {
-      "cooldown": 110.0,
+      "cooldown": 85.0,
       "cast": 0.0,
       "search": 40.0,
       "radius": 7.0,
