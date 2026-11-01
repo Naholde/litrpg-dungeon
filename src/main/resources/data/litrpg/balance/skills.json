@@ -493,6 +493,7 @@
       "cooldown": 40.0,
       "cast": 0.0,
       "radius": 5.0,
+      "hp": 4.0,
       "duration": 6.0,
       "reduce": 0.375
     },

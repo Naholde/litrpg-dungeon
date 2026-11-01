@@ -120,25 +120,44 @@ public final class Mechanisms {
 
     // ------------------------------------------------------------------ плиты (разделение отряда)
 
+    /**
+     * Плиты: на каждой кто-то стоит, и стоят все живые бойцы отряда. Втроём это три плиты по одному;
+     * вчетвером–вшестером на плитах встаёт весь отряд, по двое на плиту, — и прикрыть некому.
+     */
     private static void plates(MinecraftServer server, RunState s, Layout.Stage st, ServerLevel level, Layout.Mech m,
                                List<ServerPlayer> alive) {
         int on = 0;
+        java.util.Set<ServerPlayer> standing = new java.util.HashSet<>();
         for (BlockPos p : m.points()) {
-            boolean taken = alive.stream().anyMatch(a -> a.blockPosition().equals(p) || a.blockPosition().equals(p.above()));
+            Vec3 c = Vec3.atBottomCenterOf(p).add(0, 1, 0);
+            boolean taken = false;
+            for (ServerPlayer a : alive) {
+                if (onPlate(a, c)) {
+                    taken = true;
+                    standing.add(a);
+                }
+            }
             if (taken) on++;
             Vector3f col = taken ? new Vector3f(0.4f, 1f, 0.5f) : new Vector3f(0.6f, 0.6f, 0.7f);
             level.sendParticles(new DustParticleOptions(col, 1.2f), p.getX() + 0.5, p.getY() + 0.3, p.getZ() + 0.5, 4, 0.3, 0.1, 0.3, 0);
         }
+        int need = Math.max(m.points().size(), alive.size());
         int hold = (int) Math.round(m.n("hold", 3) * 20);
-        int prog = on == m.points().size() ? PROGRESS.merge(m.id(), 10, Integer::sum) : 0;
+        boolean ready = on == m.points().size() && standing.size() >= need;
+        int prog = ready ? PROGRESS.merge(m.id(), 10, Integer::sum) : 0;
         if (prog == 0) PROGRESS.remove(m.id());
-        for (ServerPlayer a : alive) {
-            if (m.points().stream().anyMatch(p -> a.blockPosition().equals(p) || a.blockPosition().equals(p.above()))) {
-                a.displayClientMessage(Component.literal("Плиты: " + on + " из " + m.points().size()
-                        + (prog > 0 ? " · держите " + Math.max(0, (hold - prog) / 20 + 1) + " с" : "")).withStyle(ChatFormatting.AQUA), true);
-            }
+        for (ServerPlayer a : standing) {
+            a.displayClientMessage(Component.literal("Плиты: " + on + " из " + m.points().size()
+                    + (alive.size() > m.points().size() ? " · на плитах " + standing.size() + " из " + need + " бойцов" : "")
+                    + (prog > 0 ? " · держите " + Math.max(0, (hold - prog) / 20 + 1) + " с" : "")).withStyle(ChatFormatting.AQUA), true);
         }
         if (prog >= hold) solve(server, s, st, m);
+    }
+
+    /** Стоит на плите: в пределах её блока и соседних полублоков — вдвоём на одной плите тоже помещаются. */
+    private static boolean onPlate(ServerPlayer a, Vec3 top) {
+        double dx = a.getX() - top.x, dz = a.getZ() - top.z;
+        return dx * dx + dz * dz <= 1.1 * 1.1 && Math.abs(a.getY() - (top.y - 1)) <= 1.6;
     }
 
     // ------------------------------------------------------------------ кнопки, столбы памяти

@@ -46,7 +46,7 @@ public final class RunCommands {
                     c.getSource().sendSuccess(() -> Component.literal("Прохождение сброшено, все — в преддверии."), true);
                     return 1;
                 }))
-                .then(Commands.literal("minplayers").then(Commands.argument("n", IntegerArgumentType.integer(0, 5))
+                .then(Commands.literal("minplayers").then(Commands.argument("n", IntegerArgumentType.integer(0, 6))
                         .executes(c -> {
                             int n = IntegerArgumentType.getInteger(c, "n");
                             RunService.setMinPlayers(c.getSource().getServer(), n);
@@ -80,7 +80,7 @@ public final class RunCommands {
             for (ServerPlayer p : RunService.dungeon(server).players()) if (!p.isSpectator()) players.add(p);
             if (players.isEmpty()) players.add(c.getSource().getPlayerOrException());
         }
-        if (players.size() > 5) players = players.subList(0, 5);
+        if (players.size() > com.andrey.litrpg.party.Party.MAX) players = players.subList(0, com.andrey.litrpg.party.Party.MAX);
         RunService.start(server, players);
         return players.size();
     }

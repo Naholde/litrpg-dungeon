@@ -66,6 +66,7 @@ public class ClassProp extends Mob implements GeoEntity {
         p.until = level.getGameTime() + durationTicks;
         p.radius = radius;
         p.setHp(hp);
+        p.updateName();
         level.addFreshEntity(p);
         p.ring();
         level.playSound(null, p.blockPosition(), SoundEvents.WOOD_PLACE, SoundSource.PLAYERS, 0.8f, 1.2f);
@@ -156,7 +157,21 @@ public class ClassProp extends Mob implements GeoEntity {
     public boolean hurt(DamageSource source, float amount) {
         if (source.getEntity() instanceof Player) return false;
         if (source.getEntity() instanceof ClassProp || source.getEntity() instanceof SummonEntity) return false;
-        return super.hurt(source, amount);
+        boolean hit = super.hurt(source, amount);
+        if (hit) updateName();
+        return hit;
+    }
+
+    /** Имя с прочностью — видно, когда наводишь прицел: «Тотем исцеления · 34/40». */
+    private void updateName() {
+        PropKind k = kind();
+        if (k == null) return;
+        float hp = Math.max(0, getHealth()), max = getMaxHealth();
+        net.minecraft.ChatFormatting c = hp > max * 0.6f ? net.minecraft.ChatFormatting.GREEN
+                : hp > max * 0.3f ? net.minecraft.ChatFormatting.YELLOW : net.minecraft.ChatFormatting.RED;
+        setCustomName(net.minecraft.network.chat.Component.literal(k.title() + " · ")
+                .append(net.minecraft.network.chat.Component.literal(Math.round(hp) + "/" + Math.round(max)).withStyle(c)));
+        setCustomNameVisible(false);
     }
 
     @Override

@@ -22,6 +22,8 @@ public record PropKind(String id, String title, float width, float height, float
     // ---------------------------------------------------------------- танки
     /** Зеркальный двойник зерцала: тянет угрозу на себя, пока его не разбили. */
     public static final PropKind MIRROR = reg("mirror_double", "Зеркальный двойник", 0.8f, 2.0f, 1.0f, 0xB0E8FF);
+    /** Оберег купола стража: пока цел, купол держится. */
+    public static final PropKind DOME = reg("dome_core", "Оберег купола", 0.8f, 1.3f, 1.0f, 0x8FE3FF);
 
     // ---------------------------------------------------------------- поддержка
     public static final PropKind TOTEM_HEAL = reg("totem_heal", "Тотем исцеления", 0.7f, 1.8f, 1.0f, 0x7BF5A0);

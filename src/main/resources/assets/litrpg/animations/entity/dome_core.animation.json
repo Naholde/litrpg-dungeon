@@ -1,0 +1,67 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.dome_core.idle": {
+   "loop": true,
+   "animation_length": 3,
+   "bones": {
+    "crystal": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "3": [
+       0,
+       360,
+       0
+      ]
+     },
+     "position": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "1.5": [
+       0,
+       1.2,
+       0
+      ],
+      "3": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.dome_core.walk": {
+   "loop": true,
+   "animation_length": 3,
+   "bones": {}
+  },
+  "animation.dome_core.death": {
+   "animation_length": 0.4,
+   "hold_on_last_frame": true,
+   "bones": {
+    "crystal": {
+     "scale": {
+      "0": [
+       1,
+       1,
+       1
+      ],
+      "0.4": [
+       0.1,
+       0.1,
+       0.1
+      ]
+     }
+    }
+   }
+  }
+ }
+}

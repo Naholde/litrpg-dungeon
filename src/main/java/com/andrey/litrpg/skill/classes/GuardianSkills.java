@@ -4,7 +4,8 @@ import com.andrey.litrpg.fx.Fx;
 import com.andrey.litrpg.skill.Skill;
 import com.andrey.litrpg.skill.SkillContext;
 import com.andrey.litrpg.skill.Targeting;
-import com.andrey.litrpg.skill.Zones;
+import com.andrey.litrpg.skill.prop.ClassProp;
+import com.andrey.litrpg.skill.prop.PropKind;
 import com.andrey.litrpg.status.Status;
 import com.andrey.litrpg.status.StatusService;
 import com.andrey.litrpg.status.StatusType;
@@ -128,11 +129,12 @@ public final class GuardianSkills {
         }
     }
 
-    /** Купол: союзники внутри получают меньше урона, вражеские снаряды гаснут на границе. */
+    /** Купол: оберег в мире держит купол — союзники внутри получают меньше урона, вражеские снаряды гаснут. */
     public static final class Dome extends Skill {
         public Dome() {
             super("guardian.dome", "Купол", 0x8FE3FF, "◯", 40, 0);
             blocks("radius", 5);
+            shield("hp", 4.0);
             seconds("duration", 6);
             percent("reduce", 0.375);
         }
@@ -144,27 +146,28 @@ public final class GuardianSkills {
 
         @Override
         public String template() {
-            return "Купол радиусом {radius} на {duration}: союзники внутри получают на {reduce} меньше урона, "
-                    + "вражеские снаряды гаснут, едва влетев внутрь.";
+            return "Ставит оберег с {hp} прочности, он держит купол радиусом {radius} на {duration}: союзники внутри "
+                    + "получают на {reduce} меньше урона, вражеские снаряды гаснут, едва влетев внутрь. "
+                    + "Разбили оберег — купол пал.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
-            Vec3 c = ctx.caster.position();
             double r = ctx.v("radius");
             double factor = 1 - Math.min(0.9, ctx.v("reduce"));
             int dur = ctx.ticks("duration");
-            Fx.disc(ctx.level, c, (float) r, dur, 0x8FE3FF, false);
-            Fx.pillar(ctx.level, c, (float) r, 3.5f, dur, 0x8FE3FF);
-            Fx.dome(ctx.level, c, (float) r, dur, 0x8FE3FF);
-            Zones.add(ctx.level, c, r, ctx.caster.getUUID(), dur, 5, z -> {
-                for (LivingEntity a : ctx.alliesAround(z.center, z.radius)) {
+            ClassProp core = ctx.prop(PropKind.DOME, ctx.caster.position(), "hp", r, "duration");
+            Fx.domeOn(ctx.level, core, (float) r, dur, 0x8FE3FF);
+            core.onPulse(5, p -> {
+                Vec3 c = p.position();
+                for (LivingEntity a : ctx.alliesAround(c, r)) {
                     StatusService.apply(a, Status.of(StatusType.DAMAGE_TAKEN, "guardian.dome", ctx.caster.getUUID(),
-                            factor, z.level.getGameTime(), 8));
+                            factor, p.level().getGameTime(), 8));
                 }
-                for (Projectile pr : z.level.getEntitiesOfClass(Projectile.class, new AABB(z.center, z.center).inflate(z.radius),
-                        pr -> !(pr.getOwner() instanceof Player) && pr.position().distanceToSqr(z.center) <= z.radius * z.radius)) {
-                    z.level.sendParticles(ParticleTypes.END_ROD, pr.getX(), pr.getY(), pr.getZ(), 6, 0.1, 0.1, 0.1, 0.05);
+                for (Projectile pr : p.level().getEntitiesOfClass(Projectile.class, new AABB(c, c).inflate(r),
+                        pr -> !(pr.getOwner() instanceof Player) && pr.position().distanceToSqr(c) <= r * r)) {
+                    ((net.minecraft.server.level.ServerLevel) p.level()).sendParticles(ParticleTypes.END_ROD,
+                            pr.getX(), pr.getY(), pr.getZ(), 6, 0.1, 0.1, 0.1, 0.05);
                     pr.discard();
                 }
             });

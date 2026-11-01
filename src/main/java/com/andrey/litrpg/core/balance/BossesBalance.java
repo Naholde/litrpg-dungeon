@@ -20,7 +20,7 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
      * @param enrageMult      множитель урона за ступень
      * @param resetSeconds    сколько секунд без живых бойцов на арене до сброса боя
      * @param autoAttackSeconds как часто хранитель бьёт цель вблизи
-     * @param hpScale         множитель здоровья для отряда из 1…5 человек (рассчитано на троих = 1)
+     * @param hpScale         множитель здоровья для отряда из 1…6 человек (рассчитано на троих = 1)
      */
     public record Common(double enrageSeconds, double enrageMult, double resetSeconds, double autoAttackSeconds,
                          List<Double> hpScale) {
@@ -29,12 +29,12 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
                 Codec.DOUBLE.fieldOf("enrage_mult").forGetter(Common::enrageMult),
                 Codec.DOUBLE.fieldOf("reset_seconds").forGetter(Common::resetSeconds),
                 Codec.DOUBLE.fieldOf("auto_attack_seconds").forGetter(Common::autoAttackSeconds),
-                Codec.DOUBLE.listOf().validate(l -> l.size() == 5 ? DataResult.success(l)
-                        : DataResult.error(() -> "hp_scale: нужно 5 чисел (отряд 1…5)")).fieldOf("hp_scale").forGetter(Common::hpScale)
+                Codec.DOUBLE.listOf().validate(l -> l.size() == 6 ? DataResult.success(l)
+                        : DataResult.error(() -> "hp_scale: нужно 6 чисел (отряд 1…6)")).fieldOf("hp_scale").forGetter(Common::hpScale)
         ).apply(i, Common::new));
 
         public double hpScale(int partySize) {
-            return hpScale.get(Math.max(1, Math.min(5, partySize)) - 1);
+            return hpScale.get(Math.max(1, Math.min(6, partySize)) - 1);
         }
     }
 
@@ -55,7 +55,7 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
             BOSSES.fieldOf("bosses").forGetter(BossesBalance::bosses)
     ).apply(i, BossesBalance::new));
 
-    public static final Common DEFAULT_COMMON = new Common(60, 1.3, 6, 2, List.of(0.4, 0.7, 1.0, 1.3, 1.6));
+    public static final Common DEFAULT_COMMON = new Common(60, 1.3, 6, 2, List.of(0.4, 0.7, 1.0, 1.4, 1.8, 2.2));
 
     public static BossesBalance defaults() {
         return new BossesBalance(DEFAULT_COMMON, BossRegistry.defaultValues());

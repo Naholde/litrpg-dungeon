@@ -69,6 +69,6 @@ public record RunBalance(Party party, Xp xp, World world, Spirits spirits) {
             Spirits.CODEC.fieldOf("spirits").forGetter(RunBalance::spirits)
     ).apply(i, RunBalance::new));
 
-    public static final RunBalance DEFAULT = new RunBalance(new Party(3, 5, 10), new Xp(0.5, 0.45, 0.05),
+    public static final RunBalance DEFAULT = new RunBalance(new Party(3, 6, 10), new Xp(0.5, 0.45, 0.05),
             new World(40, 34, 5, 5, 0.2), new Spirits(3, 3, 7, 2.5, 0.3, 0.5, 7));
 }

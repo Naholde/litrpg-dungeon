@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Отряд на клиенте и выбранная цель лечения (Ctrl+1…5). */
+/** Отряд на клиенте и выбранная цель лечения (Ctrl+1…6). */
 public final class ClientParty {
     private static List<PartySyncPayload.Member> members = List.of();
     private static UUID selected;

@@ -1,7 +1,7 @@
 {
   "party": {
     "min_players": 3,
-    "max_players": 5,
+    "max_players": 6,
     "seal_confirm_seconds": 10
   },
   "xp": {

@@ -395,7 +395,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         combatStart = level().getGameTime();
         lastPlayerSeen = combatStart;
         nextAuto = combatStart + 20;
-        partySize = Math.max(1, Math.min(5, fixedParty > 0 ? fixedParty : players.size()));
+        partySize = Math.max(1, Math.min(com.andrey.litrpg.party.Party.MAX, fixedParty > 0 ? fixedParty : players.size()));
         double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize);
         var hp = getAttribute(Attributes.MAX_HEALTH);
         if (hp != null) hp.setBaseValue(max);

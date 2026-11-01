@@ -78,7 +78,19 @@ public final class StageWorld {
         int n = 0;
         boolean claimed = s.claims.contains("pack:" + pack.id());
         boolean first = true;
-        for (Layout.Mob m : pack.mobs()) {
+        java.util.List<Layout.Mob> mobs = new java.util.ArrayList<>(pack.mobs());
+        // Шестой игрок: в каждом отряде из трёх и больше — ещё один обычный монстр (копия последнего
+        // обычного), чтобы вшестером бой не превращался в прогулку. Отряды 4 и 5 добавлены картой (min_party).
+        if (s.partySize >= 6 && mobs.size() >= 3) {
+            for (int i = mobs.size() - 1; i > 0; i--) {
+                Layout.Mob m = mobs.get(i);
+                if (m.rank().equals("normal") || m.rank().isEmpty()) {
+                    mobs.add(m);
+                    break;
+                }
+            }
+        }
+        for (Layout.Mob m : mobs) {
             if (m.minParty() > s.partySize) continue;
             var type = ModMobs.TYPES.get(m.species());
             if (type == null) {
@@ -94,6 +106,13 @@ public final class StageWorld {
             if (first && pack.title().isPresent()) {
                 mob.setTitle(pack.title().get());
                 mob.setup(m.level(), MobRank.CHAMPION);
+                // Мини-хранитель крепче на 20% за каждого игрока сверх трёх (вшестером — ×1,6).
+                double grow = 1 + 0.2 * Math.max(0, s.partySize - 3);
+                var hp = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH);
+                if (hp != null && grow > 1) {
+                    hp.setBaseValue(hp.getBaseValue() * grow);
+                    mob.setHealth(mob.getMaxHealth());
+                }
             } else {
                 mob.setup(m.level(), rank(m.rank()));
             }

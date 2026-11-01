@@ -37,6 +37,42 @@ class VisualAssetsTest {
         assertTrue(missing.isEmpty(), "нет анимаций (запустите tools/gen_models.py): " + missing);
     }
 
+    /**
+     * Объекты классов и помощники — настоящие модели: геометрия, текстура и движения (стоять, у помощников — идти
+     * и бить, у двойников — бить: их удар повторяет «Отражённый удар»).
+     */
+    @Test
+    void everyClassObjectHasModel() throws Exception {
+        List<String> missing = new ArrayList<>();
+        java.util.Map<String, List<String>> need = new java.util.LinkedHashMap<>();
+        for (var k : com.andrey.litrpg.skill.prop.PropKind.all()) {
+            need.put(k.id(), k == com.andrey.litrpg.skill.prop.PropKind.ILLUSION || k == com.andrey.litrpg.skill.prop.PropKind.MIRROR
+                    ? List.of("idle", "attack") : List.of("idle"));
+        }
+        for (var k : com.andrey.litrpg.skill.prop.SummonKind.all()) need.put(k.id(), List.of("idle", "walk", "attack"));
+        com.google.gson.JsonObject ru;
+        try (var in = getClass().getResourceAsStream("/assets/litrpg/lang/ru_ru.json")) {
+            ru = JsonParser.parseReader(new InputStreamReader(java.util.Objects.requireNonNull(in), StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+        }
+        for (var e : need.entrySet()) {
+            String id = e.getKey();
+            if (!ru.has("entity.litrpg." + id)) missing.add(id + ": название в ru_ru.json");
+            if (getClass().getResource("/assets/litrpg/geo/entity/" + id + ".geo.json") == null) missing.add(id + ": модель");
+            if (getClass().getResource("/assets/litrpg/textures/entity/" + id + ".png") == null) missing.add(id + ": текстура");
+            try (var in = getClass().getResourceAsStream("/assets/litrpg/animations/entity/" + id + ".animation.json")) {
+                if (in == null) {
+                    missing.add(id + ": анимации");
+                    continue;
+                }
+                var anims = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject()
+                        .getAsJsonObject("animations");
+                for (String n : e.getValue()) if (!anims.has("animation." + id + "." + n)) missing.add(id + "." + n);
+            }
+        }
+        assertTrue(missing.isEmpty(), "у объектов классов не хватает (модели — tools/gen_models.py): " + missing);
+    }
+
     /** У каждого вида существ — модель и полный набор движений: ходьба, удар, выстрел, заклинание, щит, прыжок, «больно». */
     @Test
     void everyCreatureHasModelAndMoves() throws Exception {

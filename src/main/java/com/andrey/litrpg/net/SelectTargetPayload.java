@@ -13,7 +13,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Клиент → сервер: выбранная цель лечения (Ctrl+1…5 по рамкам группы); пусто — снять выбор. */
+/** Клиент → сервер: выбранная цель лечения (Ctrl+1…6 по рамкам группы); пусто — снять выбор. */
 public record SelectTargetPayload(Optional<UUID> target) implements CustomPacketPayload {
     public static final Type<SelectTargetPayload> TYPE = new Type<>(LitRPG.id("select_target"));
     public static final StreamCodec<FriendlyByteBuf, SelectTargetPayload> STREAM_CODEC =

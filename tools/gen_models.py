@@ -1388,6 +1388,25 @@ def _ghost_double(mat, glow):
     return bones, anims
 
 
+def dome_core():
+    """Оберег купола стража: каменное основание и парящий ледяной кристалл, вокруг — три клыка."""
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("base", [0, 0, 0], "root", [Cube([-5, 0, -5], [10, 2, 10], "steel"),
+                                         Cube([-3.5, 2, -3.5], [7, 2, 7], "iron_dark"),
+                                         Cube([-5.5, 0, -1], [1, 6, 2], "ice"), Cube([4.5, 0, -1], [1, 6, 2], "ice"),
+                                         Cube([-1, 0, 4.5], [2, 6, 1], "ice")]),
+        Bone("crystal", [0, 13, 0], "root", [Cube([-2.5, 9, -2.5], [5, 8, 5], "crystal"),
+                                            Cube([-1.5, 17, -1.5], [3, 3, 3], "crystal"),
+                                            Cube([-1.5, 6, -1.5], [3, 3, 3], "ice")]),
+    ]
+    anims = {"idle": loop(3, {"crystal": {"rotation": kf([(0, [0, 0, 0]), (3, [0, 360, 0])]),
+                                          "position": kf([(0, [0, 0, 0]), (1.5, [0, 1.2, 0]), (3, [0, 0, 0])])}}),
+             "walk": loop(3, {}), "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                                            "bones": {"crystal": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
 def mirror_double():
     return _ghost_double("ice", "crystal")
 
@@ -1494,7 +1513,7 @@ MODELS.update({"totem_heal": totem_heal, "totem_storm": totem_storm, "totem_eart
                "banner_power": banner_power, "banner_guard": banner_guard, "banner_speed": banner_speed,
                "tree_life": tree_life, "monk_seal": monk_seal, "headsman_block": headsman_block,
                "hunter_trap": hunter_trap, "turret": turret,
-               "mine": mine, "star": star, "tentacle": tentacle, "mirror_double": mirror_double,
+               "mine": mine, "star": star, "tentacle": tentacle, "mirror_double": mirror_double, "dome_core": dome_core,
                "illusion": illusion, "void_rift": void_rift, "minion_skeleton": minion_skeleton,
                "minion_wolf": minion_wolf, "minion_golem": minion_golem})
 

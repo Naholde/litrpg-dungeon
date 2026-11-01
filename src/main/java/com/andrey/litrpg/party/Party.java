@@ -5,9 +5,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-/** Отряд: до 5 игроков, порядок важен (Ctrl+1…5 в рамках группы). */
+/** Отряд: до 6 игроков, порядок важен (Ctrl+1…6 в рамках группы). */
 public final class Party {
-    public static final int MAX = 5;
+    public static final int MAX = 6;
 
     final UUID id = UUID.randomUUID();
     final List<UUID> members = new ArrayList<>();

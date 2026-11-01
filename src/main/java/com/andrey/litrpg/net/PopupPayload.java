@@ -9,7 +9,8 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 /** Сервер → клиент: всплывающая цифра над сущностью (урон, крит, лечение, уклонение). */
 public record PopupPayload(int entityId, float amount, Kind kind) implements CustomPacketPayload {
-    public enum Kind { DEALT, CRIT, TAKEN, HEAL, DODGE, ABSORB }
+    /** BLOCK — щит врага принял удар, MISS — удар ушёл мимо (враг под «ударами мимо»), WARD — несокрушимость спасла. */
+    public enum Kind { DEALT, CRIT, TAKEN, HEAL, DODGE, ABSORB, BLOCK, MISS, WARD }
 
     public static final Type<PopupPayload> TYPE = new Type<>(LitRPG.id("popup"));
     public static final StreamCodec<FriendlyByteBuf, PopupPayload> STREAM_CODEC = StreamCodec.of(

@@ -33,7 +33,7 @@ public final class PartyService {
         return p != null && p.contains(b.getUUID());
     }
 
-    /** Собрать отряд из игроков (каждый выходит из прежнего). Больше пяти — лишние не входят. */
+    /** Собрать отряд из игроков (каждый выходит из прежнего). Больше шести — лишние не входят. */
     public static Party form(List<ServerPlayer> players) {
         Party party = new Party();
         for (ServerPlayer p : players) {

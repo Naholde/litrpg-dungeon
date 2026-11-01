@@ -20,7 +20,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Свой HUD: здоровье числом и полосой, блок уровня, рамки группы (Ctrl+1…5), рамка цели под прицелом,
+ * Свой HUD: здоровье числом и полосой, блок уровня, рамки группы (Ctrl+1…6), рамка цели под прицелом,
  * предупреждение «на вас агро». Панель навыков добавится в фазе навыков.
  */
 public final class HudOverlay {
@@ -109,7 +109,7 @@ public final class HudOverlay {
     private static void partyFrames(GuiGraphics g, Font f, Minecraft mc) {
         var members = ClientParty.members();
         if (members.isEmpty()) return;
-        int x = 4, y = 40, fw = 124, fh = 23;
+        int x = 4, y = 40, fw = 124, fh = members.size() > 5 ? 21 : 23;
         UiKit.text(g, f, "ГРУППА", x + 2, y, UiKit.FRAME_BRIGHT);
         UiKit.textRight(g, f, "Ctrl+1…" + members.size(), x + fw - 2, y, 0xFF5F7790);
         y += 11;
@@ -134,7 +134,7 @@ public final class HudOverlay {
             if (ClientAggro.countTargeting(m.entityId()) > 0) {
                 UiKit.textRight(g, f, "⚠", x + fw - 28, y + 3, 0xFFFF5050);
             }
-            int bx = x + 12, by = y + 14, bw = fw - 16;
+            int bx = x + 12, by = y + fh - 9, bw = fw - 16;
             g.fill(bx, by, bx + bw, by + 5, 0xC0000000);
             int filled = Math.round(ratio * (bw - 2));
             int top = ratio < 0.3f ? 0xFFFF8A80 : 0xFF7BE38E, bot = ratio < 0.3f ? 0xFFB71C1C : 0xFF2E9E4A;

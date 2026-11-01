@@ -191,6 +191,25 @@ def check_stage(m, st, species, bosses, errors):
     for c in st.get('caches', []):
         if not near(reached, c['at'], r=2, dy=2):
             errors.append(f'{sid}: тайник {c["id"]} недостижим')
+    # Отряд до шести (фаза 11): на привале и в залах хранителей всем хватает места, а на каждой плите
+    # помещаются двое (вшестером на трёх плитах стоят по двое).
+    def room(cx, cy, cz, r, dy=3):
+        return sum(1 for (x, y, z) in reached if (x - cx) ** 2 + (z - cz) ** 2 <= r * r and abs(y - cy) <= dy)
+    cx, cy, cz = st['camp'][:3]
+    if room(cx, cy, cz, 5) < 24:
+        errors.append(f'{sid}: на привале тесно для шестерых ({room(cx, cy, cz, 5)} клеток в 5 блоках)')
+    for b in st['bosses']:
+        bx, by, bz = b['at']
+        if room(bx, by, bz, b['arena'] * 0.7, dy=4) < 80:
+            errors.append(f'{sid}: зал {b["id"]} тесен для шестерых')
+    for mc in st.get('mechs', []):
+        if mc['type'] != 'plates':
+            continue
+        for x, y, z in mc['points']:
+            spots = [(x + dx, yy, z + dz) for dx, dz in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1))
+                     for yy in (y - 1, y, y + 1)]
+            if sum(1 for c in spots if c in reached) < 2:
+                errors.append(f'{sid}: {mc["id"]}: на плите {x, y, z} не встать вдвоём')
     for b in st['bosses']:
         if 'arena2' in b:
             x, y, z, r = b['arena2']

@@ -168,6 +168,7 @@ public class DungeonMob extends Monster implements GeoEntity {
         tryLeap();
         long now = level().getGameTime();
         hitDecoy(now);
+        if (tickCount % 40 == 7) eyeProps();
         for (int i = pending.size() - 1; i >= 0; i--) {
             if (now >= pending.get(i)[0]) {
                 pending.remove(i);
@@ -205,6 +206,22 @@ public class DungeonMob extends Monster implements GeoEntity {
         swing(net.minecraft.world.InteractionHand.MAIN_HAND);
         t.invulnerableTime = 0;
         doHurtTarget(t);
+    }
+
+    /**
+     * Объекты классов можно сломать: монстр, бьющий игрока, иногда отвлекается на тотем, знамя, турель,
+     * печать или другой объект рядом и бьёт его 3 с. Рукопашные — в 3,5 блока, стрелки и чародеи — в 8.
+     */
+    private void eyeProps() {
+        if (!(getTarget() instanceof Player) || ThreatService.decoyOf(this) != null) return;
+        MobRole role = species().role();
+        boolean ranged = role == MobRole.ARCHER || role == MobRole.CASTER || role == MobRole.HEALER;
+        if (role == MobRole.HEALER || getRandom().nextFloat() > (ranged ? 0.15f : 0.3f)) return;
+        double r = ranged ? 8 : 3.5;
+        level().getEntitiesOfClass(com.andrey.litrpg.skill.prop.ClassProp.class, getBoundingBox().inflate(r),
+                        p -> p.isAlive() && p.distanceTo(this) <= r)
+                .stream().min(java.util.Comparator.comparingDouble(p -> p.distanceToSqr(this)))
+                .ifPresent(p -> ThreatService.decoy(this, p, 60));
     }
 
     /** Поводок: монстра не утащить через полкарты — возвращается на место с полным здоровьем. */
@@ -337,6 +354,7 @@ public class DungeonMob extends Monster implements GeoEntity {
                 amount *= 0.33f;
                 triggerAnim("main", "block");
                 blocked = true;
+                if (source.getEntity() instanceof LivingEntity att) com.andrey.litrpg.combat.Popups.blocked(this, att);
                 if (level() instanceof ServerLevel sl) {
                     Fx.burst(sl, position().add(facing.scale(0.6)).add(0, 1.2, 0), 0.7f, 5, 0xC8D0E0);
                     sl.playSound(null, blockPosition(), SoundEvents.SHIELD_BLOCK, SoundSource.HOSTILE, 0.8f, 0.9f);

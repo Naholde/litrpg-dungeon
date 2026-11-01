@@ -87,6 +87,7 @@ public final class DamageService {
                 && victim.getRandom().nextDouble() < Math.min(0.9, StatusService.sum(victim, StatusType.BLUR))) {
             e.setCanceled(true);
             if (victim instanceof ServerPlayer vp) Popups.dodge(vp);
+            else Popups.missed(victim, (LivingEntity) attacker);
             return;
         }
 
@@ -137,6 +138,7 @@ public final class DamageService {
         // 4. Несокрушимость: смертельный удар оставляет 1 здоровья.
         if (StatusService.has(victim, StatusType.WARD) && amount >= victim.getHealth() + victim.getAbsorptionAmount()) {
             amount = Math.max(0, victim.getHealth() + victim.getAbsorptionAmount() - 1);
+            Popups.ward(victim);
         }
 
         // 5. Щиты впитывают остаток.

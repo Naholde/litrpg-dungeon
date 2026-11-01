@@ -23,8 +23,8 @@ public final class KeyBinds {
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, CATEGORY);
     public static final String[] SKILL_LABELS = {"Z", "X", "C", "V", "B", "G"};
 
-    /** Ctrl+1…5 — выбрать участника отряда целью лечения. */
-    public static final KeyMapping[] PARTY_TARGET = new KeyMapping[5];
+    /** Ctrl+1…6 — выбрать участника отряда целью лечения. */
+    public static final KeyMapping[] PARTY_TARGET = new KeyMapping[com.andrey.litrpg.party.Party.MAX];
 
     static {
         int[] keys = {GLFW.GLFW_KEY_Z, GLFW.GLFW_KEY_X, GLFW.GLFW_KEY_C, GLFW.GLFW_KEY_V, GLFW.GLFW_KEY_B, GLFW.GLFW_KEY_G};

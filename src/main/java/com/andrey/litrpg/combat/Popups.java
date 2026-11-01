@@ -36,6 +36,27 @@ public final class Popups {
         if (attacker instanceof ServerPlayer ap) Net.send(ap, new PopupPayload(victim.getId(), 0, PopupPayload.Kind.ABSORB));
     }
 
+    private static final java.util.Map<LivingEntity, Long> LAST_WARD = new java.util.WeakHashMap<>();
+
+    /** Щит врага принял удар игрока (страж бестиария спереди). */
+    public static void blocked(LivingEntity victim, LivingEntity attacker) {
+        if (attacker instanceof ServerPlayer ap) Net.send(ap, new PopupPayload(victim.getId(), 0, PopupPayload.Kind.BLOCK));
+    }
+
+    /** Удар игрока прошёл мимо. */
+    public static void missed(LivingEntity victim, LivingEntity attacker) {
+        if (attacker instanceof ServerPlayer ap) Net.send(ap, new PopupPayload(victim.getId(), 0, PopupPayload.Kind.MISS));
+    }
+
+    /** Несокрушимость оставила 1 здоровья: видно и самому, и тому, кто его держит. */
+    public static void ward(LivingEntity victim) {
+        long now = victim.level().getGameTime();
+        Long last = LAST_WARD.get(victim);
+        if (last != null && now - last < 15) return; // под градом ударов — не чаще раза в 0,75 с
+        LAST_WARD.put(victim, now);
+        if (victim instanceof ServerPlayer vp) Net.send(vp, new PopupPayload(vp.getId(), 0, PopupPayload.Kind.WARD));
+    }
+
     public static void dodge(ServerPlayer victim) {
         Net.send(victim, new PopupPayload(victim.getId(), 0, PopupPayload.Kind.DODGE));
     }

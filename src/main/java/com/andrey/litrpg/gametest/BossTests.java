@@ -67,6 +67,29 @@ public final class BossTests {
         });
     }
 
+    /** Вшестером: хранитель считает отряд из шести и крепче, чем на пятерых; седьмой в отряд не входит. */
+    @GameTest(template = "arena", timeoutTicks = 200)
+    public static void sixPlayerParty(GameTestHelper h) {
+        java.util.List<ServerPlayer> all = new java.util.ArrayList<>();
+        double[][] at = {{2.5, 2.5}, {6.5, 2.5}, {2.5, 6.5}, {6.5, 6.5}, {4.5, 2.5}, {2.5, 4.5}, {6.5, 4.5}};
+        Role[] roles = {Role.TANK, Role.SUPPORT, Role.DAMAGE, Role.DAMAGE, Role.DAMAGE, Role.DAMAGE, Role.DAMAGE};
+        for (int i = 0; i < 6; i++) all.add(player(h, roles[i], at[i][0], at[i][1]));
+        TrialWarden b = boss(h);
+        h.runAfterDelay(5, () -> {
+            h.assertTrue(b.partySize() == 6, "отряд шесть, а " + b.partySize());
+            var c = Balance.get(Balance.BOSSES).common();
+            h.assertTrue(c.hpScale(6) > c.hpScale(5), "вшестером здоровья больше, чем впятером");
+            double expected = b.p("hp_units") * BossDamage.unit(b.bossLevel()) * c.hpScale(6);
+            h.assertTrue(Math.abs(b.getMaxHealth() - expected) < 1, "здоровье " + b.getMaxHealth() + " ≠ " + expected);
+            b.resetFight();
+            all.add(player(h, roles[6], at[6][0], at[6][1]));
+            var party = com.andrey.litrpg.party.PartyService.form(all);
+            h.assertTrue(party.members().size() == 6, "в отряде шесть, седьмой лишний: " + party.members().size());
+            all.forEach(com.andrey.litrpg.party.PartyService::leave);
+            h.succeed();
+        });
+    }
+
     /** Танк получает от удара хранителя меньше половины «единицы», боец — около единицы. */
     @GameTest(template = "arena", timeoutTicks = 200)
     public static void bossHitsRoleScaled(GameTestHelper h) {

@@ -318,7 +318,7 @@ public final class CharacterScreen extends Screen {
             }
         }
         if (c == null) {
-            UiKit.textCenter(g, font, "Рывок — Alt. Цель лечения — Ctrl+1…5.", left + W / 2, top + H - 20, UiKit.MUTED);
+            UiKit.textCenter(g, font, "Рывок — Alt. Цель лечения — Ctrl+1…6.", left + W / 2, top + H - 20, UiKit.MUTED);
         }
         if (tip != null) {
             List<net.minecraft.util.FormattedCharSequence> out = new ArrayList<>();
