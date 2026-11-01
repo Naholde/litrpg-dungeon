@@ -1,0 +1,72 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.tree_life.idle": {
+   "loop": true,
+   "animation_length": 4,
+   "bones": {
+    "crown": {
+     "rotation": {
+      "0": [
+       0,
+       -3,
+       0
+      ],
+      "2": [
+       0,
+       3,
+       0
+      ],
+      "4": [
+       0,
+       -3,
+       0
+      ]
+     },
+     "position": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "2": [
+       0,
+       0.5,
+       0
+      ],
+      "4": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.tree_life.walk": {
+   "loop": true,
+   "animation_length": 4,
+   "bones": {}
+  },
+  "animation.tree_life.death": {
+   "animation_length": 0.8,
+   "hold_on_last_frame": true,
+   "bones": {
+    "root": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.8": [
+       0,
+       0,
+       75
+      ]
+     }
+    }
+   }
+  }
+ }
+}

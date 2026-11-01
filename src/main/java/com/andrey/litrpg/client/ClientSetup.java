@@ -80,6 +80,14 @@ public final class ClientSetup {
                 e.registerEntityRenderer(com.andrey.litrpg.mob.ModMobs.TYPES.get(s.id()).get(),
                         ctx -> GeoRenderers.glowing(ctx, s.model(), s.scale()));
             }
+            for (var k : com.andrey.litrpg.skill.prop.PropKind.all()) {
+                e.registerEntityRenderer(com.andrey.litrpg.skill.prop.ModProps.PROPS.get(k.id()).get(),
+                        ctx -> GeoRenderers.glowing(ctx, k.id(), k.scale()));
+            }
+            for (var k : com.andrey.litrpg.skill.prop.SummonKind.all()) {
+                e.registerEntityRenderer(com.andrey.litrpg.skill.prop.ModProps.SUMMONS.get(k.id()).get(),
+                        ctx -> GeoRenderers.glowing(ctx, k.id(), k.scale()));
+            }
         }
 
         @SubscribeEvent

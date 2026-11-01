@@ -1179,6 +1179,237 @@ MODELS.update({"void_sentinel": void_sentinel, "light_eater": light_eater, "shar
                "chronophage": chronophage, "xalathar": xalathar, "hourglass": hourglass})
 
 
+# ---------------------------------------------------------------------------- объекты классов и помощники
+
+def _dies_falling(length=0.5):
+    return {"animation_length": length, "hold_on_last_frame": True,
+            "bones": {"root": {"rotation": kf([(0, [0, 0, 0]), (length, [0, 0, 75])])}}}
+
+
+def _totem(pole, head, glow):
+    """Тотем или столб: ножка в земле, резная голова сверху, светящиеся вставки по бокам."""
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("pole", [0, 0, 0], "root", [Cube([-3, 0, -3], [6, 2, 6], pole),
+                                         Cube([-2, 2, -2], [4, 14, 4], pole)]),
+        Bone("head", [0, 16, 0], "pole", [Cube([-3.5, 16, -3.5], [7, 7, 7], head),
+                                          Cube([-2, 18, -4.2], [4, 3, 1], glow),
+                                          Cube([-2, 18, 3.2], [4, 3, 1], glow)]),
+    ]
+    anims = {"idle": loop(3, {"head": {"rotation": kf([(0, [0, 0, 0]), (1.5, [0, 14, 0]), (3, [0, 0, 0])]),
+                                       "position": kf([(0, [0, 0, 0]), (1.5, [0, 0.6, 0]), (3, [0, 0, 0])])}}),
+             "walk": loop(3, {}), "death": _dies_falling()}
+    return bones, anims
+
+
+def _banner(cloth, trim):
+    """Знамя: древко, перекладина и полотно, которое колышется."""
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("staff", [0, 0, 0], "root", [Cube([-1, 0, -1], [2, 28, 2], "wood"),
+                                          Cube([-3, 1, -3], [6, 2, 6], "iron_dark"),
+                                          Cube([-5, 26, -0.5], [10, 1, 1], trim)]),
+        Bone("cloth", [0, 26, 0], "staff", [Cube([-4.5, 14, -0.3], [9, 12, 1], cloth),
+                                            Cube([-4.5, 12, -0.3], [9, 2, 1], trim)]),
+    ]
+    anims = {"idle": loop(2.4, {"cloth": {"rotation": kf([(0, [0, 0, 2]), (1.2, [0, 0, -4]), (2.4, [0, 0, 2])])}}),
+             "walk": loop(2.4, {}), "death": _dies_falling()}
+    return bones, anims
+
+
+def totem_heal():
+    return _totem("wood", "bark", "gem_green")
+
+
+def totem_storm():
+    return _totem("wood", "slate", "crystal")
+
+
+def totem_earth():
+    return _totem("wood", "basalt", "gold_glow")
+
+
+def banner_power():
+    return _banner("cloth_red", "gold")
+
+
+def banner_guard():
+    return _banner("cloth_blue", "steel")
+
+
+def banner_speed():
+    return _banner("cloth_green", "bronze")
+
+
+def tree_life():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("trunk", [0, 0, 0], "root", [Cube([-4, 0, -4], [8, 4, 8], "bark_dark"),
+                                          Cube([-3, 4, -3], [6, 18, 6], "bark"),
+                                          Cube([-1, 10, -4], [2, 5, 1], "gem_green")]),
+        Bone("crown", [0, 22, 0], "trunk", [Cube([-7, 22, -7], [14, 8, 14], "leaves"),
+                                            Cube([-4, 30, -4], [8, 4, 8], "leaves")]),
+    ]
+    anims = {"idle": loop(4, {"crown": {"rotation": kf([(0, [0, -3, 0]), (2, [0, 3, 0]), (4, [0, -3, 0])]),
+                                        "position": kf([(0, [0, 0, 0]), (2, [0, 0.5, 0]), (4, [0, 0, 0])])}}),
+             "walk": loop(4, {}), "death": _dies_falling(0.8)}
+    return bones, anims
+
+
+def monk_seal():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("seal", [0, 0, 0], "root", [Cube([-7, 0, -7], [14, 1, 14], "gold_dark"),
+                                         Cube([-5, 1, -5], [10, 1, 10], "gold_glow"),
+                                         Cube([-1, 1.5, -1], [2, 1, 2], "gold")]),
+    ]
+    anims = {"idle": loop(2, {"seal": {"rotation": kf([(0, [0, 0, 0]), (2, [0, 360, 0])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                                            "bones": {"seal": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def hunter_trap():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("base", [0, 0, 0], "root", [Cube([-5, 0, -5], [10, 1, 10], "iron_dark"),
+                                         Cube([-2, 1, -2], [4, 1, 4], "rust")]),
+        Bone("jaw_l", [-5, 1, 0], "base", [Cube([-6, 1, -5], [1, 4, 10], "iron")]),
+        Bone("jaw_r", [5, 1, 0], "base", [Cube([5, 1, -5], [1, 4, 10], "iron")]),
+    ]
+    anims = {"idle": loop(3, {"jaw_l": {"rotation": kf([(0, [0, 0, -55]), (3, [0, 0, -55])])},
+                              "jaw_r": {"rotation": kf([(0, [0, 0, 55]), (3, [0, 0, 55])])}}),
+             "walk": loop(3, {}), "death": {"animation_length": 0.3, "hold_on_last_frame": True, "bones": {
+                 "jaw_l": {"rotation": kf([(0, [0, 0, -55]), (0.3, [0, 0, 0])])},
+                 "jaw_r": {"rotation": kf([(0, [0, 0, 55]), (0.3, [0, 0, 0])])}}}}
+    return bones, anims
+
+
+def turret():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("base", [0, 0, 0], "root", [Cube([-5, 0, -5], [10, 3, 10], "iron_dark"),
+                                         Cube([-3, 3, -3], [6, 3, 6], "steel")]),
+        Bone("gun", [0, 8, 0], "base", [Cube([-3, 6, -3], [6, 5, 6], "steel"),
+                                        Cube([-1.5, 7, -9], [3, 3, 7], "iron"),
+                                        Cube([-1, 7.5, -10], [2, 2, 1], "ember")]),
+    ]
+    anims = {"idle": loop(4, {"gun": {"rotation": kf([(0, [0, -35, 0]), (2, [0, 35, 0]), (4, [0, -35, 0])])}}),
+             "walk": loop(4, {}), "death": _dies_falling(0.4)}
+    return bones, anims
+
+
+def mine():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("shell", [0, 0, 0], "root", [Cube([-4, 0, -4], [8, 3, 8], "iron_dark"),
+                                          Cube([-2.5, 3, -2.5], [5, 2, 5], "rust"),
+                                          Cube([-1, 5, -1], [2, 1, 2], "ember")]),
+    ]
+    anims = {"idle": loop(1.2, {"shell": {"scale": kf([(0, [1, 1, 1]), (0.6, [1.06, 1, 1.06]), (1.2, [1, 1, 1])])}}),
+             "walk": loop(1.2, {}), "death": {"animation_length": 0.3, "hold_on_last_frame": True,
+                                              "bones": {"shell": {"scale": kf([(0, [1, 1, 1]), (0.3, [1.6, 1.6, 1.6])])}}}}
+    return bones, anims
+
+
+def star():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("core", [0, 10, 0], "root", [Cube([-2.5, 8, -2.5], [5, 5, 5], "star"),
+                                          Cube([-4.5, 9.5, -1], [9, 2, 2], "crystal"),
+                                          Cube([-1, 9.5, -4.5], [2, 2, 9], "crystal"),
+                                          Cube([-1, 5.5, -1], [2, 9, 2], "crystal")]),
+    ]
+    anims = {"idle": loop(2.4, {"core": {"rotation": kf([(0, [0, 0, 0]), (2.4, [0, 360, 180])]),
+                                         "position": kf([(0, [0, 0, 0]), (1.2, [0, 1.5, 0]), (2.4, [0, 0, 0])])}}),
+             "walk": loop(2.4, {}), "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                                              "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def tentacle():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("low", [0, 0, 0], "root", [Cube([-3, 0, -3], [6, 6, 6], "flesh_dark"),
+                                        Cube([-2.5, 6, -2.5], [5, 10, 5], "flesh")]),
+        Bone("mid", [0, 16, 0], "low", [Cube([-2, 16, -2], [4, 10, 4], "flesh")]),
+        Bone("tip", [0, 26, 0], "mid", [Cube([-1.5, 26, -1.5], [3, 8, 3], "flesh_dark"),
+                                        Cube([-1, 33, -1], [2, 2, 2], "void_glow")]),
+    ]
+    anims = {"idle": loop(2.2, {"mid": {"rotation": kf([(0, [6, 0, 4]), (1.1, [-6, 0, -4]), (2.2, [6, 0, 4])])},
+                                "tip": {"rotation": kf([(0, [-8, 0, 0]), (1.1, [10, 0, 0]), (2.2, [-8, 0, 0])])}}),
+             "walk": loop(2.2, {}), "death": _dies_falling(0.5)}
+    return bones, anims
+
+
+def _ghost_double(mat, glow):
+    """Двойник: фигура без лица, светящаяся по краям (зеркальный и морочный)."""
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 12, 0], "root", [Cube([-4, 12, -2], [8, 12, 4], mat),
+                                          Cube([-1, 14, -2.3], [2, 8, 1], glow)]),
+        Bone("head", [0, 24, 0], "body", [Cube([-3.5, 24, -3.5], [7, 7, 7], mat),
+                                          Cube([-2, 26.5, -4], [4, 1, 1], glow)]),
+        Bone("right_arm", [-5, 22, 0], "body", [Cube([-7, 12, -1.5], [3, 11, 3], mat)]),
+        Bone("left_arm", [5, 22, 0], "body", [Cube([4, 12, -1.5], [3, 11, 3], mat)]),
+        Bone("legs", [0, 12, 0], "root", [Cube([-3.5, 0, -1.5], [3, 12, 3], mat),
+                                          Cube([0.5, 0, -1.5], [3, 12, 3], mat)]),
+    ]
+    anims = {"idle": loop(2.6, {"body": {"position": kf([(0, [0, 0, 0]), (1.3, [0, 0.4, 0]), (2.6, [0, 0, 0])])},
+                                "head": {"rotation": kf([(0, [0, -6, 0]), (1.3, [0, 6, 0]), (2.6, [0, -6, 0])])}}),
+             "walk": loop(2.6, {}),
+             "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                       "bones": {"root": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def mirror_double():
+    return _ghost_double("ice", "crystal")
+
+
+def illusion():
+    return _ghost_double("shadow", "amethyst")
+
+
+def void_rift():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("rift", [0, 6, 0], "root", [Cube([-6, 2, -1], [12, 10, 2], "void"),
+                                         Cube([-4, 4, -1.4], [8, 6, 1], "void_glow"),
+                                         Cube([-1, 1, -1], [2, 2, 2], "amethyst")]),
+    ]
+    anims = {"idle": loop(3, {"rift": {"rotation": kf([(0, [0, 0, 0]), (1.5, [0, 180, 0]), (3, [0, 360, 0])]),
+                                       "scale": kf([(0, [1, 1, 1]), (1.5, [1.1, 0.9, 1.1]), (3, [1, 1, 1])])}}),
+             "walk": loop(3, {}), "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                                            "bones": {"rift": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def minion_skeleton():
+    return humanoid({"head": "bone", "body": "bone_dark", "arm": "bone", "leg": "bone", "eyes": "soul",
+                     "extras": [("body", Cube([-4.5, 20, -2.5], [9, 3, 5], "bone_dark"))]})
+
+
+def minion_wolf():
+    return quadruped({"mat": "shadow", "body": "shadow", "head": "shadow", "snout": "shadow", "leg": "shadow",
+                      "tail": "shadow", "eyes": "eye_purple"})
+
+
+def minion_golem():
+    return humanoid({"head": "bone", "body": "bone_dark", "arm": "bone_dark", "leg": "bone_dark", "eyes": "soul",
+                     "arm_len": 14, "extras": [("body", Cube([-5, 22, -3], [10, 4, 6], "bone")),
+                                               ("right_arm", Cube([-8, 10, -2.5], [5, 4, 5], "bone")),
+                                               ("left_arm", Cube([3, 10, -2.5], [5, 4, 5], "bone"))]})
+
+
+MODELS.update({"totem_heal": totem_heal, "totem_storm": totem_storm, "totem_earth": totem_earth,
+               "banner_power": banner_power, "banner_guard": banner_guard, "banner_speed": banner_speed,
+               "tree_life": tree_life, "monk_seal": monk_seal, "hunter_trap": hunter_trap, "turret": turret,
+               "mine": mine, "star": star, "tentacle": tentacle, "mirror_double": mirror_double,
+               "illusion": illusion, "void_rift": void_rift, "minion_skeleton": minion_skeleton,
+               "minion_wolf": minion_wolf, "minion_golem": minion_golem})
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None

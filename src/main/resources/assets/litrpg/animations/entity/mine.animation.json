@@ -1,0 +1,55 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.mine.idle": {
+   "loop": true,
+   "animation_length": 1.2,
+   "bones": {
+    "shell": {
+     "scale": {
+      "0": [
+       1,
+       1,
+       1
+      ],
+      "0.6": [
+       1.06,
+       1,
+       1.06
+      ],
+      "1.2": [
+       1,
+       1,
+       1
+      ]
+     }
+    }
+   }
+  },
+  "animation.mine.walk": {
+   "loop": true,
+   "animation_length": 1.2,
+   "bones": {}
+  },
+  "animation.mine.death": {
+   "animation_length": 0.3,
+   "hold_on_last_frame": true,
+   "bones": {
+    "shell": {
+     "scale": {
+      "0": [
+       1,
+       1,
+       1
+      ],
+      "0.3": [
+       1.6,
+       1.6,
+       1.6
+      ]
+     }
+    }
+   }
+  }
+ }
+}

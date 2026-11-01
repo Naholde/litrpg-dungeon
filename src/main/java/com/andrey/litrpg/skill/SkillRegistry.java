@@ -42,6 +42,36 @@ public final class SkillRegistry {
     public static final Skill FRENZY = reg(new BerserkerSkills.Frenzy());
     public static final Skill EXECUTE = reg(new BerserkerSkills.Execute());
     public static final Skill BLOODBATH = reg(new BerserkerSkills.Bloodbath());
+    // Кровавый рыцарь
+    public static final Skill BLOOD_STRIKE = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.BloodStrike());
+    public static final Skill BLOOD_BRAND = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Brand());
+    public static final Skill BLOOD_CHAINS = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Chains());
+    public static final Skill BLOOD_FEAST = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Feast());
+    public static final Skill BLOOD_UNDYING = reg(new com.andrey.litrpg.skill.classes.BloodKnightSkills.Undying());
+    // Зерцало
+    public static final Skill MIRROR_GLASS = reg(new com.andrey.litrpg.skill.classes.MirrorSkills.Glass());
+    public static final Skill MIRROR_REPAY = reg(new com.andrey.litrpg.skill.classes.MirrorSkills.Repay());
+    public static final Skill MIRROR_EDGE = reg(new com.andrey.litrpg.skill.classes.MirrorSkills.Edge());
+    public static final Skill MIRROR_HALL = reg(new com.andrey.litrpg.skill.classes.MirrorSkills.Hall());
+    public static final Skill MIRROR_DOUBLE = reg(new com.andrey.litrpg.skill.classes.MirrorSkills.Reflection());
+    // Гравитон
+    public static final Skill GRAV_FUNNEL = reg(new com.andrey.litrpg.skill.classes.GravitonSkills.Funnel());
+    public static final Skill GRAV_PRESS = reg(new com.andrey.litrpg.skill.classes.GravitonSkills.Press());
+    public static final Skill GRAV_TOSS = reg(new com.andrey.litrpg.skill.classes.GravitonSkills.Toss());
+    public static final Skill GRAV_INVERSION = reg(new com.andrey.litrpg.skill.classes.GravitonSkills.Inversion());
+    public static final Skill GRAV_BLACKHOLE = reg(new com.andrey.litrpg.skill.classes.GravitonSkills.BlackHole());
+    // Ледяной бастион
+    public static final Skill BASTION_ARMOR = reg(new com.andrey.litrpg.skill.classes.BastionSkills.IceArmor());
+    public static final Skill BASTION_FROST = reg(new com.andrey.litrpg.skill.classes.BastionSkills.Frost());
+    public static final Skill BASTION_WALL = reg(new com.andrey.litrpg.skill.classes.BastionSkills.IceWall());
+    public static final Skill BASTION_PERMAFROST = reg(new com.andrey.litrpg.skill.classes.BastionSkills.Permafrost());
+    public static final Skill BASTION_TOMB = reg(new com.andrey.litrpg.skill.classes.BastionSkills.Tomb());
+    // Паладин клятвы
+    public static final Skill PAL_OATH = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.Oath());
+    public static final Skill PAL_STRIKE = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.HolyStrike());
+    public static final Skill PAL_DIVINE = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.DivineShield());
+    public static final Skill PAL_HANDS = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.LayOnHands());
+    public static final Skill PAL_JUDGMENT = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.Judgment());
     // Лекарь
     public static final Skill BANDAGE = reg(new ClericSkills.Bandage());
     public static final Skill PRAYER = reg(new ClericSkills.Prayer());

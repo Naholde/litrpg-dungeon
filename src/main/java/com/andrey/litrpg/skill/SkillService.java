@@ -108,11 +108,12 @@ public final class SkillService {
         SkillState st = state(p);
         long now = p.level().getGameTime();
         st.resource = Math.max(0, st.resource - skill.cost(rank));
-        double haste = PlayerService.breakdown(p).get(Derived.HASTE);
+        double haste = PlayerService.breakdown(p).get(Derived.HASTE) + StatusService.sum(p, StatusType.HASTE);
         int cd = SkillMath.cooldownTicks(skill.value("cooldown", rank), haste);
         st.cooldowns.put(skill.id, new long[]{now + cd, cd});
         st.dirty = true;
         StyleTracker.add(p, Style.SKILLS, 1);
+        if (skill.cost(rank) <= 0) gain(p, Resource.Gain.CAST);
         skill.execute(new SkillContext(p, skill, rank, target, point));
         sync(p);
     }
@@ -219,13 +220,15 @@ public final class SkillService {
     private static void tickCast(ServerPlayer p, SkillState st, long now) {
         SkillState.Casting c = st.casting;
         boolean moved = p.position().distanceToSqr(c.startPos()) > 0.04 || (!p.onGround() && p.getDeltaMovement().y > 0.1);
-        if (moved) {
-            cancelCast(p, "Чтение прервано: нужно стоять на месте");
-            return;
-        }
-        if (StatusService.has(p, StatusType.STUN) || StatusService.has(p, StatusType.SILENCE)) {
-            cancelCast(p, "Чтение сбито");
-            return;
+        if (c.skill().interruptible()) {
+            if (moved) {
+                cancelCast(p, "Чтение прервано: нужно стоять на месте");
+                return;
+            }
+            if (StatusService.has(p, StatusType.STUN) || StatusService.has(p, StatusType.SILENCE)) {
+                cancelCast(p, "Чтение сбито");
+                return;
+            }
         }
         if (now < c.end()) return;
         st.casting = null;
@@ -244,7 +247,7 @@ public final class SkillService {
         finish(p, c.skill(), rank, target, c.point());
     }
 
-    /** Ярость тает через 5 с вне боя по 3 в секунду. */
+    /** Сам копящийся ресурс (песок, дыхание) и таяние тех, что тают через 5 с без пополнения. */
     private static void tickResource(ServerPlayer p, SkillState st, long now) {
         Resource r = resourceOf(PlayerService.data(p));
         if (r == Resource.NONE) {
@@ -254,27 +257,56 @@ public final class SkillService {
             }
             return;
         }
-        if (r == Resource.RAGE && st.resource > 0 && now - st.lastResourceGain > 100 && now % 20 == 0) {
-            st.resource = Math.max(0, st.resource - 3);
+        if (now % 20 != 0) return;
+        if (r.gain == Resource.Gain.REGEN && st.resource < r.max) {
+            // Дыхание снайпера копится только пока стоишь на месте — в этом его идея.
+            boolean still = r != Resource.BREATH || p.getDeltaMovement().horizontalDistanceSqr() < 1e-4;
+            if (still) {
+                st.resource = Math.min(r.max, st.resource + r.amount);
+                st.dirty = true;
+            }
+        }
+        if (r.decay > 0 && st.resource > 0 && now - st.lastResourceGain > 100) {
+            st.resource = Math.max(0, st.resource - r.decay);
             st.dirty = true;
         }
     }
 
-    /** Ярость от нанесённого удара. */
+    /** Ресурс от нанесённого удара (ярость, заряд, сумерки). */
     public static void onDealt(ServerPlayer p) {
-        gain(p, 6);
+        gain(p, Resource.Gain.DEALT);
     }
 
-    /** Ярость от полученного удара. */
+    /** Ресурс от полученного удара (ярость, кровь). */
     public static void onTaken(ServerPlayer p) {
-        gain(p, 4);
+        gain(p, Resource.Gain.TAKEN);
     }
 
-    private static void gain(ServerPlayer p, double amount) {
+    /** Ресурс за убитого врага (души, тень). */
+    public static void onKill(ServerPlayer p) {
+        gain(p, Resource.Gain.KILL);
+    }
+
+    /** Пополнить ресурс, если класс копит его этим способом. */
+    private static void gain(ServerPlayer p, Resource.Gain how) {
         Resource r = resourceOf(PlayerService.data(p));
-        if (r != Resource.RAGE) return;
+        if (r.gain != how && !(r.gain == Resource.Gain.FIGHT && (how == Resource.Gain.DEALT || how == Resource.Gain.TAKEN))) {
+            return;
+        }
+        add(p, how == Resource.Gain.TAKEN && r.gain == Resource.Gain.FIGHT ? r.amount * 0.7 : r.amount);
+    }
+
+    /** Пополнить ресурс, только если у класса именно этот ресурс (стекло зерцала — от полученного урона). */
+    public static void addIf(ServerPlayer p, Resource which, double amount) {
+        if (resourceOf(PlayerService.data(p)) == which) add(p, amount);
+    }
+
+    /** Добавить ресурс напрямую (навыки класса: стекло зерцала, пакт чернокнижника, сферы астроманта). */
+    public static void add(ServerPlayer p, double amount) {
+        Resource r = resourceOf(PlayerService.data(p));
+        if (r == Resource.NONE || amount == 0) return;
         SkillState st = state(p);
-        st.resource = Math.min(r.max, st.resource + amount);
+        st.resource = Math.max(0, Math.min(r.max, st.resource + amount));
         st.lastResourceGain = p.level().getGameTime();
         st.dirty = true;
     }

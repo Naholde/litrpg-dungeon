@@ -37,6 +37,7 @@ public final class LitRPG {
         com.andrey.litrpg.world.ModWorld.register(modBus);
         ModEntities.register(modBus);
         com.andrey.litrpg.mob.ModMobs.register(modBus);
+        com.andrey.litrpg.skill.prop.ModProps.register(modBus);
         modBus.addListener(ModNetwork::register);
 
         IEventBus game = NeoForge.EVENT_BUS;

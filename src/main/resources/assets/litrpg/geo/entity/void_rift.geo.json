@@ -1,0 +1,88 @@
+{
+ "format_version": "1.12.0",
+ "minecraft:geometry": [
+  {
+   "description": {
+    "identifier": "geometry.void_rift",
+    "texture_width": 128,
+    "texture_height": 128,
+    "visible_bounds_width": 6,
+    "visible_bounds_height": 6,
+    "visible_bounds_offset": [
+     0,
+     2,
+     0
+    ]
+   },
+   "bones": [
+    {
+     "name": "root",
+     "pivot": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "rift",
+     "pivot": [
+      0,
+      6,
+      0
+     ],
+     "parent": "root",
+     "cubes": [
+      {
+       "origin": [
+        -6,
+        2,
+        -1
+       ],
+       "size": [
+        12,
+        10,
+        2
+       ],
+       "uv": [
+        0,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -4,
+        4,
+        -1.4
+       ],
+       "size": [
+        8,
+        6,
+        1
+       ],
+       "uv": [
+        28,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -1,
+        1,
+        -1
+       ],
+       "size": [
+        2,
+        2,
+        2
+       ],
+       "uv": [
+        46,
+        0
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

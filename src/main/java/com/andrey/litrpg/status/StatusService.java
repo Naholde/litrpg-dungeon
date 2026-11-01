@@ -55,6 +55,8 @@ public final class StatusService {
             if (s.type() == StatusType.STUN) boss.onStunned();
             if (boss.immuneTo(s.type())) return;
         }
+        // Непоколебимость: управление не действует вовсе (клич знаменосца, эшафот палача, железное тело монаха).
+        if (s.type().controlling() && has(e, StatusType.STEADFAST)) return;
         list(e).add(s);
         updateMovement(e);
         if (s.type() == StatusType.STUN && e instanceof Mob m) m.getNavigation().stop();
@@ -96,7 +98,7 @@ public final class StatusService {
     private static void updateMovement(LivingEntity e) {
         long now = now(e);
         StatusList l = list(e);
-        boolean stopped = l.has(StatusType.STUN, now) || l.has(StatusType.ROOT, now);
+        boolean stopped = l.has(StatusType.STUN, now) || l.has(StatusType.ROOT, now) || l.has(StatusType.FROZEN, now);
         double speed = stopped ? -1 : Math.max(-0.9, l.sum(StatusType.SPEED, now) - l.sum(StatusType.SLOW, now));
         set(e.getAttribute(Attributes.MOVEMENT_SPEED), MOVE, speed);
         set(e.getAttribute(Attributes.JUMP_STRENGTH), JUMP, stopped ? -1 : 0);
@@ -120,6 +122,64 @@ public final class StatusService {
             }
         }
         Net.send(p, new StatusSyncPayload(out));
+    }
+
+    /** Сколько слоёв метки-счётчика (горение, обморожение, статика, зараза) на сущности. */
+    public static int stacks(LivingEntity e, StatusType t) {
+        return (int) Math.round(sum(e, t));
+    }
+
+    /**
+     * Добавить слой метки-счётчика: каждый слой — отдельная метка со своим сроком, поэтому слои тают по одному.
+     * Больше {@code max} слоёв не накладывается (обновляется самый старый). Возвращает, сколько слоёв стало.
+     */
+    public static int addStack(LivingEntity e, StatusType t, String key, UUID source, int durationTicks, int max) {
+        if (e.level().isClientSide) return 0;
+        long now = now(e);
+        StatusList l = list(e);
+        int slot = Math.max(0, max - 1);
+        for (int i = 0; i < max; i++) {
+            String k = key + "#" + i;
+            if (l.all().stream().noneMatch(s -> s.type() == t && s.key().equals(k) && !s.expired(now))) {
+                slot = i;
+                break;
+            }
+        }
+        apply(e, Status.of(t, key + "#" + slot, source, 1, now, durationTicks));
+        return stacks(e, t);
+    }
+
+    /** Прибавить к силе метки (счёт урона): метка та же, сила растёт. Вернуть, сколько стало. */
+    public static double accumulate(LivingEntity e, StatusType t, double add) {
+        if (!e.hasData(ModAttachments.STATUSES)) return 0;
+        long now = now(e);
+        StatusList l = list(e);
+        double total = 0;
+        for (Status s : new ArrayList<>(l.all())) {
+            if (s.type() != t || s.expired(now)) continue;
+            l.add(s.withMagnitude(s.magnitude() + add));
+            total = s.magnitude() + add;
+        }
+        if (e instanceof ServerPlayer p) sync(p);
+        return total;
+    }
+
+    /** Сила метки этого вида от этого источника (0 — нет такой). */
+    public static double magnitudeFrom(LivingEntity e, StatusType t, UUID source) {
+        if (!e.hasData(ModAttachments.STATUSES)) return 0;
+        long now = now(e);
+        for (Status s : list(e).all()) {
+            if (s.type() == t && !s.expired(now) && source.equals(s.source())) return s.magnitude();
+        }
+        return 0;
+    }
+
+    /** Снять все метки одного вида (раскол снимает «скован», детонация — горение). */
+    public static void removeAll(LivingEntity e, StatusType t) {
+        if (!e.hasData(ModAttachments.STATUSES)) return;
+        list(e).remove(s -> s.type() == t);
+        updateMovement(e);
+        if (e instanceof ServerPlayer p) sync(p);
     }
 
     /** Снять метки одного вида, наложенные этим источником (например, «Под прикрытие» при смерти танка). */

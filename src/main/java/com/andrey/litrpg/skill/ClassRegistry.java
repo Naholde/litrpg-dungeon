@@ -25,6 +25,49 @@ public final class ClassRegistry {
             List.of(u(10, TAUNT), u(10, COVER), u(10, CHARGE), u(20, BRACE), u(32, DOME), u(44, UNBREAKABLE)),
             Map.of(Style.TANKING, 1.0, Style.PROTECTION, 0.8, Style.MELEE, 0.6)));
 
+    public static final PlayerClass BLOOD_KNIGHT = reg(new PlayerClass("blood_knight", Role.TANK, "Кровавый рыцарь",
+            0xFF8B1A1A, "†",
+            "Платит кровью и пьёт её обратно: удары стоят здоровья, но лечат, а клеймо поит рыцаря с каждого удара по цели.",
+            "Кровавый рыцарь не держит удар — он его покупает. Своей кровью, за чужую, и всегда с выгодой для отряда.",
+            Resource.BLOOD, new StatSet(1.6, 0.5, 2.0, 0.5, 0.4),
+            List.of(u(10, TAUNT), u(10, BLOOD_STRIKE), u(10, BLOOD_BRAND), u(20, BLOOD_CHAINS), u(32, BLOOD_FEAST),
+                    u(44, BLOOD_UNDYING)),
+            Map.of(Style.TANKING, 1.0, Style.MELEE, 0.9, Style.HEALING, 0.2)));
+
+    public static final PlayerClass MIRROR = reg(new PlayerClass("mirror", Role.TANK, "Зерцало", 0xFFB0E8FF, "◫",
+            "Живёт чужими ударами: копит полученный урон в стекло и возвращает его сполна, а снаряды разворачивает обратно.",
+            "Зерцало не спорит с ударом. Оно его запоминает — и однажды возвращает тому, кто начал.",
+            Resource.GLASS, new StatSet(1.0, 0.8, 2.2, 0.8, 0.2),
+            List.of(u(10, TAUNT), u(10, MIRROR_GLASS), u(10, MIRROR_REPAY), u(20, MIRROR_EDGE), u(32, MIRROR_HALL),
+                    u(44, MIRROR_DOUBLE)),
+            Map.of(Style.TANKING, 1.0, Style.PROTECTION, 0.6, Style.SKILLS, 0.5)));
+
+    public static final PlayerClass GRAVITON = reg(new PlayerClass("graviton", Role.TANK, "Гравитон", 0xFF7A6BD8, "◉",
+            "Собирает толпу весом: воронка стягивает врагов, пресс придавливает, а чёрная дыра держит их всех разом.",
+            "Гравитон не бегает за врагами. Он делает так, чтобы они оказались там, где нужно ему.",
+            Resource.NONE, new StatSet(1.0, 0.6, 2.1, 1.1, 0.2),
+            List.of(u(10, TAUNT), u(10, GRAV_FUNNEL), u(10, GRAV_PRESS), u(20, GRAV_TOSS), u(32, GRAV_INVERSION),
+                    u(44, GRAV_BLACKHOLE)),
+            Map.of(Style.TANKING, 1.0, Style.SKILLS, 0.8, Style.PROTECTION, 0.5)));
+
+    public static final PlayerClass BASTION = reg(new PlayerClass("bastion", Role.TANK, "Ледяной бастион",
+            0xFF8FE3FF, "❅",
+            "Меняет площадку боя: обморожение сковывает врагов, стена из настоящего льда перекрывает проход, мерзлота отнимает силу удара.",
+            "Там, где встал бастион, бой идёт по его правилам: медленно, холодно и ровно столько, сколько он позволит.",
+            Resource.NONE, new StatSet(1.1, 0.4, 2.3, 0.9, 0.3),
+            List.of(u(10, TAUNT), u(10, BASTION_ARMOR), u(10, BASTION_FROST), u(20, BASTION_WALL),
+                    u(32, BASTION_PERMAFROST), u(44, BASTION_TOMB)),
+            Map.of(Style.TANKING, 1.0, Style.PROTECTION, 0.7, Style.SKILLS, 0.4)));
+
+    public static final PlayerClass PALADIN = reg(new PlayerClass("paladin", Role.TANK, "Паладин клятвы",
+            0xFFFFE27A, "✥",
+            "Святой свет: клятва-аура на отряд, три секунды полной неуязвимости и лечение союзника ценой своего здоровья.",
+            "Паладин держит не место, а слово. Пока клятва звучит, за его спиной никто не падает.",
+            Resource.NONE, new StatSet(1.2, 0.5, 2.0, 1.2, 0.3),
+            List.of(u(10, TAUNT), u(10, PAL_OATH), u(10, PAL_STRIKE), u(20, PAL_DIVINE), u(32, PAL_HANDS),
+                    u(44, PAL_JUDGMENT)),
+            Map.of(Style.TANKING, 1.0, Style.PROTECTION, 0.9, Style.HEALING, 0.6)));
+
     public static final PlayerClass BERSERKER = reg(new PlayerClass("berserker", Role.DAMAGE, "Берсерк", 0xFFD8343A, "⚔",
             "Чем больнее, тем злее: копит ярость от ударов и сжигает её в сокрушительные приёмы.",
             "Берсерк не считает раны — он считает врагов. Каждый пропущенный удар только подливает масла в огонь.",

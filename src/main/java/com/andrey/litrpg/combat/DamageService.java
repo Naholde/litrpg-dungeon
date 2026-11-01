@@ -81,6 +81,15 @@ public final class DamageService {
             return;
         }
 
+        // 0.5. «Удары мимо»: зеркала, тьма, пируэт — обычный удар по носителю проходит мимо.
+        if (attacker instanceof LivingEntity && src.getDirectEntity() == attacker && !fixed && !deterministic
+                && StatusService.has(victim, StatusType.BLUR)
+                && victim.getRandom().nextDouble() < Math.min(0.9, StatusService.sum(victim, StatusType.BLUR))) {
+            e.setCanceled(true);
+            if (victim instanceof ServerPlayer vp) Popups.dodge(vp);
+            return;
+        }
+
         // 1. Атакующий — игрок: усиление характеристиками и крит.
         if (attacker instanceof ServerPlayer p && attacker != victim && !fixed) {
             StatBreakdown b = PlayerService.breakdown(p);
@@ -167,15 +176,55 @@ public final class DamageService {
         return amount;
     }
 
-    /** После удара: вампиризм атакующего и отражение жертвы. */
+    /** После удара: вампиризм атакующего, отражение жертвы, клеймо, искупление и счёт урона. */
     static void afterHit(LivingEntity victim, DamageSource src, float dealt) {
+        if (dealt > 0) {
+            // Счёт урона: метка копит всё, что пришло по носителю (стекло зерцала, приговор, перемотка).
+            if (StatusService.has(victim, StatusType.RECORD)) {
+                StatusService.accumulate(victim, StatusType.RECORD, dealt);
+                if (victim instanceof ServerPlayer vp) {
+                    // Стекло зерцала считается в долях его здоровья: полная полоса — впитана целая жизнь.
+                    com.andrey.litrpg.skill.SkillService.addIf(vp, com.andrey.litrpg.skill.Resource.GLASS,
+                            dealt / Math.max(1, vp.getMaxHealth()) * 100);
+                }
+            }
+            // Клеймо: доля урона по носителю лечит того, кто его поставил.
+            siphon(victim, dealt);
+        }
         if (!(src.getEntity() instanceof LivingEntity attacker) || attacker == victim || dealt <= 0) return;
         double leech = StatusService.sum(attacker, StatusType.LEECH);
         if (leech > 0) HealService.healFixed(attacker instanceof ServerPlayer sp ? sp : null, attacker, dealt * leech);
+        if (attacker instanceof ServerPlayer sp) atonement(sp, dealt);
         double reflect = StatusService.sum(victim, StatusType.REFLECT);
         // Отражается только удар вблизи (не снаряды и не сам отражённый урон — иначе бесконечный пинг-понг).
         if (reflect > 0 && src.getDirectEntity() == attacker && CONTEXT.get() == null) {
             deal(victim, null, attacker, dealt * reflect, WeaponKind.FIXED);
+        }
+    }
+
+    /** Клеймо кровавого рыцаря: доля урона по клеймённому возвращается тому, кто клеймо поставил. */
+    private static void siphon(LivingEntity victim, float dealt) {
+        if (!victim.hasData(ModAttachments.STATUSES) || !(victim.level() instanceof ServerLevel sl)) return;
+        long now = sl.getGameTime();
+        for (var s : StatusService.list(victim).all()) {
+            if (s.type() != StatusType.SIPHON || s.expired(now) || s.source() == null) continue;
+            if (sl.getServer().getPlayerList().getPlayer(s.source()) instanceof ServerPlayer owner && owner.isAlive()) {
+                HealService.healFixed(owner, owner, dealt * s.magnitude());
+            }
+        }
+    }
+
+    /** Искупление теневого жреца: его урон лечит того, на кого наложена метка. */
+    private static void atonement(ServerPlayer attacker, float dealt) {
+        if (!(attacker.level() instanceof ServerLevel sl)) return;
+        long now = sl.getGameTime();
+        for (ServerPlayer ally : sl.players()) {
+            if (!ally.isAlive() || !ally.hasData(ModAttachments.STATUSES)) continue;
+            for (var s : StatusService.list(ally).all()) {
+                if (s.type() == StatusType.ATONEMENT && !s.expired(now) && attacker.getUUID().equals(s.source())) {
+                    HealService.healFixed(attacker, ally, dealt * s.magnitude());
+                }
+            }
         }
     }
 

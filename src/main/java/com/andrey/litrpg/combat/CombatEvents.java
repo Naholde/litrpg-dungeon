@@ -46,7 +46,11 @@ public final class CombatEvents {
         });
         game.addListener((ServerTickEvent.Post e) -> {
             if (e.getServer().getTickCount() % 10 == 0) PartyService.sync(e.getServer());
-            for (var level : e.getServer().getAllLevels()) Zones.tick(level);
+            for (var level : e.getServer().getAllLevels()) {
+                Zones.tick(level);
+                com.andrey.litrpg.skill.Later.tick(level);
+                com.andrey.litrpg.skill.History.tick(level);
+            }
         });
     }
 

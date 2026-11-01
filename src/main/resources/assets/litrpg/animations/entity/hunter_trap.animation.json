@@ -1,0 +1,78 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.hunter_trap.idle": {
+   "loop": true,
+   "animation_length": 3,
+   "bones": {
+    "jaw_l": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       -55
+      ],
+      "3": [
+       0,
+       0,
+       -55
+      ]
+     }
+    },
+    "jaw_r": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       55
+      ],
+      "3": [
+       0,
+       0,
+       55
+      ]
+     }
+    }
+   }
+  },
+  "animation.hunter_trap.walk": {
+   "loop": true,
+   "animation_length": 3,
+   "bones": {}
+  },
+  "animation.hunter_trap.death": {
+   "animation_length": 0.3,
+   "hold_on_last_frame": true,
+   "bones": {
+    "jaw_l": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       -55
+      ],
+      "0.3": [
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    "jaw_r": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       55
+      ],
+      "0.3": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  }
+ }
+}

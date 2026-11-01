@@ -1,0 +1,126 @@
+{
+ "format_version": "1.12.0",
+ "minecraft:geometry": [
+  {
+   "description": {
+    "identifier": "geometry.hunter_trap",
+    "texture_width": 128,
+    "texture_height": 128,
+    "visible_bounds_width": 6,
+    "visible_bounds_height": 6,
+    "visible_bounds_offset": [
+     0,
+     2,
+     0
+    ]
+   },
+   "bones": [
+    {
+     "name": "root",
+     "pivot": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "base",
+     "pivot": [
+      0,
+      0,
+      0
+     ],
+     "parent": "root",
+     "cubes": [
+      {
+       "origin": [
+        -5,
+        0,
+        -5
+       ],
+       "size": [
+        10,
+        1,
+        10
+       ],
+       "uv": [
+        0,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -2,
+        1,
+        -2
+       ],
+       "size": [
+        4,
+        1,
+        4
+       ],
+       "uv": [
+        40,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "name": "jaw_l",
+     "pivot": [
+      -5,
+      1,
+      0
+     ],
+     "parent": "base",
+     "cubes": [
+      {
+       "origin": [
+        -6,
+        1,
+        -5
+       ],
+       "size": [
+        1,
+        4,
+        10
+       ],
+       "uv": [
+        56,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "name": "jaw_r",
+     "pivot": [
+      5,
+      1,
+      0
+     ],
+     "parent": "base",
+     "cubes": [
+      {
+       "origin": [
+        5,
+        1,
+        -5
+       ],
+       "size": [
+        1,
+        4,
+        10
+       ],
+       "uv": [
+        78,
+        0
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

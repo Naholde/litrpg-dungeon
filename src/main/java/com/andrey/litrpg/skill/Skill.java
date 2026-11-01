@@ -92,6 +92,11 @@ public abstract class Skill {
     /** Как выбирается цель. */
     public abstract Targeting targeting();
 
+    /** Можно ли сбить чтение движением, оглушением и немотой. У палача замах не сбить — в этом его идея. */
+    public boolean interruptible() {
+        return true;
+    }
+
     /** Дальность для цели/точки (блоков). */
     public double range(int rank) {
         return params.containsKey("range") ? value("range", rank) : 4;

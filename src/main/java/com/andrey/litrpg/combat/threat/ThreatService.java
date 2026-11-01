@@ -53,8 +53,37 @@ public final class ThreatService {
         broadcast(mob);
     }
 
+    /** Приманка: несколько секунд враг бьёт объект (двойник зерцала, живое древо, двойник иллюзиониста). */
+    private record Decoy(LivingEntity who, long until) {
+    }
+
+    private static final java.util.Map<Mob, Decoy> DECOYS = new java.util.WeakHashMap<>();
+
+    /** Перевести врага на приманку: пока она цела и время не вышло, таблица угрозы молчит. */
+    public static void decoy(Mob mob, LivingEntity decoy, int ticks) {
+        DECOYS.put(mob, new Decoy(decoy, mob.level().getGameTime() + ticks));
+        retarget(mob, decoy);
+        broadcast(mob);
+    }
+
+    /** Действующая приманка этого врага или null. */
+    public static LivingEntity decoyOf(Mob mob) {
+        Decoy d = DECOYS.get(mob);
+        if (d == null) return null;
+        if (d.who() == null || !d.who().isAlive() || mob.level().getGameTime() >= d.until()) {
+            DECOYS.remove(mob);
+            return null;
+        }
+        return d.who();
+    }
+
     /** Раз в полсекунды: забыть ушедших, растопить угрозу, выбрать цель. */
     public static void tick(Mob mob) {
+        LivingEntity decoy = decoyOf(mob);
+        if (decoy != null) {
+            if (mob.getTarget() != decoy) retarget(mob, decoy);
+            return;
+        }
         if (!mob.hasData(ModAttachments.THREAT)) return;
         ThreatTable t = table(mob);
         if (t.isEmpty() || !(mob.level() instanceof ServerLevel level)) return;
@@ -90,6 +119,11 @@ public final class ThreatService {
     /** ИИ хочет сменить цель — если у врага есть таблица угрозы, решает она. */
     public static void onChangeTarget(LivingChangeTargetEvent e) {
         if (applying || !(e.getEntity() instanceof Mob mob) || mob.level().isClientSide) return;
+        LivingEntity decoy = decoyOf(mob);
+        if (decoy != null) {
+            if (e.getNewAboutToBeSetTarget() != decoy) e.setNewAboutToBeSetTarget(decoy);
+            return;
+        }
         // Таблицу заводим только тем, кто воюет с игроками — у мирных существ её нет вовсе.
         if (!mob.hasData(ModAttachments.THREAT) && !(e.getNewAboutToBeSetTarget() instanceof ServerPlayer)) return;
         ThreatTable t = table(mob);
@@ -102,6 +136,19 @@ public final class ThreatService {
         if (current == null) return;
         ServerPlayer chosen = mob.getServer().getPlayerList().getPlayer(current);
         if (chosen != null && e.getNewAboutToBeSetTarget() != chosen) e.setNewAboutToBeSetTarget(chosen);
+    }
+
+    /** Враги рядом забывают игрока (невидимость, дым, ослепление): угроза снята, цель сброшена. */
+    public static void forget(ServerPlayer p, double radius) {
+        if (!(p.level() instanceof ServerLevel level)) return;
+        for (Mob mob : level.getEntitiesOfClass(Mob.class, p.getBoundingBox().inflate(radius))) {
+            if (!mob.hasData(ModAttachments.THREAT)) continue;
+            table(mob).remove(p.getUUID());
+            if (mob.getTarget() == p) {
+                retarget(mob, null);
+                broadcast(mob);
+            }
+        }
     }
 
     /** Всем рядом — кого бьёт этот враг (для значка над головой и рамки цели). */

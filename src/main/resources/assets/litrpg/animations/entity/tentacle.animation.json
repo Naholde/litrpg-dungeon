@@ -1,0 +1,74 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.tentacle.idle": {
+   "loop": true,
+   "animation_length": 2.2,
+   "bones": {
+    "mid": {
+     "rotation": {
+      "0": [
+       6,
+       0,
+       4
+      ],
+      "1.1": [
+       -6,
+       0,
+       -4
+      ],
+      "2.2": [
+       6,
+       0,
+       4
+      ]
+     }
+    },
+    "tip": {
+     "rotation": {
+      "0": [
+       -8,
+       0,
+       0
+      ],
+      "1.1": [
+       10,
+       0,
+       0
+      ],
+      "2.2": [
+       -8,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.tentacle.walk": {
+   "loop": true,
+   "animation_length": 2.2,
+   "bones": {}
+  },
+  "animation.tentacle.death": {
+   "animation_length": 0.5,
+   "hold_on_last_frame": true,
+   "bones": {
+    "root": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.5": [
+       0,
+       0,
+       75
+      ]
+     }
+    }
+   }
+  }
+ }
+}

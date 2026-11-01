@@ -136,8 +136,11 @@ public final class SkillContext {
 
     // ------------------------------------------------------------------ кто свой, кто враг
 
+    /** Враг — не игрок и не наш объект/помощник: по тотемам и двойникам свои навыки по площади не бьют. */
     public boolean isEnemy(LivingEntity e) {
-        return e != caster && !(e instanceof Player) && e.isAlive() && !e.isSpectator();
+        return e != caster && !(e instanceof Player) && e.isAlive() && !e.isSpectator()
+                && !(e instanceof com.andrey.litrpg.skill.prop.ClassProp)
+                && !(e instanceof com.andrey.litrpg.skill.prop.SummonEntity);
     }
 
     public boolean isAlly(LivingEntity e) {
@@ -153,6 +156,145 @@ public final class SkillContext {
     public List<LivingEntity> alliesAround(Vec3 center, double radius) {
         return level.getEntitiesOfClass(LivingEntity.class, new AABB(center, center).inflate(radius),
                 e -> isAlly(e) && e.position().distanceToSqr(center) <= radius * radius);
+    }
+
+    // ------------------------------------------------------------------ метки-счётчики
+
+    /** Добавить слой метки (горение, обморожение, статика, зараза) на {@code secondsKey}; вернуть, сколько стало. */
+    public int addStack(LivingEntity e, StatusType type, String secondsKey, int max) {
+        return StatusService.addStack(e, type, skill.id, caster.getUUID(), ticks(secondsKey), max);
+    }
+
+    public int stacks(LivingEntity e, StatusType type) {
+        return StatusService.stacks(e, type);
+    }
+
+    // ------------------------------------------------------------------ ресурс класса
+
+    /** Дать ресурс класса (стекло зерцала, пакт чернокнижника, сферы астроманта). */
+    public void gain(double amount) {
+        SkillService.add(caster, amount);
+    }
+
+    // ------------------------------------------------------------------ движение целей и своё
+
+    /** Тянуть к точке: сила 1 — как рывок. Хранителей с места не сдвинуть. */
+    public void pull(LivingEntity e, Vec3 to, double strength) {
+        if (com.andrey.litrpg.combat.DamageService.isBoss(e)) return;
+        Vec3 v = to.subtract(e.position());
+        double d = v.horizontalDistance();
+        if (d < 0.1) return;
+        Vec3 dir = v.multiply(1, 0, 1).normalize().scale(Math.min(1.6, 0.25 + d * 0.08) * strength);
+        e.setDeltaMovement(dir.x, Math.max(e.getDeltaMovement().y, 0.12), dir.z);
+        e.hurtMarked = true;
+    }
+
+    /** Отбросить от точки. */
+    public void push(LivingEntity e, Vec3 from, double strength) {
+        if (com.andrey.litrpg.combat.DamageService.isBoss(e)) return;
+        Vec3 v = e.position().subtract(from).multiply(1, 0, 1);
+        Vec3 dir = (v.lengthSqr() < 0.01 ? caster.getViewVector(1).multiply(1, 0, 1) : v).normalize().scale(strength);
+        e.setDeltaMovement(dir.x, 0.35, dir.z);
+        e.hurtMarked = true;
+    }
+
+    /** Подбросить вверх. */
+    public void toss(LivingEntity e, double up) {
+        if (com.andrey.litrpg.combat.DamageService.isBoss(e)) return;
+        e.setDeltaMovement(e.getDeltaMovement().x, up, e.getDeltaMovement().z);
+        e.hurtMarked = true;
+    }
+
+    /** Перенести заклинателя (телепорт с эффектом). */
+    public void teleport(Vec3 to) {
+        Vec3 from = caster.position();
+        caster.teleportTo(to.x, to.y, to.z);
+        com.andrey.litrpg.fx.Fx.beam(level, from.add(0, 1, 0), to.add(0, 1, 0), 0.5f, 8, skill.color);
+    }
+
+    /** Точка за спиной цели (для телепорта в спину): на {@code dist} блоков позади её взгляда. */
+    public Vec3 behind(LivingEntity target, double dist) {
+        Vec3 back = target.getViewVector(1).multiply(1, 0, 1).normalize().scale(-dist);
+        Vec3 at = target.position().add(back);
+        return new Vec3(at.x, target.position().y, at.z);
+    }
+
+    /** Бьём ли со спины: угол между взглядом цели и направлением на нас больше 100°. */
+    public boolean fromBehind(LivingEntity target) {
+        Vec3 look = target.getViewVector(1).multiply(1, 0, 1).normalize();
+        Vec3 to = caster.position().subtract(target.position()).multiply(1, 0, 1);
+        return to.lengthSqr() > 0.01 && to.normalize().dot(look) < -0.17;
+    }
+
+    // ------------------------------------------------------------------ объекты класса и помощники
+
+    /** Поставить объект класса: здоровье — доля единицы силы, радиус и срок — параметры навыка. */
+    public com.andrey.litrpg.skill.prop.ClassProp prop(com.andrey.litrpg.skill.prop.PropKind kind, Vec3 at,
+                                                       String hpKey, double radius, String secondsKey) {
+        return com.andrey.litrpg.skill.prop.ClassProp.spawn(level,
+                com.andrey.litrpg.skill.prop.ModProps.type(kind), at, caster,
+                v(hpKey) * unit(), radius, ticks(secondsKey));
+    }
+
+    /** Свои объекты этого вида рядом (чтобы навык работал по уже поставленным). */
+    public java.util.List<com.andrey.litrpg.skill.prop.ClassProp> myProps(com.andrey.litrpg.skill.prop.PropKind kind,
+                                                                          double radius) {
+        Vec3 c = caster.position();
+        return level.getEntitiesOfClass(com.andrey.litrpg.skill.prop.ClassProp.class,
+                new AABB(c, c).inflate(radius),
+                p -> p.isAlive() && caster.getUUID().equals(p.ownerId()) && (kind == null || p.kind() == kind));
+    }
+
+    /** Призвать помощника: урон и здоровье считаются сейчас, от силы навыков хозяина. */
+    public com.andrey.litrpg.skill.prop.SummonEntity summon(com.andrey.litrpg.skill.prop.SummonKind kind, Vec3 at,
+                                                            String hpKey, String damageKey, String secondsKey) {
+        return com.andrey.litrpg.skill.prop.SummonEntity.spawn(level,
+                com.andrey.litrpg.skill.prop.ModProps.type(kind), at, caster,
+                v(hpKey) * unit(), precomputed(damageKey), ticks(secondsKey));
+    }
+
+    /** Свои помощники рядом. */
+    public java.util.List<com.andrey.litrpg.skill.prop.SummonEntity> mySummons(double radius) {
+        Vec3 c = caster.position();
+        return level.getEntitiesOfClass(com.andrey.litrpg.skill.prop.SummonEntity.class, new AABB(c, c).inflate(radius),
+                s -> s.isAlive() && s.ownerPlayer() == caster);
+    }
+
+    // ------------------------------------------------------------------ угроза
+
+    /** Добавить угрозы (навыки защиты и приманки). */
+    public void threat(LivingEntity e, double raw) {
+        if (e instanceof net.minecraft.world.entity.Mob m) {
+            com.andrey.litrpg.combat.threat.ThreatService.add(m, caster, raw);
+        }
+    }
+
+    /** Враги рядом теряют заклинателя из виду (невидимость, дым, тьма). */
+    public void forgetMe(double radius) {
+        com.andrey.litrpg.combat.threat.ThreatService.forget(caster, radius);
+    }
+
+    /** Перевести врагов на приманку — объект или помощника. */
+    public void decoy(LivingEntity enemy, LivingEntity decoy, String secondsKey) {
+        if (enemy instanceof net.minecraft.world.entity.Mob m) {
+            com.andrey.litrpg.combat.threat.ThreatService.decoy(m, decoy, ticks(secondsKey));
+        }
+    }
+
+    // ------------------------------------------------------------------ отложенные действия и звук
+
+    /** Сделать через {@code ticks} тиков (отложенный удар, мина, приговор). */
+    public void later(int ticks, Runnable action) {
+        Later.run(level, ticks, action);
+    }
+
+    public void sound(net.minecraft.sounds.SoundEvent s, float volume, float pitch) {
+        level.playSound(null, caster.blockPosition(), s, net.minecraft.sounds.SoundSource.PLAYERS, volume, pitch);
+    }
+
+    public void soundAt(Vec3 at, net.minecraft.sounds.SoundEvent s, float volume, float pitch) {
+        level.playSound(null, net.minecraft.core.BlockPos.containing(at), s, net.minecraft.sounds.SoundSource.PLAYERS,
+                volume, pitch);
     }
 
     /** Враги в секторе перед заклинателем. */
