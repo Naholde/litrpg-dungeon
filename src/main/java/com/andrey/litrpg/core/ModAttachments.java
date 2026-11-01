@@ -1,6 +1,7 @@
 package com.andrey.litrpg.core;
 
 import com.andrey.litrpg.LitRPG;
+import com.andrey.litrpg.combat.threat.ThreatTable;
 import com.andrey.litrpg.player.PlayerData;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -16,6 +17,10 @@ public final class ModAttachments {
 
     public static final Supplier<AttachmentType<PlayerData>> PLAYER = REG.register("player",
             () -> AttachmentType.serializable(PlayerData::new).copyOnDeath().build());
+
+    /** Таблица угрозы врага — не сохраняется: после перезапуска бой начинается заново. */
+    public static final Supplier<AttachmentType<ThreatTable>> THREAT = REG.register("threat",
+            () -> AttachmentType.builder(ThreatTable::new).build());
 
     private ModAttachments() {
     }

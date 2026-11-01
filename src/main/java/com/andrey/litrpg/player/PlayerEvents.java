@@ -4,6 +4,7 @@ import com.andrey.litrpg.core.balance.Balance;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -25,6 +26,10 @@ public final class PlayerEvents {
         game.addListener((ServerStartedEvent e) -> {
             // Здоровье восстанавливается только вне боя (своё правило) и от лечения — не от сытости.
             e.getServer().getGameRules().getRule(GameRules.RULE_NATURAL_REGENERATION).set(false, e.getServer());
+            // Ванильная сложность «Тяжело» сама умножает урон мобов ×1,5 и ломает «доли здоровья» хранителей.
+            // Сложность игры задана своими цифрами, а ванильная закреплена на «Нормально» (без множителя).
+            e.getServer().setDifficulty(Difficulty.NORMAL, true);
+            e.getServer().setDifficultyLocked(true);
         });
         game.addListener(PlayerEvents::onTick);
         game.addListener(PlayerEvents::onDamage);
@@ -44,6 +49,8 @@ public final class PlayerEvents {
         // Голода нет: еда всегда полная (бег разрешён), но сытость не лечит — правило мира выше.
         p.getFoodData().setFoodLevel(20);
         p.getFoodData().setSaturation(0);
+        var inv = p.getInventory();
+        for (int i = 0; i < inv.getContainerSize(); i++) com.andrey.litrpg.combat.StarterKit.unbreakable(inv.getItem(i));
         if (!PlayerService.inCombat(p) && p.getHealth() < p.getMaxHealth()) {
             double rate = Balance.get(Balance.CHARACTER).regen().outOfCombatPerSecond();
             p.setHealth((float) Math.min(p.getMaxHealth(), p.getHealth() + p.getMaxHealth() * rate));

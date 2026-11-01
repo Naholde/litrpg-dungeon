@@ -16,7 +16,7 @@ import java.nio.file.Path;
 
 /**
  * Клиентская часть dev-файлов: {@code dev_screenshot.txt} с именем → снимок экрана в {@code screenshots/<имя>.png};
- * {@code dev_open.txt}: {@code character [вкладка]}, {@code role}, {@code close} — открыть/закрыть окно.
+ * {@code dev_open.txt}: {@code character [вкладка]}, {@code role [роль]}, {@code close}, {@code respawn} — открыть/закрыть окно.
  */
 @EventBusSubscriber(modid = LitRPG.MOD_ID, value = Dist.CLIENT)
 public final class DevClientFiles {
@@ -61,6 +61,10 @@ public final class DevClientFiles {
                     ? new com.andrey.litrpg.client.screen.RoleScreen(com.andrey.litrpg.player.Role.byId(cmd[1]))
                     : new com.andrey.litrpg.client.screen.RoleScreen());
             case "close" -> mc.setScreen(null);
+            case "respawn" -> {
+                mc.player.respawn();
+                mc.setScreen(null);
+            }
             default -> LitRPG.LOG.warn("[LitRPG] dev: неизвестное окно {}", cmd[0]);
         }
     }

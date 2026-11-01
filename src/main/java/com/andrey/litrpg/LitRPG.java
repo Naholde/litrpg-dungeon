@@ -1,7 +1,10 @@
 package com.andrey.litrpg;
 
 import com.andrey.litrpg.core.LitrpgCommand;
+import com.andrey.litrpg.combat.CombatEvents;
 import com.andrey.litrpg.core.ModAttachments;
+import com.andrey.litrpg.core.ModEntities;
+import com.andrey.litrpg.core.ModItems;
 import com.andrey.litrpg.core.balance.Balance;
 import com.andrey.litrpg.core.balance.BalanceLoader;
 import com.andrey.litrpg.dev.DevFiles;
@@ -27,6 +30,8 @@ public final class LitRPG {
     public LitRPG(IEventBus modBus, ModContainer container) {
         Balance.bootstrap();
         ModAttachments.register(modBus);
+        ModItems.register(modBus);
+        ModEntities.register(modBus);
         modBus.addListener(ModNetwork::register);
 
         IEventBus game = NeoForge.EVENT_BUS;
@@ -34,6 +39,7 @@ public final class LitRPG {
         game.addListener((OnDatapackSyncEvent e) -> ModNetwork.syncBalance(e));
         game.addListener((RegisterCommandsEvent e) -> LitrpgCommand.register(e.getDispatcher()));
         PlayerEvents.register(modBus, game);
+        CombatEvents.register(game);
         DevFiles.register(game);
 
         LOG.info("[LitRPG] Мод загружен, версия {}", container.getModInfo().getVersion());

@@ -1,5 +1,13 @@
 {
   "litrpg.mod_name": "LitRPG: Подземелье Системы",
   "key.categories.litrpg": "LitRPG",
-  "key.litrpg.character": "Окно персонажа"
+  "key.litrpg.character": "Окно персонажа",
+  "item.litrpg.apprentice_staff": "Посох ученика",
+  "entity.litrpg.magic_bolt": "Магический снаряд",
+  "entity.litrpg.training_dummy": "Боевой манекен",
+  "key.litrpg.party_target_1": "Цель лечения: участник 1",
+  "key.litrpg.party_target_2": "Цель лечения: участник 2",
+  "key.litrpg.party_target_3": "Цель лечения: участник 3",
+  "key.litrpg.party_target_4": "Цель лечения: участник 4",
+  "key.litrpg.party_target_5": "Цель лечения: участник 5"
 }

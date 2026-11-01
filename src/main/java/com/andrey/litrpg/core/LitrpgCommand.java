@@ -4,6 +4,7 @@ import com.andrey.litrpg.core.balance.Balance;
 import com.andrey.litrpg.core.balance.BalanceKey;
 import com.andrey.litrpg.net.Protocol;
 import com.mojang.brigadier.CommandDispatcher;
+import com.andrey.litrpg.combat.CombatCommands;
 import com.andrey.litrpg.player.PlayerCommands;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -32,6 +33,7 @@ public final class LitrpgCommand {
                                         Balance.keys().stream().map(BalanceKey::name), b))
                                 .executes(c -> showSection(c.getSource(), StringArgumentType.getString(c, "section")))));
         PlayerCommands.addTo(root);
+        CombatCommands.addTo(root);
         d.register(root);
     }
 

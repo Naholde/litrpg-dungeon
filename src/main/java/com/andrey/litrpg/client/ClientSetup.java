@@ -7,7 +7,18 @@ import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import com.andrey.litrpg.client.fx.ClientAggro;
+import com.andrey.litrpg.client.fx.ClientPopups;
+import com.andrey.litrpg.client.render.MagicBoltRenderer;
+import com.andrey.litrpg.client.render.TrainingDummyRenderer;
+import com.andrey.litrpg.combat.item.StaffItem;
+import com.andrey.litrpg.core.ModEntities;
+import com.andrey.litrpg.net.StaffCastPayload;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
@@ -26,6 +37,13 @@ public final class ClientSetup {
         @SubscribeEvent
         public static void keys(RegisterKeyMappingsEvent e) {
             e.register(KeyBinds.CHARACTER);
+            for (var k : KeyBinds.PARTY_TARGET) e.register(k);
+        }
+
+        @SubscribeEvent
+        public static void renderers(EntityRenderersEvent.RegisterRenderers e) {
+            e.registerEntityRenderer(ModEntities.MAGIC_BOLT.get(), MagicBoltRenderer::new);
+            e.registerEntityRenderer(ModEntities.TRAINING_DUMMY.get(), TrainingDummyRenderer::new);
         }
 
         @SubscribeEvent
@@ -51,6 +69,9 @@ public final class ClientSetup {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null) return;
             boolean needRole = ClientPlayerData.received() && !ClientPlayerData.role().chosen();
+            for (int i = 0; i < KeyBinds.PARTY_TARGET.length; i++) {
+                while (KeyBinds.PARTY_TARGET[i].consumeClick()) ClientParty.toggle(i);
+            }
             while (KeyBinds.CHARACTER.consumeClick()) {
                 if (mc.screen == null) mc.setScreen(needRole ? new RoleScreen() : new CharacterScreen());
             }
@@ -77,9 +98,34 @@ public final class ClientSetup {
             }
         }
 
+        /** Посох: ЛКМ — снаряд вместо удара. Откат проверяет и клиент (не слать лишнего), и сервер. */
+        @SubscribeEvent
+        public static void attack(InputEvent.InteractionKeyMappingTriggered e) {
+            Minecraft mc = Minecraft.getInstance();
+            if (!e.isAttack() || mc.player == null) return;
+            if (mc.player.getMainHandItem().getItem() instanceof StaffItem staff) {
+                e.setCanceled(true);
+                e.setSwingHand(false);
+                if (!mc.player.getCooldowns().isOnCooldown(staff)) PacketDistributor.sendToServer(StaffCastPayload.INSTANCE);
+            }
+        }
+
+        @SubscribeEvent
+        public static void world(RenderLevelStageEvent e) {
+            if (e.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+            var buf = Minecraft.getInstance().renderBuffers().bufferSource();
+            float partial = e.getPartialTick().getGameTimeDeltaPartialTick(true);
+            ClientAggro.renderWorld(e.getPoseStack(), buf, e.getCamera(), partial);
+            ClientPopups.renderWorld(e.getPoseStack(), buf, e.getCamera(), partial);
+            buf.endBatch();
+        }
+
         @SubscribeEvent
         public static void loggedOut(ClientPlayerNetworkEvent.LoggingOut e) {
             ClientPlayerData.reset();
+            ClientParty.reset();
+            ClientAggro.clear();
+            ClientPopups.clear();
         }
     }
 }

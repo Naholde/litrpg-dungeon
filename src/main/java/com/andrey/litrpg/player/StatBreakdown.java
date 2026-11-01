@@ -92,6 +92,9 @@ public final class StatBreakdown {
         b.putDerived(Derived.WEAPON_POWER, List.of(
                 new Line("Сила " + Derived.trim(str) + " × " + pct(cb.power().weaponPerStrength()),
                         str * cb.power().weaponPerStrength())));
+        b.putDerived(Derived.RANGED_POWER, List.of(
+                new Line("Ловкость " + Derived.trim(agi) + " × " + pct(cb.power().rangedPerAgility()),
+                        agi * cb.power().rangedPerAgility())));
         List<Line> sp = new ArrayList<>();
         sp.add(new Line("Интеллект " + Derived.trim(intel) + " × " + pct(cb.power().skillPerIntellect()),
                 intel * cb.power().skillPerIntellect()));

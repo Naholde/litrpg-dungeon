@@ -19,9 +19,10 @@ public record CharacterBalance(double baseStat, Health health, Power power, Crit
         ).apply(i, Health::new));
     }
 
-    public record Power(double weaponPerStrength, double skillPerIntellect) {
+    public record Power(double weaponPerStrength, double rangedPerAgility, double skillPerIntellect) {
         static final Codec<Power> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("weapon_per_strength").forGetter(Power::weaponPerStrength),
+                Codec.DOUBLE.fieldOf("ranged_per_agility").forGetter(Power::rangedPerAgility),
                 Codec.DOUBLE.fieldOf("skill_per_intellect").forGetter(Power::skillPerIntellect)
         ).apply(i, Power::new));
     }
@@ -78,7 +79,7 @@ public record CharacterBalance(double baseStat, Health health, Power power, Crit
 
     public static final CharacterBalance DEFAULT = new CharacterBalance(5,
             new Health(100, 18, 4),
-            new Power(0.01, 0.01),
+            new Power(0.01, 0.01, 0.01),
             new Crit(0.05, 0.001, 0.0015, 0.6, 1.5, 0.002),
             new Defense(0.0008, 0.3, 0.0005, 0.6),
             new Utility(0.01, 0.001, 0.3, 0.0005, 0.25, 0.01),

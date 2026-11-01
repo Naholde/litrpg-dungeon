@@ -19,7 +19,10 @@
 - Игровые тесты: `./gradlew.bat runGameTestServer` (то же делает GitHub Actions после push).
 - Dev-клиент: `bash tools/dev/prepare_run.sh` один раз, затем `./gradlew.bat runClient -Pquickplay=<мир>` или `-Pjoin=109.248.163.212:25565`.
 - Перед новым запуском — убить java-процессы с `litrpg-dungeon` в командной строке.
-- Python 3.10 без PIL.
+- Python 3.10 без PIL. Текстуры — `python tools/gen_textures.py [--preview build/preview]` (не править png руками).
+- Ванильная сложность закреплена на «Нормально»: на «Тяжело» мобы бьют ×1,5 мимо наших формул.
+- GameTest: мок-игрок в творческом режиме и 3 с неуязвим после входа — `setGameMode(SURVIVAL)` и `runAfterDelay(70)`;
+  PvP на тестовом сервере выключен — `setPvpAllowed(true)`.
 
 ## Сервер (VPS hostvds, Ubuntu 24.04, 8 ядер, 16 ГБ, Москва-время)
 - `ssh -i ~/.ssh/litrpg_vps root@109.248.163.212` — только по ключу, пароль отключён; ufw: открыты 22 и 25565.
@@ -46,7 +49,10 @@
 - `net/` — `Protocol` (версия и список пакетов), `ModNetwork`, пакеты. `dev/` — `DevFiles`. `client/` — `DevClientFiles`.
 - `player/` — `PlayerData`, `PlayerService` (все изменения персонажа только через него), `PlayerEvents`, `StatBreakdown`
   (один расчёт для боя и окна), `Derived`, `Stat`, `Role`, `RoleInfo`, `Leveling`, `PlayerCommands`.
-- `client/` — `HudOverlay`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
+- `combat/` — `DamageService` (конвейер урона), `DamageMath`, `WeaponKind`, `HealService`, `Popups`, `StarterKit`,
+  `threat/` (`ThreatTable`, `ThreatService`), `item/StaffItem`, `entity/` (`MagicBolt`, `TrainingDummy`), `CombatCommands`.
+- `party/` — `Party`, `PartyService`. `core/` — `ModItems`, `ModEntities`, `ModTags`, `ModAttachments`, `SystemChat`.
+- `client/` — `HudOverlay`, `fx/` (`ClientPopups`, `ClientAggro`, `WorldText`), `render/`, `ClientParty`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).
 
 ## Dev-проверка без человека

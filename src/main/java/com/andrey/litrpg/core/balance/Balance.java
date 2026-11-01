@@ -28,6 +28,7 @@ public final class Balance {
     public static final BalanceKey<Progression> PROGRESSION = register("progression", Progression.CODEC, Progression.DEFAULT);
     public static final BalanceKey<CharacterBalance> CHARACTER = register("character", CharacterBalance.CODEC, CharacterBalance.DEFAULT);
     public static final BalanceKey<RolesBalance> ROLES = register("roles", RolesBalance.CODEC, RolesBalance.DEFAULT);
+    public static final BalanceKey<CombatBalance> COMBAT = register("combat", CombatBalance.CODEC, CombatBalance.DEFAULT);
 
     private Balance() {
     }

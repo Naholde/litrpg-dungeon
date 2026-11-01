@@ -23,6 +23,8 @@ import java.util.List;
  */
 public final class CharacterScreen extends Screen {
     private static final int W = 310, H = 226;
+    /** Высота строки списка «Расчёта»: 20 строк должны влезть в окно. */
+    private static final int ROW = 9;
     private enum Tab { STATUS, SKILLS, BREAKDOWN }
 
     private static Tab lastTab = Tab.STATUS;
@@ -190,16 +192,16 @@ public final class CharacterScreen extends Screen {
         int y = top + 44;
         Derived hovered = null;
         for (Derived d : Derived.values()) {
-            boolean hover = UiKit.inside(mx, my, rx - 2, y - 1, rw + 4, 11);
+            boolean hover = UiKit.inside(mx, my, rx - 2, y - 1, rw + 4, 10);
             if (hover) {
-                g.fill(rx - 2, y - 1, rx + rw + 2, y + 10, 0x203FB6FF);
+                g.fill(rx - 2, y - 1, rx + rw + 2, y + 9, 0x203FB6FF);
                 hovered = d;
             }
             UiKit.text(g, font, d.title, rx, y, UiKit.MUTED);
             double v = now.get(d), nv = next.get(d);
             boolean changed = Math.abs(nv - v) > 1e-9;
             UiKit.textRight(g, font, d.format(changed ? nv : v), rx + rw, y, changed ? UiKit.GOOD : UiKit.TEXT);
-            y += 12;
+            y += 11;
         }
         if (hovered != null) {
             g.renderTooltip(font, List.of(Component.literal(hovered.title).withColor(UiKit.FRAME_BRIGHT & 0xFFFFFF),
@@ -235,11 +237,11 @@ public final class CharacterScreen extends Screen {
         int lx = left + 8, lw = 118, y = top + 30;
         int rows = Stat.ALL.length + Derived.values().length;
         for (int i = 0; i < rows; i++) {
-            int ry = y + i * 10;
+            int ry = y + i * ROW;
             boolean sel = i == selected;
-            boolean hover = UiKit.inside(mx, my, lx, ry - 1, lw, 10);
-            if (sel) g.fill(lx, ry - 1, lx + lw, ry + 9, 0x503FB6FF);
-            else if (hover) g.fill(lx, ry - 1, lx + lw, ry + 9, 0x203FB6FF);
+            boolean hover = UiKit.inside(mx, my, lx, ry - 1, lw, ROW);
+            if (sel) g.fill(lx, ry - 1, lx + lw, ry + ROW - 1, 0x503FB6FF);
+            else if (hover) g.fill(lx, ry - 1, lx + lw, ry + ROW - 1, 0x203FB6FF);
             String t = i < Stat.ALL.length ? Stat.ALL[i].title : Derived.values()[i - Stat.ALL.length].title;
             UiKit.text(g, font, t, lx + 3, ry, sel ? 0xFFFFFFFF : i < Stat.ALL.length ? UiKit.GOLD : UiKit.TEXT);
         }
@@ -291,7 +293,7 @@ public final class CharacterScreen extends Screen {
         if (tab == Tab.BREAKDOWN) {
             int rows = Stat.ALL.length + Derived.values().length;
             for (int i = 0; i < rows; i++) {
-                if (UiKit.inside(mx, my, left + 8, top + 30 + i * 10 - 1, 118, 10)) {
+                if (UiKit.inside(mx, my, left + 8, top + 30 + i * ROW - 1, 118, ROW)) {
                     selected = i;
                     return true;
                 }

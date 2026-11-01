@@ -115,6 +115,7 @@ public final class PlayerService {
         PlayerData d = data(player);
         if (d.role.chosen() || !role.chosen()) return false;
         setRole(player, role);
+        com.andrey.litrpg.combat.StarterKit.give(player, role);
         SystemChat.send(player, Component.literal("Роль принята: ").append(
                 Component.literal(role.title).withColor(role.color & 0xFFFFFF)));
         SystemChat.title(player, Component.literal(role.title).withColor(role.color & 0xFFFFFF),

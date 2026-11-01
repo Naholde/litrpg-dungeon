@@ -16,6 +16,11 @@ public final class ModNetwork {
         r.playToClient(PlayerSyncPayload.TYPE, PlayerSyncPayload.STREAM_CODEC, PlayerSyncPayload::handle);
         r.playToServer(ChooseRolePayload.TYPE, ChooseRolePayload.STREAM_CODEC, ChooseRolePayload::handle);
         r.playToServer(AllocateStatsPayload.TYPE, AllocateStatsPayload.STREAM_CODEC, AllocateStatsPayload::handle);
+        r.playToClient(PopupPayload.TYPE, PopupPayload.STREAM_CODEC, PopupPayload::handle);
+        r.playToClient(MobTargetPayload.TYPE, MobTargetPayload.STREAM_CODEC, MobTargetPayload::handle);
+        r.playToClient(PartySyncPayload.TYPE, PartySyncPayload.STREAM_CODEC, PartySyncPayload::handle);
+        r.playToServer(SelectTargetPayload.TYPE, SelectTargetPayload.STREAM_CODEC, SelectTargetPayload::handle);
+        r.playToServer(StaffCastPayload.TYPE, StaffCastPayload.STREAM_CODEC, StaffCastPayload::handle);
     }
 
     /** При входе игрока и после {@code /reload} — разослать баланс. */

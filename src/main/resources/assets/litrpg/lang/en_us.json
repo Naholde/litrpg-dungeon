@@ -1,5 +1,13 @@
 {
   "litrpg.mod_name": "LitRPG: Dungeon of the System",
   "key.categories.litrpg": "LitRPG",
-  "key.litrpg.character": "Character window"
+  "key.litrpg.character": "Character window",
+  "item.litrpg.apprentice_staff": "Apprentice Staff",
+  "entity.litrpg.magic_bolt": "Magic Bolt",
+  "entity.litrpg.training_dummy": "Training Dummy",
+  "key.litrpg.party_target_1": "Heal target: member 1",
+  "key.litrpg.party_target_2": "Heal target: member 2",
+  "key.litrpg.party_target_3": "Heal target: member 3",
+  "key.litrpg.party_target_4": "Heal target: member 4",
+  "key.litrpg.party_target_5": "Heal target: member 5"
 }
