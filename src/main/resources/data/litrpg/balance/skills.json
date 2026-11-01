@@ -200,11 +200,12 @@
       "haste": 0.25
     },
     "chrono.loop": {
-      "cooldown": 60.0,
+      "cooldown": 70.0,
       "cast": 0.0,
-      "range": 25.0,
-      "duration": 10.0,
-      "back": 0.6
+      "radius": 25.0,
+      "threshold": 0.2,
+      "back": 5.0,
+      "least": 0.5
     },
     "chrono.replay": {
       "cooldown": 150.0,
@@ -550,6 +551,7 @@
       "radius": 7.0,
       "hp": 4.0,
       "reduce": 0.15,
+      "speed": 0.18,
       "duration": 14.0
     },
     "shaman.totem_heal": {

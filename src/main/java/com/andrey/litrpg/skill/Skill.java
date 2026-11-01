@@ -97,6 +97,22 @@ public abstract class Skill {
         return true;
     }
 
+    /**
+     * Пассивный навык: с панели не применяется, работает сам. Занимает ячейку, виден в окне и в Кодексе,
+     * и у него есть своя перезарядка — она начинает идти, когда навык сработал.
+     */
+    public boolean passive() {
+        return false;
+    }
+
+    /**
+     * Проверка пассивного навыка (раз в полсекунды, пока он не в перезарядке).
+     * Вернуть {@code true}, если навык сработал — тогда он уйдёт в перезарядку.
+     */
+    public boolean passiveTick(SkillContext ctx) {
+        return false;
+    }
+
     /** Дальность для цели/точки (блоков). */
     public double range(int rank) {
         return params.containsKey("range") ? value("range", rank) : 4;

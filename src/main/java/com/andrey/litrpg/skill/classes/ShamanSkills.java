@@ -162,6 +162,7 @@ public final class ShamanSkills {
             blocks("radius", 7);
             shield("hp", 4.0);
             percent("reduce", 0.15);
+            percent("speed", 0.18);
             seconds("duration", 14);
         }
 
@@ -172,18 +173,22 @@ public final class ShamanSkills {
 
         @Override
         public String template() {
-            return "Тотем с {hp} здоровья на {duration}: союзники в {radius} получают на {reduce} меньше урона. "
-                    + "Сломали тотем — бафф пропал.";
+            return "Тотем с {hp} здоровья на {duration}: союзники в {radius} получают на {reduce} меньше урона "
+                    + "и бегут на {speed} быстрее. Сломали тотем — и защита, и скорость пропали.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
             double factor = 1 - Math.min(0.9, ctx.v("reduce"));
+            double speed = ctx.v("speed");
             var totem = ctx.prop(PropKind.TOTEM_EARTH, ctx.point, "hp", ctx.v("radius"), "duration");
             totem.onPulse(10, p -> {
+                long now = levelOf(p, ctx).getGameTime();
                 for (LivingEntity a : ctx.alliesAround(p.position(), p.radius())) {
                     StatusService.apply(a, Status.of(StatusType.DAMAGE_TAKEN, "shaman.totem_earth",
-                            ctx.caster.getUUID(), factor, levelOf(p, ctx).getGameTime(), 14));
+                            ctx.caster.getUUID(), factor, now, 14));
+                    StatusService.apply(a, Status.of(StatusType.SPEED, "shaman.totem_earth",
+                            ctx.caster.getUUID(), speed, now, 14));
                 }
             });
             ctx.soundAt(ctx.point, SoundEvents.STONE_PLACE, 1.1f, 0.8f);

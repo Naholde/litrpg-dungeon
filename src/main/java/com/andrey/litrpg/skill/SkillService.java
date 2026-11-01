@@ -64,6 +64,10 @@ public final class SkillService {
         Skill skill = loadout.get(slot);
         SkillState st = state(p);
         long now = p.level().getGameTime();
+        if (skill.passive()) {
+            long left = Math.max(0, st.readyAt(skill.id) - now);
+            return fail(p, skill.name + ": пассивный навык" + (left > 0 ? " · готов через " + secs(left) : " · наготове"));
+        }
         if (StatusService.has(p, StatusType.STUN)) return fail(p, "Вы оглушены");
         if (StatusService.has(p, StatusType.SILENCE)) return fail(p, "Немота — навыки недоступны");
         if (st.casting != null) {
@@ -214,6 +218,7 @@ public final class SkillService {
             r.run();
         }
         tickResource(p, st, now);
+        if (now % 10 == 0) tickPassives(p, st, now);
         if (st.dirty || (now % 10 == 0 && anyTimer(st, now))) sync(p);
     }
 
@@ -245,6 +250,23 @@ public final class SkillService {
             return;
         }
         finish(p, c.skill(), rank, target, c.point());
+    }
+
+    /**
+     * Пассивные навыки класса: раз в полсекунды каждому даётся шанс сработать. Сработал — уходит
+     * в перезарядку, как обычный навык (с ускорением от Интеллекта и меток).
+     */
+    private static void tickPassives(ServerPlayer p, SkillState st, long now) {
+        PlayerData d = PlayerService.data(p);
+        for (Skill s : loadout(d)) {
+            if (!s.passive() || now < st.readyAt(s.id)) continue;
+            int rank = d.rank(s.id);
+            if (!s.passiveTick(new SkillContext(p, s, rank, null, p.position()))) continue;
+            double haste = PlayerService.breakdown(p).get(Derived.HASTE) + StatusService.sum(p, StatusType.HASTE);
+            int cd = SkillMath.cooldownTicks(s.value("cooldown", rank), haste);
+            st.cooldowns.put(s.id, new long[]{now + cd, cd});
+            st.dirty = true;
+        }
     }
 
     /** Сам копящийся ресурс (песок, дыхание) и таяние тех, что тают через 5 с без пополнения. */

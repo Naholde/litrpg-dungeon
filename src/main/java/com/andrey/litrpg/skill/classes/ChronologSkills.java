@@ -14,6 +14,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 
+import java.util.Comparator;
+
 /**
  * Хронолог — поддержка временем. Он не лечит раны, а отменяет их: возвращает союзнику здоровье, которое было
  * пять секунд назад, останавливает врага в стазисе, ускоряет своих и ставит на союзника петлю, которая
@@ -120,46 +122,61 @@ public final class ChronologSkills {
         }
     }
 
-    /** Петля времени: смертельный удар отбрасывает союзника назад по здоровью — один раз. */
+    /**
+     * Петля времени — пассивная: хронолог всё время следит за группой. Кто-то упал ниже порога —
+     * его само́й собой отбрасывает назад по здоровью, и петля закрывается до конца перезарядки.
+     */
     public static final class Loop extends Skill {
         public Loop() {
-            super("chrono.loop", "Петля времени", 0xFFD27A, "∞", 60, 0);
-            blocks("range", 25);
-            seconds("duration", 10);
-            percent("back", 0.6);
+            super("chrono.loop", "Петля времени", 0xFFD27A, "∞", 70, 0);
+            blocks("radius", 25);
+            percent("threshold", 0.2);
+            seconds("back", 5);
+            percent("least", 0.5);
         }
 
         @Override
         public Targeting targeting() {
-            return Targeting.ALLY;
+            return Targeting.SELF;
+        }
+
+        @Override
+        public boolean passive() {
+            return true;
         }
 
         @Override
         public String template() {
-            return "Петля на {duration}: удар, который убил бы союзника, вместо смерти отбрасывает его назад — "
-                    + "у него снова {back} здоровья, и петля закрывается.";
+            return "Работает сама: как только у вас или у союзника в {radius} остаётся меньше {threshold} здоровья, "
+                    + "время для него откатывается на {back} назад — но не ниже {least} его здоровья. "
+                    + "После этого петля закрывается до конца перезарядки.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
-            LivingEntity who = ctx.target != null ? ctx.target : ctx.caster;
-            int dur = ctx.ticks("duration");
-            StatusService.apply(who, Status.of(StatusType.WARD, "chrono.loop", ctx.caster.getUUID(), 1, ctx.now(), dur));
-            Fx.discOn(ctx.level, who, 1.1f, dur, 0xFFD27A, false);
-            Fx.mark(ctx.level, who, "∞", dur, 0xFFD27A);
-            double back = ctx.v("back");
-            boolean[] used = {false};
-            Zones.add(ctx.level, who.position(), 1, ctx.caster.getUUID(), dur, 5, z -> {
-                if (used[0] || !who.isAlive()) return;
-                if (who.getHealth() <= Math.max(1.5f, who.getMaxHealth() * 0.03f)) {
-                    used[0] = true;
-                    StatusService.removeFrom(who, StatusType.WARD, ctx.caster.getUUID());
-                    HealService.healFixed(ctx.caster, who, who.getMaxHealth() * back - who.getHealth());
-                    Fx.pillar(z.level, who.position(), 1.2f, 4.5f, 24, 0xFFD27A);
-                    ctx.soundAt(who.position(), SoundEvents.AMETHYST_BLOCK_RESONATE, 1.2f, 0.6f);
-                }
-            });
-            ctx.soundAt(who.position(), SoundEvents.AMETHYST_CLUSTER_PLACE, 1f, 1.2f);
+            // Пассивный навык: с панели не применяется, вся работа — в passiveTick.
+        }
+
+        @Override
+        public boolean passiveTick(SkillContext ctx) {
+            double threshold = ctx.v("threshold"), least = ctx.v("least"), back = ctx.v("back");
+            LivingEntity worst = ctx.alliesAround(ctx.caster.position(), ctx.v("radius")).stream()
+                    .filter(a -> a.isAlive() && a.getHealth() < a.getMaxHealth() * threshold)
+                    .min(Comparator.comparingDouble(a -> a.getHealth() / a.getMaxHealth())).orElse(null);
+            if (!(worst instanceof ServerPlayer sp)) return false;
+            double want = Math.max(History.healthAgo(sp, back), sp.getMaxHealth() * least);
+            double heal = want - sp.getHealth();
+            if (heal <= 0) return false;
+            HealService.healFixed(ctx.caster, sp, heal);
+            Fx.pillar(ctx.level, sp.position(), 1.2f, 4.5f, 24, 0xFFD27A);
+            Fx.mark(ctx.level, sp, "∞", 30, 0xFFD27A);
+            Fx.beam(ctx.level, ctx.caster, sp, 0.18f, 14, 0xFFD27A);
+            ctx.soundAt(sp.position(), SoundEvents.AMETHYST_BLOCK_RESONATE, 1.2f, 0.6f);
+            String who = sp == ctx.caster ? "вас" : sp.getGameProfile().getName();
+            com.andrey.litrpg.core.SystemChat.send(ctx.caster, net.minecraft.network.chat.Component
+                    .literal("Петля времени отбросила " + who + " назад.")
+                    .withStyle(net.minecraft.ChatFormatting.GOLD));
+            return true;
         }
     }
 

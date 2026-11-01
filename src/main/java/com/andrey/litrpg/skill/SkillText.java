@@ -44,7 +44,7 @@ public final class SkillText {
         out.add(body(s, rank, v));
         double cd = s.value("cooldown", rank), cast = s.value("cast", rank);
         StringBuilder meta = new StringBuilder();
-        meta.append(cast > 0 ? "Чтение " + sec(cast) : "Мгновенно");
+        meta.append(s.passive() ? "Пассивно" : cast > 0 ? "Чтение " + sec(cast) : "Мгновенно");
         if (cd > 0) meta.append(" · перезарядка ").append(sec(cd));
         if (s.params().containsKey("range") && s.targeting() != Targeting.SELF) {
             meta.append(" · до ").append(Derived.trim(s.value("range", rank))).append(" бл.");
