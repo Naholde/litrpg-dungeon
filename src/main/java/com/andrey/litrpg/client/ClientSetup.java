@@ -60,6 +60,11 @@ public final class ClientSetup {
             e.registerEntityRenderer(ModEntities.VESSA.get(), ctx -> GeoRenderers.glowing(ctx, "vessa", 1.35f));
             e.registerEntityRenderer(ModEntities.LICH.get(), ctx -> GeoRenderers.glowing(ctx, "lich", 1.9f));
             e.registerEntityRenderer(ModEntities.ICE_TOMB.get(), ctx -> GeoRenderers.glowing(ctx, "ice_tomb", 1.0f));
+            e.registerEntityRenderer(ModEntities.ARACHNA.get(), ctx -> GeoRenderers.glowing(ctx, "arachna", 3.0f));
+            e.registerEntityRenderer(ModEntities.ROT_ENT.get(), ctx -> GeoRenderers.glowing(ctx, "rot_ent", 2.4f));
+            e.registerEntityRenderer(ModEntities.MORENA.get(), ctx -> GeoRenderers.glowing(ctx, "morena", 1.5f));
+            e.registerEntityRenderer(ModEntities.COCOON.get(), ctx -> GeoRenderers.glowing(ctx, "cocoon", 1.0f));
+            e.registerEntityRenderer(ModEntities.EGG.get(), ctx -> GeoRenderers.glowing(ctx, "egg", 1.0f));
             e.registerEntityRenderer(ModEntities.PHYLACTERY.get(), ctx -> GeoRenderers.glowing(ctx, "phylactery", 1.0f));
             for (var s : com.andrey.litrpg.mob.Bestiary.all()) {
                 e.registerEntityRenderer(com.andrey.litrpg.mob.ModMobs.TYPES.get(s.id()).get(),

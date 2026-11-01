@@ -52,6 +52,29 @@ public final class BossRegistry {
             "dark_units", 0.07, "dark_seconds", 8, "dark_cd", 30, "dark_cast", 2.0,
             "phylactery_hp_units", 5));
 
+    // ---------------------------------------------------------------- Этап 2 · Паучья чаща
+    public static final Type ARACHNA = reg("arachna", "Аракна, Королева пауков", "blud", p(
+            "level", 14, "hp_units", 62, "melee_units", 0.16,
+            "bite_units", 0.85, "poison_units", 0.04, "bite_cd", 9, "bite_cast", 1.4,
+            "web_units", 0.3, "web_cd", 14, "web_cast", 1.8,
+            "cocoon_units", 0.8, "cocoon_seconds", 9, "cocoon_hp_units", 1.1, "cocoon_poison_units", 0.04, "cocoon_cd", 22, "cocoon_cast", 1.2,
+            "eggs_cd", 32, "eggs_cast", 2.0, "egg_hp_units", 0.7, "egg_seconds", 12,
+            "aloft_seconds", 12, "rain_units", 0.35, "drop_units", 1.1));
+
+    public static final Type ROT_ENT = reg("rot_ent", "Гнилой Древень", "jane", p(
+            "level", 17, "hp_units", 70, "melee_units", 0.18,
+            "slam_units", 0.95, "slam_cd", 10, "slam_cast", 1.8,
+            "roots_units", 0.35, "roots_cd", 15, "roots_cast", 2.0,
+            "spore_units", 0.08, "spore_grow", 0.25, "spore_seconds", 26, "spores_cd", 18, "spores_cast", 1.5,
+            "heart_share", 0.1, "heart_cd", 28, "heart_cast", 3.5));
+
+    public static final Type MORENA = reg("morena", "Морена, Ведьма Изнанки", "fear", p(
+            "level", 20, "hp_units", 80, "melee_units", 0.18,
+            "hex_units", 0.55, "hex_cd", 8, "hex_cast", 1.5,
+            "fear_seconds", 7, "fear_cd", 17, "fear_cast", 1.2,
+            "cauldron_units", 0.09, "cauldron_seconds", 20, "cauldron_cd", 16, "cauldron_cast", 1.5,
+            "inside_units", 0.7, "inside_cd", 22, "inside_cast", 2.2));
+
     private BossRegistry() {
     }
 

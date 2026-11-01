@@ -27,6 +27,8 @@ public class MagicBolt extends ThrowableProjectile {
     private static final int LIFETIME = 30;
 
     private double damage;
+    /** Особенность стрелка: что ещё делает попадание (паутина, кислота). Не сохраняется. */
+    public java.util.function.Consumer<LivingEntity> onHit;
 
     public MagicBolt(EntityType<? extends MagicBolt> type, Level level) {
         super(type, level);
@@ -84,6 +86,7 @@ public class MagicBolt extends ThrowableProjectile {
         if (level().isClientSide) return;
         if (hit.getEntity() instanceof LivingEntity target && getOwner() instanceof LivingEntity owner && target != owner) {
             DamageService.deal(owner, this, target, damage, WeaponKind.MAGIC);
+            if (onHit != null && target.isAlive()) onHit.accept(target);
         }
     }
 

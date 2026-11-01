@@ -49,5 +49,16 @@
   "entity.litrpg.vessa": "Весса",
   "entity.litrpg.lich": "Король-лич Карн",
   "entity.litrpg.ice_tomb": "Ледяная гробница",
-  "entity.litrpg.phylactery": "Филактерия"
+  "entity.litrpg.phylactery": "Филактерия",
+  "entity.litrpg.weaver": "Паук-ткач",
+  "entity.litrpg.jumper": "Паук-прыгун",
+  "entity.litrpg.spitter": "Кислотный плевун",
+  "entity.litrpg.wasp": "Оса-трутень",
+  "entity.litrpg.forest_witch": "Лесная ведьма",
+  "entity.litrpg.treant_guard": "Древень-страж",
+  "entity.litrpg.arachna": "Аракна, Королева пауков",
+  "entity.litrpg.rot_ent": "Гнилой Древень",
+  "entity.litrpg.morena": "Морена, Ведьма Изнанки",
+  "entity.litrpg.cocoon": "Кокон",
+  "entity.litrpg.egg": "Кладка"
 }

@@ -13,6 +13,31 @@
     "enrage_mult": 1.3
   },
   "bosses": {
+    "arachna": {
+      "level": 14.0,
+      "hp_units": 62.0,
+      "melee_units": 0.16,
+      "bite_units": 0.85,
+      "poison_units": 0.04,
+      "bite_cd": 9.0,
+      "bite_cast": 1.4,
+      "web_units": 0.3,
+      "web_cd": 14.0,
+      "web_cast": 1.8,
+      "cocoon_units": 0.8,
+      "cocoon_seconds": 9.0,
+      "cocoon_hp_units": 1.1,
+      "cocoon_poison_units": 0.04,
+      "cocoon_cd": 22.0,
+      "cocoon_cast": 1.2,
+      "eggs_cd": 32.0,
+      "eggs_cast": 2.0,
+      "egg_hp_units": 0.7,
+      "egg_seconds": 12.0,
+      "aloft_seconds": 12.0,
+      "rain_units": 0.35,
+      "drop_units": 1.1
+    },
     "gatekeeper": {
       "level": 4.0,
       "hp_units": 38.0,
@@ -52,6 +77,24 @@
       "dark_cast": 2.0,
       "phylactery_hp_units": 5.0
     },
+    "morena": {
+      "level": 20.0,
+      "hp_units": 80.0,
+      "melee_units": 0.18,
+      "hex_units": 0.55,
+      "hex_cd": 8.0,
+      "hex_cast": 1.5,
+      "fear_seconds": 7.0,
+      "fear_cd": 17.0,
+      "fear_cast": 1.2,
+      "cauldron_units": 0.09,
+      "cauldron_seconds": 20.0,
+      "cauldron_cd": 16.0,
+      "cauldron_cast": 1.5,
+      "inside_units": 0.7,
+      "inside_cd": 22.0,
+      "inside_cast": 2.2
+    },
     "morra": {
       "level": 7.0,
       "hp_units": 30.0,
@@ -65,6 +108,25 @@
       "revive_seconds": 12.0,
       "link_cut": 0.5,
       "link_units": 0.06
+    },
+    "rot_ent": {
+      "level": 17.0,
+      "hp_units": 70.0,
+      "melee_units": 0.18,
+      "slam_units": 0.95,
+      "slam_cd": 10.0,
+      "slam_cast": 1.8,
+      "roots_units": 0.35,
+      "roots_cd": 15.0,
+      "roots_cast": 2.0,
+      "spore_units": 0.08,
+      "spore_grow": 0.25,
+      "spore_seconds": 26.0,
+      "spores_cd": 18.0,
+      "spores_cast": 1.5,
+      "heart_share": 0.1,
+      "heart_cd": 28.0,
+      "heart_cast": 3.5
     },
     "trial_warden": {
       "level": 10.0,

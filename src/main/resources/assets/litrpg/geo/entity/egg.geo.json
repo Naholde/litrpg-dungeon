@@ -1,0 +1,72 @@
+{
+ "format_version": "1.12.0",
+ "minecraft:geometry": [
+  {
+   "description": {
+    "identifier": "geometry.egg",
+    "texture_width": 128,
+    "texture_height": 128,
+    "visible_bounds_width": 6,
+    "visible_bounds_height": 6,
+    "visible_bounds_offset": [
+     0,
+     2,
+     0
+    ]
+   },
+   "bones": [
+    {
+     "name": "root",
+     "pivot": [
+      0,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "core",
+     "pivot": [
+      0,
+      6,
+      0
+     ],
+     "parent": "root",
+     "cubes": [
+      {
+       "origin": [
+        -4,
+        0,
+        -4
+       ],
+       "size": [
+        8,
+        9,
+        8
+       ],
+       "uv": [
+        0,
+        0
+       ]
+      },
+      {
+       "origin": [
+        -3,
+        9,
+        -3
+       ],
+       "size": [
+        6,
+        2,
+        6
+       ],
+       "uv": [
+        32,
+        0
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

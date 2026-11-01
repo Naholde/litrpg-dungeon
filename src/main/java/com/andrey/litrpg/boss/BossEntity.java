@@ -97,6 +97,29 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private final List<UUID> spawned = new ArrayList<>();
     /** Узлы, которые держат щит (ледяные гробницы и прочие объекты боя щит не держат). */
     private final List<UUID> shieldNodes = new ArrayList<>();
+    private final List<Pool> pools = new ArrayList<>();
+
+    /** Лужа на полу (яд, споры, огонь): каждую секунду бьёт стоящих внутри, может расти. */
+    private static final class Pool {
+        final Vec3 at;
+        double radius;
+        final double grow, maxRadius, units;
+        final long until;
+        final int color;
+        final java.util.function.Consumer<ServerPlayer> extra;
+
+        Pool(Vec3 at, double radius, double grow, double maxRadius, long until, double units, int color,
+             java.util.function.Consumer<ServerPlayer> extra) {
+            this.at = at;
+            this.radius = radius;
+            this.grow = grow;
+            this.maxRadius = maxRadius;
+            this.until = until;
+            this.units = units;
+            this.color = color;
+            this.extra = extra;
+        }
+    }
     private Cast casting;
     private int castCounter;
     private Vec3 home;
@@ -340,6 +363,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         }
         if (position().distanceToSqr(home) > (arenaRadius + 6) * (arenaRadius + 6)) teleportTo(home.x, home.y, home.z);
         updateEnrage(now);
+        tickPools(now);
         updatePhase();
         if (arena2 != null && !relocated && getHealth() <= getMaxHealth() * 0.5f) relocate();
         runTasks(now);
@@ -548,6 +572,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         }
         spawned.clear();
         shieldNodes.clear();
+        pools.clear();
     }
 
     @Override
@@ -718,6 +743,35 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         sl.addFreshEntity(n);
         track(n);
         return n;
+    }
+
+    /**
+     * Лужа на полу: {@code units} в секунду стоящим внутри, радиус растёт на {@code grow} в секунду до {@code maxRadius};
+     * исчезает через {@code seconds}. {@code extra} — добавка попавшему (замедление и т.п.).
+     */
+    public void addPool(Vec3 at, double radius, double grow, double maxRadius, int seconds, double units, int color,
+                        java.util.function.Consumer<ServerPlayer> extra) {
+        pools.add(new Pool(at, radius, grow, maxRadius, level().getGameTime() + seconds * 20L, units, color, extra));
+    }
+
+    public int poolCount() {
+        return pools.size();
+    }
+
+    private void tickPools(long now) {
+        if (pools.isEmpty() || now % 20 != 0 || !(level() instanceof ServerLevel sl)) return;
+        pools.removeIf(p -> now >= p.until);
+        for (Pool p : pools) {
+            Fx.disc(sl, p.at, (float) p.radius, 21, p.color, false);
+            for (ServerPlayer pl : playersInArena()) {
+                double dx = pl.getX() - p.at.x, dz = pl.getZ() - p.at.z;
+                if (dx * dx + dz * dz <= p.radius * p.radius) {
+                    BossDamage.hit(this, pl, p.units);
+                    if (p.extra != null && pl.isAlive()) p.extra.accept(pl);
+                }
+            }
+            p.radius = Math.min(p.maxRadius, p.radius + p.grow);
+        }
     }
 
     /** Живые подручные этого хранителя. */

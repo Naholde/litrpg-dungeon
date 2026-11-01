@@ -29,10 +29,49 @@
       "dmg_units": 0.055,
       "speed": 0.24
     },
+    "forest_witch": {
+      "hp_units": 0.6,
+      "dmg_units": 0.035,
+      "speed": 0.25,
+      "heal_share": 0.2
+    },
     "ghoul": {
       "hp_units": 0.65,
       "dmg_units": 0.04,
-      "speed": 0.33
+      "speed": 0.33,
+      "hit_dot": 0.25,
+      "dot_seconds": 4.0
+    },
+    "jumper": {
+      "hp_units": 0.55,
+      "dmg_units": 0.05,
+      "speed": 0.34,
+      "leap": 4.0
+    },
+    "spitter": {
+      "hp_units": 0.5,
+      "dmg_units": 0.04,
+      "speed": 0.25,
+      "hit_dot": 0.3,
+      "dot_seconds": 4.0
+    },
+    "treant_guard": {
+      "hp_units": 1.4,
+      "dmg_units": 0.065,
+      "speed": 0.2
+    },
+    "wasp": {
+      "hp_units": 0.22,
+      "dmg_units": 0.022,
+      "speed": 0.36,
+      "hit_dot": 0.15,
+      "dot_seconds": 3.0
+    },
+    "weaver": {
+      "hp_units": 0.6,
+      "dmg_units": 0.045,
+      "speed": 0.26,
+      "hit_root": 1.5
     }
   },
   "gap_player_damage": 0.06,

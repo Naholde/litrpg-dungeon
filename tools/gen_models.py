@@ -599,6 +599,193 @@ MODELS.update({"gatekeeper": gatekeeper, "morra": morra, "vessa": vessa, "lich":
                "phylactery": phylactery})
 
 
+# ---------------------------------------------------------------------------- этап 2: пауки, оса, ведьма, древень
+
+MATERIALS.update({
+    "chitin": ("#2E2A26", 0.10, False, "plain"),
+    "chitin_light": ("#4A4238", 0.10, False, "plain"),
+    "chitin_green": ("#3E5A2A", 0.10, False, "plain"),
+    "chitin_white": ("#C8C8D0", 0.08, False, "plain"),
+    "acid": ("#9CE04A", 0.05, True, "plain"),
+    "wasp_yellow": ("#E8B828", 0.08, False, "plain"),
+    "wasp_black": ("#1E1A16", 0.05, False, "plain"),
+    "wing": ("#D8E8F0", 0.05, False, "plain"),
+    "bark": ("#5A4228", 0.12, False, "cracks"),
+    "bark_dark": ("#3A2A18", 0.10, False, "cracks"),
+    "leaves": ("#4A7A2A", 0.14, False, "plain"),
+    "moss": ("#5E8A3A", 0.12, False, "plain"),
+    "rot": ("#6A3A7A", 0.10, False, "plain"),
+    "mushroom_red": ("#B8302A", 0.08, False, "plain"),
+    "skin_green": ("#8AA878", 0.06, False, "plain"),
+    "eye_yellow": ("#FFE24A", 0.0, True, "plain"),
+    "web": ("#E8E8F0", 0.04, False, "plain"),
+})
+
+
+def spider(o):
+    """Паук: головогрудь, брюшко, 8 ног, клыки, глаза. o: body, abdomen, leg, eyes, marks (узор на брюшке)."""
+    body, abdomen, leg = o.get("body", "chitin"), o.get("abdomen", "chitin_light"), o.get("leg", "chitin")
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 5, 0], "root", [Cube([-3, 3, -4], [6, 4, 6], body)]),
+        Bone("head", [0, 5, -4], "body", [Cube([-2.5, 3, -8], [5, 4, 4], body),
+                                          Cube([-2, 5.5, -8.2], [1, 1, 1], o.get("eyes", "eye_red")),
+                                          Cube([1, 5.5, -8.2], [1, 1, 1], o.get("eyes", "eye_red")),
+                                          Cube([-1, 6.2, -8.2], [2, 1, 1], o.get("eyes", "eye_red")),
+                                          Cube([-2, 2, -9], [1, 2, 1], "bone"), Cube([1, 2, -9], [1, 2, 1], "bone")]),
+        Bone("abdomen", [0, 6, 2], "body", [Cube([-4, 3, 2], [8, 7, 9], abdomen),
+                                            Cube([-2, 9.5, 4], [4, 1, 5], o.get("marks", abdomen))]),
+    ]
+    for i, z in enumerate((-3, -1, 1, 3)):
+        for side, sx in (("r", -1), ("l", 1)):
+            name = f"leg_{side}{i}"
+            x0 = -11 if sx < 0 else 3
+            bones.append(Bone(name, [3 * sx, 5, z], "body", [Cube([x0, 4.5, z - 0.5], [8, 1, 1], leg)],
+                              rotation=[0, (i - 1.5) * 18 * sx, 25 * sx]))
+    walk = {}
+    for i in range(4):
+        for side in ("r", "l"):
+            ph = (i % 2) ^ (side == "l")
+            a, b = ([0, 18, 0], [0, -18, 0]) if ph else ([0, -18, 0], [0, 18, 0])
+            walk[f"leg_{side}{i}"] = {"rotation": kf([(0, a), (0.2, b), (0.4, a)])}
+    anims = {
+        "idle": loop(2, {"abdomen": {"rotation": kf([(0, [0, 0, 0]), (1, [4, 0, 0]), (2, [0, 0, 0])])}}),
+        "walk": loop(0.4, walk),
+        "attack": once(0.4, {"head": {"rotation": kf([(0, [0, 0, 0]), (0.15, [-25, 0, 0]), (0.3, [15, 0, 0]), (0.4, [0, 0, 0])])},
+                             "body": {"position": kf([(0, [0, 0, 0]), (0.15, [0, 1, -1]), (0.4, [0, 0, 0])])}}),
+        "death": {"animation_length": 0.8, "hold_on_last_frame": True,
+                  "bones": {"root": {"rotation": kf([(0, [0, 0, 0]), (0.8, [0, 0, 180])]),
+                                     "position": kf([(0, [0, 0, 0]), (0.8, [0, 8, 0])])}}},
+    }
+    for i, extra in enumerate(o.get("extras", [])):
+        parent, cube = extra
+        next(b for b in bones if b.name == parent).cubes.append(cube)
+    return bones, anims
+
+
+def weaver():
+    return spider({"body": "chitin_white", "abdomen": "web", "leg": "chitin_white", "eyes": "eye_purple", "marks": "chitin"})
+
+
+def jumper():
+    return spider({"body": "chitin_green", "abdomen": "chitin_green", "leg": "chitin", "eyes": "eye_yellow", "marks": "acid"})
+
+
+def spitter():
+    return spider({"body": "chitin", "abdomen": "acid", "leg": "chitin_light", "eyes": "eye_green", "marks": "chitin_green"})
+
+
+def wasp():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 6, 0], "root", [Cube([-1.5, 5, -3], [3, 3, 4], "wasp_black"),
+                                         Cube([-1.5, 5.5, -5], [3, 3, 2], "wasp_yellow"),
+                                         Cube([-1, 6.5, -5.2], [1, 1, 1], "eye_red"), Cube([0, 6.5, -5.2], [1, 1, 1], "eye_red")]),
+        Bone("tail", [0, 6.5, 1], "body", [Cube([-2, 4.5, 1], [4, 4, 2], "wasp_yellow"), Cube([-2, 4.5, 3], [4, 4, 2], "wasp_black"),
+                                           Cube([-1.5, 5, 5], [3, 3, 2], "wasp_yellow"), Cube([-0.5, 6, 7], [1, 1, 2], "bone")]),
+        Bone("wing_r", [-1, 8, -1], "body", [Cube([-7, 8, -2], [6, 0.5, 3], "wing")]),
+        Bone("wing_l", [1, 8, -1], "body", [Cube([1, 8, -2], [6, 0.5, 3], "wing")]),
+        Bone("legs", [0, 5, -1], "body", [Cube([-1.5, 2, -2], [3, 3, 1], "wasp_black")]),
+    ]
+    flap = {"wing_r": {"rotation": kf([(0, [0, 0, 30]), (0.05, [0, 0, -30]), (0.1, [0, 0, 30])])},
+            "wing_l": {"rotation": kf([(0, [0, 0, -30]), (0.05, [0, 0, 30]), (0.1, [0, 0, -30])])}}
+    hover = dict(flap)
+    hover["body"] = {"position": kf([(0, [0, 2, 0]), (0.5, [0, 3, 0]), (1, [0, 2, 0])])}
+    anims = {"idle": loop(1, hover), "walk": loop(1, hover),
+             "attack": once(0.3, {"tail": {"rotation": kf([(0, [0, 0, 0]), (0.15, [-50, 0, 0]), (0.3, [0, 0, 0])])}}),
+             "death": {"animation_length": 0.6, "hold_on_last_frame": True,
+                       "bones": {"root": {"rotation": kf([(0, [0, 0, 0]), (0.6, [0, 0, 180])])}}}}
+    return bones, anims
+
+
+def forest_witch():
+    return humanoid({"head": "skin_green", "face": "skin_green", "body": "moss", "arm": "moss", "leg": "bark_dark",
+                     "eyes": "eye_yellow", "lean": 10, "extras": [
+        ("head", Cube([-5, 31, -5], [10, 1, 10], "bark_dark")),              # поля шляпы
+        ("head", Cube([-3, 32, -3], [6, 3, 6], "bark_dark")),
+        ("head", Cube([-2, 35, -2], [4, 3, 4], "bark_dark")),
+        ("head", Cube([-1, 38, -1], [2, 2, 2], "leaves")),
+        ("head", Cube([-1, 25, -5], [2, 3, 1], "skin_green")),              # нос
+        ("body", Cube([-4.5, 0, -2.5], [9, 12, 5], "moss")),
+        ("right_arm", Cube([-6, -4, -1.5], [1, 24, 1], "bark")),            # посох-ветка
+        ("right_arm", Cube([-7.5, 19, -3], [4, 3, 4], "mushroom_red")),
+    ]})
+
+
+def treant_guard():
+    return humanoid({"head": "bark", "face": "bark_dark", "body": "bark", "arm": "bark", "leg": "bark_dark",
+                     "eyes": "eye_green", "arm_len": 15, "extras": [
+        ("head", Cube([-5, 30, -5], [10, 4, 10], "leaves")),
+        ("head", Cube([-3, 34, -3], [6, 2, 6], "leaves")),
+        ("body", Cube([-6, 20, -3.5], [12, 4, 7], "moss")),
+        ("right_arm", Cube([-8, 7, -2.5], [5, 4, 5], "bark_dark")),
+        ("left_arm", Cube([3, 7, -2.5], [5, 4, 5], "bark_dark")),
+    ]})
+
+
+# ---------------------------------------------------------------------------- хранители этапа 2
+
+def arachna():
+    """Аракна: огромная паучиха с короной из шипов и узором-черепом на брюшке."""
+    return spider({"body": "chitin", "abdomen": "cloth_black", "leg": "chitin_light", "eyes": "eye_red", "marks": "bone",
+                   "extras": [("head", Cube([-2.5, 7, -7], [1, 3, 1], "bone")), ("head", Cube([1.5, 7, -7], [1, 3, 1], "bone")),
+                              ("head", Cube([-0.5, 7, -6], [1, 4, 1], "gold_glow")),
+                              ("abdomen", Cube([-2, 10, 6], [4, 1, 3], "eye_red"))]})
+
+
+def rot_ent():
+    """Гнилой Древень: исполинское дерево, мох, гнилые грибы на плечах, светящаяся сердцевина."""
+    bones, anims = boss_humanoid({"head": "bark", "face": "bark_dark", "body": "bark_dark", "arm": "bark", "leg": "bark_dark",
+                                  "eyes": "eye_purple", "arm_len": 16, "lean": 6, "extras": [
+        ("head", Cube([-6, 30, -6], [12, 5, 12], "leaves")),
+        ("head", Cube([-4, 35, -4], [8, 3, 8], "rot")),
+        ("head", Cube([-7, 28, 0], [3, 6, 2], "bark")), ("head", Cube([4, 28, 0], [3, 6, 2], "bark")),   # сучья
+        ("body", Cube([-2, 15, -2.6], [4, 5, 1], "gem_green")),            # сердцевина
+        ("body", Cube([-6.5, 20, -3.5], [13, 4, 7], "moss")),
+        ("body", Cube([-6, 22, 1], [3, 3, 3], "mushroom_red")), ("body", Cube([3, 23, 1], [3, 2, 3], "rot")),
+        ("right_arm", Cube([-9, 6, -3], [6, 5, 6], "bark_dark")), ("left_arm", Cube([3, 6, -3], [6, 5, 6], "bark_dark")),
+    ]})
+    return bones, anims
+
+
+def morena():
+    """Ведьма Изнанки Морена: высокая, в лиловом, рога-ветви, белая маска, посох с глазом."""
+    return boss_humanoid({"head": "skin_green", "face": "bone", "body": "cloth_purple", "arm": "cloth_purple",
+                          "leg": "cloth_black", "eyes": "eye_purple", "extras": [
+        ("head", Cube([-6, 30, -1], [2, 6, 2], "bark_dark")), ("head", Cube([-8, 34, -1], [2, 3, 2], "bark_dark")),
+        ("head", Cube([4, 30, -1], [2, 6, 2], "bark_dark")), ("head", Cube([6, 34, -1], [2, 3, 2], "bark_dark")),
+        ("head", Cube([-4.5, 24, -4.5], [9, 9, 9], "cloth_black")),
+        ("body", Cube([-5.5, 0, -3.5], [11, 14, 7], "cloth_purple")),
+        ("body", Cube([-5, 14, 3], [10, 10, 1], "cloth_black")),
+        ("left_arm", Cube([5, -6, -1.5], [1, 30, 1], "bark_dark")),
+        ("left_arm", Cube([4, 23, -2.5], [3, 3, 3], "eye_purple")),
+    ]})
+
+
+def cocoon():
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 10, 0], "root", [Cube([-5, 0, -5], [10, 22, 10], "web"), Cube([-4, 22, -4], [8, 4, 8], "web"),
+                                               Cube([-2, 12, -5.2], [4, 4, 1], "chitin_white")])]
+    anims = {"idle": loop(2, {"core": {"rotation": kf([(0, [0, 0, -3]), (1, [0, 0, 3]), (2, [0, 0, -3])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.5, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.5, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def egg():
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 6, 0], "root", [Cube([-4, 0, -4], [8, 9, 8], "web"), Cube([-3, 9, -3], [6, 2, 6], "acid")])]
+    anims = {"idle": loop(1.2, {"core": {"scale": kf([(0, [1, 1, 1]), (0.6, [1.08, 0.95, 1.08]), (1.2, [1, 1, 1])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.4, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.4, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+MODELS.update({"weaver": weaver, "jumper": jumper, "spitter": spitter, "wasp": wasp, "forest_witch": forest_witch,
+               "treant_guard": treant_guard, "arachna": arachna, "rot_ent": rot_ent, "morena": morena,
+               "cocoon": cocoon, "egg": egg})
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None

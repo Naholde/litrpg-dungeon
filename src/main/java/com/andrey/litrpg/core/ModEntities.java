@@ -52,9 +52,19 @@ public final class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage1.LichKing>> LICH =
             boss("lich", com.andrey.litrpg.boss.stage1.LichKing::new, 1.2f, 3.9f);
 
+    // ---------------------------------------------------------------- хранители этапа 2
+    public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage2.Arachna>> ARACHNA =
+            boss("arachna", com.andrey.litrpg.boss.stage2.Arachna::new, 3.2f, 2.2f);
+    public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage2.RotEnt>> ROT_ENT =
+            boss("rot_ent", com.andrey.litrpg.boss.stage2.RotEnt::new, 1.6f, 5.0f);
+    public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage2.Morena>> MORENA =
+            boss("morena", com.andrey.litrpg.boss.stage2.Morena::new, 0.9f, 3.0f);
+
     // ---------------------------------------------------------------- объекты боя (ломаются руками)
     public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> ICE_TOMB = node("ice_tomb", 1.2f, 2.4f);
     public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> PHYLACTERY = node("phylactery", 0.8f, 1.6f);
+    public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> COCOON = node("cocoon", 1.2f, 2.4f);
+    public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> EGG = node("egg", 0.9f, 1.0f);
 
     private static <T extends BossEntity> DeferredHolder<EntityType<?>, EntityType<T>> boss(String id, EntityType.EntityFactory<T> f,
                                                                                          float w, float h) {

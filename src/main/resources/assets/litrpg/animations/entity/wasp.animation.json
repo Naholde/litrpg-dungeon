@@ -1,0 +1,175 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.wasp.idle": {
+   "loop": true,
+   "animation_length": 1,
+   "bones": {
+    "wing_r": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       30
+      ],
+      "0.05": [
+       0,
+       0,
+       -30
+      ],
+      "0.1": [
+       0,
+       0,
+       30
+      ]
+     }
+    },
+    "wing_l": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       -30
+      ],
+      "0.05": [
+       0,
+       0,
+       30
+      ],
+      "0.1": [
+       0,
+       0,
+       -30
+      ]
+     }
+    },
+    "body": {
+     "position": {
+      "0": [
+       0,
+       2,
+       0
+      ],
+      "0.5": [
+       0,
+       3,
+       0
+      ],
+      "1": [
+       0,
+       2,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.wasp.walk": {
+   "loop": true,
+   "animation_length": 1,
+   "bones": {
+    "wing_r": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       30
+      ],
+      "0.05": [
+       0,
+       0,
+       -30
+      ],
+      "0.1": [
+       0,
+       0,
+       30
+      ]
+     }
+    },
+    "wing_l": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       -30
+      ],
+      "0.05": [
+       0,
+       0,
+       30
+      ],
+      "0.1": [
+       0,
+       0,
+       -30
+      ]
+     }
+    },
+    "body": {
+     "position": {
+      "0": [
+       0,
+       2,
+       0
+      ],
+      "0.5": [
+       0,
+       3,
+       0
+      ],
+      "1": [
+       0,
+       2,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.wasp.attack": {
+   "animation_length": 0.3,
+   "bones": {
+    "tail": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.15": [
+       -50,
+       0,
+       0
+      ],
+      "0.3": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.wasp.death": {
+   "animation_length": 0.6,
+   "hold_on_last_frame": true,
+   "bones": {
+    "root": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.6": [
+       0,
+       0,
+       180
+      ]
+     }
+    }
+   }
+  }
+ }
+}

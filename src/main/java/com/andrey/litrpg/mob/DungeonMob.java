@@ -163,6 +163,7 @@ public class DungeonMob extends Monster implements GeoEntity {
             setup(near instanceof ServerPlayer sp ? com.andrey.litrpg.player.PlayerService.data(sp).level() : 1, MobRank.NORMAL);
         }
         if (home != null && tickCount % 10 == 0) leash();
+        tryLeap();
         long now = level().getGameTime();
         for (int i = pending.size() - 1; i >= 0; i--) {
             if (now >= pending.get(i)[0]) {
@@ -243,12 +244,41 @@ public class DungeonMob extends Monster implements GeoEntity {
     public boolean doHurtTarget(Entity target) {
         triggerAnim("main", "attack");
         boolean hit = super.doHurtTarget(target);
-        // Упырь: укус оставляет кровоточащую рану.
-        if (hit && species() == Bestiary.GHOUL && target instanceof LivingEntity l) {
-            double perSec = getAttributeValue(Attributes.ATTACK_DAMAGE) * 0.25;
-            StatusService.apply(l, Status.periodic(StatusType.DOT, "ghoul_bite", getUUID(), perSec, level().getGameTime(), 80, 20));
-        }
+        if (hit && target instanceof LivingEntity l) onHitTarget(l);
         return hit;
+    }
+
+    /**
+     * Особенность вида при попадании (рукой или снарядом): {@code hit_root} — приковывает на столько секунд,
+     * {@code hit_dot} — урон со временем (доля удара в секунду, {@code dot_seconds} секунд).
+     */
+    void onHitTarget(LivingEntity l) {
+        long now = level().getGameTime();
+        double root = p("hit_root");
+        if (root > 0) {
+            StatusService.apply(l, Status.of(StatusType.ROOT, species().id() + "_root", getUUID(), 1, now, (int) Math.round(root * 20)));
+            if (level() instanceof ServerLevel sl) Fx.disc(sl, l.position(), 0.8f, (int) Math.round(root * 20), species().color(), false);
+        }
+        double dot = p("hit_dot");
+        if (dot > 0) {
+            double perSec = getAttributeValue(Attributes.ATTACK_DAMAGE) * dot;
+            int secs = (int) Math.max(1, Math.round(p("dot_seconds")));
+            StatusService.apply(l, Status.periodic(StatusType.DOT, species().id() + "_dot", getUUID(), perSec, now, secs * 20, 20));
+        }
+    }
+
+    /** Прыгун: раз в {@code leap} секунд прыгает на цель, если она в 4–10 блоках. */
+    private void tryLeap() {
+        LivingEntity t = getTarget();
+        double cd = p("leap");
+        if (cd <= 0 || t == null || !onGround() || tickCount % Math.max(20, (int) Math.round(cd * 20)) != 0) return;
+        double d = distanceTo(t);
+        if (d < 4 || d > 10) return;
+        Vec3 dir = t.position().subtract(position()).multiply(1, 0, 1).normalize();
+        setDeltaMovement(dir.x * Math.min(1.3, d * 0.16), 0.45, dir.z * Math.min(1.3, d * 0.16));
+        hasImpulse = true;
+        triggerAnim("main", "attack");
+        level().playSound(null, blockPosition(), SoundEvents.SPIDER_AMBIENT, SoundSource.HOSTILE, 1f, 1.4f);
     }
 
     /** Страж: щит спереди — урон в лицо втрое меньше. */
@@ -317,6 +347,7 @@ public class DungeonMob extends Monster implements GeoEntity {
     private void shoot(LivingEntity t) {
         if (!t.isAlive()) return;
         MagicBolt bolt = new MagicBolt(level(), this, getAttributeValue(Attributes.ATTACK_DAMAGE), species().color());
+        bolt.onHit = this::onHitTarget;
         Vec3 from = getEyePosition();
         Vec3 dir = t.getEyePosition().subtract(from).add(0, -0.3, 0);
         bolt.setPos(from.x, from.y - 0.2, from.z);

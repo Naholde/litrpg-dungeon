@@ -36,7 +36,7 @@ public final class Bestiary {
             p("hp_units", 0.55, "dmg_units", 0.05, "speed", 0.26));
     public static final Species GHOUL = reg("ghoul", "Упырь", 1, MobRole.SKIRMISHER, "ghoul",
             1.0f, 0.6f, 1.6f, 0xA0C890, "Быстрый, бросается на лекарей и стрелков; укус оставляет кровоточащую рану.",
-            p("hp_units", 0.65, "dmg_units", 0.04, "speed", 0.33));
+            p("hp_units", 0.65, "dmg_units", 0.04, "speed", 0.33, "hit_dot", 0.25, "dot_seconds", 4));
     public static final Species BONE_GUARD = reg("bone_guard", "Костяной страж", 1, MobRole.GUARD, "bone_guard",
             1.1f, 0.7f, 2.1f, 0xC8D0E0, "Огромный щит спереди: урон в лицо втрое меньше — заходите со спины.",
             p("hp_units", 1.3, "dmg_units", 0.06, "speed", 0.2));
@@ -46,6 +46,26 @@ public final class Bestiary {
     public static final Species BONE_RAT = reg("bone_rat", "Костяная крыса", 1, MobRole.SWARM, "bone_rat",
             0.8f, 0.6f, 0.5f, 0xE8DCC0, "Приходят стаей; каждая слабая, но вместе кусают больно.",
             p("hp_units", 0.25, "dmg_units", 0.02, "speed", 0.34));
+
+    // ---------------------------------------------------------------- Этап 2 · Паучья чаща (пауки, осы, лес)
+    public static final Species WEAVER = reg("weaver", "Паук-ткач", 2, MobRole.CASTER, "weaver",
+            1.0f, 1.4f, 0.9f, 0xE8E8F0, "Плюётся паутиной: попавшего ненадолго приковывает к месту.",
+            p("hp_units", 0.6, "dmg_units", 0.045, "speed", 0.26, "hit_root", 1.5));
+    public static final Species JUMPER = reg("jumper", "Паук-прыгун", 2, MobRole.SKIRMISHER, "jumper",
+            0.9f, 1.2f, 0.8f, 0x8AC060, "Прыгает на дальних — лекарей и стрелков. Танку — забрать его на себя.",
+            p("hp_units", 0.55, "dmg_units", 0.05, "speed", 0.34, "leap", 4));
+    public static final Species SPITTER = reg("spitter", "Кислотный плевун", 2, MobRole.ARCHER, "spitter",
+            1.0f, 1.3f, 0.9f, 0x9CE04A, "Плюётся кислотой: разъедает со временем — работа лекаря.",
+            p("hp_units", 0.5, "dmg_units", 0.04, "speed", 0.25, "hit_dot", 0.3, "dot_seconds", 4));
+    public static final Species WASP = reg("wasp", "Оса-трутень", 2, MobRole.SWARM, "wasp",
+            1.0f, 0.7f, 0.6f, 0xF0C030, "Жалят роем, яд копится. Бить по площади.",
+            p("hp_units", 0.22, "dmg_units", 0.022, "speed", 0.36, "hit_dot", 0.15, "dot_seconds", 3));
+    public static final Species FOREST_WITCH = reg("forest_witch", "Лесная ведьма", 2, MobRole.HEALER, "forest_witch",
+            1.0f, 0.6f, 1.95f, 0x7FF07F, "Лечит лес вокруг себя зелёным светом — убивать первой.",
+            p("hp_units", 0.6, "dmg_units", 0.035, "speed", 0.25, "heal_share", 0.2));
+    public static final Species TREANT_GUARD = reg("treant_guard", "Древень-страж", 2, MobRole.BRUTE, "treant_guard",
+            1.3f, 1.0f, 2.6f, 0x6B8A3A, "Медленный и крепкий; элитный бьёт по кругу — отойдите.",
+            p("hp_units", 1.4, "dmg_units", 0.065, "speed", 0.2));
 
     private Bestiary() {
     }

@@ -49,5 +49,16 @@
   "entity.litrpg.vessa": "Vessa",
   "entity.litrpg.lich": "Lich King Karn",
   "entity.litrpg.ice_tomb": "Ice Tomb",
-  "entity.litrpg.phylactery": "Phylactery"
+  "entity.litrpg.phylactery": "Phylactery",
+  "entity.litrpg.weaver": "Weaver Spider",
+  "entity.litrpg.jumper": "Jumping Spider",
+  "entity.litrpg.spitter": "Acid Spitter",
+  "entity.litrpg.wasp": "Drone Wasp",
+  "entity.litrpg.forest_witch": "Forest Witch",
+  "entity.litrpg.treant_guard": "Treant Guard",
+  "entity.litrpg.arachna": "Arachna, Spider Queen",
+  "entity.litrpg.rot_ent": "Rotting Ent",
+  "entity.litrpg.morena": "Morena, Witch of the Underside",
+  "entity.litrpg.cocoon": "Cocoon",
+  "entity.litrpg.egg": "Egg Sac"
 }

@@ -26,10 +26,18 @@ public final class Telegraph {
 
     /** Круг: всем внутри — {@code units}. */
     public static void circle(BossEntity.Cast c, Vec3 center, float radius, double units) {
+        circle(c, center, radius, units, null);
+    }
+
+    /** Круг с добавкой: {@code extra} — что ещё случается с попавшим (оковы, яд). */
+    public static void circle(BossEntity.Cast c, Vec3 center, float radius, double units, java.util.function.Consumer<ServerPlayer> extra) {
         Fx.disc(level(c), center, radius, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
-                if (flat(p.position(), center) <= radius) BossDamage.hit(c.boss(), p, units);
+                if (flat(p.position(), center) <= radius) {
+                    BossDamage.hit(c.boss(), p, units);
+                    if (extra != null && p.isAlive()) extra.accept(p);
+                }
             }
             Fx.burst(level(c), center.add(0, 0.5, 0), radius * 0.8f, 8, Fx.DANGER);
         });
@@ -64,6 +72,10 @@ public final class Telegraph {
 
     /** Полоса шириной {@code width} от {@code from} до {@code to}. */
     public static void line(BossEntity.Cast c, Vec3 from, Vec3 to, float width, double units) {
+        line(c, from, to, width, units, null);
+    }
+
+    public static void line(BossEntity.Cast c, Vec3 from, Vec3 to, float width, double units, java.util.function.Consumer<ServerPlayer> extra) {
         Fx.line(level(c), from, to, width, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             Vec3 ab = to.subtract(from).multiply(1, 0, 1);
@@ -73,7 +85,10 @@ public final class Telegraph {
                 Vec3 ap = p.position().subtract(from).multiply(1, 0, 1);
                 double along = ap.dot(n);
                 double across = ap.subtract(n.scale(along)).length();
-                if (along >= -0.5 && along <= len + 0.5 && across <= width / 2) BossDamage.hit(c.boss(), p, units);
+                if (along >= -0.5 && along <= len + 0.5 && across <= width / 2) {
+                    BossDamage.hit(c.boss(), p, units);
+                    if (extra != null && p.isAlive()) extra.accept(p);
+                }
             }
         });
     }

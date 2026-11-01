@@ -1,0 +1,55 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.cocoon.idle": {
+   "loop": true,
+   "animation_length": 2,
+   "bones": {
+    "core": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       -3
+      ],
+      "1": [
+       0,
+       0,
+       3
+      ],
+      "2": [
+       0,
+       0,
+       -3
+      ]
+     }
+    }
+   }
+  },
+  "animation.cocoon.walk": {
+   "loop": true,
+   "animation_length": 2,
+   "bones": {}
+  },
+  "animation.cocoon.death": {
+   "animation_length": 0.5,
+   "hold_on_last_frame": true,
+   "bones": {
+    "core": {
+     "scale": {
+      "0": [
+       1,
+       1,
+       1
+      ],
+      "0.5": [
+       0.1,
+       0.1,
+       0.1
+      ]
+     }
+    }
+   }
+  }
+ }
+}

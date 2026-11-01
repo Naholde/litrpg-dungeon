@@ -16,7 +16,8 @@ JAVA = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'main', 'java'
 
 # Ломаются игроком (тег litrpg:breakable) — для проверки проходимости это проход.
 BREAKABLE = {'minecraft:cobweb', 'minecraft:decorated_pot', 'minecraft:infested_cracked_stone_bricks',
-             'minecraft:infested_mossy_stone_bricks', 'minecraft:infested_deepslate'}
+             'minecraft:infested_mossy_stone_bricks', 'minecraft:infested_deepslate',
+             'minecraft:infested_stone', 'minecraft:infested_cobblestone'}
 
 
 def known_ids(path, pattern):
