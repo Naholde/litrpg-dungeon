@@ -66,6 +66,9 @@
   `BossRegistry`, сущность в `ModEntities`, модель в `tools/gen_models.py`, тег `litrpg:bosses`, `gradlew test -Pregen`.
 - `gear/` — `GearData` (компонент вещи), `GearKind`, `Rarity`, `AffixType`, `GearGen`, `PlayerGear` (сумма надетого),
   `LootService` (личная добыча), `Wallet`, `item/` (монеты, эликсир, свиток). `shop/` — `TraderEntity`, `ShopService`.
+- `mob/` — `DungeonMob`, `Bestiary` (виды и цифры), `ModMobs` (типы сущностей по видам), `MobRole`, `MobRank`.
+  **Новый вид:** запись в `Bestiary`, модель в `tools/gen_models.py` (шаблоны `humanoid`/`quadruped`), строка в lang,
+  `gradlew test -Pregen` (mobs.json).
 - `party/` — `Party`, `PartyService`. `core/` — `ModItems`, `ModEntities`, `ModTags`, `ModAttachments`, `SystemChat`.
 - `client/` — `HudOverlay`, `fx/` (`ClientPopups`, `ClientAggro`, `WorldText`), `render/`, `ClientParty`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).

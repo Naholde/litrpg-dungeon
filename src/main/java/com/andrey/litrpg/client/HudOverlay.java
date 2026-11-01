@@ -159,7 +159,7 @@ public final class HudOverlay {
         g.fill(bx, by, bx + bw, by + 7, 0xC0000000);
         int filled = (int) Math.round(ratio * (bw - 2));
         if (filled > 0) g.fillGradient(bx + 1, by + 1, bx + 1 + filled, by + 6, UiKit.HEALTH_TOP, UiKit.HEALTH);
-        String hpText = Derived.MAX_HEALTH.format(Math.ceil(hp)) + " / " + Derived.MAX_HEALTH.format(max);
+        String hpText = Derived.MAX_HEALTH.format(Math.round(hp)) + " / " + Derived.MAX_HEALTH.format(Math.round(max));
         var pose = g.pose();
         pose.pushPose();
         pose.translate(x + fw / 2f, by + 1, 0);

@@ -28,5 +28,11 @@
   "item.litrpg.gold_coin": "Золотая монета",
   "item.litrpg.elixir_of_life": "Эликсир жизни",
   "item.litrpg.scroll_of_oblivion": "Свиток забвения",
-  "entity.litrpg.trader": "Торговец привала"
+  "entity.litrpg.trader": "Торговец привала",
+  "entity.litrpg.crypt_warrior": "Скелет-воин",
+  "entity.litrpg.crypt_archer": "Скелет-лучник",
+  "entity.litrpg.ghoul": "Упырь",
+  "entity.litrpg.bone_guard": "Костяной страж",
+  "entity.litrpg.acolyte": "Послушник некроманта",
+  "entity.litrpg.bone_rat": "Костяная крыса"
 }

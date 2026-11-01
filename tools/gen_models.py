@@ -307,6 +307,173 @@ def trader():
 MODELS = {"trial_warden": trial_warden, "power_node": power_node, "trader": trader}
 
 
+# ---------------------------------------------------------------------------- бестиарий: материалы и шаблоны
+
+MATERIALS.update({
+    "bone": ("#E2D6B8", 0.08, False, "cracks"),
+    "bone_dark": ("#A89C80", 0.08, False, "cracks"),
+    "rust": ("#7A4A2A", 0.14, False, "rivets"),
+    "steel": ("#8E98A6", 0.08, False, "rivets"),
+    "cloth_black": ("#2A2830", 0.10, False, "plain"),
+    "cloth_red": ("#5A1E22", 0.10, False, "plain"),
+    "flesh": ("#93A585", 0.10, False, "plain"),
+    "flesh_dark": ("#5E6E58", 0.10, False, "plain"),
+    "wood": ("#6B4A2E", 0.10, False, "plain"),
+    "socket": ("#141218", 0.05, False, "plain"),
+    "eye_green": ("#7FFF8A", 0.0, True, "plain"),
+    "eye_red": ("#FF4A3A", 0.0, True, "plain"),
+    "eye_blue": ("#7FE0FF", 0.0, True, "plain"),
+    "gem_green": ("#4AF07A", 0.08, True, "facets"),
+})
+
+_orig_paint = paint
+
+
+def paint(mat, x, y, w, h, rnd):  # noqa: F811 — дополняем узор «трещины»
+    c = _orig_paint(mat, x, y, w, h, rnd)
+    if MATERIALS[mat][3] == "cracks" and (x * 7 + y * 3) % 11 == 0 and 0 < x < w - 1:
+        c = shade(c, 0.72)
+    return c
+
+
+def humanoid(o):
+    """Человекоподобный: o — словарь материалов и деталей.
+    head, body, arm, leg — материалы; eyes — материал глаз; extras — список (кость-родитель, Cube);
+    lean — наклон корпуса вперёд (горбун), arm_len — длина рук."""
+    arm_len = o.get("arm_len", 12)
+    head = o.get("head", "bone")
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 12, 0], "root", [Cube([-4, 12, -2], [8, 12, 4], o.get("body", "bone_dark"))],
+             rotation=[o.get("lean", 0), 0, 0] if o.get("lean") else None),
+        Bone("head", [0, 24, 0], "body", [Cube([-4, 24, -4], [8, 8, 8], head, faces={"north": o.get("face", head)}),
+                                          Cube([-3, 27, -4.2], [2, 2, 1], o.get("eyes", "socket")),
+                                          Cube([1, 27, -4.2], [2, 2, 1], o.get("eyes", "socket"))]),
+        Bone("right_arm", [-5, 22, 0], "body", [Cube([-7, 24 - arm_len, -1.5], [3, arm_len, 3], o.get("arm", "bone"))]),
+        Bone("left_arm", [5, 22, 0], "body", [Cube([4, 24 - arm_len, -1.5], [3, arm_len, 3], o.get("arm", "bone"))]),
+        Bone("right_leg", [-2, 12, 0], "root", [Cube([-3.5, 0, -1.5], [3, 12, 3], o.get("leg", "bone"))]),
+        Bone("left_leg", [2, 12, 0], "root", [Cube([0.5, 0, -1.5], [3, 12, 3], o.get("leg", "bone"))]),
+    ]
+    by = {b.name: b for b in bones}
+    for parent, cube in o.get("extras", []):
+        by[parent].cubes.append(cube)
+    anims = {
+        "idle": loop(2.6, {
+            "head": {"rotation": kf([(0, [0, 0, 0]), (1.3, [3, 8, 0]), (2.6, [0, 0, 0])])},
+            "right_arm": {"rotation": kf([(0, [0, 0, 3]), (1.3, [-5, 0, 5]), (2.6, [0, 0, 3])])},
+            "left_arm": {"rotation": kf([(0, [0, 0, -3]), (1.3, [-5, 0, -5]), (2.6, [0, 0, -3])])},
+            "body": {"position": kf([(0, [0, 0, 0]), (1.3, [0, -0.3, 0]), (2.6, [0, 0, 0])])},
+        }),
+        "walk": loop(0.9, {
+            "right_leg": {"rotation": kf([(0, [30, 0, 0]), (0.45, [-30, 0, 0]), (0.9, [30, 0, 0])])},
+            "left_leg": {"rotation": kf([(0, [-30, 0, 0]), (0.45, [30, 0, 0]), (0.9, [-30, 0, 0])])},
+            "right_arm": {"rotation": kf([(0, [-22, 0, 0]), (0.45, [22, 0, 0]), (0.9, [-22, 0, 0])])},
+            "left_arm": {"rotation": kf([(0, [22, 0, 0]), (0.45, [-22, 0, 0]), (0.9, [22, 0, 0])])},
+        }),
+        "attack": once(0.55, {
+            "right_arm": {"rotation": kf([(0, [0, 0, 0]), (0.2, [-120, 0, 15]), (0.35, [15, 0, 0]), (0.55, [0, 0, 0])])},
+            "body": {"rotation": kf([(0, [0, 0, 0]), (0.2, [0, 12, 0]), (0.35, [0, -10, 0]), (0.55, [0, 0, 0])])},
+        }),
+        "death": {"animation_length": 1.0, "hold_on_last_frame": True, "bones": {
+            "root": {"rotation": kf([(0, [0, 0, 0]), (1.0, [-90, 0, 0])])},
+            "head": {"rotation": kf([(0, [0, 0, 0]), (1.0, [20, 30, 0])])},
+        }},
+    }
+    return bones, anims
+
+
+def quadruped(o):
+    """Четвероногое (крыса, волк): body, head, leg, tail — материалы; size — множитель."""
+    m = o.get("mat", "bone")
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 4, 0], "root", [Cube([-2.5, 3, -4], [5, 4, 9], o.get("body", m))]),
+        Bone("head", [0, 6, -4], "body", [Cube([-2, 4, -8], [4, 4, 4], o.get("head", m)),
+                                          Cube([-1, 4, -10], [2, 2, 2], o.get("snout", m)),
+                                          Cube([-2, 6.5, -8.2], [1, 1, 1], o.get("eyes", "eye_red")),
+                                          Cube([1, 6.5, -8.2], [1, 1, 1], o.get("eyes", "eye_red"))]),
+        Bone("tail", [0, 6, 5], "body", [Cube([-0.5, 5.5, 5], [1, 1, 7], o.get("tail", m))]),
+        Bone("leg_fl", [-1.5, 3, -3], "root", [Cube([-2.5, 0, -3.5], [2, 3, 2], o.get("leg", m))]),
+        Bone("leg_fr", [1.5, 3, -3], "root", [Cube([0.5, 0, -3.5], [2, 3, 2], o.get("leg", m))]),
+        Bone("leg_bl", [-1.5, 3, 3], "root", [Cube([-2.5, 0, 2.5], [2, 3, 2], o.get("leg", m))]),
+        Bone("leg_br", [1.5, 3, 3], "root", [Cube([0.5, 0, 2.5], [2, 3, 2], o.get("leg", m))]),
+    ]
+    anims = {
+        "idle": loop(1.6, {"tail": {"rotation": kf([(0, [0, -15, 0]), (0.8, [0, 15, 0]), (1.6, [0, -15, 0])])},
+                           "head": {"rotation": kf([(0, [0, 0, 0]), (0.8, [5, 6, 0]), (1.6, [0, 0, 0])])}}),
+        "walk": loop(0.4, {
+            "leg_fl": {"rotation": kf([(0, [35, 0, 0]), (0.2, [-35, 0, 0]), (0.4, [35, 0, 0])])},
+            "leg_br": {"rotation": kf([(0, [35, 0, 0]), (0.2, [-35, 0, 0]), (0.4, [35, 0, 0])])},
+            "leg_fr": {"rotation": kf([(0, [-35, 0, 0]), (0.2, [35, 0, 0]), (0.4, [-35, 0, 0])])},
+            "leg_bl": {"rotation": kf([(0, [-35, 0, 0]), (0.2, [35, 0, 0]), (0.4, [-35, 0, 0])])},
+            "tail": {"rotation": kf([(0, [0, -25, 0]), (0.2, [0, 25, 0]), (0.4, [0, -25, 0])])},
+        }),
+        "attack": once(0.4, {"head": {"rotation": kf([(0, [0, 0, 0]), (0.15, [-30, 0, 0]), (0.25, [20, 0, 0]), (0.4, [0, 0, 0])]),
+                                      "position": kf([(0, [0, 0, 0]), (0.2, [0, 0, -2]), (0.4, [0, 0, 0])])}}),
+        "death": {"animation_length": 0.8, "hold_on_last_frame": True,
+                  "bones": {"root": {"rotation": kf([(0, [0, 0, 0]), (0.8, [0, 0, 90])])}}},
+    }
+    return bones, anims
+
+
+# ---------------------------------------------------------------------------- Этап 1: Склеп Забытых
+
+def crypt_warrior():
+    return humanoid({"head": "bone", "body": "bone_dark", "eyes": "eye_blue", "extras": [
+        ("head", Cube([-4.5, 29, -4.5], [9, 4, 9], "rust")),                 # ржавый шлем
+        ("body", Cube([-5, 21, -2.5], [10, 3, 5], "rust")),                  # наплечье
+        ("right_arm", Cube([-6, 2, -3.5], [1, 11, 1], "steel")),             # клинок
+        ("right_arm", Cube([-7, 12, -4], [3, 1, 2], "rust")),                # гарда
+    ]})
+
+
+def crypt_archer():
+    return humanoid({"head": "bone", "body": "bone_dark", "eyes": "eye_blue", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 8, 9], "cloth_black")),          # капюшон
+        ("body", Cube([2, 14, 2], [3, 10, 3], "wood")),                      # колчан
+        ("left_arm", Cube([6, 6, -4], [1, 16, 1], "wood")),                  # лук
+        ("left_arm", Cube([6.2, 6, -3], [0.5, 16, 0.5], "bone_dark")),       # тетива
+    ]})
+
+
+def ghoul():
+    return humanoid({"head": "flesh", "body": "flesh_dark", "arm": "flesh", "leg": "flesh_dark", "eyes": "eye_green",
+                     "lean": 25, "arm_len": 15, "extras": [
+        ("body", Cube([-4.5, 12, -2.5], [9, 6, 5], "cloth_red")),            # обрывки ткани
+        ("right_arm", Cube([-7, 7, -2.5], [3, 2, 1], "bone")),               # когти
+        ("left_arm", Cube([4, 7, -2.5], [3, 2, 1], "bone")),
+    ]})
+
+
+def bone_guard():
+    return humanoid({"head": "bone", "body": "bone_dark", "eyes": "eye_blue", "extras": [
+        ("head", Cube([-4.5, 28, -4.5], [9, 5, 9], "steel")),
+        ("head", Cube([-6, 31, -1], [2, 4, 2], "bone")), ("head", Cube([4, 31, -1], [2, 4, 2], "bone")),  # рога
+        ("body", Cube([-5, 14, -3], [10, 10, 6], "steel")),                  # кираса
+        ("left_arm", Cube([1, 4, -6], [8, 18, 2], "rust")),                  # башенный щит перед собой
+        ("left_arm", Cube([4, 12, -6.5], [2, 2, 1], "steel")),
+        ("right_arm", Cube([-7, 2, -2.5], [3, 4, 3], "steel")),              # булава
+    ]})
+
+
+def acolyte():
+    return humanoid({"head": "bone", "face": "bone", "body": "cloth_black", "arm": "cloth_black", "leg": "cloth_black",
+                     "eyes": "eye_green", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 8, 9], "cloth_black")),          # капюшон
+        ("body", Cube([-4.5, 0, -2.5], [9, 12, 5], "cloth_black")),          # полы рясы
+        ("right_arm", Cube([-6, -2, -2.5], [1, 20, 1], "wood")),             # посох
+        ("right_arm", Cube([-7, 17, -3.5], [3, 3, 3], "gem_green")),         # зелёный камень
+    ]})
+
+
+def bone_rat():
+    return quadruped({"mat": "bone", "body": "bone_dark", "eyes": "eye_red"})
+
+
+MODELS.update({"crypt_warrior": crypt_warrior, "crypt_archer": crypt_archer, "ghoul": ghoul,
+               "bone_guard": bone_guard, "acolyte": acolyte, "bone_rat": bone_rat})
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None
@@ -317,8 +484,8 @@ def main():
         geo, anim, tex, glow = build(name, bones, anims, tex_w=128, tex_h=64 if name == "power_node" else 128)
         (ASSETS / "geo/entity").mkdir(parents=True, exist_ok=True)
         (ASSETS / "animations/entity").mkdir(parents=True, exist_ok=True)
-        (ASSETS / f"geo/entity/{name}.geo.json").write_text(json.dumps(geo, indent=1), encoding="utf-8")
-        (ASSETS / f"animations/entity/{name}.animation.json").write_text(json.dumps(anim, indent=1), encoding="utf-8")
+        (ASSETS / f"geo/entity/{name}.geo.json").write_text(json.dumps(geo, indent=1), encoding="utf-8", newline="\n")
+        (ASSETS / f"animations/entity/{name}.animation.json").write_text(json.dumps(anim, indent=1), encoding="utf-8", newline="\n")
         tex.save(ASSETS / f"textures/entity/{name}.png")
         glow.save(ASSETS / f"textures/entity/{name}_glowmask.png")
         if preview:

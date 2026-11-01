@@ -70,6 +70,15 @@ public class MagicBolt extends ThrowableProjectile {
         }
     }
 
+    /** Снаряд монстра не задевает других монстров, снаряд игрока — других игроков (урон по своим — только ближним боем). */
+    @Override
+    protected boolean canHitEntity(net.minecraft.world.entity.Entity e) {
+        if (!super.canHitEntity(e)) return false;
+        boolean ownerPlayer = getOwner() instanceof net.minecraft.world.entity.player.Player;
+        boolean targetPlayer = e instanceof net.minecraft.world.entity.player.Player;
+        return ownerPlayer != targetPlayer;
+    }
+
     @Override
     protected void onHitEntity(EntityHitResult hit) {
         if (level().isClientSide) return;

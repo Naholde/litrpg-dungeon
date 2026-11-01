@@ -1,0 +1,41 @@
+{
+  "xp_per_kill_share": 0.035,
+  "pack_radius": 10.0,
+  "aggro_radius": 12.0,
+  "species": {
+    "acolyte": {
+      "hp_units": 0.6,
+      "dmg_units": 0.035,
+      "speed": 0.25,
+      "heal_share": 0.2
+    },
+    "bone_guard": {
+      "hp_units": 1.3,
+      "dmg_units": 0.06,
+      "speed": 0.2
+    },
+    "bone_rat": {
+      "hp_units": 0.25,
+      "dmg_units": 0.02,
+      "speed": 0.34
+    },
+    "crypt_archer": {
+      "hp_units": 0.55,
+      "dmg_units": 0.05,
+      "speed": 0.26
+    },
+    "crypt_warrior": {
+      "hp_units": 0.8,
+      "dmg_units": 0.055,
+      "speed": 0.24
+    },
+    "ghoul": {
+      "hp_units": 0.65,
+      "dmg_units": 0.04,
+      "speed": 0.33
+    }
+  },
+  "gap_player_damage": 0.06,
+  "gap_min_damage": 0.4,
+  "gap_mob_damage": 0.09
+}

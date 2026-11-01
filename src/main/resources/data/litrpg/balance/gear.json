@@ -1,9 +1,17 @@
 {
   "stat_per_level": 0.25,
   "affixes": {
-    "toughness": {
+    "move_speed": {
       "min": 0.01,
       "max": 0.03
+    },
+    "heal_power": {
+      "min": 0.03,
+      "max": 0.08
+    },
+    "weapon_power": {
+      "min": 0.03,
+      "max": 0.08
     },
     "crit_chance": {
       "min": 0.01,
@@ -13,19 +21,11 @@
       "min": 0.01,
       "max": 0.03
     },
-    "skill_power": {
-      "min": 0.03,
-      "max": 0.08
-    },
-    "find": {
-      "min": 0.03,
-      "max": 0.1
-    },
-    "haste": {
+    "toughness": {
       "min": 0.01,
-      "max": 0.04
+      "max": 0.03
     },
-    "weapon_power": {
+    "skill_power": {
       "min": 0.03,
       "max": 0.08
     },
@@ -33,17 +33,17 @@
       "min": 0.03,
       "max": 0.08
     },
-    "move_speed": {
+    "haste": {
       "min": 0.01,
-      "max": 0.03
+      "max": 0.04
     },
     "crit_damage": {
       "min": 0.05,
       "max": 0.15
     },
-    "heal_power": {
+    "find": {
       "min": 0.03,
-      "max": 0.08
+      "max": 0.1
     }
   },
   "drops": {
@@ -51,17 +51,11 @@
     "gear_chance": 0.04
   },
   "rarities": {
-    "epic": {
-      "weight": 18.0,
-      "power": 1.26,
-      "stats": 2,
-      "affixes": 3
-    },
-    "uncommon": {
-      "weight": 350.0,
-      "power": 1.08,
-      "stats": 1,
-      "affixes": 1
+    "divine": {
+      "weight": 0.0,
+      "power": 1.55,
+      "stats": 3,
+      "affixes": 5
     },
     "common": {
       "weight": 1000.0,
@@ -69,11 +63,11 @@
       "stats": 1,
       "affixes": 0
     },
-    "divine": {
-      "weight": 0.0,
-      "power": 1.55,
-      "stats": 3,
-      "affixes": 5
+    "rare": {
+      "weight": 90.0,
+      "power": 1.16,
+      "stats": 2,
+      "affixes": 2
     },
     "legendary": {
       "weight": 3.0,
@@ -81,11 +75,17 @@
       "stats": 3,
       "affixes": 4
     },
-    "rare": {
-      "weight": 90.0,
-      "power": 1.16,
+    "uncommon": {
+      "weight": 350.0,
+      "power": 1.08,
+      "stats": 1,
+      "affixes": 1
+    },
+    "epic": {
+      "weight": 18.0,
+      "power": 1.26,
       "stats": 2,
-      "affixes": 2
+      "affixes": 3
     }
   },
   "weapons": {

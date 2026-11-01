@@ -28,5 +28,11 @@
   "item.litrpg.gold_coin": "Gold Coin",
   "item.litrpg.elixir_of_life": "Elixir of Life",
   "item.litrpg.scroll_of_oblivion": "Scroll of Oblivion",
-  "entity.litrpg.trader": "Camp Trader"
+  "entity.litrpg.trader": "Camp Trader",
+  "entity.litrpg.crypt_warrior": "Crypt Warrior",
+  "entity.litrpg.crypt_archer": "Crypt Archer",
+  "entity.litrpg.ghoul": "Ghoul",
+  "entity.litrpg.bone_guard": "Bone Guard",
+  "entity.litrpg.acolyte": "Necromancer's Acolyte",
+  "entity.litrpg.bone_rat": "Bone Rat"
 }

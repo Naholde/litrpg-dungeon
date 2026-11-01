@@ -135,6 +135,22 @@ public final class CombatCommands {
             com.andrey.litrpg.shop.ShopService.open(p, t);
             return 1;
         }));
+        root.then(Commands.literal("mob").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("species", StringArgumentType.word())
+                        .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                                com.andrey.litrpg.mob.Bestiary.all().stream().map(com.andrey.litrpg.mob.Bestiary.Species::id), b))
+                        .executes(c -> spawnMob(c, 0, "normal", 1))
+                        .then(Commands.argument("level", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 60))
+                                .executes(c -> spawnMob(c, com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "level"), "normal", 1))
+                                .then(Commands.argument("rank", StringArgumentType.word())
+                                        .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                                                java.util.List.of("normal", "elite", "champion"), b))
+                                        .executes(c -> spawnMob(c, com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "level"),
+                                                StringArgumentType.getString(c, "rank"), 1))
+                                        .then(Commands.argument("count", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 12))
+                                                .executes(c -> spawnMob(c, com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "level"),
+                                                        StringArgumentType.getString(c, "rank"),
+                                                        com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "count"))))))));
         root.then(Commands.literal("party")
                 .then(Commands.literal("form").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("players", EntityArgument.players()).executes(c -> {
@@ -174,6 +190,30 @@ public final class CombatCommands {
                 d.level(), rarity, d.role(), p.getRandom());
         if (!p.getInventory().add(stack)) p.drop(stack, false);
         return 1;
+    }
+
+    private static int spawnMob(CommandContext<CommandSourceStack> c, int level, String rank, int count) throws CommandSyntaxException {
+        ServerPlayer p = c.getSource().getPlayerOrException();
+        var holder = com.andrey.litrpg.mob.ModMobs.TYPES.get(StringArgumentType.getString(c, "species"));
+        if (holder == null) return 0;
+        int lv = level > 0 ? level : com.andrey.litrpg.player.PlayerService.data(p).level();
+        var r = switch (rank) {
+            case "elite" -> com.andrey.litrpg.mob.MobRank.ELITE;
+            case "champion" -> com.andrey.litrpg.mob.MobRank.CHAMPION;
+            default -> com.andrey.litrpg.mob.MobRank.NORMAL;
+        };
+        var fwd = p.getViewVector(1).multiply(1, 0, 1).normalize();
+        for (int i = 0; i < count; i++) {
+            var m = holder.get().create(p.serverLevel());
+            if (m == null) continue;
+            m.moveTo(p.getX() + fwd.x * 7 + (i % 4) * 1.2 - 1.8, p.getY(), p.getZ() + fwd.z * 7 + (i / 4) * 1.2,
+                    p.getYRot() + 180, 0);
+            m.setYBodyRot(p.getYRot() + 180);
+            m.setYHeadRot(p.getYRot() + 180);
+            m.setup(lv, r);
+            p.serverLevel().addFreshEntity(m);
+        }
+        return count;
     }
 
     private static Mob nearestMob(ServerPlayer p) {

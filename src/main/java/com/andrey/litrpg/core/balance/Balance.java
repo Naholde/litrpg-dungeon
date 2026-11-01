@@ -33,6 +33,7 @@ public final class Balance {
     public static final BalanceKey<BossesBalance> BOSSES = register("bosses", BossesBalance.CODEC, BossesBalance.defaults());
     public static final BalanceKey<GearBalance> GEAR = register("gear", GearBalance.CODEC, GearBalance.DEFAULT);
     public static final BalanceKey<ShopBalance> SHOP = register("shop", ShopBalance.CODEC, ShopBalance.DEFAULT);
+    public static final BalanceKey<MobsBalance> MOBS = register("mobs", MobsBalance.CODEC, MobsBalance.defaults());
 
     private Balance() {
     }

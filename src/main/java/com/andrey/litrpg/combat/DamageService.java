@@ -89,6 +89,7 @@ public final class DamageService {
             }
         }
         if (attacker instanceof LivingEntity la && !fixed) amount *= StatusService.product(la, StatusType.DAMAGE_DEALT);
+        amount *= levelGap(attacker, victim);
 
         // 2. Метки жертвы: уязвимость/защита, затем «защитник» забирает долю себе.
         amount *= StatusService.product(victim, StatusType.DAMAGE_TAKEN);
@@ -173,6 +174,31 @@ public final class DamageService {
         if (reflect > 0 && src.getDirectEntity() == attacker && CONTEXT.get() == null) {
             deal(victim, null, attacker, dealt * reflect, WeaponKind.FIXED);
         }
+    }
+
+    /** Уровень монстра или хранителя (−1 — у сущности нет уровня Системы). */
+    public static int levelOf(Entity e) {
+        if (e instanceof com.andrey.litrpg.mob.DungeonMob m) return m.mobLevel();
+        if (e instanceof com.andrey.litrpg.boss.BossEntity b) return b.bossLevel();
+        if (e instanceof ServerPlayer p) return PlayerService.data(p).level();
+        return -1;
+    }
+
+    /**
+     * Разница уровней: монстр выше игрока — игрок бьёт слабее (до 40% урона), а монстр бьёт сильнее
+     * (на 10 уровней выше — почти вдвое). Хранителей это не касается — их урон уже в долях здоровья.
+     */
+    static double levelGap(Entity attacker, LivingEntity victim) {
+        var mb = Balance.get(Balance.MOBS);
+        if (attacker instanceof ServerPlayer p && victim instanceof com.andrey.litrpg.mob.DungeonMob m) {
+            int diff = m.mobLevel() - PlayerService.data(p).level();
+            if (diff > 0) return Math.max(mb.gapMinDamage(), 1 - mb.gapPlayerDamage() * diff);
+        }
+        if (victim instanceof ServerPlayer p && attacker instanceof com.andrey.litrpg.mob.DungeonMob m) {
+            int diff = m.mobLevel() - PlayerService.data(p).level();
+            if (diff > 0) return 1 + mb.gapMobDamage() * diff;
+        }
+        return 1;
     }
 
     private static WeaponKind kindOf(DamageSource src, ServerPlayer p) {

@@ -45,14 +45,26 @@ public final class LootService {
         Set<ServerPlayer> winners = participants(mob, e);
         if (winners.isEmpty()) return;
         GearBalance g = Balance.get(Balance.GEAR);
+        var rank = mob instanceof com.andrey.litrpg.mob.DungeonMob dm ? dm.rank() : com.andrey.litrpg.mob.MobRank.NORMAL;
+        int mobLevel = com.andrey.litrpg.combat.DamageService.levelOf(mob);
         for (ServerPlayer p : winners) {
-            int level = PlayerService.data(p).level();
+            int level = mobLevel > 0 ? mobLevel : PlayerService.data(p).level();
+            // Опыт за монстра (пока нет точного бюджета этапа): доля опыта до следующего уровня × ранг.
+            var prog = Balance.get(Balance.PROGRESSION);
+            long xp = Math.round(prog.xpToNext(PlayerService.data(p).level()) * Balance.get(Balance.MOBS).xpPerKillShare() * rank.reward);
+            if (mob instanceof com.andrey.litrpg.mob.DungeonMob) PlayerService.addXp(p, Math.max(1, xp));
             double find = PlayerService.breakdown(p).get(Derived.FIND);
             long coins = Math.round(g.drops().coinsPerLevel() * level * (0.8 + level % 3 * 0.1 + p.getRandom().nextDouble() * 0.4)
-                    * (1 + find));
+                    * (1 + find) * rank.reward);
             Wallet.give(p, coins);
-            if (p.getRandom().nextDouble() < g.drops().gearChance() * (1 + find)) {
-                Rarity r = GearGen.rollRarity(p.getRandom(), find, Rarity.COMMON);
+            double chance = switch (rank) {
+                case NORMAL -> g.drops().gearChance();
+                case ELITE -> 0.3;
+                case CHAMPION -> 1.0;
+            };
+            if (p.getRandom().nextDouble() < chance * (1 + find)) {
+                Rarity r = GearGen.rollRarity(p.getRandom(), find,
+                        rank == com.andrey.litrpg.mob.MobRank.CHAMPION ? Rarity.RARE : Rarity.COMMON);
                 ItemStack item = GearGen.roll(p.getRandom(), PlayerService.data(p).role(), level, r);
                 dropFor(level, p, mob, item);
             }
