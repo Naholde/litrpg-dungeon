@@ -120,12 +120,21 @@ public final class ClientPlayerData {
         return Leveling.statPointsEarned(level, progression()) - Arrays.stream(allocated).sum();
     }
 
+    private static com.andrey.litrpg.gear.PlayerGear.Totals cachedGear;
+
     public static StatBreakdown breakdown() {
-        if (cached == null || cachedGeneration != Balance.generation()) {
+        var gear = gear();
+        if (cached == null || cachedGeneration != Balance.generation() || !gear.equals(cachedGear)) {
+            cachedGear = gear;
             cached = compute(allocated);
             cachedGeneration = Balance.generation();
         }
         return cached;
+    }
+
+    private static com.andrey.litrpg.gear.PlayerGear.Totals gear() {
+        var mc = net.minecraft.client.Minecraft.getInstance();
+        return mc.player != null ? com.andrey.litrpg.gear.PlayerGear.collect(mc.player) : com.andrey.litrpg.gear.PlayerGear.Totals.NONE;
     }
 
     /** Расчёт «как будет», если вложить ещё {@code extra} очков — для предпросмотра в окне персонажа. */
@@ -137,8 +146,9 @@ public final class ClientPlayerData {
 
     private static StatBreakdown compute(int[] alloc) {
         PlayerClass c = playerClass();
-        return StatBreakdown.compute(new StatBreakdown.Inputs(role, level, alloc, StatSet.ZERO,
-                        c != null ? c.growth() : null, c != null ? c.name() : null),
+        var gear = gear();
+        return StatBreakdown.compute(new StatBreakdown.Inputs(role, level, alloc, gear.stats(),
+                        c != null ? c.growth() : null, c != null ? c.name() : null, gear.derived(), gear.armor()),
                 Balance.get(Balance.PROGRESSION), Balance.get(Balance.CHARACTER), Balance.get(Balance.ROLES));
     }
 }

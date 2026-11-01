@@ -28,6 +28,16 @@ public final class CombatEvents {
     public static void register(IEventBus game) {
         game.addListener(DamageService::onIncoming);
         game.addListener(CombatEvents::afterDamage);
+        game.addListener(com.andrey.litrpg.gear.LootService::onDeath);
+        game.addListener(com.andrey.litrpg.gear.LootService::onDrops);
+        // Стрела из лука Системы бьёт силой лука (ванильная стрела ≈ 3 × базовый урон при полном натяжении).
+        game.addListener((net.neoforged.neoforge.event.entity.EntityJoinLevelEvent e) -> {
+            if (e.getLevel().isClientSide() || !(e.getEntity() instanceof net.minecraft.world.entity.projectile.AbstractArrow a)) return;
+            if (!(a.getOwner() instanceof ServerPlayer p)) return;
+            var bow = p.getMainHandItem().get(com.andrey.litrpg.core.ModComponents.GEAR.get());
+            if (bow == null) bow = p.getOffhandItem().get(com.andrey.litrpg.core.ModComponents.GEAR.get());
+            if (bow != null && bow.kind() == com.andrey.litrpg.gear.GearKind.BOW) a.setBaseDamage(bow.base() / 3.0);
+        });
         game.addListener((LivingChangeTargetEvent e) -> ThreatService.onChangeTarget(e));
         game.addListener((EntityTickEvent.Post e) -> {
             if (e.getEntity().level().isClientSide || !(e.getEntity() instanceof LivingEntity l)) return;

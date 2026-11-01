@@ -6,3 +6,4 @@
 5: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx
 6: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx, skill_sync, skill_action
 7: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx, skill_sync, skill_action, boss_sync
+8: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx, skill_sync, skill_action, boss_sync, shop, shop_act

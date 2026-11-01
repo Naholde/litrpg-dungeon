@@ -67,7 +67,7 @@ public final class HudOverlay {
             g.fillGradient(x + 1, y + 1, x + 1 + aw, y + 3, 0xFFFFF176, 0xFFFBC02D);
         }
         UiKit.border(g, x, y, HB_W, HB_H, low && (p.tickCount / 8) % 2 == 0 ? 0xFFFF6B6B : 0xFF7A2A30);
-        String text = Derived.MAX_HEALTH.format(Math.ceil(hp)) + " / " + Derived.MAX_HEALTH.format(max)
+        String text = Derived.MAX_HEALTH.format(Math.round(hp)) + " / " + Derived.MAX_HEALTH.format(Math.round(max))
                 + (abs > 0 ? "  +" + Math.round(abs) : "");
         UiKit.textCenter(g, f, text, w / 2, y + 1, 0xFFFFFFFF);
         int aggro = ClientAggro.countTargeting(p.getId());
@@ -147,7 +147,8 @@ public final class HudOverlay {
 
     private static void targetFrame(GuiGraphics g, Font f, Minecraft mc, int w, float partial, int below) {
         LivingEntity t = lookedAt(mc, 40, partial);
-        if (t == null || t instanceof com.andrey.litrpg.boss.BossEntity) return; // у хранителя своя рамка
+        // У хранителя своя рамка; торговец — не враг.
+        if (t == null || t instanceof com.andrey.litrpg.boss.BossEntity || t instanceof com.andrey.litrpg.shop.TraderEntity) return;
         int fw = 170, fh = 30, x = (w - fw) / 2, y = Math.max(4, below);
         UiKit.panel(g, x, y, fw, fh, t instanceof Player ? UiKit.FRAME : 0xFFE0564F);
         String name = f.plainSubstrByWidth(t.getDisplayName().getString(), fw - 12);

@@ -18,5 +18,15 @@
   "key.litrpg.skill_3": "Skill 3",
   "key.litrpg.skill_4": "Skill 4",
   "key.litrpg.skill_5": "Skill 5",
-  "key.litrpg.skill_6": "Skill 6"
+  "key.litrpg.skill_6": "Skill 6",
+  "item.litrpg.staff": "Staff",
+  "item.litrpg.ring": "Ring",
+  "item.litrpg.amulet": "Amulet",
+  "item.litrpg.charm": "Charm",
+  "item.litrpg.copper_coin": "Copper Coin",
+  "item.litrpg.silver_coin": "Silver Coin",
+  "item.litrpg.gold_coin": "Gold Coin",
+  "item.litrpg.elixir_of_life": "Elixir of Life",
+  "item.litrpg.scroll_of_oblivion": "Scroll of Oblivion",
+  "entity.litrpg.trader": "Camp Trader"
 }

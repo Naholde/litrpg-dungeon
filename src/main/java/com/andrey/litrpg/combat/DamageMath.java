@@ -29,6 +29,11 @@ public final class DamageMath {
         return fromBoss ? v * b.get(Derived.BOSS_TAKEN) : v;
     }
 
+    /** Броня режет урон от ударов врагов: броня / (броня + k × уровень + c), не больше предела. */
+    public static double armor(double amount, double armor, int level, com.andrey.litrpg.core.balance.GearBalance.Armor cfg) {
+        return amount * (1 - cfg.reduction(armor, level));
+    }
+
     /** Урон окружения (падение, лава, утопление) в масштабе здоровья: как в обычном Minecraft с 20 здоровья. */
     public static double environment(double amount, double maxHealth) {
         return amount * maxHealth / 20.0;

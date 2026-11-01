@@ -21,7 +21,7 @@ public final class PlayerTests {
 
     @SuppressWarnings("removal")
     private static ServerPlayer player(GameTestHelper h) {
-        return h.makeMockServerPlayerInLevel();
+        return TestPlayers.create(h);
     }
 
     /** Здоровье Minecraft = здоровью из расчёта, и выше ванильного предела 1024. */

@@ -35,7 +35,7 @@ public final class CombatTests {
 
     @SuppressWarnings("removal")
     private static ServerPlayer player(GameTestHelper h, Role role, int level) {
-        ServerPlayer p = h.makeMockServerPlayerInLevel();
+        ServerPlayer p = TestPlayers.create(h);
         p.setGameMode(GameType.SURVIVAL); // тестовый сервер ставит творческий режим — в нём урон не проходит
         Vec3 at = h.absoluteVec(new Vec3(0.5, 1, 0.5));
         p.teleportTo(h.getLevel(), at.x, at.y, at.z, 0, 0);
@@ -134,7 +134,7 @@ public final class CombatTests {
     @GameTest(template = "empty")
     public static void supportKitAndStaff(GameTestHelper h) {
         @SuppressWarnings("removal")
-        ServerPlayer p = h.makeMockServerPlayerInLevel();
+        ServerPlayer p = TestPlayers.create(h);
         Vec3 at = h.absoluteVec(new Vec3(0.5, 1, 0.5));
         p.teleportTo(h.getLevel(), at.x, at.y, at.z, 0, 0);
         PlayerService.chooseRole(p, Role.SUPPORT);

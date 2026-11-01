@@ -1,6 +1,8 @@
 package com.andrey.litrpg;
 
 import com.andrey.litrpg.core.balance.BossesBalance;
+import com.andrey.litrpg.core.balance.GearBalance;
+import com.andrey.litrpg.core.balance.ShopBalance;
 import com.andrey.litrpg.core.balance.SkillsBalance;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -32,6 +34,18 @@ class SkillsJsonTest {
     void bossesJsonListsEveryParameter() throws Exception {
         check("/data/litrpg/balance/bosses.json",
                 BossesBalance.CODEC.codec().encodeStart(JsonOps.INSTANCE, BossesBalance.defaults()).getOrThrow());
+    }
+
+    @Test
+    void gearJsonListsEveryParameter() throws Exception {
+        check("/data/litrpg/balance/gear.json",
+                GearBalance.CODEC.codec().encodeStart(JsonOps.INSTANCE, GearBalance.DEFAULT).getOrThrow());
+    }
+
+    @Test
+    void shopJsonListsEveryParameter() throws Exception {
+        check("/data/litrpg/balance/shop.json",
+                ShopBalance.CODEC.codec().encodeStart(JsonOps.INSTANCE, ShopBalance.DEFAULT).getOrThrow());
     }
 
     private void check(String res, JsonElement expected) throws Exception {

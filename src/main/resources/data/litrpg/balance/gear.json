@@ -1,0 +1,111 @@
+{
+  "stat_per_level": 0.25,
+  "affixes": {
+    "toughness": {
+      "min": 0.01,
+      "max": 0.03
+    },
+    "crit_chance": {
+      "min": 0.01,
+      "max": 0.04
+    },
+    "dodge": {
+      "min": 0.01,
+      "max": 0.03
+    },
+    "skill_power": {
+      "min": 0.03,
+      "max": 0.08
+    },
+    "find": {
+      "min": 0.03,
+      "max": 0.1
+    },
+    "haste": {
+      "min": 0.01,
+      "max": 0.04
+    },
+    "weapon_power": {
+      "min": 0.03,
+      "max": 0.08
+    },
+    "ranged_power": {
+      "min": 0.03,
+      "max": 0.08
+    },
+    "move_speed": {
+      "min": 0.01,
+      "max": 0.03
+    },
+    "crit_damage": {
+      "min": 0.05,
+      "max": 0.15
+    },
+    "heal_power": {
+      "min": 0.03,
+      "max": 0.08
+    }
+  },
+  "drops": {
+    "coins_per_level": 3.0,
+    "gear_chance": 0.04
+  },
+  "rarities": {
+    "epic": {
+      "weight": 18.0,
+      "power": 1.26,
+      "stats": 2,
+      "affixes": 3
+    },
+    "uncommon": {
+      "weight": 350.0,
+      "power": 1.08,
+      "stats": 1,
+      "affixes": 1
+    },
+    "common": {
+      "weight": 1000.0,
+      "power": 1.0,
+      "stats": 1,
+      "affixes": 0
+    },
+    "divine": {
+      "weight": 0.0,
+      "power": 1.55,
+      "stats": 3,
+      "affixes": 5
+    },
+    "legendary": {
+      "weight": 3.0,
+      "power": 1.38,
+      "stats": 3,
+      "affixes": 4
+    },
+    "rare": {
+      "weight": 90.0,
+      "power": 1.16,
+      "stats": 2,
+      "affixes": 2
+    }
+  },
+  "weapons": {
+    "bow_base": 6.0,
+    "bow_per_level": 1.0,
+    "staff_base": 5.0,
+    "staff_per_level": 0.9,
+    "melee_base": 6.0,
+    "melee_per_level": 1.0,
+    "axe_mult": 1.15
+  },
+  "armor": {
+    "k": 15.0,
+    "c": 75.0,
+    "cap": 0.75,
+    "boots": 0.15,
+    "shield": 0.1,
+    "per_level": 9.0,
+    "helmet": 0.15,
+    "chest": 0.35,
+    "legs": 0.25
+  }
+}

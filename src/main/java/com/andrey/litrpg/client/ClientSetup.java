@@ -52,6 +52,7 @@ public final class ClientSetup {
             e.registerEntityRenderer(ModEntities.TRAINING_DUMMY.get(), TrainingDummyRenderer::new);
             e.registerEntityRenderer(ModEntities.TRIAL_WARDEN.get(), ctx -> GeoRenderers.glowing(ctx, "trial_warden", 1.6f));
             e.registerEntityRenderer(ModEntities.POWER_NODE.get(), ctx -> GeoRenderers.glowing(ctx, "power_node", 1.0f));
+            e.registerEntityRenderer(ModEntities.TRADER.get(), ctx -> GeoRenderers.glowing(ctx, "trader", 1.0f));
         }
 
         @SubscribeEvent

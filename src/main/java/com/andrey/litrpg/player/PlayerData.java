@@ -38,6 +38,8 @@ public final class PlayerData implements INBTSerializable<CompoundTag> {
     final Map<Style, Integer> style = new EnumMap<>(Style.class);
     /** Классы, предложенные Системой (до выбора). */
     final List<String> offers = new ArrayList<>();
+    /** Купленное в лавках этого этапа (ключ «торговец#этап#номер»). */
+    final java.util.Set<String> bought = new java.util.HashSet<>();
 
     /** Тик сервера, когда игрок последний раз бил или получал урон (не сохраняется). */
     long lastCombatTick = Long.MIN_VALUE / 2;
@@ -74,6 +76,10 @@ public final class PlayerData implements INBTSerializable<CompoundTag> {
         return Collections.unmodifiableMap(style);
     }
 
+    public boolean bought(String key) {
+        return bought.contains(key);
+    }
+
     public List<String> offers() {
         return Collections.unmodifiableList(offers);
     }
@@ -104,9 +110,13 @@ public final class PlayerData implements INBTSerializable<CompoundTag> {
     }
 
     public StatBreakdown.Inputs inputs() {
+        return inputs(com.andrey.litrpg.gear.PlayerGear.Totals.NONE);
+    }
+
+    public StatBreakdown.Inputs inputs(com.andrey.litrpg.gear.PlayerGear.Totals gear) {
         PlayerClass c = playerClass();
-        return new StatBreakdown.Inputs(role, level, allocated.clone(), StatSet.ZERO,
-                c != null ? c.growth() : null, c != null ? c.name() : null);
+        return new StatBreakdown.Inputs(role, level, allocated.clone(), gear.stats(),
+                c != null ? c.growth() : null, c != null ? c.name() : null, gear.derived(), gear.armor());
     }
 
     @Override
@@ -126,6 +136,9 @@ public final class PlayerData implements INBTSerializable<CompoundTag> {
         ListTag of = new ListTag();
         offers.forEach(o -> of.add(StringTag.valueOf(o)));
         tag.put("offers", of);
+        ListTag bt = new ListTag();
+        bought.forEach(o -> bt.add(StringTag.valueOf(o)));
+        tag.put("bought", bt);
         return tag;
     }
 
@@ -147,5 +160,8 @@ public final class PlayerData implements INBTSerializable<CompoundTag> {
         offers.clear();
         ListTag of = tag.getList("offers", Tag.TAG_STRING);
         for (int i = 0; i < of.size(); i++) offers.add(of.getString(i));
+        bought.clear();
+        ListTag bt = tag.getList("bought", Tag.TAG_STRING);
+        for (int i = 0; i < bt.size(); i++) bought.add(bt.getString(i));
     }
 }

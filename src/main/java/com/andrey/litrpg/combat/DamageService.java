@@ -114,6 +114,10 @@ public final class DamageService {
                 Popups.dodge(vp);
                 return;
             }
+            if (attacker instanceof LivingEntity && attacker != vp && !fixed) {
+                amount = DamageMath.armor(amount, b.get(Derived.ARMOR), PlayerService.data(vp).level(),
+                        Balance.get(Balance.GEAR).armor());
+            }
             amount = DamageMath.incoming(amount, b, isBoss(attacker));
         }
 

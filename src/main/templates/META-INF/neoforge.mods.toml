@@ -32,3 +32,10 @@ description='''
     versionRange="[4.9,)"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="curios"
+    type="required"
+    versionRange="[9.5,)"
+    ordering="AFTER"
+    side="BOTH"

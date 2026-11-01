@@ -42,7 +42,8 @@ public class StaffItem extends Item {
     public boolean cast(ServerPlayer p, ItemStack stack) {
         if (p.getCooldowns().isOnCooldown(this)) return false;
         p.getCooldowns().addCooldown(this, cooldownTicks);
-        MagicBolt bolt = new MagicBolt(p.level(), p, damage, color);
+        var gear = stack.get(com.andrey.litrpg.core.ModComponents.GEAR.get());
+        MagicBolt bolt = new MagicBolt(p.level(), p, gear != null ? gear.base() : damage, color);
         bolt.shootFromRotation(p, p.getXRot(), p.getYRot(), 0, 1.8f, 0.4f);
         p.level().addFreshEntity(bolt);
         p.swing(InteractionHand.MAIN_HAND, true);
@@ -53,8 +54,10 @@ public class StaffItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.literal("ЛКМ — магический снаряд").withStyle(ChatFormatting.AQUA));
-        tooltip.add(Component.literal("Урон: " + Derived.trim(damage) + " + сила навыков (Интеллект)")
-                .withStyle(ChatFormatting.GRAY));
+        if (!stack.has(com.andrey.litrpg.core.ModComponents.GEAR.get())) {
+            tooltip.add(Component.literal("Урон: " + Derived.trim(damage) + " + сила навыков (Интеллект)")
+                    .withStyle(ChatFormatting.GRAY));
+        }
         tooltip.add(Component.literal("Перезарядка: " + Derived.trim(cooldownTicks / 20.0) + " с")
                 .withStyle(ChatFormatting.GRAY));
     }

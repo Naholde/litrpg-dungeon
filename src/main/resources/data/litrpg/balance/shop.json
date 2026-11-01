@@ -1,0 +1,18 @@
+{
+  "upgrade_per_level": 25.0,
+  "class_change_per_level": 40.0,
+  "rank_reset_per_level": 15.0,
+  "scroll": 300.0,
+  "reroll_per_level": 15.0,
+  "price_per_level": 20.0,
+  "rarity_price": {
+    "epic": 10.0,
+    "uncommon": 2.0,
+    "common": 1.0,
+    "divine": 60.0,
+    "legendary": 25.0,
+    "rare": 4.0
+  },
+  "sell_share": 0.25,
+  "elixir_per_level": 10.0
+}

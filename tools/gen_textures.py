@@ -143,6 +143,172 @@ def training_dummy():
     return c
 
 
+# ---------------------------------------------------------------------------- посох Системы
+
+@texture("item/staff.png")
+def system_staff():
+    c = Canvas(16, 16)
+    dark, wood, light = hexrgb("#2E2238"), hexrgb("#4B3760"), hexrgb("#6E5590")
+    silver, silver_l = hexrgb("#9AA4B8"), hexrgb("#D9E0EC")
+    orb_d, orb, orb_l = hexrgb("#5A2E9C"), hexrgb("#B46BFF"), hexrgb("#E7C9FF")
+    for i in range(10):
+        x, y = 2 + i, 14 - i
+        c.set(x, y, dark)
+        c.set(x + 1, y, wood if i % 2 else light)
+    for (x, y) in [(5, 10), (6, 10), (6, 9), (9, 6), (10, 6), (10, 5)]:
+        c.set(x, y, silver)
+    c.set(6, 9, silver_l)
+    # кольцо-оправа и сфера
+    for (x, y) in [(11, 2), (12, 1), (13, 1), (14, 2), (14, 3), (14, 4), (13, 5), (12, 5), (11, 4), (11, 3)]:
+        c.set(x, y, silver)
+    for (x, y, col) in [(12, 2, orb_l), (13, 2, orb), (12, 3, orb), (13, 3, orb_d), (12, 4, orb_d), (13, 4, orb_d)]:
+        c.set(x, y, col)
+    c.blend(15, 0, (231, 201, 255, 150))
+    return c
+
+
+# ---------------------------------------------------------------------------- украшения
+
+@texture("item/ring.png")
+def ring():
+    c = Canvas(16, 16)
+    gold, gold_d, gold_l = hexrgb("#D9A53A"), hexrgb("#8C6420"), hexrgb("#FFE29A")
+    gem, gem_l = hexrgb("#3FB6FF"), hexrgb("#BDEBFF")
+    for y in range(16):
+        for x in range(16):
+            d = ((x - 7.5) ** 2 + (y - 9) ** 2) ** 0.5
+            if 3.2 <= d <= 5.2:
+                c.set(x, y, gold_l if y < 8 and x < 8 else gold if d < 4.6 else gold_d)
+    for (x, y, col) in [(7, 2, gem_l), (8, 2, gem), (6, 3, gem), (7, 3, gem), (8, 3, gem), (9, 3, gem), (7, 4, gem), (8, 4, gem)]:
+        c.set(x, y, col)
+    for (x, y) in [(6, 4), (9, 4), (6, 2), (9, 2)]:
+        c.set(x, y, gold_d)
+    return c
+
+
+@texture("item/amulet.png")
+def amulet():
+    c = Canvas(16, 16)
+    chain, chain_d = hexrgb("#B8BCC6"), hexrgb("#6E7380")
+    gold, gold_d = hexrgb("#D9A53A"), hexrgb("#8C6420")
+    gem, gem_d, gem_l = hexrgb("#D83A5A"), hexrgb("#7A1430"), hexrgb("#FF9AB0")
+    for i in range(7):
+        c.set(3 + i // 2, 1 + i, chain if i % 2 else chain_d)
+        c.set(12 - i // 2, 1 + i, chain if i % 2 else chain_d)
+    for y in range(8, 15):
+        for x in range(4, 12):
+            d = abs(x - 7.5) + abs(y - 11)
+            if d <= 3.6:
+                c.set(x, y, gold if d > 2.4 else gem_d if y > 11 else gem)
+    c.set(7, 10, gem_l)
+    c.set(6, 11, gem_l)
+    c.set(7, 14, gold_d)
+    c.set(8, 14, gold_d)
+    return c
+
+
+@texture("item/charm.png")
+def charm():
+    c = Canvas(16, 16)
+    bone, bone_d = hexrgb("#E8DCC0"), hexrgb("#9C8C6C")
+    cord = hexrgb("#6E4E28")
+    rune = hexrgb("#5FC8FF")
+    for x in range(3, 13):
+        c.set(x, 2, cord)
+    c.set(7, 3, cord)
+    c.set(8, 3, cord)
+    for y in range(4, 14):
+        w = 3 if y < 6 or y > 11 else 4
+        for x in range(8 - w, 8 + w):
+            c.set(x, y, bone if (x + y) % 5 else bone_d)
+    for (x, y) in [(7, 6), (8, 7), (7, 8), (8, 9), (7, 10), (6, 8), (9, 8)]:
+        c.set(x, y, rune)
+    return c
+
+
+# ---------------------------------------------------------------------------- монеты
+
+def coin(base, dark, light, mark):
+    c = Canvas(16, 16)
+    for y in range(16):
+        for x in range(16):
+            d = ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** 0.5
+            if d <= 6.2:
+                col = dark if d > 5.3 else light if (x + y) < 12 and d < 4 else base
+                c.set(x, y, col)
+    for (x, y) in mark:
+        c.set(x, y, dark)
+    return c
+
+
+SIGIL = [(7, 4), (8, 4), (6, 5), (9, 5), (6, 6), (9, 6), (7, 7), (8, 7), (6, 8), (9, 8), (6, 9), (9, 9), (7, 10), (8, 10)]
+
+
+@texture("item/copper_coin.png")
+def copper_coin():
+    return coin(hexrgb("#C2703A"), hexrgb("#7A3E1A"), hexrgb("#E8A070"), SIGIL)
+
+
+@texture("item/silver_coin.png")
+def silver_coin():
+    return coin(hexrgb("#B8C0CC"), hexrgb("#6E7684"), hexrgb("#E8EEF6"), SIGIL)
+
+
+@texture("item/gold_coin.png")
+def gold_coin():
+    return coin(hexrgb("#E0B040"), hexrgb("#8C6420"), hexrgb("#FFE79A"), SIGIL)
+
+
+# ---------------------------------------------------------------------------- эликсир и свиток
+
+@texture("item/elixir_of_life.png")
+def elixir():
+    c = Canvas(16, 16)
+    glass, glass_d = hexrgb("#CFE8F0"), hexrgb("#7FA0B0")
+    liquid, liquid_l, liquid_d = hexrgb("#E0303A"), hexrgb("#FF8A8A"), hexrgb("#8C1018")
+    cork = hexrgb("#8C6438")
+    for x in range(7, 9):
+        c.set(x, 1, cork)
+        c.set(x, 2, cork)
+    for y in range(3, 6):
+        c.set(6, y, glass_d)
+        c.set(9, y, glass_d)
+        c.set(7, y, glass)
+        c.set(8, y, glass)
+    for y in range(6, 15):
+        for x in range(3, 13):
+            d = ((x - 7.5) ** 2 + (y - 10.5) ** 2) ** 0.5
+            if d <= 4.6:
+                edge = d > 3.9
+                col = glass_d if edge else liquid_l if (x < 7 and y < 10) else liquid if y > 8 else glass
+                if not edge and y > 12:
+                    col = liquid_d
+                c.set(x, y, col)
+    c.set(5, 9, (255, 255, 255, 220))
+    return c
+
+
+@texture("item/scroll_of_oblivion.png")
+def scroll():
+    c = Canvas(16, 16)
+    paper, paper_d = hexrgb("#E8DDB8"), hexrgb("#B0A07A")
+    roll, roll_d = hexrgb("#8C6438"), hexrgb("#5A3E20")
+    ink = hexrgb("#5A4AA0")
+    for y in range(3, 13):
+        for x in range(3, 13):
+            c.set(x, y, paper if (x + y) % 7 else paper_d)
+    for y in range(2, 14):
+        c.set(2, y, roll)
+        c.set(13, y, roll)
+    c.set(2, 2, roll_d)
+    c.set(13, 13, roll_d)
+    for y in (5, 7, 9, 11):
+        for x in range(5, 11):
+            if (x * 3 + y) % 4:
+                c.set(x, y, ink)
+    return c
+
+
 def main():
     preview = None
     if "--preview" in sys.argv:

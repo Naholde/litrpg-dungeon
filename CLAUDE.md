@@ -19,6 +19,8 @@
 - Игровые тесты: `./gradlew.bat runGameTestServer` (то же делает GitHub Actions после push).
 - Dev-клиент: `bash tools/dev/prepare_run.sh` один раз, затем `./gradlew.bat runClient -Pquickplay=<мир>` или `-Pjoin=109.248.163.212:25565`.
 - Перед новым запуском — убить java-процессы с `litrpg-dungeon` в командной строке.
+- Зависимости: GeckoLib и Curios (версии в `gradle.properties`); на сервер их кладёт `deploy.sh` из кэша Gradle.
+  Тестовые игроки — только через `gametest/TestPlayers.create` (иначе Curios роняет вход).
 - Python 3.10 без PIL. Текстуры — `python tools/gen_textures.py [--preview build/preview]` (не править png руками).
 - Ванильная сложность закреплена на «Нормально»: на «Тяжело» мобы бьют ×1,5 мимо наших формул.
 - Длинные многострочные python-heredoc в bash ломаются — правки класть в `build/preview/*.py` и запускать.
@@ -62,6 +64,8 @@
 - `boss/` — `BossEntity` (основа хранителя), `BossRegistry` (типы и цифры), `BossDamage`, `Telegraph`, `PowerNode`,
   `TrialWarden`, `Polygon`. **Новый хранитель:** класс-наследник `BossEntity` с навыками (`Ability`) и фазами, тип в
   `BossRegistry`, сущность в `ModEntities`, модель в `tools/gen_models.py`, тег `litrpg:bosses`, `gradlew test -Pregen`.
+- `gear/` — `GearData` (компонент вещи), `GearKind`, `Rarity`, `AffixType`, `GearGen`, `PlayerGear` (сумма надетого),
+  `LootService` (личная добыча), `Wallet`, `item/` (монеты, эликсир, свиток). `shop/` — `TraderEntity`, `ShopService`.
 - `party/` — `Party`, `PartyService`. `core/` — `ModItems`, `ModEntities`, `ModTags`, `ModAttachments`, `SystemChat`.
 - `client/` — `HudOverlay`, `fx/` (`ClientPopups`, `ClientAggro`, `WorldText`), `render/`, `ClientParty`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).

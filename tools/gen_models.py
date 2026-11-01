@@ -261,7 +261,50 @@ def power_node():
     return bones, anims
 
 
-MODELS = {"trial_warden": trial_warden, "power_node": power_node}
+# ---------------------------------------------------------------------------- Торговец привала
+
+MATERIALS.update({
+    "robe": ("#3A2E5A", 0.08, False, "plain"),
+    "robe_trim": ("#C9A04A", 0.08, False, "rivets"),
+    "skin": ("#C69C7A", 0.05, False, "plain"),
+    "leather": ("#6B4A2E", 0.10, False, "plain"),
+    "lantern": ("#FFD27A", 0.05, True, "plain"),
+    "eyes": ("#7FF0FF", 0.0, True, "plain"),
+})
+
+
+def trader():
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("body", [0, 12, 0], "root", [
+            Cube([-4, 0, -3], [8, 12, 6], "robe"),             # полы мантии до земли
+            Cube([-4.5, 12, -3.5], [9, 11, 7], "robe"),
+            Cube([-4.5, 12, -3.6], [9, 1, 1], "robe_trim"),
+            Cube([-1, 13, -3.8], [2, 9, 1], "robe_trim"),
+            Cube([-5, 14, 3.5], [10, 10, 4], "leather"),      # заплечный мешок
+        ]),
+        Bone("head", [0, 23, 0], "body", [
+            Cube([-4, 23, -4], [8, 8, 8], "skin", faces={"north": "skin"}),
+            Cube([-5, 27, -5], [10, 6, 10], "robe"),           # капюшон
+            Cube([-2.5, 26, -4.2], [5, 1, 1], "eyes"),
+        ]),
+        Bone("right_arm", [-5.5, 22, 0], "body", [Cube([-8, 11, -2], [3, 11, 4], "robe")]),
+        Bone("left_arm", [5.5, 22, 0], "body", [Cube([5, 11, -2], [3, 11, 4], "robe")]),
+        Bone("lantern", [7, 11, -1], "left_arm", [
+            Cube([5.5, 6, -2.5], [3, 4, 3], "lantern"),
+            Cube([6, 10, -2], [2, 1, 2], "leather"),
+        ]),
+    ]
+    anims = {"idle": loop(3.0, {
+        "body": {"position": kf([(0, [0, 0, 0]), (1.5, [0, -0.3, 0]), (3.0, [0, 0, 0])])},
+        "head": {"rotation": kf([(0, [0, -6, 0]), (1.5, [2, 6, 0]), (3.0, [0, -6, 0])])},
+        "lantern": {"rotation": kf([(0, [0, 0, 4]), (1.5, [0, 0, -4]), (3.0, [0, 0, 4])])},
+        "left_arm": {"rotation": kf([(0, [-30, 0, 0]), (3.0, [-30, 0, 0])])},
+    })}
+    return bones, anims
+
+
+MODELS = {"trial_warden": trial_warden, "power_node": power_node, "trader": trader}
 
 
 def main():
@@ -271,7 +314,7 @@ def main():
         if only and name != only:
             continue
         bones, anims = fn()
-        geo, anim, tex, glow = build(name, bones, anims, tex_w=128, tex_h=128 if name != "power_node" else 64)
+        geo, anim, tex, glow = build(name, bones, anims, tex_w=128, tex_h=64 if name == "power_node" else 128)
         (ASSETS / "geo/entity").mkdir(parents=True, exist_ok=True)
         (ASSETS / "animations/entity").mkdir(parents=True, exist_ok=True)
         (ASSETS / f"geo/entity/{name}.geo.json").write_text(json.dumps(geo, indent=1), encoding="utf-8")

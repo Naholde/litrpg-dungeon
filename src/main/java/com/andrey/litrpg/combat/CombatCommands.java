@@ -7,6 +7,7 @@ import com.andrey.litrpg.fx.Fx;
 import com.andrey.litrpg.party.PartyService;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -99,6 +100,41 @@ public final class CombatCommands {
                             .forEach(b -> b.setHealth((float) (b.getMaxHealth() * pct)));
                     return 1;
                 }))));
+        root.then(Commands.literal("gear").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("rarity", StringArgumentType.word())
+                        .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                                java.util.Arrays.stream(com.andrey.litrpg.gear.Rarity.values()).map(r -> r.id), b))
+                        .executes(c -> giveGear(c, null))
+                        .then(Commands.argument("kind", StringArgumentType.word())
+                                .suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+                                        java.util.Arrays.stream(com.andrey.litrpg.gear.GearKind.values()).map(k -> k.id), b))
+                                .executes(c -> giveGear(c, StringArgumentType.getString(c, "kind"))))));
+        root.then(Commands.literal("coins").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("copper", com.mojang.brigadier.arguments.LongArgumentType.longArg(1)).executes(c -> {
+                    com.andrey.litrpg.gear.Wallet.give(c.getSource().getPlayerOrException(),
+                            com.mojang.brigadier.arguments.LongArgumentType.getLong(c, "copper"));
+                    return 1;
+                })));
+        root.then(Commands.literal("trader").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("stage", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 5)).executes(c -> {
+                    ServerPlayer p = c.getSource().getPlayerOrException();
+                    var t = ModEntities.TRADER.get().create(p.serverLevel());
+                    if (t == null) return 0;
+                    int stage = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "stage");
+                    t.setStage(stage, (stage - 1) * 10 + 5);
+                    var look = p.getViewVector(1).multiply(1, 0, 1).normalize().scale(3);
+                    t.moveTo(p.getX() + look.x, p.getY(), p.getZ() + look.z, p.getYRot() + 180, 0);
+                    p.serverLevel().addFreshEntity(t);
+                    return 1;
+                })));
+        root.then(Commands.literal("shop").executes(c -> {
+            ServerPlayer p = c.getSource().getPlayerOrException();
+            var t = p.serverLevel().getEntitiesOfClass(com.andrey.litrpg.shop.TraderEntity.class, p.getBoundingBox().inflate(8))
+                    .stream().findFirst().orElse(null);
+            if (t == null) return 0;
+            com.andrey.litrpg.shop.ShopService.open(p, t);
+            return 1;
+        }));
         root.then(Commands.literal("party")
                 .then(Commands.literal("form").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("players", EntityArgument.players()).executes(c -> {
@@ -122,6 +158,21 @@ public final class CombatCommands {
         d.setYBodyRot(p.getYRot() + 180);
         d.setAggressive(aggressive);
         p.serverLevel().addFreshEntity(d);
+        return 1;
+    }
+
+    private static int giveGear(CommandContext<CommandSourceStack> c, String kindId) throws CommandSyntaxException {
+        ServerPlayer p = c.getSource().getPlayerOrException();
+        var rarity = java.util.Arrays.stream(com.andrey.litrpg.gear.Rarity.values())
+                .filter(r -> r.id.equals(StringArgumentType.getString(c, "rarity"))).findFirst()
+                .orElse(com.andrey.litrpg.gear.Rarity.COMMON);
+        var d = com.andrey.litrpg.player.PlayerService.data(p);
+        var stack = kindId == null
+                ? com.andrey.litrpg.gear.GearGen.roll(p.getRandom(), d.role(), d.level(), rarity)
+                : com.andrey.litrpg.gear.GearGen.make(java.util.Arrays.stream(com.andrey.litrpg.gear.GearKind.values())
+                        .filter(k -> k.id.equals(kindId)).findFirst().orElse(com.andrey.litrpg.gear.GearKind.SWORD),
+                d.level(), rarity, d.role(), p.getRandom());
+        if (!p.getInventory().add(stack)) p.drop(stack, false);
         return 1;
     }
 

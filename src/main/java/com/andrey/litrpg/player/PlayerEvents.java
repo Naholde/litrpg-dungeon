@@ -35,6 +35,12 @@ public final class PlayerEvents {
             e.getServer().setDifficultyLocked(true);
         });
         game.addListener(PlayerEvents::onTick);
+        game.addListener((net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp) PlayerService.refresh(sp);
+        });
+        game.addListener((top.theillusivec4.curios.api.event.CurioChangeEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp) PlayerService.refresh(sp);
+        });
         game.addListener(PlayerEvents::onDamage);
     }
 

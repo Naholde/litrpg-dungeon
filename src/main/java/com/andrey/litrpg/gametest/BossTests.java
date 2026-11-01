@@ -33,7 +33,7 @@ public final class BossTests {
 
     @SuppressWarnings("removal")
     private static ServerPlayer player(GameTestHelper h, Role role, double x, double z) {
-        ServerPlayer p = h.makeMockServerPlayerInLevel();
+        ServerPlayer p = TestPlayers.create(h);
         p.setGameMode(GameType.SURVIVAL);
         Vec3 at = h.absoluteVec(new Vec3(x, 1, z));
         p.teleportTo(h.getLevel(), at.x, at.y, at.z, 0, 0);

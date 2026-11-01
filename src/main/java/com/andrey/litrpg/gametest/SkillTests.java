@@ -38,7 +38,7 @@ public final class SkillTests {
 
     @SuppressWarnings("removal")
     private static ServerPlayer player(GameTestHelper h, Role role, int level, double x) {
-        ServerPlayer p = h.makeMockServerPlayerInLevel();
+        ServerPlayer p = TestPlayers.create(h);
         p.setGameMode(GameType.SURVIVAL);
         Vec3 at = h.absoluteVec(new Vec3(x, 1, 4.5));
         p.teleportTo(h.getLevel(), at.x, at.y, at.z, 0, 0);
@@ -162,7 +162,7 @@ public final class SkillTests {
     @GameTest(template = "arena")
     public static void classOfferChooseAndRanks(GameTestHelper h) {
         @SuppressWarnings("removal")
-        ServerPlayer p = h.makeMockServerPlayerInLevel();
+        ServerPlayer p = TestPlayers.create(h);
         PlayerService.chooseRole(p, Role.SUPPORT);
         PlayerService.setLevel(p, 12);
         var d = PlayerService.data(p);

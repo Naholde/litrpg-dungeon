@@ -5,6 +5,7 @@ import com.andrey.litrpg.boss.BossEntity;
 import com.andrey.litrpg.boss.PowerNode;
 import com.andrey.litrpg.boss.TrialWarden;
 import com.andrey.litrpg.combat.entity.MagicBolt;
+import com.andrey.litrpg.shop.TraderEntity;
 import com.andrey.litrpg.combat.entity.TrainingDummy;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -34,6 +35,10 @@ public final class ModEntities {
             () -> EntityType.Builder.<PowerNode>of(PowerNode::new, MobCategory.MISC)
                     .sized(1.0f, 1.8f).clientTrackingRange(10).fireImmune().build("power_node"));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<TraderEntity>> TRADER = REG.register("trader",
+            () -> EntityType.Builder.<TraderEntity>of(TraderEntity::new, MobCategory.MISC)
+                    .sized(0.7f, 2.0f).clientTrackingRange(10).build("trader"));
+
     private ModEntities() {
     }
 
@@ -43,6 +48,7 @@ public final class ModEntities {
             e.put(TRAINING_DUMMY.get(), TrainingDummy.attributes().build());
             e.put(TRIAL_WARDEN.get(), BossEntity.bossAttributes().build());
             e.put(POWER_NODE.get(), PowerNode.attributes().build());
+            e.put(TRADER.get(), TraderEntity.attributes().build());
         });
     }
 }

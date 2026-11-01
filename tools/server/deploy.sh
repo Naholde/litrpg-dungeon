@@ -13,14 +13,19 @@ if [ "${1:-}" != "--no-build" ]; then
 fi
 JAR="$(ls -t build/libs/litrpg-dungeon-*.jar | head -1)"
 echo "Ставлю $JAR"
-# Зависимости (GeckoLib) — из кэша Gradle, если на сервере их ещё нет.
-GECKO_VER="$(grep '^geckolib_version=' gradle.properties | cut -d= -f2)"
-GECKO="$(find "$HOME/.gradle/caches/modules-2" -name "geckolib-neoforge-1.21.1-$GECKO_VER.jar" | head -1)"
-if [ -n "$GECKO" ] && ! ssh -i "$KEY" "$HOST" "test -f /opt/litrpg/server/mods/$(basename "$GECKO")"; then
-  scp -q -i "$KEY" "$GECKO" "$HOST:/tmp/gecko.jar"
-  ssh -i "$KEY" "$HOST" "rm -f /opt/litrpg/server/mods/geckolib-*.jar; install -o mc -g mc -m 644 /tmp/gecko.jar /opt/litrpg/server/mods/$(basename "$GECKO"); rm /tmp/gecko.jar"
-  echo "GeckoLib $GECKO_VER установлен"
-fi
+# Зависимости (GeckoLib, Curios) — из кэша Gradle, если на сервере их ещё нет.
+dep() { # dep <артефакт в кэше> <маска старых jar на сервере>
+  local f; f="$(find "$HOME/.gradle/caches/modules-2" -name "$1" | head -1)"
+  [ -z "$f" ] && { echo "нет в кэше: $1" >&2; return; }
+  if ! ssh -i "$KEY" "$HOST" "test -f /opt/litrpg/server/mods/$(basename "$f")"; then
+    scp -q -i "$KEY" "$f" "$HOST:/tmp/dep.jar"
+    ssh -i "$KEY" "$HOST" "rm -f /opt/litrpg/server/mods/$2; install -o mc -g mc -m 644 /tmp/dep.jar /opt/litrpg/server/mods/$(basename "$f"); rm /tmp/dep.jar"
+    echo "Установлено: $(basename "$f")"
+  fi
+}
+prop() { grep "^$1=" gradle.properties | cut -d= -f2; }
+dep "geckolib-neoforge-1.21.1-$(prop geckolib_version).jar" "geckolib-*.jar"
+dep "curios-neoforge-$(prop curios_version).jar" "curios-*.jar"
 scp -q -i "$KEY" "$JAR" "$HOST:/tmp/litrpg-new.jar"
 ssh -i "$KEY" "$HOST" 'set -e
   rm -f /opt/litrpg/server/mods/litrpg-dungeon-*.jar

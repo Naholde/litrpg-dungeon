@@ -39,8 +39,10 @@ public final class PlayerService {
                 Balance.get(Balance.CHARACTER), Balance.get(Balance.ROLES));
     }
 
+    /** Полный расчёт с надетой экипировкой — его используют бой и окно. */
     public static StatBreakdown breakdown(ServerPlayer player) {
-        return breakdown(data(player));
+        return StatBreakdown.compute(data(player).inputs(com.andrey.litrpg.gear.PlayerGear.collect(player)),
+                Balance.get(Balance.PROGRESSION), Balance.get(Balance.CHARACTER), Balance.get(Balance.ROLES));
     }
 
     /** Пересчитать характеристики, применить к атрибутам Minecraft и отправить клиенту. */
@@ -182,6 +184,21 @@ public final class PlayerService {
                         Component.literal(u.skill().name).withColor(u.skill().color)));
             }
         }
+    }
+
+    public static void markBought(ServerPlayer player, String key) {
+        data(player).bought.add(key);
+    }
+
+    /** Новый этап — лавки обновляются. */
+    public static void clearBought(ServerPlayer player) {
+        data(player).bought.clear();
+    }
+
+    /** Забыть ранги: очки класса возвращаются. */
+    public static void resetRanks(ServerPlayer player) {
+        data(player).ranks.clear();
+        sync(player);
     }
 
     public static void addStyle(ServerPlayer player, Style s, int n) {

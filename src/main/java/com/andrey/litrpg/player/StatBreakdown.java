@@ -22,13 +22,15 @@ public final class StatBreakdown {
     }
 
     /** Всё, от чего зависит расчёт. Экипировка и класс добавятся в следующих фазах. */
-    public record Inputs(Role role, int level, int[] allocated, StatSet gear, StatSet classGrowth, String className) {
+    public record Inputs(Role role, int level, int[] allocated, StatSet gear, StatSet classGrowth, String className,
+                         Map<Derived, Double> gearDerived, double armor) {
         public Inputs {
             if (allocated.length != Stat.ALL.length) throw new IllegalArgumentException("allocated");
+            gearDerived = gearDerived == null ? Map.of() : gearDerived;
         }
 
         public Inputs(Role role, int level, int[] allocated, StatSet gear) {
-            this(role, level, allocated, gear, null, null);
+            this(role, level, allocated, gear, null, null, Map.of(), 0);
         }
     }
 
@@ -159,7 +161,28 @@ public final class StatBreakdown {
         if (role.bossDamageTakenMult() != 1) boss.add(new Line(roleName, role.bossDamageTakenMult() - 1));
         b.putDerived(Derived.BOSS_TAKEN, boss);
         b.putDerived(Derived.FIND, List.of(new Line("Удача " + Derived.trim(luck), luck * cb.utility().findPerLuck())));
+        b.putDerived(Derived.ARMOR, in.armor() > 0 ? List.of(new Line("Броня экипировки", in.armor())) : List.of());
+        // Свойства вещей — отдельной строкой в каждой величине (с учётом пределов).
+        for (var e : in.gearDerived().entrySet()) {
+            List<Line> l = new ArrayList<>(b.lines(e.getKey()));
+            l.removeIf(x -> x.source().startsWith("Предел"));
+            l.add(new Line("Свойства вещей", e.getValue()));
+            double cap = capOf(e.getKey(), cb);
+            if (cap > 0) cap(l, cap);
+            b.putDerived(e.getKey(), l);
+        }
         return b;
+    }
+
+    private static double capOf(Derived d, CharacterBalance cb) {
+        return switch (d) {
+            case CRIT_CHANCE -> cb.crit().chanceCap();
+            case DODGE -> cb.defense().dodgeCap();
+            case TOUGHNESS -> cb.defense().toughnessCap();
+            case HASTE -> cb.utility().hasteCap();
+            case MOVE_SPEED -> cb.utility().speedCap();
+            default -> 0;
+        };
     }
 
     /** Множитель показываем отдельной строкой — приростом к тому, что набралось выше. */
