@@ -81,18 +81,25 @@ public final class LootService {
         }
     }
 
+    /** Финальные хранители этапов: трофей чаще легендарный. */
+    private static final java.util.Set<String> FINALS = java.util.Set.of("lich", "morena", "naiad", "ash_lord", "xalathar");
+    /** Самые сложные хранители: малый шанс божественного трофея. */
+    private static final java.util.Set<String> DIVINE = java.util.Set.of("ash_lord", "xalathar");
+
     /**
-     * Хранитель: каждому на арене — горсть монет и вещь не ниже редкой. Свои трофеи у каждого хранителя появятся
-     * вместе с хранителями этапов.
+     * Хранитель: каждому на арене — горсть монет и трофей этого хранителя под свою роль (или украшение). Находка
+     * поднимает шанс легендарного.
      */
     private static void bossLoot(BossEntity boss) {
         GearBalance g = Balance.get(Balance.GEAR);
         int level = boss.bossLevel();
+        String id = boss.type().id();
         for (ServerPlayer p : boss.playersInArena()) {
             double find = PlayerService.breakdown(p).get(Derived.FIND);
             Wallet.give(p, Math.round(g.drops().coinsPerLevel() * level * 12 * (1 + find)));
-            Rarity r = GearGen.rollRarity(p.getRandom(), find, Rarity.RARE);
-            dropFor(level, p, boss, GearGen.roll(p.getRandom(), PlayerService.data(p).role(), level, r));
+            double legendary = (FINALS.contains(id) ? 0.4 : 0.2) * (1 + find);
+            double divine = DIVINE.contains(id) ? 0.03 * (1 + find) : 0;
+            dropFor(level, p, boss, Trophies.roll(p.getRandom(), id, PlayerService.data(p).role(), level, legendary, divine));
         }
     }
 

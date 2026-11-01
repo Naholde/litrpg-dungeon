@@ -48,7 +48,14 @@ public final class GearTooltips {
                     ? "+" + Derived.trim(a.value() * 100) + "%" : a.type().derived.formatDelta(a.value());
             add.add(Component.literal(val + " " + a.type().text).withColor(0xFFD36B));
         }
-        if (!d.unique().isEmpty()) add.add(Component.literal("Уникальная вещь").withColor(0xFFA733));
+        if (!d.unique().isEmpty()) {
+            var trophy = com.andrey.litrpg.gear.Trophies.get(d.unique());
+            add.add(Component.literal(trophy != null ? "Трофей: " + com.andrey.litrpg.boss.BossRegistry.get(trophy.boss()).name() : "Уникальная вещь")
+                    .withColor(0xFFA733));
+            if (trophy != null) {
+                add.add(Component.literal("«" + trophy.lore() + "»").withStyle(net.minecraft.ChatFormatting.ITALIC, net.minecraft.ChatFormatting.GRAY));
+            }
+        }
         if (d.rerolls() > 0) add.add(Component.literal("Перекована: " + d.rerolls() + " раз").withStyle(ChatFormatting.DARK_GRAY));
         t.addAll(at, add);
         t.removeIf(line -> line.getString().startsWith("Неразрушим") || line.getString().equals("Unbreakable"));
