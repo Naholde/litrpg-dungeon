@@ -26,7 +26,7 @@ public record Progression(
             Codec.intRange(0, 100).fieldOf("class_points_per_level").forGetter(Progression::classPointsPerLevel)
     ).apply(i, Progression::new));
 
-    public static final Progression DEFAULT = new Progression(50, 10, 100, 90, 1.85, 10, 0.3, 2);
+    public static final Progression DEFAULT = new Progression(50, 10, 100, 90, 1.85, 10, 0.55, 2);
 
     /** Опыт, нужный, чтобы с уровня {@code level} перейти на следующий: base + perLevel × level^exponent. */
     public long xpToNext(int level) {

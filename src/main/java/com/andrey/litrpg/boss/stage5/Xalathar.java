@@ -20,6 +20,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Comparator;
 import java.util.List;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Ксалатар, Голод Бездны — последний хранитель. «Голод»: метит самого раненого — через пару секунд съедает тем сильнее,
@@ -56,6 +58,9 @@ public class Xalathar extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Край рушится", "edgefall", 0, false, b -> true, this::edgefall),
+            new Ability("Луч Бездны", "ray", 0, false, b -> true, this::ray),
+            new Ability("Столпы Бездны", "pillars", 0, false, b -> true, this::pillars),
             new Ability("Пустота съедает пол", "voidfall", 0, false, b -> true, this::voidfall),
             new Ability("Голод", "hunger", 0, false, b -> b.playersInArena().size() > 1, this::hunger),
             new Ability("Крах края", "edge", 1, false, b -> poolCount() < 8, this::edge),
@@ -145,5 +150,21 @@ public class Xalathar extends BossEntity {
         Mechanics.crumble(c, (int) p("voidfall_waves"), (int) p("voidfall_safe"), p("voidfall_radius"), p("voidfall_units"), 0x3A2A9B);
     }
 
+
+
+    /** Край рушится */
+    private void edgefall(Cast c) {
+        MapMechanics.shrink(c, (int) p("edgefall_seconds"), p("edgefall_units"), 0x3A2A9B);
+    }
+
+    /** Луч Бездны */
+    private void ray(Cast c) {
+        MapMechanics.sweep(c, (int) p("ray_seconds"), p("ray_units"), getRandom().nextBoolean(), 0x9B5CFF);
+    }
+
+    /** Столпы Бездны */
+    private void pillars(Cast c) {
+        MapMechanics.pillars(c, (int) p("pillars_count"), (int) p("pillars_height"), (int) p("pillars_seconds"), Blocks.OBSIDIAN.defaultBlockState());
+    }
 
 }

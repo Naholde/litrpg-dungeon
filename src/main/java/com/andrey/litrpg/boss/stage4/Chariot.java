@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Колесница Пламени. «Разгон»: полоса через игрока до края арены — колесница проносится по ней, сбивает и оставляет
@@ -58,6 +60,7 @@ public class Chariot extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Огненный след", "firesweep", 0, false, b -> true, this::firesweep),
             new Ability("Круги колёс", "wheels", 0, false, b -> true, this::wheels),
             new Ability("Затоптать", "trample", 1, false, b -> true, this::trample),
             new Ability("Разгон", "charge", 1, false, b -> !stopped, this::charge),
@@ -161,6 +164,12 @@ public class Chariot extends BossEntity {
     private void trample(Cast c) {
         Mechanics.charge(c, randomNonTarget() != null ? randomNonTarget()
                 : (getTarget() instanceof ServerPlayer t ? t : null), p("trample_units"), p("trample_push"), 0xFF7A2E);
+    }
+
+
+    /** Огненный след */
+    private void firesweep(Cast c) {
+        MapMechanics.sweep(c, (int) p("firesweep_seconds"), p("firesweep_units"), getRandom().nextBoolean(), 0xFF9A4A);
     }
 
 }

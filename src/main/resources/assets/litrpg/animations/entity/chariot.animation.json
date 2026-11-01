@@ -454,6 +454,54 @@
     }
    }
   },
+  "animation.chariot.a_firesweep": {
+   "animation_length": 1.4,
+   "bones": {
+    "root": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "1.12": [
+       0,
+       -20,
+       0
+      ],
+      "1.4": [
+       0,
+       360,
+       0
+      ]
+     }
+    },
+    "horse": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "1.19": [
+       -40,
+       0,
+       0
+      ],
+      "1.302": [
+       0,
+       0,
+       0
+      ],
+      "1.4": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
   "animation.chariot.phase": {
    "animation_length": 1.6,
    "bones": {

@@ -87,87 +87,105 @@ public final class BossRegistry {
             "cauldron_units", 0.09, "cauldron_seconds", 20, "cauldron_cd", 7, "cauldron_cast", 1,
             "inside_units", 0.7, "inside_cd", 10, "inside_cast", 1,
             "eye_units", 0.32, "eye_cd", 20, "eye_cast", 1.4, "eye_seconds", 5, "eye_angle", 80,
-            "crawl_units", 0.9, "crawl_cd", 19, "crawl_cast", 1.2, "crawl_seconds", 6, "crawl_radius", 3.2));
+            "crawl_units", 0.9, "crawl_cd", 19, "crawl_cast", 1.2, "crawl_seconds", 6, "crawl_radius", 3.2,
+            "grove_cd", 26, "grove_cast", 1.4, "grove_count", 6, "grove_height", 4, "grove_seconds", 16));
 
     // ---------------------------------------------------------------- Этап 3 · Затопленный храм
     public static final Type TIDE_WARDEN = reg("tide_warden", "Страж Прилива", "woops", p(
-            "level", 24, "hp_units", 85, "melee_units", 0.396,
-            "trident_units", 0.95, "trident_cd", 4, "trident_cast", 1,
-            "wave_units", 0.85, "wave_cd", 9, "wave_cast", 1.6,
-            "whirl_units", 0.1, "whirl_seconds", 12, "whirl_cd", 12, "whirl_cast", 1,
-            "bubble_units", 0.5, "bubbles_cd", 6, "bubbles_cast", 1,
-            "salvo_units", 0.5, "salvo_cd", 17, "salvo_cast", 1.3, "salvo_shots", 7,
-            "surge_units", 0.8, "surge_cd", 19, "surge_cast", 1.4, "surge_waves", 3, "surge_gap", 70));
+            "level", 24, "hp_units", 127.5, "melee_units", 0.396,
+            "trident_units", 1.425, "trident_cd", 4, "trident_cast", 1,
+            "wave_units", 1.275, "wave_cd", 9, "wave_cast", 1.6,
+            "whirl_units", 0.15, "whirl_seconds", 12, "whirl_cd", 12, "whirl_cast", 1,
+            "bubble_units", 0.75, "bubbles_cd", 6, "bubbles_cast", 1,
+            "salvo_units", 0.75, "salvo_cd", 17, "salvo_cast", 1.3, "salvo_shots", 7,
+            "surge_units", 1.2, "surge_cd", 19, "surge_cast", 1.4, "surge_waves", 3, "surge_gap", 70,
+            "columns_cd", 26, "columns_cast", 1.4, "columns_count", 6, "columns_height", 4, "columns_seconds", 18));
 
     public static final Type LEVIATHAN = reg("leviathan", "Левиафан", "red", p(
-            "level", 27, "hp_units", 93, "melee_units", 0.44,
-            "bite_units", 1.0, "bite_cd", 4, "bite_cast", 1,
-            "tail_units", 0.6, "tail_cd", 6, "tail_cast", 1,
-            "emerge_units", 0.8, "dive_cd", 10, "dive_cast", 1,
-            "tide_units", 0.12, "tide_seconds", 22,
-            "ram_units", 1, "ram_cd", 18, "ram_cast", 1.3, "ram_push", 1.2,
-            "flood_units", 0.8, "flood_cd", 24, "flood_cast", 1.6, "flood_waves", 3, "flood_safe", 4, "flood_radius", 3));
+            "level", 27, "hp_units", 139.5, "melee_units", 0.44,
+            "bite_units", 1.5, "bite_cd", 4, "bite_cast", 1,
+            "tail_units", 0.9, "tail_cd", 6, "tail_cast", 1,
+            "emerge_units", 1.2, "dive_cd", 10, "dive_cast", 1,
+            "tide_units", 0.18, "tide_seconds", 22,
+            "ram_units", 1.5, "ram_cd", 18, "ram_cast", 1.3, "ram_push", 1.2,
+            "flood_units", 1.2, "flood_cd", 24, "flood_cast", 1.6, "flood_waves", 3, "flood_safe", 4, "flood_radius", 3,
+            "wall_cd", 24, "wall_cast", 1.4, "wall_height", 3, "wall_seconds", 10,
+            "deluge_cd", 28, "deluge_cast", 1.6, "deluge_seconds", 12, "deluge_units", 0.25));
 
     public static final Type NAIAD = reg("naiad", "Наяра, Жрица Глубин", "aura", p(
-            "level", 30, "hp_units", 100, "melee_units", 0.44,
-            "staff_units", 0.95, "staff_cd", 4, "staff_cast", 1,
-            "spears_units", 0.55, "spears_cd", 6, "spears_cast", 1,
-            "song_units", 0.6, "song_cd", 12, "song_cast", 1.6,
+            "level", 30, "hp_units", 150, "melee_units", 0.44,
+            "staff_units", 1.425, "staff_cd", 4, "staff_cast", 1,
+            "spears_units", 0.825, "spears_cd", 6, "spears_cast", 1,
+            "song_units", 0.9, "song_cd", 12, "song_cast", 1.6,
             "radiance_seconds", 10, "radiance_cut", 0.9, "radiance_cd", 12, "radiance_cast", 1,
-            "chase_units", 0.95, "chase_cd", 18, "chase_cast", 1.2, "chase_seconds", 6, "chase_radius", 3.2,
-            "duet_units", 0.32, "duet_cd", 21, "duet_cast", 1.3, "duet_seconds", 8, "duet_dist", 7));
+            "chase_units", 1.425, "chase_cd", 18, "chase_cast", 1.2, "chase_seconds", 6, "chase_radius", 3.2,
+            "duet_units", 0.48, "duet_cd", 21, "duet_cast", 1.3, "duet_seconds", 8, "duet_dist", 7,
+            "ray_cd", 26, "ray_cast", 1.5, "ray_seconds", 6, "ray_units", 0.3,
+            "coral_cd", 27, "coral_cast", 1.4, "coral_count", 7, "coral_height", 4, "coral_seconds", 16));
 
     // ---------------------------------------------------------------- Этап 4 · Кузни Пепла
     public static final Type SMELTER = reg("smelter", "Плавильный голем", "ring_frei", p(
-            "level", 34, "hp_units", 112, "melee_units", 0.44,
-            "hammer_units", 1.0, "hammer_cd", 4, "hammer_cast", 1,
-            "pour_units", 0.55, "pour_burn_units", 0.1, "pour_seconds", 10, "pour_cd", 7, "pour_cast", 1,
-            "heat_radius", 5, "heat_max", 6, "melt_units", 0.55, "rivet_hp_units", 3.0,
-            "sparks_units", 0.5, "sparks_cd", 16, "sparks_cast", 1.2, "sparks_shots", 7,
-            "rivers_units", 0.85, "rivers_cd", 23, "rivers_cast", 1.6, "rivers_waves", 3, "rivers_safe", 4, "rivers_radius", 3));
+            "level", 34, "hp_units", 168, "melee_units", 0.44,
+            "hammer_units", 1.5, "hammer_cd", 4, "hammer_cast", 1,
+            "pour_units", 0.825, "pour_burn_units", 0.15, "pour_seconds", 10, "pour_cd", 7, "pour_cast", 1,
+            "heat_radius", 5, "heat_max", 6, "melt_units", 0.825, "rivet_hp_units", 3.0,
+            "sparks_units", 0.75, "sparks_cd", 16, "sparks_cast", 1.2, "sparks_shots", 7,
+            "rivers_units", 1.275, "rivers_cd", 23, "rivers_cast", 1.6, "rivers_waves", 3, "rivers_safe", 4, "rivers_radius", 3,
+            "molten_cd", 25, "molten_cast", 1.5, "molten_sectors", 6, "molten_seconds", 12, "molten_units", 0.3,
+            "castwall_cd", 26, "castwall_cast", 1.4, "castwall_height", 3, "castwall_seconds", 10));
 
     public static final Type CHARIOT = reg("chariot", "Колесница Пламени", "formula", p(
-            "level", 37, "hp_units", 121, "melee_units", 0.44,
-            "charge_units", 0.85, "charge_cd", 4, "charge_cast", 1,
-            "ring_units", 0.6, "ring_cd", 7, "ring_cast", 1,
-            "trail_units", 0.1, "trail_seconds", 9, "pit_seconds", 7, "pit_damage", 1.6,
-            "wheels_units", 0.8, "wheels_cd", 18, "wheels_cast", 1.3, "wheels_waves", 3, "wheels_gap", 70,
-            "trample_units", 1.05, "trample_cd", 17, "trample_cast", 1.2, "trample_push", 1.3));
+            "level", 37, "hp_units", 181.5, "melee_units", 0.44,
+            "charge_units", 1.275, "charge_cd", 4, "charge_cast", 1,
+            "ring_units", 0.9, "ring_cd", 7, "ring_cast", 1,
+            "trail_units", 0.15, "trail_seconds", 9, "pit_seconds", 7, "pit_damage", 1.6,
+            "wheels_units", 1.2, "wheels_cd", 18, "wheels_cast", 1.3, "wheels_waves", 3, "wheels_gap", 70,
+            "trample_units", 1.575, "trample_cd", 17, "trample_cast", 1.2, "trample_push", 1.3,
+            "firesweep_cd", 24, "firesweep_cast", 1.4, "firesweep_seconds", 6, "firesweep_units", 0.32));
 
     public static final Type ASH_LORD = reg("ash_lord", "Владыка Пепла", "blue_lock", p(
-            "level", 40, "hp_units", 129, "melee_units", 0.484,
-            "sword_units", 1.05, "sword_cd", 4, "sword_cast", 1,
-            "storm_units", 0.6, "storm_cd", 8, "storm_cast", 1.4,
-            "collapse_units", 0.5, "lava_units", 0.13, "lava_seconds", 16, "collapse_cd", 6, "collapse_cast", 1,
-            "duel_units", 0.5, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 12, "ego_cast", 1,
-            "erupt_units", 0.5, "erupt_cd", 4, "erupt_cast", 1,
-            "ashfall_units", 0.9, "ashfall_cd", 24, "ashfall_cast", 1.6, "ashfall_waves", 3, "ashfall_safe", 4, "ashfall_radius", 3));
+            "level", 40, "hp_units", 193.5, "melee_units", 0.484,
+            "sword_units", 1.575, "sword_cd", 4, "sword_cast", 1,
+            "storm_units", 0.9, "storm_cd", 8, "storm_cast", 1.4,
+            "collapse_units", 0.75, "lava_units", 0.195, "lava_seconds", 16, "collapse_cd", 6, "collapse_cast", 1,
+            "duel_units", 0.75, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 12, "ego_cast", 1,
+            "erupt_units", 0.75, "erupt_cd", 4, "erupt_cast", 1,
+            "ashfall_units", 1.35, "ashfall_cd", 24, "ashfall_cast", 1.6, "ashfall_waves", 3, "ashfall_safe", 4, "ashfall_radius", 3,
+            "veins_cd", 26, "veins_cast", 1.5, "veins_sectors", 6, "veins_seconds", 12, "veins_units", 0.32,
+            "closing_cd", 30, "closing_cast", 1.6, "closing_seconds", 10, "closing_units", 0.4));
 
     // ---------------------------------------------------------------- Этап 5 · Шпиль Бездны
     public static final Type DOPPEL = reg("doppel", "Двойник", "next_opponent", p(
-            "level", 44, "hp_units", 143, "melee_units", 0.484,
-            "strike_units", 1.05, "strike_cd", 4, "strike_cast", 1,
+            "level", 44, "hp_units", 214.5, "melee_units", 0.484,
+            "strike_units", 1.575, "strike_cd", 4, "strike_cast", 1,
             "mirror_seconds", 4, "mirror_share", 0.6, "mirror_cd", 11, "mirror_cast", 1.1,
             "swap_cd", 9, "swap_cast", 1, "shadow_cut", 0.9,
-            "link_units", 0.34, "link_cd", 20, "link_cast", 1.3, "link_seconds", 8, "link_dist", 7,
-            "copies_units", 0.5, "copies_cd", 18, "copies_cast", 1.3, "copies_shots", 7));
+            "link_units", 0.51, "link_cd", 20, "link_cast", 1.3, "link_seconds", 8, "link_dist", 7,
+            "copies_units", 0.75, "copies_cd", 18, "copies_cast", 1.3, "copies_shots", 7,
+            "places_cd", 20, "places_cast", 1.2,
+            "glasswall_cd", 25, "glasswall_cast", 1.4, "glasswall_height", 3, "glasswall_seconds", 10));
 
     public static final Type CHRONOPHAGE = reg("chronophage", "Хронофаг", "no_time", p(
-            "level", 47, "hp_units", 151, "melee_units", 0.484,
-            "slash_units", 1.05, "slash_cd", 4, "slash_cast", 1,
-            "glass_hp_units", 1.4, "glass_seconds", 16, "stop_units", 0.5, "glass_cd", 12, "glass_cast", 1,
-            "rewind_units", 0.7, "rewind_seconds", 6, "rewind_cd", 10, "rewind_cast", 1,
-            "waves_units", 0.85, "waves_cd", 18, "waves_cast", 1.4, "waves_waves", 3, "waves_gap", 70,
-            "clock_units", 1, "clock_cd", 19, "clock_cast", 1.2, "clock_seconds", 6, "clock_radius", 3.2));
+            "level", 47, "hp_units", 226.5, "melee_units", 0.484,
+            "slash_units", 1.575, "slash_cd", 4, "slash_cast", 1,
+            "glass_hp_units", 1.4, "glass_seconds", 16, "stop_units", 0.75, "glass_cd", 12, "glass_cast", 1,
+            "rewind_units", 1.05, "rewind_seconds", 6, "rewind_cd", 10, "rewind_cast", 1,
+            "waves_units", 1.275, "waves_cd", 18, "waves_cast", 1.4, "waves_waves", 3, "waves_gap", 70,
+            "clock_units", 1.5, "clock_cd", 19, "clock_cast", 1.2, "clock_seconds", 6, "clock_radius", 3.2,
+            "closing_cd", 30, "closing_cast", 1.6, "closing_seconds", 10, "closing_units", 0.42,
+            "hand_cd", 24, "hand_cast", 1.4, "hand_seconds", 7, "hand_units", 0.34));
 
     public static final Type XALATHAR = reg("xalathar", "Ксалатар, Голод Бездны", "wutiwant", p(
-            "level", 50, "hp_units", 155, "melee_units", 0.528,
-            "smash_units", 1.1, "smash_cd", 4, "smash_cast", 1,
-            "gaze_units", 0.7, "gaze_cd", 5, "gaze_cast", 1,
-            "hunger_units", 0.8, "hunger_cd", 8, "hunger_cast", 1.1,
-            "edge_units", 0.7, "void_units", 0.5, "edge_cd", 12, "edge_cast", 1.1,
-            "end_units", 0.18, "end_period", 10,
-            "voidfall_units", 0.95, "voidfall_cd", 24, "voidfall_cast", 1.6, "voidfall_waves", 3, "voidfall_safe", 4, "voidfall_radius", 3));
+            "level", 50, "hp_units", 232.5, "melee_units", 0.528,
+            "smash_units", 1.65, "smash_cd", 4, "smash_cast", 1,
+            "gaze_units", 1.05, "gaze_cd", 5, "gaze_cast", 1,
+            "hunger_units", 1.2, "hunger_cd", 8, "hunger_cast", 1.1,
+            "edge_units", 1.05, "void_units", 0.75, "edge_cd", 12, "edge_cast", 1.1,
+            "end_units", 0.27, "end_period", 10,
+            "voidfall_units", 1.425, "voidfall_cd", 24, "voidfall_cast", 1.6, "voidfall_waves", 3, "voidfall_safe", 4, "voidfall_radius", 3,
+            "edgefall_cd", 30, "edgefall_cast", 1.6, "edgefall_seconds", 10, "edgefall_units", 0.45,
+            "ray_cd", 24, "ray_cast", 1.4, "ray_seconds", 7, "ray_units", 0.36,
+            "pillars_cd", 28, "pillars_cast", 1.4, "pillars_count", 6, "pillars_height", 4, "pillars_seconds", 16));
 
     private BossRegistry() {
     }

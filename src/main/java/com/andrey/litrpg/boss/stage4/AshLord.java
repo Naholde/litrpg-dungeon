@@ -20,6 +20,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.UUID;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Владыка Пепла — финал Кузен. «Эго»: вызывает на дуэль лучшего бойца (не танка) — в круге вдвоём, урон по Владыке
@@ -59,6 +61,8 @@ public class AshLord extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Пепельные жилы", "veins", 0, false, b -> true, this::veins),
+            new Ability("Пепел сужает круг", "closing", 0, false, b -> true, this::closing),
             new Ability("Пепельный обвал", "ashfall", 0, false, b -> true, this::ashfall),
             new Ability("Эго", "ego", 0, false, b -> b.playersInArena().size() > 1 && duelist == null, this::ego),
             new Ability("Извержение", "erupt", 1, false, b -> relocated(), this::erupt),
@@ -153,6 +157,17 @@ public class AshLord extends BossEntity {
     /** Пепельный обвал */
     private void ashfall(Cast c) {
         Mechanics.crumble(c, (int) p("ashfall_waves"), (int) p("ashfall_safe"), p("ashfall_radius"), p("ashfall_units"), 0xC96B3A);
+    }
+
+
+    /** Пепельные жилы */
+    private void veins(Cast c) {
+        MapMechanics.molten(c, (int) p("veins_sectors"), (int) p("veins_seconds"), p("veins_units"), 0xC96B3A);
+    }
+
+    /** Пепел сужает круг */
+    private void closing(Cast c) {
+        MapMechanics.shrink(c, (int) p("closing_seconds"), p("closing_units"), 0x8A3A2A);
     }
 
 }

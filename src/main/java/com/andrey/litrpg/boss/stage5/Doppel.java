@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Двойник: «Твой следующий соперник — ты». На 80% и 40% у каждого в отряде появляется своя тень — бьёт только его,
@@ -55,6 +57,8 @@ public class Doppel extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Подмена мест", "places", 0, false, b -> true, this::places),
+            new Ability("Зеркальная стена", "glasswall", 0, false, b -> true, this::glasswall),
             new Ability("Отражённая связь", "link", 0, false, b -> true, this::link),
             new Ability("Залп отражений", "copies", 1, false, b -> true, this::copies),
             new Ability("Зеркало", "mirror", 0, false, b -> true, this::mirror),
@@ -156,6 +160,17 @@ public class Doppel extends BossEntity {
     /** Залп отражений */
     private void copies(Cast c) {
         Mechanics.volley(c, (int) p("copies_shots"), 8, p("copies_units"), 0xD6F3FF);
+    }
+
+
+    /** Подмена мест */
+    private void places(Cast c) {
+        MapMechanics.swapPlaces(c, 0xA6E1FF);
+    }
+
+    /** Зеркальная стена */
+    private void glasswall(Cast c) {
+        MapMechanics.wall(c, (int) p("glasswall_height"), (int) p("glasswall_seconds"), Blocks.GLASS.defaultBlockState(), 0xD6F3FF);
     }
 
 }

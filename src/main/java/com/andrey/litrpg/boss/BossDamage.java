@@ -17,9 +17,17 @@ public final class BossDamage {
     private BossDamage() {
     }
 
-    /** Здоровье бойца уровня {@code level} без вложенных очков и вещей — мерило силы ударов. */
+    /**
+     * Мерило силы ударов — здоровье бойца этого уровня, который уже вложил очки так, как их вкладывают:
+     * четверть в выносливость, остальное в урон. Считать от голого персонажа нельзя: очки дают много,
+     * и тогда к пятидесятому уровню хранитель щекотал бы отряд.
+     */
     public static double unit(int level) {
-        StatBreakdown b = StatBreakdown.compute(new StatBreakdown.Inputs(Role.DAMAGE, level, new int[Stat.ALL.length], StatSet.ZERO),
+        int[] alloc = new int[Stat.ALL.length];
+        int points = (int) Math.round(Balance.get(Balance.PROGRESSION).statPointsPerLevel() * (level - 1));
+        alloc[Stat.VITALITY.ordinal()] = points / 4;
+        alloc[Stat.STRENGTH.ordinal()] = points - points / 4;
+        StatBreakdown b = StatBreakdown.compute(new StatBreakdown.Inputs(Role.DAMAGE, level, alloc, StatSet.ZERO),
                 Balance.get(Balance.PROGRESSION), Balance.get(Balance.CHARACTER), Balance.get(Balance.ROLES));
         return b.get(Derived.MAX_HEALTH);
     }

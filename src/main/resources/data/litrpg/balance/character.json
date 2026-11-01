@@ -2,33 +2,33 @@
   "base_stat": 5,
   "health": {
     "base": 100,
-    "per_level": 18,
-    "per_vitality": 4
+    "per_level": 16,
+    "per_vitality": 10
   },
   "power": {
-    "weapon_per_strength": 0.01,
-    "ranged_per_agility": 0.01,
-    "skill_per_intellect": 0.01
+    "weapon_per_strength": 0.022,
+    "ranged_per_agility": 0.022,
+    "skill_per_point": 0.022
   },
   "crit": {
     "base_chance": 0.05,
-    "chance_per_agility": 0.001,
-    "chance_per_luck": 0.0015,
+    "chance_per_agility": 0.0018,
+    "chance_per_luck": 0.0025,
     "chance_cap": 0.6,
     "base_damage": 1.5,
-    "damage_per_agility": 0.002
+    "damage_per_agility": 0.0035
   },
   "defense": {
-    "dodge_per_agility": 0.0008,
+    "dodge_per_agility": 0.0009,
     "dodge_cap": 0.3,
     "toughness_per_vitality": 0.0005,
     "toughness_cap": 0.6
   },
   "utility": {
-    "heal_per_intellect": 0.01,
-    "haste_per_intellect": 0.001,
+    "heal_per_intellect": 0.022,
+    "haste_per_intellect": 0.0016,
     "haste_cap": 0.3,
-    "speed_per_agility": 0.0005,
+    "speed_per_agility": 0.0009,
     "speed_cap": 0.25,
     "find_per_luck": 0.01
   },

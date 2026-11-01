@@ -224,8 +224,8 @@ public final class WarlockSkills {
             blocks("range", 20);
             count("cost", 40);
             percent("price", 0.5);
-            damage("damage", 2.278);
-            percent("per_health", 0.9);
+            damage("damage", 4.1);
+            percent("per_health", 1.35);
         }
 
         @Override

@@ -1443,8 +1443,8 @@
       "range": 20.0,
       "cost": 40.0,
       "price": 0.5,
-      "damage": 2.278,
-      "per_health": 0.9
+      "damage": 4.1,
+      "per_health": 1.35
     },
     "warlock.tentacles": {
       "cooldown": 50.0,

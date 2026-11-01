@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Плавильный голем. Жар: кто стоит рядом с ним, копит жар; полная шкала — «Расплав» по себе и соседям. Сбросить жар —
@@ -53,6 +55,8 @@ public class Smelter extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Расплав", "molten", 0, false, b -> true, this::molten),
+            new Ability("Литейная стена", "castwall", 0, false, b -> true, this::castwall),
             new Ability("Сноп искр", "sparks", 0, false, b -> true, this::sparks),
             new Ability("Реки металла", "rivers", 1, false, b -> true, this::rivers),
             new Ability("Литьё", "pour", 1, false, b -> true, this::pour),
@@ -155,6 +159,17 @@ public class Smelter extends BossEntity {
     /** Реки металла */
     private void rivers(Cast c) {
         Mechanics.crumble(c, (int) p("rivers_waves"), (int) p("rivers_safe"), p("rivers_radius"), p("rivers_units"), 0xE05A2A);
+    }
+
+
+    /** Расплав */
+    private void molten(Cast c) {
+        MapMechanics.molten(c, (int) p("molten_sectors"), (int) p("molten_seconds"), p("molten_units"), 0xFF7A2E);
+    }
+
+    /** Литейная стена */
+    private void castwall(Cast c) {
+        MapMechanics.wall(c, (int) p("castwall_height"), (int) p("castwall_seconds"), Blocks.BLACKSTONE.defaultBlockState(), 0xE05A2A);
     }
 
 }

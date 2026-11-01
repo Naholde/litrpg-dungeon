@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Морена, Ведьма Изнанки — финал Чащи. Порча полосой, «Страх» (напуганный не может бить и его гонит прочь, пока рядом
@@ -61,6 +63,7 @@ public class Morena extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Лес Изнанки", "grove", 0, false, b -> true, this::grove),
             new Ability("Око Изнанки", "eye", 0, false, b -> true, this::eye),
             new Ability("Ползучий котёл", "crawl", 1, false, b -> true, this::crawl),
             new Ability("Вывернутая земля", "inside", 0, false, b -> relocated(), this::insideOut),
@@ -180,6 +183,12 @@ public class Morena extends BossEntity {
     /** Ползучий котёл */
     private void crawl(Cast c) {
         Mechanics.hunt(c, (int) p("crawl_seconds"), p("crawl_radius"), p("crawl_units"), 0x7A2A8A);
+    }
+
+
+    /** Лес Изнанки */
+    private void grove(Cast c) {
+        MapMechanics.pillars(c, (int) p("grove_count"), (int) p("grove_height"), (int) p("grove_seconds"), Blocks.DARK_OAK_LOG.defaultBlockState());
     }
 
 }

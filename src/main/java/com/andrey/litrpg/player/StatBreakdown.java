@@ -105,9 +105,21 @@ public final class StatBreakdown {
         b.putDerived(Derived.RANGED_POWER, List.of(
                 new Line("Ловкость " + Derived.trim(agi) + " × " + pct(cb.power().rangedPerAgility()),
                         agi * cb.power().rangedPerAgility())));
+        // Навыки растут от характеристик класса: у мечника — сила, у Стрижа — ловкость, у танка — сила
+        // и выносливость, у колдуна — интеллект. Очки у всех одни и те же, поэтому две характеристики
+        // не слабее одной: складываются обе.
         List<Line> sp = new ArrayList<>();
-        sp.add(new Line("Интеллект " + Derived.trim(intel) + " × " + pct(cb.power().skillPerIntellect()),
-                intel * cb.power().skillPerIntellect()));
+        for (Stat st : SkillStat.of(in.className(), in.role())) {
+            double v = switch (st) {
+                case STRENGTH -> str;
+                case AGILITY -> agi;
+                case VITALITY -> vit;
+                case INTELLECT -> intel;
+                case LUCK -> luck;
+            };
+            sp.add(new Line(st.title + " " + Derived.trim(v) + " × " + pct(cb.power().skillPerPoint()),
+                    v * cb.power().skillPerPoint()));
+        }
         if (role.skillPowerBonus() != 0) sp.add(new Line(roleName, role.skillPowerBonus()));
         b.putDerived(Derived.SKILL_POWER, sp);
         List<Line> dm = new ArrayList<>();

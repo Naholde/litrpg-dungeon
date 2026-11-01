@@ -23,6 +23,8 @@ import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Наяра, Жрица Глубин — финал храма. «Сияние глубин»: на полу два-три пятна света; пока сияние идёт, по жрице
@@ -59,6 +61,8 @@ public class Naiad extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Песнь по кругу", "ray", 0, false, b -> true, this::ray),
+            new Ability("Коралловый лес", "coral", 0, false, b -> true, this::coral),
             new Ability("Водоворот по следу", "chase", 0, false, b -> true, this::chase),
             new Ability("Дуэт глубин", "duet", 1, false, b -> true, this::duet),
             new Ability("Песнь глубин", "song", 0, true, b -> true, this::song),
@@ -161,6 +165,17 @@ public class Naiad extends BossEntity {
     /** Дуэт глубин */
     private void duet(Cast c) {
         Mechanics.tether(c, (int) p("duet_seconds"), p("duet_dist"), p("duet_units"), 0x5CD8E8);
+    }
+
+
+    /** Песнь по кругу */
+    private void ray(Cast c) {
+        MapMechanics.sweep(c, (int) p("ray_seconds"), p("ray_units"), getRandom().nextBoolean(), 0x7FE8FF);
+    }
+
+    /** Коралловый лес */
+    private void coral(Cast c) {
+        MapMechanics.pillars(c, (int) p("coral_count"), (int) p("coral_height"), (int) p("coral_seconds"), Blocks.DEAD_BRAIN_CORAL_BLOCK.defaultBlockState());
     }
 
 }

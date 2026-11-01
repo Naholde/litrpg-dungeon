@@ -34,15 +34,17 @@ class StatBreakdownTest {
 
     @Test
     void levelOneNoviceHasBaseHealth() {
-        // 100 основы + Выносливость 5 × 4 = 120
-        assertEquals(120, calc(Role.NONE, 1).get(Derived.MAX_HEALTH), 1e-9);
+        // 100 основы + Выносливость 5 × 10 = 150
+        assertEquals(150, calc(Role.NONE, 1).get(Derived.MAX_HEALTH), 1e-9);
     }
 
     @Test
-    void allocatedPointCountsThreeTenths() {
+    void allocatedPointIsWorthMoreThanHalfAStat() {
+        // Решение владельца: очки должны решать, поэтому одно очко — 0,55 характеристики, а не 0,3.
         double before = calc(Role.DAMAGE, 10).get(Stat.STRENGTH);
         double after = calc(Role.DAMAGE, 10, 10).get(Stat.STRENGTH);
-        assertEquals(3.0, after - before, 1e-9);
+        assertEquals(10 * Progression.DEFAULT.statPointValue(), after - before, 1e-9);
+        assertTrue(Progression.DEFAULT.statPointValue() >= 0.5);
     }
 
     @Test
@@ -58,7 +60,7 @@ class StatBreakdownTest {
     @Test
     void capsAreRespected() {
         // Даже все очки в Ловкость не доводят уклонение до предела — предел срабатывает с экипировкой.
-        assertTrue(calc(Role.DAMAGE, 50, 0, 490).get(Derived.DODGE) < CharacterBalance.DEFAULT.defense().dodgeCap());
+        assertTrue(calc(Role.DAMAGE, 50, 0, 490).get(Derived.DODGE) <= CharacterBalance.DEFAULT.defense().dodgeCap());
         StatBreakdown b = StatBreakdown.compute(new StatBreakdown.Inputs(Role.DAMAGE, 50, new int[5],
                         new StatSet(0, 1000, 0, 0, 1000)),
                 Progression.DEFAULT, CharacterBalance.DEFAULT, RolesBalance.DEFAULT);

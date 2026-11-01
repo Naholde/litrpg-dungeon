@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Хронофаг. «Песочные часы»: по арене встают часы — не разбили до срока, время останавливается (всех оглушает и бьёт).
@@ -53,6 +55,8 @@ public class Chronophage extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Время кончается", "closing", 0, false, b -> true, this::closing),
+            new Ability("Стрелка часов", "hand", 0, false, b -> true, this::hand),
             new Ability("Волны времени", "waves", 0, false, b -> true, this::waves),
             new Ability("Часы идут за вами", "clock", 1, false, b -> true, this::clock),
             new Ability("Песочные часы", "glass", 0, false, b -> spawnedAlive().isEmpty(), this::hourglasses),
@@ -139,6 +143,17 @@ public class Chronophage extends BossEntity {
     /** Часы идут за вами */
     private void clock(Cast c) {
         Mechanics.hunt(c, (int) p("clock_seconds"), p("clock_radius"), p("clock_units"), 0xE8C06B);
+    }
+
+
+    /** Время кончается */
+    private void closing(Cast c) {
+        MapMechanics.shrink(c, (int) p("closing_seconds"), p("closing_units"), 0xFFE8A6);
+    }
+
+    /** Стрелка часов */
+    private void hand(Cast c) {
+        MapMechanics.sweep(c, (int) p("hand_seconds"), p("hand_units"), getRandom().nextBoolean(), 0xE8C06B);
     }
 
 }

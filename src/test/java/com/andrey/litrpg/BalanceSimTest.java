@@ -84,8 +84,9 @@ class BalanceSimTest {
                 der.put(Derived.HASTE, affix * 0.025);
             }
             default -> {
-                alloc[Stat.STRENGTH.ordinal()] = points * 6 / 10;
-                alloc[Stat.AGILITY.ordinal()] = points * 4 / 10;
+                alloc[Stat.STRENGTH.ordinal()] = points * 45 / 100;
+                alloc[Stat.AGILITY.ordinal()] = points * 30 / 100;
+                alloc[Stat.VITALITY.ordinal()] = points * 25 / 100;
                 gear = new StatSet(statBudget * 0.55, statBudget * 0.35, statBudget * 0.1, 0, 0);
                 der.put(Derived.WEAPON_POWER, affix * 0.055);
                 der.put(Derived.CRIT_CHANCE, affix * 0.025);

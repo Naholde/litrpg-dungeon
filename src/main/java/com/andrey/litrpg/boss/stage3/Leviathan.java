@@ -21,6 +21,8 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import com.andrey.litrpg.boss.Mechanics;
+import com.andrey.litrpg.boss.MapMechanics;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Левиафан. Укус по танку, удар хвостом кольцом вокруг себя (ближе к голове — безопасно), нырок — уходит под воду
@@ -49,6 +51,8 @@ public class Leviathan extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Стена воды", "wall", 0, false, b -> true, this::wall),
+            new Ability("Затопление зала", "deluge", 0, false, b -> true, this::deluge),
             new Ability("Таран", "ram", 0, false, b -> true, this::ram),
             new Ability("Затопление", "flood", 1, false, b -> true, this::flood),
             new Ability("Нырок", "dive", 1, false, b -> b.playersInArena().size() > 0, this::dive),
@@ -149,6 +153,17 @@ public class Leviathan extends BossEntity {
     /** Затопление */
     private void flood(Cast c) {
         Mechanics.crumble(c, (int) p("flood_waves"), (int) p("flood_safe"), p("flood_radius"), p("flood_units"), 0x2A5A8A);
+    }
+
+
+    /** Стена воды */
+    private void wall(Cast c) {
+        MapMechanics.wall(c, (int) p("wall_height"), (int) p("wall_seconds"), Blocks.PRISMARINE_BRICKS.defaultBlockState(), 0x4A8ABF);
+    }
+
+    /** Затопление зала */
+    private void deluge(Cast c) {
+        MapMechanics.flood(c, (int) p("deluge_seconds"), p("deluge_units"), 0x2A5A8A);
     }
 
 }
