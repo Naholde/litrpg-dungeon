@@ -1,0 +1,200 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.chariot.idle": {
+   "loop": true,
+   "animation_length": 2,
+   "bones": {
+    "horse": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "1": [
+       -4,
+       0,
+       0
+      ],
+      "2": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.chariot.walk": {
+   "loop": true,
+   "animation_length": 0.3,
+   "bones": {
+    "legs_f": {
+     "rotation": {
+      "0": [
+       35,
+       0,
+       0
+      ],
+      "0.15": [
+       -35,
+       0,
+       0
+      ],
+      "0.3": [
+       35,
+       0,
+       0
+      ]
+     }
+    },
+    "legs_b": {
+     "rotation": {
+      "0": [
+       -35,
+       0,
+       0
+      ],
+      "0.15": [
+       35,
+       0,
+       0
+      ],
+      "0.3": [
+       -35,
+       0,
+       0
+      ]
+     }
+    },
+    "wheel_l": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.3": [
+       -360,
+       0,
+       0
+      ]
+     }
+    },
+    "wheel_r": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.3": [
+       -360,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.chariot.cast": {
+   "loop": true,
+   "animation_length": 0.6,
+   "bones": {
+    "horse": {
+     "rotation": {
+      "0": [
+       -15,
+       0,
+       0
+      ],
+      "0.3": [
+       -25,
+       0,
+       0
+      ],
+      "0.6": [
+       -15,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.chariot.attack": {
+   "animation_length": 0.5,
+   "bones": {
+    "horse": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.2": [
+       -30,
+       0,
+       0
+      ],
+      "0.5": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.chariot.slam": {
+   "animation_length": 0.6,
+   "bones": {
+    "horse": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "0.25": [
+       -40,
+       0,
+       0
+      ],
+      "0.45": [
+       10,
+       0,
+       0
+      ],
+      "0.6": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.chariot.death": {
+   "animation_length": 1.0,
+   "hold_on_last_frame": true,
+   "bones": {
+    "root": {
+     "rotation": {
+      "0": [
+       0,
+       0,
+       0
+      ],
+      "1": [
+       0,
+       0,
+       90
+      ]
+     }
+    }
+   }
+  }
+ }
+}

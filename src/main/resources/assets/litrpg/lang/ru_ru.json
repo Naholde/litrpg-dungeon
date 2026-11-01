@@ -69,5 +69,14 @@
   "entity.litrpg.harpooner": "Гарпунщик",
   "entity.litrpg.tide_warden": "Страж Прилива",
   "entity.litrpg.leviathan": "Левиафан",
-  "entity.litrpg.naiad": "Наяра, Жрица Глубин"
+  "entity.litrpg.naiad": "Наяра, Жрица Глубин",
+  "entity.litrpg.imp": "Огненный бес",
+  "entity.litrpg.forge_construct": "Кузнечный конструкт",
+  "entity.litrpg.ash_crossbow": "Пепельный арбалетчик",
+  "entity.litrpg.molten_golem": "Раскалённый голем",
+  "entity.litrpg.fire_shaman": "Шаман огня",
+  "entity.litrpg.salamander": "Саламандра",
+  "entity.litrpg.smelter": "Плавильный голем",
+  "entity.litrpg.chariot": "Колесница Пламени",
+  "entity.litrpg.ash_lord": "Владыка Пепла"
 }

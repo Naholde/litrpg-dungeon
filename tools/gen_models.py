@@ -932,6 +932,126 @@ MODELS.update({"drowned_guard": drowned_guard, "deep_priest": deep_priest, "mora
                "harpooner": harpooner, "tide_warden": tide_warden, "leviathan": leviathan, "naiad": naiad})
 
 
+# ---------------------------------------------------------------------------- этап 4: огонь и металл
+
+MATERIALS.update({
+    "imp_skin": ("#B8301E", 0.10, False, "plain"),
+    "ember": ("#FF7A2E", 0.05, True, "plain"),
+    "lava": ("#FF9A2A", 0.10, True, "cracks"),
+    "basalt": ("#3E3A3E", 0.10, False, "cracks"),
+    "iron": ("#9AA0A8", 0.08, False, "rivets"),
+    "iron_hot": ("#D86A3A", 0.08, True, "rivets"),
+    "soot": ("#26221F", 0.08, False, "plain"),
+    "ash": ("#8A847E", 0.10, False, "plain"),
+    "scale_red": ("#C8461E", 0.10, False, "plain"),
+    "scale_orange": ("#FF8A2A", 0.08, False, "plain"),
+    "fire_robe": ("#7A1E12", 0.10, False, "plain"),
+})
+
+
+def imp():
+    return humanoid({"head": "imp_skin", "body": "imp_skin", "arm": "imp_skin", "leg": "soot", "eyes": "eye_yellow", "lean": 15,
+                     "arm_len": 10, "extras": [
+        ("head", Cube([-4.5, 31, -1], [2, 4, 2], "soot")), ("head", Cube([2.5, 31, -1], [2, 4, 2], "soot")),
+        ("body", Cube([-8, 16, 2], [5, 7, 1], "soot")), ("body", Cube([3, 16, 2], [5, 7, 1], "soot")),
+        ("body", Cube([-0.5, 6, 2], [1, 8, 1], "ember")),
+    ]})
+
+
+def forge_construct():
+    return humanoid({"head": "iron", "face": "soot", "body": "iron", "arm": "iron", "leg": "iron", "eyes": "ember", "arm_len": 14, "extras": [
+        ("body", Cube([-3, 15, -2.6], [6, 5, 1], "lava")), ("body", Cube([-6, 21, -3.5], [12, 4, 7], "iron")),
+        ("body", Cube([-1, 25, 2], [2, 6, 2], "soot")),
+        ("right_arm", Cube([-9, 4, -3], [7, 5, 6], "soot")), ("right_arm", Cube([-6.5, 8, -1], [2, 8, 2], "basalt")),
+    ]})
+
+
+def ash_crossbow():
+    return humanoid({"head": "ash", "face": "soot", "body": "ash", "arm": "ash", "leg": "soot", "eyes": "ember", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 8, 9], "soot")),
+        ("left_arm", Cube([3, 9, -7], [7, 1, 2], "iron")), ("left_arm", Cube([5.5, 8, -9], [1, 2, 6], "basalt")),
+        ("body", Cube([2, 13, 2], [3, 10, 3], "leather")),
+    ]})
+
+
+def molten_golem():
+    return humanoid({"head": "basalt", "face": "basalt", "body": "basalt", "arm": "basalt", "leg": "basalt", "eyes": "ember", "extras": [
+        ("body", Cube([-3, 13, -2.6], [2, 9, 1], "lava")), ("body", Cube([1, 15, -2.6], [2, 6, 1], "lava")),
+        ("left_arm", Cube([1, 4, -6], [8, 18, 2], "basalt")), ("left_arm", Cube([3, 8, -6.5], [4, 9, 1], "lava")),
+        ("head", Cube([-2, 32, -2], [4, 2, 4], "lava")),
+    ]})
+
+
+def fire_shaman():
+    return humanoid({"head": "imp_skin", "face": "soot", "body": "fire_robe", "arm": "fire_robe", "leg": "fire_robe",
+                     "eyes": "eye_yellow", "extras": [
+        ("head", Cube([-4.5, 31, -4.5], [9, 1, 9], "gold")), ("head", Cube([-1, 32, -1], [2, 3, 2], "ember")),
+        ("body", Cube([-4.5, 0, -2.5], [9, 12, 5], "fire_robe")),
+        ("right_arm", Cube([-6, -4, -1.5], [1, 25, 1], "soot")), ("right_arm", Cube([-7.5, 20, -3], [4, 4, 4], "ember")),
+    ]})
+
+
+def salamander():
+    return quadruped({"mat": "scale_red", "body": "scale_red", "head": "scale_orange", "tail": "scale_orange", "leg": "scale_red",
+                      "snout": "scale_orange", "eyes": "eye_yellow"})
+
+
+# ---------------------------------------------------------------------------- хранители этапа 4
+
+def smelter():
+    """Плавильный голем: массивный, тигель в груди, ковш-рука."""
+    return boss_humanoid({"head": "iron", "face": "soot", "body": "iron", "arm": "iron", "leg": "soot", "eyes": "ember",
+                          "arm_len": 15, "extras": [
+        ("body", Cube([-4, 13, -2.8], [8, 8, 1], "lava")), ("body", Cube([-7, 20, -4], [14, 5, 8], "soot")),
+        ("body", Cube([-2, 25, 2], [4, 8, 3], "basalt")), ("body", Cube([-1, 33, 2.5], [2, 2, 2], "ember")),
+        ("right_arm", Cube([-11, 2, -4], [9, 6, 8], "soot")), ("right_arm", Cube([-10, 6, -3], [7, 1, 6], "lava")),
+        ("left_arm", Cube([3, 4, -3], [7, 6, 6], "iron")),
+    ]})
+
+
+def chariot():
+    """Колесница Пламени: повозка на двух колёсах, впереди — огненный конь из костей."""
+    bones = [
+        Bone("root", [0, 0, 0]),
+        Bone("cart", [0, 6, 4], "root", [Cube([-6, 5, 0], [12, 6, 12], "iron_hot"), Cube([-6, 11, 10], [12, 4, 2], "iron"),
+                                         Cube([-6.5, 11, 0], [1, 4, 12], "iron"), Cube([5.5, 11, 0], [1, 4, 12], "iron"),
+                                         Cube([-1, 6, -10], [2, 2, 10], "soot")]),
+        Bone("wheel_l", [-7, 6, 6], "cart", [Cube([-8, 1, 2], [2, 10, 10], "soot"), Cube([-8.2, 5, 6], [2, 2, 2], "ember")]),
+        Bone("wheel_r", [7, 6, 6], "cart", [Cube([6, 1, 2], [2, 10, 10], "soot"), Cube([6.2, 5, 6], [2, 2, 2], "ember")]),
+        Bone("horse", [0, 10, -12], "root", [Cube([-3, 8, -18], [6, 7, 12], "bone_dark"), Cube([-2, 14, -22], [4, 8, 4], "bone"),
+                                             Cube([-2, 18, -26], [4, 4, 5], "bone"), Cube([-1, 20, -26.2], [2, 1, 1], "ember"),
+                                             Cube([-0.5, 16, -16], [1, 6, 10], "ember")]),
+        Bone("legs_f", [0, 8, -16], "horse", [Cube([-3, 0, -17], [2, 8, 2], "bone"), Cube([1, 0, -17], [2, 8, 2], "bone")]),
+        Bone("legs_b", [0, 8, -8], "horse", [Cube([-3, 0, -9], [2, 8, 2], "bone"), Cube([1, 0, -9], [2, 8, 2], "bone")]),
+    ]
+    gallop = {"legs_f": {"rotation": kf([(0, [35, 0, 0]), (0.15, [-35, 0, 0]), (0.3, [35, 0, 0])])},
+              "legs_b": {"rotation": kf([(0, [-35, 0, 0]), (0.15, [35, 0, 0]), (0.3, [-35, 0, 0])])},
+              "wheel_l": {"rotation": kf([(0, [0, 0, 0]), (0.3, [-360, 0, 0])])},
+              "wheel_r": {"rotation": kf([(0, [0, 0, 0]), (0.3, [-360, 0, 0])])}}
+    anims = {"idle": loop(2, {"horse": {"rotation": kf([(0, [0, 0, 0]), (1, [-4, 0, 0]), (2, [0, 0, 0])])}}),
+             "walk": loop(0.3, gallop), "cast": loop(0.6, {"horse": {"rotation": kf([(0, [-15, 0, 0]), (0.3, [-25, 0, 0]), (0.6, [-15, 0, 0])])}}),
+             "attack": once(0.5, {"horse": {"rotation": kf([(0, [0, 0, 0]), (0.2, [-30, 0, 0]), (0.5, [0, 0, 0])])}}),
+             "slam": once(0.6, {"horse": {"rotation": kf([(0, [0, 0, 0]), (0.25, [-40, 0, 0]), (0.45, [10, 0, 0]), (0.6, [0, 0, 0])])}}),
+             "death": {"animation_length": 1.0, "hold_on_last_frame": True,
+                       "bones": {"root": {"rotation": kf([(0, [0, 0, 0]), (1.0, [0, 0, 90])])}}}}
+    return bones, anims
+
+
+def ash_lord():
+    """Владыка Пепла: рыцарь в чёрных латах с трещинами лавы, корона из пламени, огромный меч."""
+    return boss_humanoid({"head": "basalt", "face": "soot", "body": "soot", "arm": "basalt", "leg": "soot", "eyes": "ember", "extras": [
+        ("head", Cube([-4.5, 31, -4.5], [9, 2, 9], "iron_hot")), ("head", Cube([-3.5, 33, -3.5], [1, 3, 1], "ember")),
+        ("head", Cube([2.5, 33, -3.5], [1, 3, 1], "ember")), ("head", Cube([-0.5, 33, -4.5], [1, 4, 1], "ember")),
+        ("body", Cube([-6, 19, -3.5], [12, 6, 7], "basalt")), ("body", Cube([-2, 14, -2.8], [4, 5, 1], "lava")),
+        ("body", Cube([-5, 6, 3], [10, 18, 1], "fire_robe")),
+        ("right_arm", Cube([-7, -14, -1.5], [2, 24, 3], "iron_hot")), ("right_arm", Cube([-8.5, 9, -3], [5, 1, 6], "gold")),
+    ]})
+
+
+MODELS.update({"imp": imp, "forge_construct": forge_construct, "ash_crossbow": ash_crossbow, "molten_golem": molten_golem,
+               "fire_shaman": fire_shaman, "salamander": salamander, "smelter": smelter, "chariot": chariot, "ash_lord": ash_lord})
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None

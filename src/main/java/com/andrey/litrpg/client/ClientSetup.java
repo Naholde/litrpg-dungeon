@@ -60,6 +60,9 @@ public final class ClientSetup {
             e.registerEntityRenderer(ModEntities.VESSA.get(), ctx -> GeoRenderers.glowing(ctx, "vessa", 1.35f));
             e.registerEntityRenderer(ModEntities.LICH.get(), ctx -> GeoRenderers.glowing(ctx, "lich", 1.9f));
             e.registerEntityRenderer(ModEntities.ICE_TOMB.get(), ctx -> GeoRenderers.glowing(ctx, "ice_tomb", 1.0f));
+            e.registerEntityRenderer(ModEntities.SMELTER.get(), ctx -> GeoRenderers.glowing(ctx, "smelter", 2.4f));
+            e.registerEntityRenderer(ModEntities.CHARIOT.get(), ctx -> GeoRenderers.glowing(ctx, "chariot", 1.5f));
+            e.registerEntityRenderer(ModEntities.ASH_LORD.get(), ctx -> GeoRenderers.glowing(ctx, "ash_lord", 1.7f));
             e.registerEntityRenderer(ModEntities.TIDE_WARDEN.get(), ctx -> GeoRenderers.glowing(ctx, "tide_warden", 2.0f));
             e.registerEntityRenderer(ModEntities.LEVIATHAN.get(), ctx -> GeoRenderers.glowing(ctx, "leviathan", 1.6f));
             e.registerEntityRenderer(ModEntities.NAIAD.get(), ctx -> GeoRenderers.glowing(ctx, "naiad", 1.5f));

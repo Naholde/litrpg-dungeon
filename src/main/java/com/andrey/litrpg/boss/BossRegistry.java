@@ -97,6 +97,27 @@ public final class BossRegistry {
             "song_units", 0.6, "song_cd", 26, "song_cast", 3.5,
             "radiance_seconds", 10, "radiance_cut", 0.9, "radiance_cd", 30, "radiance_cast", 2.0));
 
+    // ---------------------------------------------------------------- Этап 4 · Кузни Пепла
+    public static final Type SMELTER = reg("smelter", "Плавильный голем", "ring_frei", p(
+            "level", 34, "hp_units", 80, "melee_units", 0.2,
+            "hammer_units", 1.0, "hammer_cd", 9, "hammer_cast", 1.7,
+            "pour_units", 0.55, "pour_burn_units", 0.1, "pour_seconds", 10, "pour_cd", 15, "pour_cast", 2.0,
+            "heat_radius", 5, "heat_max", 6, "melt_units", 0.55, "rivet_hp_units", 3.0));
+
+    public static final Type CHARIOT = reg("chariot", "Колесница Пламени", "formula", p(
+            "level", 37, "hp_units", 76, "melee_units", 0.2,
+            "charge_units", 0.85, "charge_cd", 7, "charge_cast", 2.2,
+            "ring_units", 0.6, "ring_cd", 16, "ring_cast", 2.0,
+            "trail_units", 0.1, "trail_seconds", 9, "pit_seconds", 7, "pit_damage", 1.6));
+
+    public static final Type ASH_LORD = reg("ash_lord", "Владыка Пепла", "blue_lock", p(
+            "level", 40, "hp_units", 95, "melee_units", 0.22,
+            "sword_units", 1.05, "sword_cd", 9, "sword_cast", 1.7,
+            "storm_units", 0.6, "storm_cd", 17, "storm_cast", 2.4,
+            "collapse_units", 0.5, "lava_units", 0.13, "lava_seconds", 16, "collapse_cd", 14, "collapse_cast", 2.0,
+            "duel_units", 0.32, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 34, "ego_cast", 1.5,
+            "erupt_units", 0.45, "erupt_cd", 9, "erupt_cast", 1.8));
+
     private BossRegistry() {
     }
 

@@ -68,6 +68,14 @@ public final class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage3.Naiad>> NAIAD =
             boss("naiad", com.andrey.litrpg.boss.stage3.Naiad::new, 0.9f, 3.0f);
 
+    // ---------------------------------------------------------------- хранители этапа 4
+    public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage4.Smelter>> SMELTER =
+            boss("smelter", com.andrey.litrpg.boss.stage4.Smelter::new, 1.8f, 4.6f);
+    public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage4.Chariot>> CHARIOT =
+            boss("chariot", com.andrey.litrpg.boss.stage4.Chariot::new, 2.4f, 2.6f);
+    public static final DeferredHolder<EntityType<?>, EntityType<com.andrey.litrpg.boss.stage4.AshLord>> ASH_LORD =
+            boss("ash_lord", com.andrey.litrpg.boss.stage4.AshLord::new, 1.0f, 3.4f);
+
     // ---------------------------------------------------------------- объекты боя (ломаются руками)
     public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> ICE_TOMB = node("ice_tomb", 1.2f, 2.4f);
     public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> PHYLACTERY = node("phylactery", 0.8f, 1.6f);

@@ -87,6 +87,26 @@ public final class Bestiary {
             1.0f, 0.6f, 1.95f, 0x9AB0C0, "Гарпун подтаскивает попавшего к стае — держитесь за танком.",
             p("hp_units", 0.55, "dmg_units", 0.045, "speed", 0.25, "hit_pull", 3));
 
+    // ---------------------------------------------------------------- Этап 4 · Кузни Пепла (огонь и металл)
+    public static final Species IMP = reg("imp", "Огненный бес", 4, MobRole.SWARM, "imp",
+            0.8f, 0.6f, 1.2f, 0xFF7A2E, "Мелкие и злые, поджигают касанием. Бить по площади.",
+            p("hp_units", 0.24, "dmg_units", 0.024, "speed", 0.36, "hit_dot", 0.2, "dot_seconds", 3));
+    public static final Species FORGE_CONSTRUCT = reg("forge_construct", "Кузнечный конструкт", 4, MobRole.BRUTE, "forge_construct",
+            1.2f, 1.0f, 2.4f, 0xC8C8D0, "Железо и пар; элитный бьёт по кругу молотом.",
+            p("hp_units", 1.5, "dmg_units", 0.068, "speed", 0.2));
+    public static final Species ASH_CROSSBOW = reg("ash_crossbow", "Пепельный арбалетчик", 4, MobRole.ARCHER, "ash_crossbow",
+            1.0f, 0.6f, 1.95f, 0xB8B0A8, "Болты с тлеющим наконечником: ожог со временем.",
+            p("hp_units", 0.55, "dmg_units", 0.048, "speed", 0.25, "hit_dot", 0.15, "dot_seconds", 3));
+    public static final Species MOLTEN_GOLEM = reg("molten_golem", "Раскалённый голем", 4, MobRole.GUARD, "molten_golem",
+            1.1f, 0.8f, 2.2f, 0xFF9A3A, "Застывшая корка спереди — бить со спины.",
+            p("hp_units", 1.35, "dmg_units", 0.062, "speed", 0.2));
+    public static final Species FIRE_SHAMAN = reg("fire_shaman", "Шаман огня", 4, MobRole.HEALER, "fire_shaman",
+            1.0f, 0.6f, 1.95f, 0xFFB84A, "Раздувает угли в сородичах — лечит. Убивать первым.",
+            p("hp_units", 0.6, "dmg_units", 0.036, "speed", 0.25, "heal_share", 0.2));
+    public static final Species SALAMANDER = reg("salamander", "Саламандра", 4, MobRole.SKIRMISHER, "salamander",
+            1.1f, 0.9f, 0.8f, 0xFF5A1E, "Прыгает на дальних и обжигает.",
+            p("hp_units", 0.6, "dmg_units", 0.052, "speed", 0.34, "leap", 5, "hit_dot", 0.15, "dot_seconds", 3));
+
     private Bestiary() {
     }
 

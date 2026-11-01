@@ -1,29 +1,33 @@
 {
   "stat_per_level": 0.25,
   "affixes": {
-    "ranged_power": {
+    "skill_power": {
       "min": 0.03,
       "max": 0.08
-    },
-    "dodge": {
-      "min": 0.01,
-      "max": 0.03
     },
     "crit_chance": {
       "min": 0.01,
       "max": 0.04
     },
+    "haste": {
+      "min": 0.01,
+      "max": 0.04
+    },
+    "ranged_power": {
+      "min": 0.03,
+      "max": 0.08
+    },
     "move_speed": {
       "min": 0.01,
       "max": 0.03
     },
+    "crit_damage": {
+      "min": 0.05,
+      "max": 0.15
+    },
     "heal_power": {
       "min": 0.03,
       "max": 0.08
-    },
-    "find": {
-      "min": 0.03,
-      "max": 0.1
     },
     "weapon_power": {
       "min": 0.03,
@@ -33,17 +37,13 @@
       "min": 0.01,
       "max": 0.03
     },
-    "crit_damage": {
-      "min": 0.05,
-      "max": 0.15
-    },
-    "haste": {
-      "min": 0.01,
-      "max": 0.04
-    },
-    "skill_power": {
+    "find": {
       "min": 0.03,
-      "max": 0.08
+      "max": 0.1
+    },
+    "dodge": {
+      "min": 0.01,
+      "max": 0.03
     }
   },
   "drops": {
@@ -51,6 +51,24 @@
     "gear_chance": 0.04
   },
   "rarities": {
+    "uncommon": {
+      "weight": 350.0,
+      "power": 1.08,
+      "stats": 1,
+      "affixes": 1
+    },
+    "rare": {
+      "weight": 90.0,
+      "power": 1.16,
+      "stats": 2,
+      "affixes": 2
+    },
+    "epic": {
+      "weight": 18.0,
+      "power": 1.26,
+      "stats": 2,
+      "affixes": 3
+    },
     "divine": {
       "weight": 0.0,
       "power": 1.55,
@@ -63,29 +81,11 @@
       "stats": 1,
       "affixes": 0
     },
-    "uncommon": {
-      "weight": 350.0,
-      "power": 1.08,
-      "stats": 1,
-      "affixes": 1
-    },
     "legendary": {
       "weight": 3.0,
       "power": 1.38,
       "stats": 3,
       "affixes": 4
-    },
-    "epic": {
-      "weight": 18.0,
-      "power": 1.26,
-      "stats": 2,
-      "affixes": 3
-    },
-    "rare": {
-      "weight": 90.0,
-      "power": 1.16,
-      "stats": 2,
-      "affixes": 2
     }
   },
   "weapons": {

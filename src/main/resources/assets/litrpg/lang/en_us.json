@@ -69,5 +69,14 @@
   "entity.litrpg.harpooner": "Harpooner",
   "entity.litrpg.tide_warden": "Tide Warden",
   "entity.litrpg.leviathan": "Leviathan",
-  "entity.litrpg.naiad": "Nayara, Priestess of the Deep"
+  "entity.litrpg.naiad": "Nayara, Priestess of the Deep",
+  "entity.litrpg.imp": "Fire Imp",
+  "entity.litrpg.forge_construct": "Forge Construct",
+  "entity.litrpg.ash_crossbow": "Ash Crossbowman",
+  "entity.litrpg.molten_golem": "Molten Golem",
+  "entity.litrpg.fire_shaman": "Fire Shaman",
+  "entity.litrpg.salamander": "Salamander",
+  "entity.litrpg.smelter": "Smelter Golem",
+  "entity.litrpg.chariot": "Chariot of Flame",
+  "entity.litrpg.ash_lord": "Lord of Ash"
 }
