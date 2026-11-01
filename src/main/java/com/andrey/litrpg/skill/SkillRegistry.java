@@ -114,6 +114,48 @@ public final class SkillRegistry {
     public static final Skill HEADSMAN_VERDICT = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Verdict());
     public static final Skill HEADSMAN_BLOCK = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Block());
     public static final Skill HEADSMAN_SCAFFOLD = reg(new com.andrey.litrpg.skill.classes.HeadsmanSkills.Scaffold());
+    // Снайпер
+    public static final Skill SNIPER_AIM = reg(new com.andrey.litrpg.skill.classes.SniperSkills.Aim());
+    public static final Skill SNIPER_BREATH = reg(new com.andrey.litrpg.skill.classes.SniperSkills.HoldBreath());
+    public static final Skill SNIPER_MARK = reg(new com.andrey.litrpg.skill.classes.SniperSkills.Mark());
+    public static final Skill SNIPER_TRAP = reg(new com.andrey.litrpg.skill.classes.SniperSkills.Trap());
+    public static final Skill SNIPER_PIERCE = reg(new com.andrey.litrpg.skill.classes.SniperSkills.Pierce());
+    public static final Skill SNIPER_FINISHER = reg(new com.andrey.litrpg.skill.classes.SniperSkills.Finisher());
+    // Механик
+    public static final Skill MECH_TURRET = reg(new com.andrey.litrpg.skill.classes.MechanicSkills.Turret());
+    public static final Skill MECH_SHOTGUN = reg(new com.andrey.litrpg.skill.classes.MechanicSkills.Shotgun());
+    public static final Skill MECH_MINE = reg(new com.andrey.litrpg.skill.classes.MechanicSkills.Mine());
+    public static final Skill MECH_MORTAR = reg(new com.andrey.litrpg.skill.classes.MechanicSkills.Mortar());
+    public static final Skill MECH_OVERDRIVE = reg(new com.andrey.litrpg.skill.classes.MechanicSkills.Overdrive());
+    public static final Skill MECH_ARSENAL = reg(new com.andrey.litrpg.skill.classes.MechanicSkills.FullArsenal());
+    // Пиромант
+    public static final Skill PYRO_SPARK = reg(new com.andrey.litrpg.skill.classes.PyromancerSkills.Spark());
+    public static final Skill PYRO_GROUND = reg(new com.andrey.litrpg.skill.classes.PyromancerSkills.BurningGround());
+    public static final Skill PYRO_DETONATE = reg(new com.andrey.litrpg.skill.classes.PyromancerSkills.Detonate());
+    public static final Skill PYRO_BREATH = reg(new com.andrey.litrpg.skill.classes.PyromancerSkills.FireBreath());
+    public static final Skill PYRO_FIRESTORM = reg(new com.andrey.litrpg.skill.classes.PyromancerSkills.Firestorm());
+    public static final Skill PYRO_INFERNO = reg(new com.andrey.litrpg.skill.classes.PyromancerSkills.Inferno());
+    // Криомант
+    public static final Skill CRYO_NEEDLE = reg(new com.andrey.litrpg.skill.classes.CryomancerSkills.IceNeedle());
+    public static final Skill CRYO_BLIZZARD = reg(new com.andrey.litrpg.skill.classes.CryomancerSkills.Blizzard());
+    public static final Skill CRYO_FREEZE = reg(new com.andrey.litrpg.skill.classes.CryomancerSkills.Freeze());
+    public static final Skill CRYO_SHATTER = reg(new com.andrey.litrpg.skill.classes.CryomancerSkills.Shatter());
+    public static final Skill CRYO_SPIKES = reg(new com.andrey.litrpg.skill.classes.CryomancerSkills.IceSpikes());
+    public static final Skill CRYO_ZERO = reg(new com.andrey.litrpg.skill.classes.CryomancerSkills.AbsoluteZero());
+    // Громовержец
+    public static final Skill STORM_CHAIN = reg(new com.andrey.litrpg.skill.classes.StormcallerSkills.ChainLightning());
+    public static final Skill STORM_JOLT = reg(new com.andrey.litrpg.skill.classes.StormcallerSkills.Jolt());
+    public static final Skill STORM_STATIC = reg(new com.andrey.litrpg.skill.classes.StormcallerSkills.Static());
+    public static final Skill STORM_CLOUD = reg(new com.andrey.litrpg.skill.classes.StormcallerSkills.StormCloud());
+    public static final Skill STORM_STEP = reg(new com.andrey.litrpg.skill.classes.StormcallerSkills.ThunderStep());
+    public static final Skill STORM_TEMPEST = reg(new com.andrey.litrpg.skill.classes.StormcallerSkills.Tempest());
+    // Чумной владыка
+    public static final Skill PLAGUE_PLAGUE = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.Plague());
+    public static final Skill PLAGUE_SPREAD = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.Spread());
+    public static final Skill PLAGUE_WITHER = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.Wither());
+    public static final Skill PLAGUE_SWARM = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.FlySwarm());
+    public static final Skill PLAGUE_TURN = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.Turn());
+    public static final Skill PLAGUE_PANDEMIC = reg(new com.andrey.litrpg.skill.classes.PlagueSkills.Pandemic());
     // Хронолог
     public static final Skill CHRONO_REWIND = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Rewind());
     public static final Skill CHRONO_STASIS = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Stasis());

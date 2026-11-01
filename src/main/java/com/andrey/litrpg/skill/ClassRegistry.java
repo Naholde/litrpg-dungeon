@@ -131,6 +131,58 @@ public final class ClassRegistry {
                     u(32, HEADSMAN_BLOCK), u(44, HEADSMAN_SCAFFOLD)),
             Map.of(Style.MELEE, 1.0, Style.TANKING, 0.6, Style.SKILLS, 0.4)));
 
+    public static final PlayerClass SNIPER = reg(new PlayerClass("sniper", Role.DAMAGE, "Снайпер", 0xFFC9D6E8, "◎",
+            "Боец одного выстрела: дыхание копится, пока он стоит, и чем дольше стоял, тем больнее бьёт. Метка делает цель удобной всей группе.",
+            "Снайпер не бежит в бой. Он находит место, замирает — и ждёт того единственного выстрела, который всё решит.",
+            Resource.BREATH, new StatSet(0.8, 2.1, 0.7, 0.9, 0.9),
+            List.of(u(10, SNIPER_AIM), u(10, SNIPER_BREATH), u(10, SNIPER_MARK), u(20, SNIPER_TRAP),
+                    u(32, SNIPER_PIERCE), u(44, SNIPER_FINISHER)),
+            Map.of(Style.RANGED, 1.0, Style.SKILLS, 0.5)));
+
+    public static final PlayerClass MECHANIC = reg(new PlayerClass("mechanic", Role.DAMAGE, "Механик", 0xFFFF7A2E, "⌂",
+            "Воюет станками: турель, мина и мортира стоят в мире, у них есть здоровье, и враги могут их сломать. Заряд копится от попаданий.",
+            "Механик не считает себя бойцом. Он просто ставит станки там, где врагу будет неудобно, и смотрит, как они работают.",
+            Resource.CHARGE, new StatSet(0.7, 1.6, 0.9, 1.4, 0.8),
+            List.of(u(10, MECH_TURRET), u(10, MECH_SHOTGUN), u(10, MECH_MINE), u(20, MECH_MORTAR),
+                    u(32, MECH_OVERDRIVE), u(44, MECH_ARSENAL)),
+            Map.of(Style.RANGED, 0.9, Style.SKILLS, 1.0)));
+
+    public static final PlayerClass PYROMANCER = reg(new PlayerClass("pyromancer", Role.DAMAGE, "Пиромант",
+            0xFFFF4A2E, "♨",
+            "Огонь слоями: каждый приём кладёт слой жара, «Взрыв» детонирует их все, а на полном жаре пиромант горит сам — зато бьёт сильнее.",
+            "Пиромант не тушит за собой. Он кладёт слой, потом ещё слой — и в нужный миг отпускает всё сразу.",
+            Resource.HEAT, new StatSet(0.4, 0.9, 0.8, 2.3, 0.6),
+            List.of(u(10, PYRO_SPARK), u(10, PYRO_GROUND), u(10, PYRO_DETONATE), u(20, PYRO_BREATH),
+                    u(32, PYRO_FIRESTORM), u(44, PYRO_INFERNO)),
+            Map.of(Style.MAGIC, 1.0, Style.SKILLS, 0.8)));
+
+    public static final PlayerClass CRYOMANCER = reg(new PlayerClass("cryomancer", Role.DAMAGE, "Криомант",
+            0xFF8FE3FF, "❄",
+            "Холод до хруста: обморожение слоями, на пятом враг скован льдом, а «Раскол» по скованному бьёт втрое и разлетается осколками.",
+            "Криоманту не нужно спешить. Он остужает — и в какой-то момент враг просто перестаёт двигаться.",
+            Resource.NONE, new StatSet(0.4, 0.8, 0.9, 2.3, 0.6),
+            List.of(u(10, CRYO_NEEDLE), u(10, CRYO_BLIZZARD), u(10, CRYO_FREEZE), u(20, CRYO_SHATTER),
+                    u(32, CRYO_SPIKES), u(44, CRYO_ZERO)),
+            Map.of(Style.MAGIC, 1.0, Style.SKILLS, 0.7)));
+
+    public static final PlayerClass STORMCALLER = reg(new PlayerClass("stormcaller", Role.DAMAGE, "Громовержец",
+            0xFF8FA6FF, "↯",
+            "Цепи, статика и туча над головой: статика копится слоями и на пятом разряжается по всем рядом, а буря превращает площадку в грозу.",
+            "Громовержец бьёт не туда, куда смотрит, а туда, где стоят плотнее. Молния сама найдёт следующего.",
+            Resource.NONE, new StatSet(0.4, 1.0, 0.8, 2.3, 0.5),
+            List.of(u(10, STORM_CHAIN), u(10, STORM_JOLT), u(10, STORM_STATIC), u(20, STORM_CLOUD),
+                    u(32, STORM_STEP), u(44, STORM_TEMPEST)),
+            Map.of(Style.MAGIC, 1.0, Style.SKILLS, 0.9)));
+
+    public static final PlayerClass PLAGUE_LORD = reg(new PlayerClass("plague_lord", Role.DAMAGE, "Чумной владыка",
+            0xFF8FA83A, "☣",
+            "Зараза работает за него: слои копятся, перескакивают на соседей, мешают лечить, а «Пандемия» взыскивает с каждого заражённого разом.",
+            "Владыка никого не торопит. Он заражает одного — и ждёт, пока зараза сделает всё остальное.",
+            Resource.NONE, new StatSet(0.4, 0.8, 1.0, 2.2, 0.6),
+            List.of(u(10, PLAGUE_PLAGUE), u(10, PLAGUE_SPREAD), u(10, PLAGUE_WITHER), u(20, PLAGUE_SWARM),
+                    u(32, PLAGUE_TURN), u(44, PLAGUE_PANDEMIC)),
+            Map.of(Style.MAGIC, 0.9, Style.SKILLS, 1.0)));
+
     public static final PlayerClass CHRONOLOG = reg(new PlayerClass("chronolog", Role.SUPPORT, "Хронолог",
             0xFFFFE27A, "⧗",
             "Лечит временем: возвращает союзнику здоровье, которое было пять секунд назад, останавливает врага и ускоряет своих.",

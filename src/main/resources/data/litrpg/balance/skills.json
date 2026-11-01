@@ -263,6 +263,53 @@
       "heal": 0.35,
       "reduce": 0.15
     },
+    "cryo.blizzard": {
+      "cooldown": 24.0,
+      "cast": 0.0,
+      "range": 16.0,
+      "radius": 6.0,
+      "duration": 8.0,
+      "damage": 0.3
+    },
+    "cryo.freeze": {
+      "cooldown": 14.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "damage": 0.8,
+      "duration": 10.0,
+      "stacks": 2.0
+    },
+    "cryo.needle": {
+      "cooldown": 3.0,
+      "cast": 0.0,
+      "range": 22.0,
+      "damage": 1.0,
+      "duration": 10.0
+    },
+    "cryo.shatter": {
+      "cooldown": 16.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "radius": 4.0,
+      "damage": 1.6,
+      "frozen": 2.0,
+      "shards": 0.8
+    },
+    "cryo.spikes": {
+      "cooldown": 26.0,
+      "cast": 0.0,
+      "length": 12.0,
+      "width": 2.0,
+      "damage": 1.5,
+      "duration": 10.0
+    },
+    "cryo.zero": {
+      "cooldown": 120.0,
+      "cast": 0.0,
+      "radius": 9.0,
+      "damage": 1.8,
+      "duration": 3.0
+    },
     "dps.heavy_strike": {
       "cooldown": 6.0,
       "cast": 0.0,
@@ -494,6 +541,60 @@
       "radius": 4.0,
       "damage": 1.4
     },
+    "mech.arsenal": {
+      "cooldown": 150.0,
+      "cast": 0.0,
+      "radius": 12.0,
+      "hp": 3.0,
+      "damage": 1.2,
+      "duration": 14.0,
+      "turrets": 3.0,
+      "overheat": 0.3,
+      "overheat_time": 8.0
+    },
+    "mech.mine": {
+      "cooldown": 18.0,
+      "cast": 0.0,
+      "range": 10.0,
+      "radius": 3.0,
+      "hp": 1.2,
+      "damage": 2.2,
+      "duration": 30.0
+    },
+    "mech.mortar": {
+      "cooldown": 35.0,
+      "cast": 0.0,
+      "range": 25.0,
+      "radius": 3.5,
+      "damage": 1.6,
+      "shells": 3.0,
+      "delay": 1.2
+    },
+    "mech.overdrive": {
+      "cooldown": 40.0,
+      "cast": 0.0,
+      "radius": 30.0,
+      "cost": 40.0,
+      "times": 4.0,
+      "duration": 3.0
+    },
+    "mech.shotgun": {
+      "cooldown": 7.0,
+      "cast": 0.0,
+      "radius": 6.0,
+      "angle": 55.0,
+      "damage": 1.5,
+      "close": 0.6
+    },
+    "mech.turret": {
+      "cooldown": 30.0,
+      "cast": 0.0,
+      "range": 8.0,
+      "radius": 12.0,
+      "hp": 3.0,
+      "damage": 0.6,
+      "duration": 20.0
+    },
     "mirror.double": {
       "cooldown": 60.0,
       "cast": 0.0,
@@ -615,6 +716,57 @@
       "heal": 1.0,
       "heal_range": 20.0
     },
+    "plague.pandemic": {
+      "cooldown": 130.0,
+      "cast": 0.0,
+      "radius": 14.0,
+      "per_stack": 0.85,
+      "spread": 2.0,
+      "rot": 1.2,
+      "duration": 12.0
+    },
+    "plague.plague": {
+      "cooldown": 4.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "damage": 0.7,
+      "rot": 1.6,
+      "duration": 12.0
+    },
+    "plague.spread": {
+      "cooldown": 14.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "radius": 7.0,
+      "targets": 4.0,
+      "rot": 1.2,
+      "duration": 12.0
+    },
+    "plague.swarm": {
+      "cooldown": 30.0,
+      "cast": 0.0,
+      "range": 16.0,
+      "radius": 6.0,
+      "duration": 10.0,
+      "damage": 0.3,
+      "rot": 0.8
+    },
+    "plague.turn": {
+      "cooldown": 45.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "search": 10.0,
+      "duration": 6.0,
+      "power": 0.5
+    },
+    "plague.wither": {
+      "cooldown": 20.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "duration": 8.0,
+      "heal_cut": 0.7,
+      "damage": 1.0
+    },
     "priest.atonement": {
       "cooldown": 12.0,
       "cast": 0.0,
@@ -662,6 +814,58 @@
       "duration": 8.0,
       "burst": 1.3,
       "burst_radius": 4.0
+    },
+    "pyro.breath": {
+      "cooldown": 14.0,
+      "cast": 0.0,
+      "radius": 8.0,
+      "angle": 70.0,
+      "damage": 1.3,
+      "burn": 0.6,
+      "duration": 8.0
+    },
+    "pyro.detonate": {
+      "cooldown": 9.0,
+      "cast": 0.0,
+      "range": 22.0,
+      "radius": 3.5,
+      "per_stack": 0.7
+    },
+    "pyro.firestorm": {
+      "cooldown": 55.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "radius": 8.0,
+      "meteor": 3.0,
+      "meteors": 5.0,
+      "damage": 1.5,
+      "delay": 1.2
+    },
+    "pyro.ground": {
+      "cooldown": 16.0,
+      "cast": 0.0,
+      "range": 16.0,
+      "radius": 4.0,
+      "duration": 8.0,
+      "damage": 0.35,
+      "burn": 0.5
+    },
+    "pyro.inferno": {
+      "cooldown": 110.0,
+      "cast": 0.0,
+      "radius": 10.0,
+      "damage": 2.0,
+      "per_burning": 0.35,
+      "self_burn": 0.1,
+      "duration": 6.0
+    },
+    "pyro.spark": {
+      "cooldown": 3.0,
+      "cast": 0.0,
+      "range": 22.0,
+      "damage": 0.9,
+      "burn": 0.8,
+      "duration": 8.0
     },
     "reaper.ferryman": {
       "cooldown": 35.0,
@@ -805,6 +1009,110 @@
       "hp": 2.6,
       "damage": 0.8,
       "duration": 12.0
+    },
+    "sniper.aim": {
+      "cooldown": 6.0,
+      "cast": 0.0,
+      "range": 40.0,
+      "damage": 1.4,
+      "full": 3.0,
+      "bonus": 1.5
+    },
+    "sniper.breath": {
+      "cooldown": 24.0,
+      "cast": 0.0,
+      "cost": 40.0,
+      "duration": 4.0,
+      "power": 0.8
+    },
+    "sniper.finisher": {
+      "cooldown": 45.0,
+      "cast": 0.0,
+      "range": 50.0,
+      "damage": 4.5,
+      "marked": 1.0
+    },
+    "sniper.mark": {
+      "cooldown": 12.0,
+      "cast": 0.0,
+      "range": 45.0,
+      "duration": 20.0,
+      "extra": 0.12
+    },
+    "sniper.pierce": {
+      "cooldown": 18.0,
+      "cast": 0.8,
+      "length": 30.0,
+      "width": 1.2,
+      "damage": 2.0
+    },
+    "sniper.trap": {
+      "cooldown": 26.0,
+      "cast": 0.0,
+      "range": 12.0,
+      "radius": 1.8,
+      "hp": 1.5,
+      "duration": 30.0,
+      "damage": 1.2,
+      "hold": 3.0
+    },
+    "storm.chain": {
+      "cooldown": 7.0,
+      "cast": 0.0,
+      "range": 24.0,
+      "damage": 1.3,
+      "burst": 0.8,
+      "targets": 4.0,
+      "falloff": 0.2,
+      "jump": 8.0,
+      "duration": 8.0
+    },
+    "storm.cloud": {
+      "cooldown": 34.0,
+      "cast": 0.0,
+      "range": 22.0,
+      "radius": 4.0,
+      "duration": 8.0,
+      "damage": 0.6,
+      "burst": 0.8,
+      "static_time": 8.0
+    },
+    "storm.jolt": {
+      "cooldown": 4.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "damage": 1.1,
+      "charged": 1.0,
+      "burst": 0.8,
+      "duration": 8.0
+    },
+    "storm.static": {
+      "cooldown": 10.0,
+      "cast": 0.0,
+      "range": 20.0,
+      "radius": 5.0,
+      "stacks": 2.0,
+      "burst": 1.0,
+      "duration": 10.0
+    },
+    "storm.step": {
+      "cooldown": 22.0,
+      "cast": 0.0,
+      "range": 16.0,
+      "radius": 3.5,
+      "damage": 1.6,
+      "stun": 1.0
+    },
+    "storm.tempest": {
+      "cooldown": 120.0,
+      "cast": 0.0,
+      "range": 18.0,
+      "radius": 9.0,
+      "duration": 8.0,
+      "damage": 1.1,
+      "strikes": 2.0,
+      "burst": 0.8,
+      "static_time": 8.0
     },
     "sup.mend": {
       "cooldown": 0.0,
