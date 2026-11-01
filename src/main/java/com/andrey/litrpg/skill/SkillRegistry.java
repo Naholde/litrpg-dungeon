@@ -72,6 +72,41 @@ public final class SkillRegistry {
     public static final Skill PAL_DIVINE = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.DivineShield());
     public static final Skill PAL_HANDS = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.LayOnHands());
     public static final Skill PAL_JUDGMENT = reg(new com.andrey.litrpg.skill.classes.PaladinSkills.Judgment());
+    // Хронолог
+    public static final Skill CHRONO_REWIND = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Rewind());
+    public static final Skill CHRONO_STASIS = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Stasis());
+    public static final Skill CHRONO_HASTE = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Haste());
+    public static final Skill CHRONO_LOOP = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Loop());
+    public static final Skill CHRONO_HOURGLASS = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Hourglass());
+    public static final Skill CHRONO_REPLAY = reg(new com.andrey.litrpg.skill.classes.ChronologSkills.Replay());
+    // Теневой жрец
+    public static final Skill PRIEST_LASH = reg(new com.andrey.litrpg.skill.classes.ShadowPriestSkills.Lash());
+    public static final Skill PRIEST_ATONEMENT = reg(new com.andrey.litrpg.skill.classes.ShadowPriestSkills.Atonement());
+    public static final Skill PRIEST_TWILIGHT = reg(new com.andrey.litrpg.skill.classes.ShadowPriestSkills.Twilight());
+    public static final Skill PRIEST_BARGAIN = reg(new com.andrey.litrpg.skill.classes.ShadowPriestSkills.Bargain());
+    public static final Skill PRIEST_VEIL = reg(new com.andrey.litrpg.skill.classes.ShadowPriestSkills.Veil());
+    public static final Skill PRIEST_DEVOUR = reg(new com.andrey.litrpg.skill.classes.ShadowPriestSkills.Devour());
+    // Друид
+    public static final Skill DRUID_FLOWER = reg(new com.andrey.litrpg.skill.classes.DruidSkills.Flower());
+    public static final Skill DRUID_VINE = reg(new com.andrey.litrpg.skill.classes.DruidSkills.Vine());
+    public static final Skill DRUID_THORNS = reg(new com.andrey.litrpg.skill.classes.DruidSkills.Thorns());
+    public static final Skill DRUID_TREE = reg(new com.andrey.litrpg.skill.classes.DruidSkills.Tree());
+    public static final Skill DRUID_BLOOM = reg(new com.andrey.litrpg.skill.classes.DruidSkills.Bloom());
+    public static final Skill DRUID_SPRING = reg(new com.andrey.litrpg.skill.classes.DruidSkills.Spring());
+    // Шаман
+    public static final Skill SHAMAN_TOTEM_HEAL = reg(new com.andrey.litrpg.skill.classes.ShamanSkills.TotemHeal());
+    public static final Skill SHAMAN_LIGHTNING = reg(new com.andrey.litrpg.skill.classes.ShamanSkills.Lightning());
+    public static final Skill SHAMAN_TOTEM_STORM = reg(new com.andrey.litrpg.skill.classes.ShamanSkills.TotemStorm());
+    public static final Skill SHAMAN_TOTEM_EARTH = reg(new com.andrey.litrpg.skill.classes.ShamanSkills.TotemEarth());
+    public static final Skill SHAMAN_ANCESTORS = reg(new com.andrey.litrpg.skill.classes.ShamanSkills.Ancestors());
+    public static final Skill SHAMAN_CONSUME = reg(new com.andrey.litrpg.skill.classes.ShamanSkills.Consume());
+    // Знаменосец
+    public static final Skill BANNER_POWER = reg(new com.andrey.litrpg.skill.classes.BannermanSkills.BannerPower());
+    public static final Skill BANNER_GUARD = reg(new com.andrey.litrpg.skill.classes.BannermanSkills.BannerGuard());
+    public static final Skill BANNER_SHOUT = reg(new com.andrey.litrpg.skill.classes.BannermanSkills.Shout());
+    public static final Skill BANNER_SPEED = reg(new com.andrey.litrpg.skill.classes.BannermanSkills.BannerSpeed());
+    public static final Skill BANNER_RANKS = reg(new com.andrey.litrpg.skill.classes.BannermanSkills.CloseRanks());
+    public static final Skill BANNER_LAST_STAND = reg(new com.andrey.litrpg.skill.classes.BannermanSkills.LastStand());
     // Лекарь
     public static final Skill BANDAGE = reg(new ClericSkills.Bandage());
     public static final Skill PRAYER = reg(new ClericSkills.Prayer());

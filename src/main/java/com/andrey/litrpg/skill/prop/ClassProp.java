@@ -103,6 +103,20 @@ public class ClassProp extends Mob implements GeoEntity {
         return radius;
     }
 
+    public void setRadius(double r) {
+        this.radius = r;
+    }
+
+    /** Сработать прямо сейчас, не дожидаясь своего срока («Духи предков» шамана, «Разгон станков» механика). */
+    public void pulseNow() {
+        if (pulse != null) pulse.accept(this);
+    }
+
+    /** Продлить или укоротить жизнь объекта. */
+    public void addTime(int ticks) {
+        this.until += ticks;
+    }
+
     public PropKind kind() {
         return PropKind.get(BuiltInRegistries.ENTITY_TYPE.getKey(getType()).getPath());
     }

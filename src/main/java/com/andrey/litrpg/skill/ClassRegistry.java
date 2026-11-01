@@ -82,6 +82,49 @@ public final class ClassRegistry {
             List.of(u(10, BANDAGE), u(10, PRAYER), u(10, RENEW), u(20, SANCTUARY), u(32, SMITE), u(44, MIRACLE)),
             Map.of(Style.HEALING, 1.0, Style.MAGIC, 0.5, Style.SKILLS, 0.3)));
 
+    public static final PlayerClass CHRONOLOG = reg(new PlayerClass("chronolog", Role.SUPPORT, "Хронолог",
+            0xFFFFE27A, "⧗",
+            "Лечит временем: возвращает союзнику здоровье, которое было пять секунд назад, останавливает врага и ускоряет своих.",
+            "Хронолог не спорит с раной. Он просто находит минуту, когда её ещё не было, и приносит её сюда.",
+            Resource.SAND, new StatSet(0.3, 0.8, 1.0, 2.3, 0.6),
+            List.of(u(10, CHRONO_REWIND), u(10, CHRONO_STASIS), u(10, CHRONO_HASTE), u(20, CHRONO_LOOP),
+                    u(32, CHRONO_HOURGLASS), u(44, CHRONO_REPLAY)),
+            Map.of(Style.HEALING, 1.0, Style.SKILLS, 0.7, Style.MAGIC, 0.4)));
+
+    public static final PlayerClass SHADOW_PRIEST = reg(new PlayerClass("shadow_priest", Role.SUPPORT, "Теневой жрец",
+            0xFF6B4AA8, "☾",
+            "Лечит тем, что отнял: его урон становится здоровьем отмеченного союзника, а зона сумерек поит группу чужой болью.",
+            "Жрец знает: свет кончается, а тьма — нет. Он берёт у врага и отдаёт своим, и совесть его спокойна.",
+            Resource.TWILIGHT, new StatSet(0.5, 0.6, 1.2, 2.2, 0.5),
+            List.of(u(10, PRIEST_LASH), u(10, PRIEST_ATONEMENT), u(10, PRIEST_TWILIGHT), u(20, PRIEST_BARGAIN),
+                    u(32, PRIEST_VEIL), u(44, PRIEST_DEVOUR)),
+            Map.of(Style.HEALING, 1.0, Style.MAGIC, 0.8, Style.SKILLS, 0.5)));
+
+    public static final PlayerClass DRUID = reg(new PlayerClass("druid", Role.SUPPORT, "Друид", 0xFF6BE38A, "✿",
+            "Лечение, которое растёт само: цветы и лоза тлеют на раненых, живое древо лечит в своём радиусе, весна ускоряет всё сразу.",
+            "Друид не стоит над раненым. Он сажает — и уходит сажать дальше, а посаженное делает дело за него.",
+            Resource.NONE, new StatSet(0.3, 0.7, 1.2, 2.2, 0.6),
+            List.of(u(10, DRUID_FLOWER), u(10, DRUID_VINE), u(10, DRUID_THORNS), u(20, DRUID_TREE),
+                    u(32, DRUID_BLOOM), u(44, DRUID_SPRING)),
+            Map.of(Style.HEALING, 1.0, Style.MAGIC, 0.5, Style.SKILLS, 0.5)));
+
+    public static final PlayerClass SHAMAN = reg(new PlayerClass("shaman", Role.SUPPORT, "Шаман", 0xFF7BF5A0, "⌂",
+            "Работает тотемами: они стоят в мире, рисуют свой радиус, лечат, бьют молнией и держат бафф — пока враги их не сломают.",
+            "Шаман не носит силу с собой. Он ставит её на землю, и дальше земля держит отряд сама.",
+            Resource.NONE, new StatSet(0.4, 0.6, 1.3, 2.1, 0.6),
+            List.of(u(10, SHAMAN_TOTEM_HEAL), u(10, SHAMAN_LIGHTNING), u(10, SHAMAN_TOTEM_STORM),
+                    u(20, SHAMAN_TOTEM_EARTH), u(32, SHAMAN_ANCESTORS), u(44, SHAMAN_CONSUME)),
+            Map.of(Style.HEALING, 1.0, Style.SKILLS, 0.8, Style.MAGIC, 0.6)));
+
+    public static final PlayerClass BANNERMAN = reg(new PlayerClass("bannerman", Role.SUPPORT, "Знаменосец",
+            0xFFD8343A, "⚑",
+            "Держит отряд знамёнами: пока знамя цело, у своих в его радиусе аура, а клич снимает с группы оглушения.",
+            "Знаменосец не бьёт и почти не лечит. Он просто ставит знамя там, где отряд должен выстоять, — и отряд стоит.",
+            Resource.NONE, new StatSet(0.8, 0.6, 1.5, 1.8, 0.3),
+            List.of(u(10, BANNER_POWER), u(10, BANNER_GUARD), u(10, BANNER_SHOUT), u(20, BANNER_SPEED),
+                    u(32, BANNER_RANKS), u(44, BANNER_LAST_STAND)),
+            Map.of(Style.HEALING, 0.8, Style.PROTECTION, 1.0, Style.SKILLS, 0.5)));
+
     /** Навыки роли до получения класса. */
     public static final Map<Role, List<Skill>> ROLE_KITS = Map.of(
             Role.TANK, List.of(TAUNT, SHIELD_BASH, BULWARK),

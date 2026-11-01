@@ -90,6 +90,12 @@ public final class SkillContext {
         StatusService.apply(who, Status.of(StatusType.SHIELD, skill.id, caster.getUUID(), amount, now(), ticks(secondsKey)));
     }
 
+    /** Щит на готовую величину (когда её считает сам навык: за каждый тотем, за каждую душу). */
+    public void shieldFixed(LivingEntity who, double amount, String secondsKey) {
+        StatusService.apply(who, Status.of(StatusType.SHIELD, skill.id, caster.getUUID(), amount, now(),
+                ticks(secondsKey)));
+    }
+
     /** Наложить метку: сила — значение параметра (или готовое число). */
     public void status(LivingEntity who, StatusType type, double magnitude, String secondsKey) {
         StatusService.apply(who, Status.of(type, skill.id, caster.getUUID(), magnitude, now(), ticks(secondsKey)));
