@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Морена, Ведьма Изнанки — финал Чащи. Порча полосой, «Страх» (напуганный не может бить и его гонит прочь, пока рядом
@@ -60,6 +61,8 @@ public class Morena extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Око Изнанки", "eye", 0, false, b -> true, this::eye),
+            new Ability("Ползучий котёл", "crawl", 1, false, b -> true, this::crawl),
             new Ability("Вывернутая земля", "inside", 0, false, b -> relocated(), this::insideOut),
             new Ability("Страх", "fear", 1, false, b -> b.playersInArena().size() > 1, this::fear),
             new Ability("Котёл", "cauldron", 2, false, b -> poolCount() < 3, this::cauldron),
@@ -168,4 +171,15 @@ public class Morena extends BossEntity {
         feared.clear();
         super.resetFight();
     }
+
+    /** Око Изнанки */
+    private void eye(Cast c) {
+        Mechanics.gaze(c, (int) p("eye_seconds"), p("eye_angle"), p("eye_units"), 0xB84AD8);
+    }
+
+    /** Ползучий котёл */
+    private void crawl(Cast c) {
+        Mechanics.hunt(c, (int) p("crawl_seconds"), p("crawl_radius"), p("crawl_units"), 0x7A2A8A);
+    }
+
 }

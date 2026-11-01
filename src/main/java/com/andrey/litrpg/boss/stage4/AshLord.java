@@ -19,6 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Владыка Пепла — финал Кузен. «Эго»: вызывает на дуэль лучшего бойца (не танка) — в круге вдвоём, урон по Владыке
@@ -58,6 +59,7 @@ public class AshLord extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Пепельный обвал", "ashfall", 0, false, b -> true, this::ashfall),
             new Ability("Эго", "ego", 0, false, b -> b.playersInArena().size() > 1 && duelist == null, this::ego),
             new Ability("Извержение", "erupt", 1, false, b -> relocated(), this::erupt),
             new Ability("Обвал", "collapse", 2, false, b -> poolCount() < 6, this::collapse),
@@ -147,4 +149,10 @@ public class AshLord extends BossEntity {
         duelist = null;
         super.resetFight();
     }
+
+    /** Пепельный обвал */
+    private void ashfall(Cast c) {
+        Mechanics.crumble(c, (int) p("ashfall_waves"), (int) p("ashfall_safe"), p("ashfall_radius"), p("ashfall_units"), 0xC96B3A);
+    }
+
 }

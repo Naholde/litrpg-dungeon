@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Гнилой Древень. Удар ветвью по танку; корни-капканы полосами и кругами (попавшего держат корни); споровые облака —
@@ -49,6 +50,8 @@ public class RotEnt extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Кольца спор", "circles", 0, false, b -> true, this::circles),
+            new Ability("Корни-путы", "bind", 1, false, b -> true, this::bind),
             new Ability("Сердцевина", "heart", 0, true, b -> b.getHealth() < b.getMaxHealth() * 0.85, this::heartwood),
             new Ability("Споровое облако", "spores", 1, false, b -> poolCount() < 4, this::spores),
             new Ability("Корни-капканы", "roots", 2, false, b -> true, this::roots),
@@ -118,4 +121,15 @@ public class RotEnt extends BossEntity {
         if (key.equals("spores_cd") && phase() >= 1) return super.p(key) * 0.5;
         return super.p(key);
     }
+
+    /** Кольца спор */
+    private void circles(Cast c) {
+        Mechanics.rings(c, (int) p("circles_waves"), p("circles_units"), p("circles_gap"), 0x9BD86B);
+    }
+
+    /** Корни-путы */
+    private void bind(Cast c) {
+        Mechanics.tether(c, (int) p("bind_seconds"), p("bind_dist"), p("bind_units"), 0x6B8A3A);
+    }
+
 }

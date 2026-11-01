@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Хронофаг. «Песочные часы»: по арене встают часы — не разбили до срока, время останавливается (всех оглушает и бьёт).
@@ -52,6 +53,8 @@ public class Chronophage extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Волны времени", "waves", 0, false, b -> true, this::waves),
+            new Ability("Часы идут за вами", "clock", 1, false, b -> true, this::clock),
             new Ability("Песочные часы", "glass", 0, false, b -> spawnedAlive().isEmpty(), this::hourglasses),
             new Ability("Откат", "rewind", 1, false, b -> true, this::rewind),
             new Ability("Временной разрез", "slash", 2, false, b -> b.getTarget() != null, this::slash));
@@ -127,4 +130,15 @@ public class Chronophage extends BossEntity {
         if (key.endsWith("_cd") && phase() >= 1) return super.p(key) * 0.75;
         return super.p(key);
     }
+
+    /** Волны времени */
+    private void waves(Cast c) {
+        Mechanics.rings(c, (int) p("waves_waves"), p("waves_units"), p("waves_gap"), 0xFFE8A6);
+    }
+
+    /** Часы идут за вами */
+    private void clock(Cast c) {
+        Mechanics.hunt(c, (int) p("clock_seconds"), p("clock_radius"), p("clock_units"), 0xE8C06B);
+    }
+
 }

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Плавильный голем. Жар: кто стоит рядом с ним, копит жар; полная шкала — «Расплав» по себе и соседям. Сбросить жар —
@@ -52,6 +53,8 @@ public class Smelter extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Сноп искр", "sparks", 0, false, b -> true, this::sparks),
+            new Ability("Реки металла", "rivers", 1, false, b -> true, this::rivers),
             new Ability("Литьё", "pour", 1, false, b -> true, this::pour),
             new Ability("Молот", "hammer", 2, false, b -> b.getTarget() != null, this::hammer));
 
@@ -143,4 +146,15 @@ public class Smelter extends BossEntity {
         heat.clear();
         super.resetFight();
     }
+
+    /** Сноп искр */
+    private void sparks(Cast c) {
+        Mechanics.volley(c, (int) p("sparks_shots"), 8, p("sparks_units"), 0xFF7A2E);
+    }
+
+    /** Реки металла */
+    private void rivers(Cast c) {
+        Mechanics.crumble(c, (int) p("rivers_waves"), (int) p("rivers_safe"), p("rivers_radius"), p("rivers_units"), 0xE05A2A);
+    }
+
 }

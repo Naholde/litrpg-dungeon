@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Наяра, Жрица Глубин — финал храма. «Сияние глубин»: на полу два-три пятна света; пока сияние идёт, по жрице
@@ -58,6 +59,8 @@ public class Naiad extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Водоворот по следу", "chase", 0, false, b -> true, this::chase),
+            new Ability("Дуэт глубин", "duet", 1, false, b -> true, this::duet),
             new Ability("Песнь глубин", "song", 0, true, b -> true, this::song),
             new Ability("Сияние глубин", "radiance", 1, false, b -> true, this::radiance),
             new Ability("Водяные копья", "spears", 2, false, b -> true, this::spears),
@@ -149,4 +152,15 @@ public class Naiad extends BossEntity {
         radianceUntil = 0;
         super.resetFight();
     }
+
+    /** Водоворот по следу */
+    private void chase(Cast c) {
+        Mechanics.hunt(c, (int) p("chase_seconds"), p("chase_radius"), p("chase_units"), 0x7FE8FF);
+    }
+
+    /** Дуэт глубин */
+    private void duet(Cast c) {
+        Mechanics.tether(c, (int) p("duet_seconds"), p("duet_dist"), p("duet_units"), 0x5CD8E8);
+    }
+
 }

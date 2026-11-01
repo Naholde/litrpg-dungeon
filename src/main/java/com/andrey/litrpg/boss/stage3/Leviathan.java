@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Левиафан. Укус по танку, удар хвостом кольцом вокруг себя (ближе к голове — безопасно), нырок — уходит под воду
@@ -48,6 +49,8 @@ public class Leviathan extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Таран", "ram", 0, false, b -> true, this::ram),
+            new Ability("Затопление", "flood", 1, false, b -> true, this::flood),
             new Ability("Нырок", "dive", 1, false, b -> b.playersInArena().size() > 0, this::dive),
             new Ability("Удар хвостом", "tail", 2, false, b -> true, this::tail),
             new Ability("Укус", "bite", 3, false, b -> b.getTarget() != null, this::bite));
@@ -136,4 +139,16 @@ public class Leviathan extends BossEntity {
     protected void onRelocated() {
         Fx.ring((ServerLevel) level(), home(), (float) arenaRadius(), 20, Fx.ICE);
     }
+
+    /** Таран */
+    private void ram(Cast c) {
+        Mechanics.charge(c, randomNonTarget() != null ? randomNonTarget()
+                : (getTarget() instanceof ServerPlayer t ? t : null), p("ram_units"), p("ram_push"), 0x4A8ABF);
+    }
+
+    /** Затопление */
+    private void flood(Cast c) {
+        Mechanics.crumble(c, (int) p("flood_waves"), (int) p("flood_safe"), p("flood_radius"), p("flood_units"), 0x2A5A8A);
+    }
+
 }

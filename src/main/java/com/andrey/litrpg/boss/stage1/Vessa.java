@@ -16,6 +16,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Весса, младшая сестра: лечит раненую сестру (сбить!), проклинает (урон со временем — работа лекаря),
@@ -62,6 +63,8 @@ public class Vessa extends TwinSister {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Ползучая порча", "creep", 0, false, b -> true, this::creep),
+            new Ability("Взгляд Вессы", "stare", 1, false, b -> true, this::stare),
             new Ability("Тёмное лечение", "mend", 0, true, b -> woundedSister() != null, this::mend),
             new Ability("Тёмная волна", "nova", 1, false, b -> !playersNear(6).isEmpty(), this::nova),
             new Ability("Проклятие", "curse", 2, false, b -> true, this::curse));
@@ -115,4 +118,15 @@ public class Vessa extends TwinSister {
             level().playSound(null, p.blockPosition(), SoundEvents.WITHER_AMBIENT, SoundSource.HOSTILE, 0.8f, 1.4f);
         });
     }
+
+    /** Ползучая порча */
+    private void creep(Cast c) {
+        Mechanics.hunt(c, (int) p("creep_seconds"), p("creep_radius"), p("creep_units"), 0x9B5CFF);
+    }
+
+    /** Взгляд Вессы */
+    private void stare(Cast c) {
+        Mechanics.gaze(c, (int) p("stare_seconds"), p("stare_angle"), p("stare_units"), 0x7A4ACF);
+    }
+
 }

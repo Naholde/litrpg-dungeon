@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Аракна, Королева пауков. Ядовитый укус по танку, паутина полосами (приковывает), кокон (союзники разрезают,
@@ -58,6 +59,8 @@ public class Arachna extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Паучья погоня", "skitter", 0, false, b -> true, this::skitter),
+            new Ability("Нити паутины", "threads", 1, false, b -> true, this::threads),
             new Ability("Кладка", "eggs", 1, false, b -> spawnedAlive().size() < 8, this::eggs),
             new Ability("Кокон", "cocoon", 2, false, b -> b.playersInArena().size() > 1, this::cocoon),
             new Ability("Паутина", "web", 3, false, b -> true, this::web),
@@ -217,4 +220,15 @@ public class Arachna extends BossEntity {
         }
         super.resetFight();
     }
+
+    /** Паучья погоня */
+    private void skitter(Cast c) {
+        Mechanics.hunt(c, (int) p("skitter_seconds"), p("skitter_radius"), p("skitter_units"), 0x7FBF5C);
+    }
+
+    /** Нити паутины */
+    private void threads(Cast c) {
+        Mechanics.tether(c, (int) p("threads_seconds"), p("threads_dist"), p("threads_units"), 0xD6F3C0);
+    }
+
 }

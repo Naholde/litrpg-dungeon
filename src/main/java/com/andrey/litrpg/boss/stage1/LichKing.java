@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Король-лич Карн — финал Склепа. Коса по танку, ледяной шторм под каждым, ледяная гробница (союзники разбивают лёд,
@@ -64,6 +65,7 @@ public class LichKing extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Ледяная корка", "frost", 0, false, b -> true, this::frost),
             new Ability("Во тьме", "dark", 0, false, b -> relocated(), this::darkness),
             new Ability("Ледяная гробница", "tomb", 1, false, b -> b.playersInArena().size() > 1, this::tomb),
             new Ability("Поднять мёртвых", "raise", 2, false, b -> spawnedAlive().size() < 4, this::raise),
@@ -191,4 +193,10 @@ public class LichKing extends BossEntity {
         tombs.clear();
         super.resetFight();
     }
+
+    /** Ледяная корка */
+    private void frost(Cast c) {
+        Mechanics.crumble(c, (int) p("frost_waves"), (int) p("frost_safe"), p("frost_radius"), p("frost_units"), 0x8FE3FF);
+    }
+
 }

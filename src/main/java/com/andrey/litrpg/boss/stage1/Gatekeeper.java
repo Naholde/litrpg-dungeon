@@ -20,6 +20,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Привратник Склепа — первый хранитель, учит основам: удар цепью конусом по танку (остальным — не стоять перед ним),
@@ -47,6 +48,8 @@ public class Gatekeeper extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Костяной залп", "salvo", 0, false, b -> true, this::salvo),
+            new Ability("Рывок на цепи", "lunge", 1, false, b -> true, this::lunge),
             new Ability("Костяной щит", "shield", 0, true, b -> b.getHealth() < b.getMaxHealth() * 0.9, this::boneShield),
             new Ability("Зов костей", "call", 1, false, b -> spawnedAlive().size() < 6, this::callBones),
             new Ability("Костяной вал", "rampart", 2, false, b -> true, this::rampart),
@@ -111,4 +114,16 @@ public class Gatekeeper extends BossEntity {
             level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 1.5f, 0.6f);
         }
     }
+
+    /** Костяной залп */
+    private void salvo(Cast c) {
+        Mechanics.volley(c, (int) p("salvo_shots"), 8, p("salvo_units"), 0xE8DCC0);
+    }
+
+    /** Рывок на цепи */
+    private void lunge(Cast c) {
+        Mechanics.charge(c, randomNonTarget() != null ? randomNonTarget()
+                : (getTarget() instanceof ServerPlayer t ? t : null), p("lunge_units"), p("lunge_push"), 0xC9A055);
+    }
+
 }

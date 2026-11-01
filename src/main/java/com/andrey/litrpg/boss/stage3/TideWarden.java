@@ -22,6 +22,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Страж Прилива. «Волна» — главное: с одной из сторон арены идёт вода, спастись можно только за колонной
@@ -51,6 +52,8 @@ public class TideWarden extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Залп прилива", "salvo", 0, false, b -> true, this::salvo),
+            new Ability("Круги на воде", "surge", 1, false, b -> true, this::surge),
             new Ability("Волна", "wave", 0, false, b -> true, this::wave),
             new Ability("Водоворот", "whirl", 1, false, b -> poolCount() < 1, this::whirlpool),
             new Ability("Пузыри", "bubbles", 2, false, b -> true, this::bubbles),
@@ -145,4 +148,15 @@ public class TideWarden extends BossEntity {
         if (key.equals("wave_cd") && phase() >= 1) return super.p(key) * 0.75;
         return super.p(key);
     }
+
+    /** Залп прилива */
+    private void salvo(Cast c) {
+        Mechanics.volley(c, (int) p("salvo_shots"), 8, p("salvo_units"), 0x8FE3FF);
+    }
+
+    /** Круги на воде */
+    private void surge(Cast c) {
+        Mechanics.rings(c, (int) p("surge_waves"), p("surge_units"), p("surge_gap"), 0x5CB8E8);
+    }
+
 }

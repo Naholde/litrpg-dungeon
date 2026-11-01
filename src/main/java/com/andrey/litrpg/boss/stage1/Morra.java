@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Морра, старшая сестра: коса по танку и костяные копья полосами к каждому. Вступая в бой, зовёт Вессу.
@@ -55,6 +56,8 @@ public class Morra extends TwinSister {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Сестринская нить", "bond", 0, false, b -> true, this::bond),
+            new Ability("Волны косы", "waves", 1, false, b -> true, this::waves),
             new Ability("Костяные копья", "spears", 1, false, b -> true, this::spears),
             new Ability("Жатва", "reap", 2, false, b -> b.getTarget() != null, this::reap));
 
@@ -95,4 +98,15 @@ public class Morra extends TwinSister {
         }
         level().playSound(null, blockPosition(), SoundEvents.SKELETON_AMBIENT, SoundSource.HOSTILE, 1.5f, 0.4f);
     }
+
+    /** Сестринская нить */
+    private void bond(Cast c) {
+        Mechanics.tether(c, (int) p("bond_seconds"), p("bond_dist"), p("bond_units"), 0xD8343A);
+    }
+
+    /** Волны косы */
+    private void waves(Cast c) {
+        Mechanics.rings(c, (int) p("waves_waves"), p("waves_units"), p("waves_gap"), 0xB0001A);
+    }
+
 }

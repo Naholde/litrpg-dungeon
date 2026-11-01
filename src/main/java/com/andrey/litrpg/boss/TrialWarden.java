@@ -44,6 +44,7 @@ public class TrialWarden extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Залп Системы", "salvo", 0, false, b -> true, this::salvo),
             new Ability("Восстановление", "mend", 0, true, b -> b.phase() >= 1 && b.getHealth() < b.getMaxHealth() * 0.9,
                     this::mend),
             new Ability("Разделённая ноша", "burden", 1, false, b -> b.playersInArena().size() >= 1, this::burden),
@@ -131,4 +132,10 @@ public class TrialWarden extends BossEntity {
             }
         }
     }
+
+    /** Залп Системы */
+    private void salvo(Cast c) {
+        Mechanics.volley(c, (int) p("salvo_shots"), 8, p("salvo_units"), 0x7FD8FF);
+    }
+
 }

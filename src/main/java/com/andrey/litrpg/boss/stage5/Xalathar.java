@@ -19,6 +19,7 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Comparator;
 import java.util.List;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Ксалатар, Голод Бездны — последний хранитель. «Голод»: метит самого раненого — через пару секунд съедает тем сильнее,
@@ -55,6 +56,7 @@ public class Xalathar extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Пустота съедает пол", "voidfall", 0, false, b -> true, this::voidfall),
             new Ability("Голод", "hunger", 0, false, b -> b.playersInArena().size() > 1, this::hunger),
             new Ability("Крах края", "edge", 1, false, b -> poolCount() < 8, this::edge),
             new Ability("Взгляд бездны", "gaze", 2, false, b -> true, this::gaze),
@@ -137,4 +139,11 @@ public class Xalathar extends BossEntity {
         endPulses = 0;
         super.resetFight();
     }
+
+    /** Пустота съедает пол */
+    private void voidfall(Cast c) {
+        Mechanics.crumble(c, (int) p("voidfall_waves"), (int) p("voidfall_safe"), p("voidfall_radius"), p("voidfall_units"), 0x3A2A9B);
+    }
+
+
 }

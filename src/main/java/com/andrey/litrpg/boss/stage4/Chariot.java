@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Колесница Пламени. «Разгон»: полоса через игрока до края арены — колесница проносится по ней, сбивает и оставляет
@@ -57,6 +58,8 @@ public class Chariot extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Круги колёс", "wheels", 0, false, b -> true, this::wheels),
+            new Ability("Затоптать", "trample", 1, false, b -> true, this::trample),
             new Ability("Разгон", "charge", 1, false, b -> !stopped, this::charge),
             new Ability("Огненный круг", "ring", 2, false, b -> !stopped, this::ring));
 
@@ -148,4 +151,16 @@ public class Chariot extends BossEntity {
         stopped = false;
         super.resetFight();
     }
+
+    /** Круги колёс */
+    private void wheels(Cast c) {
+        Mechanics.rings(c, (int) p("wheels_waves"), p("wheels_units"), p("wheels_gap"), 0xFFB04A);
+    }
+
+    /** Затоптать */
+    private void trample(Cast c) {
+        Mechanics.charge(c, randomNonTarget() != null ? randomNonTarget()
+                : (getTarget() instanceof ServerPlayer t ? t : null), p("trample_units"), p("trample_push"), 0xFF7A2E);
+    }
+
 }

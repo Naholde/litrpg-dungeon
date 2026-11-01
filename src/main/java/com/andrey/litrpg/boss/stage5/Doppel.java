@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import com.andrey.litrpg.boss.Mechanics;
 
 /**
  * Двойник: «Твой следующий соперник — ты». На 80% и 40% у каждого в отряде появляется своя тень — бьёт только его,
@@ -54,6 +55,8 @@ public class Doppel extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Отражённая связь", "link", 0, false, b -> true, this::link),
+            new Ability("Залп отражений", "copies", 1, false, b -> true, this::copies),
             new Ability("Зеркало", "mirror", 0, false, b -> true, this::mirror),
             new Ability("Обмен", "swap", 1, false, b -> b.playersInArena().size() > 2, this::swap),
             new Ability("Зеркальный удар", "strike", 2, false, b -> b.getTarget() != null, this::strike));
@@ -144,4 +147,15 @@ public class Doppel extends BossEntity {
         shadows.clear();
         super.resetFight();
     }
+
+    /** Отражённая связь */
+    private void link(Cast c) {
+        Mechanics.tether(c, (int) p("link_seconds"), p("link_dist"), p("link_units"), 0xA6E1FF);
+    }
+
+    /** Залп отражений */
+    private void copies(Cast c) {
+        Mechanics.volley(c, (int) p("copies_shots"), 8, p("copies_units"), 0xD6F3FF);
+    }
+
 }

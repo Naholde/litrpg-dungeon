@@ -57,7 +57,17 @@
       "egg_seconds": 12.0,
       "aloft_seconds": 12.0,
       "rain_units": 0.5,
-      "drop_units": 0.85
+      "drop_units": 0.85,
+      "skitter_units": 0.9,
+      "skitter_cd": 18.0,
+      "skitter_cast": 1.2,
+      "skitter_seconds": 6.0,
+      "skitter_radius": 3.0,
+      "threads_units": 0.3,
+      "threads_cd": 21.0,
+      "threads_cast": 1.3,
+      "threads_seconds": 8.0,
+      "threads_dist": 7.0
     },
     "ash_lord": {
       "level": 40.0,
@@ -81,7 +91,13 @@
       "ego_cast": 1.0,
       "erupt_units": 0.5,
       "erupt_cd": 4.0,
-      "erupt_cast": 1.0
+      "erupt_cast": 1.0,
+      "ashfall_units": 0.9,
+      "ashfall_cd": 24.0,
+      "ashfall_cast": 1.6,
+      "ashfall_waves": 3.0,
+      "ashfall_safe": 4.0,
+      "ashfall_radius": 3.0
     },
     "chariot": {
       "level": 37.0,
@@ -96,7 +112,16 @@
       "trail_units": 0.1,
       "trail_seconds": 9.0,
       "pit_seconds": 7.0,
-      "pit_damage": 1.6
+      "pit_damage": 1.6,
+      "wheels_units": 0.8,
+      "wheels_cd": 18.0,
+      "wheels_cast": 1.3,
+      "wheels_waves": 3.0,
+      "wheels_gap": 70.0,
+      "trample_units": 1.05,
+      "trample_cd": 17.0,
+      "trample_cast": 1.2,
+      "trample_push": 1.3
     },
     "chronophage": {
       "level": 47.0,
@@ -113,7 +138,17 @@
       "rewind_units": 0.7,
       "rewind_seconds": 6.0,
       "rewind_cd": 10.0,
-      "rewind_cast": 1.0
+      "rewind_cast": 1.0,
+      "waves_units": 0.85,
+      "waves_cd": 18.0,
+      "waves_cast": 1.4,
+      "waves_waves": 3.0,
+      "waves_gap": 70.0,
+      "clock_units": 1.0,
+      "clock_cd": 19.0,
+      "clock_cast": 1.2,
+      "clock_seconds": 6.0,
+      "clock_radius": 3.2
     },
     "doppel": {
       "level": 44.0,
@@ -128,7 +163,16 @@
       "mirror_cast": 1.1,
       "swap_cd": 9.0,
       "swap_cast": 1.0,
-      "shadow_cut": 0.9
+      "shadow_cut": 0.9,
+      "link_units": 0.34,
+      "link_cd": 20.0,
+      "link_cast": 1.3,
+      "link_seconds": 8.0,
+      "link_dist": 7.0,
+      "copies_units": 0.5,
+      "copies_cd": 18.0,
+      "copies_cast": 1.3,
+      "copies_shots": 7.0
     },
     "gatekeeper": {
       "level": 4.0,
@@ -144,7 +188,15 @@
       "call_cast": 1.0,
       "shield_share": 0.08,
       "shield_cd": 12.0,
-      "shield_cast": 1.4
+      "shield_cast": 1.4,
+      "salvo_units": 0.45,
+      "salvo_cd": 17.0,
+      "salvo_cast": 1.3,
+      "salvo_shots": 6.0,
+      "lunge_units": 0.9,
+      "lunge_cd": 21.0,
+      "lunge_cast": 1.4,
+      "lunge_push": 1.1
     },
     "leviathan": {
       "level": 27.0,
@@ -160,7 +212,17 @@
       "dive_cd": 10.0,
       "dive_cast": 1.0,
       "tide_units": 0.12,
-      "tide_seconds": 22.0
+      "tide_seconds": 22.0,
+      "ram_units": 1.0,
+      "ram_cd": 18.0,
+      "ram_cast": 1.3,
+      "ram_push": 1.2,
+      "flood_units": 0.8,
+      "flood_cd": 24.0,
+      "flood_cast": 1.6,
+      "flood_waves": 3.0,
+      "flood_safe": 4.0,
+      "flood_radius": 3.0
     },
     "lich": {
       "level": 10.0,
@@ -183,7 +245,13 @@
       "dark_seconds": 8.0,
       "dark_cd": 12.0,
       "dark_cast": 1.0,
-      "phylactery_hp_units": 5.0
+      "phylactery_hp_units": 5.0,
+      "frost_units": 0.8,
+      "frost_cd": 24.0,
+      "frost_cast": 1.6,
+      "frost_waves": 3.0,
+      "frost_safe": 4.0,
+      "frost_radius": 3.0
     },
     "morena": {
       "level": 20.0,
@@ -201,7 +269,17 @@
       "cauldron_cast": 1.0,
       "inside_units": 0.7,
       "inside_cd": 10.0,
-      "inside_cast": 1.0
+      "inside_cast": 1.0,
+      "eye_units": 0.32,
+      "eye_cd": 20.0,
+      "eye_cast": 1.4,
+      "eye_seconds": 5.0,
+      "eye_angle": 80.0,
+      "crawl_units": 0.9,
+      "crawl_cd": 19.0,
+      "crawl_cast": 1.2,
+      "crawl_seconds": 6.0,
+      "crawl_radius": 3.2
     },
     "morra": {
       "level": 7.0,
@@ -215,7 +293,17 @@
       "spears_cast": 1.0,
       "revive_seconds": 12.0,
       "link_cut": 0.5,
-      "link_units": 0.06
+      "link_units": 0.06,
+      "bond_units": 0.3,
+      "bond_cd": 20.0,
+      "bond_cast": 1.2,
+      "bond_seconds": 8.0,
+      "bond_dist": 7.0,
+      "waves_units": 0.75,
+      "waves_cd": 18.0,
+      "waves_cast": 1.4,
+      "waves_waves": 3.0,
+      "waves_gap": 70.0
     },
     "naiad": {
       "level": 30.0,
@@ -233,7 +321,17 @@
       "radiance_seconds": 10.0,
       "radiance_cut": 0.9,
       "radiance_cd": 12.0,
-      "radiance_cast": 1.0
+      "radiance_cast": 1.0,
+      "chase_units": 0.95,
+      "chase_cd": 18.0,
+      "chase_cast": 1.2,
+      "chase_seconds": 6.0,
+      "chase_radius": 3.2,
+      "duet_units": 0.32,
+      "duet_cd": 21.0,
+      "duet_cast": 1.3,
+      "duet_seconds": 8.0,
+      "duet_dist": 7.0
     },
     "rot_ent": {
       "level": 17.0,
@@ -252,7 +350,17 @@
       "spores_cast": 1.0,
       "heart_share": 0.1,
       "heart_cd": 12.0,
-      "heart_cast": 1.6
+      "heart_cast": 1.6,
+      "circles_units": 0.7,
+      "circles_cd": 19.0,
+      "circles_cast": 1.4,
+      "circles_waves": 3.0,
+      "circles_gap": 75.0,
+      "bind_units": 0.3,
+      "bind_cd": 22.0,
+      "bind_cast": 1.3,
+      "bind_seconds": 8.0,
+      "bind_dist": 6.0
     },
     "smelter": {
       "level": 34.0,
@@ -269,7 +377,17 @@
       "heat_radius": 5.0,
       "heat_max": 6.0,
       "melt_units": 0.55,
-      "rivet_hp_units": 3.0
+      "rivet_hp_units": 3.0,
+      "sparks_units": 0.5,
+      "sparks_cd": 16.0,
+      "sparks_cast": 1.2,
+      "sparks_shots": 7.0,
+      "rivers_units": 0.85,
+      "rivers_cd": 23.0,
+      "rivers_cast": 1.6,
+      "rivers_waves": 3.0,
+      "rivers_safe": 4.0,
+      "rivers_radius": 3.0
     },
     "tide_warden": {
       "level": 24.0,
@@ -287,7 +405,16 @@
       "whirl_cast": 1.0,
       "bubble_units": 0.5,
       "bubbles_cd": 6.0,
-      "bubbles_cast": 1.0
+      "bubbles_cast": 1.0,
+      "salvo_units": 0.5,
+      "salvo_cd": 17.0,
+      "salvo_cast": 1.3,
+      "salvo_shots": 7.0,
+      "surge_units": 0.8,
+      "surge_cd": 19.0,
+      "surge_cast": 1.4,
+      "surge_waves": 3.0,
+      "surge_gap": 70.0
     },
     "trial_warden": {
       "level": 10.0,
@@ -310,7 +437,11 @@
       "mend_cast": 1.6,
       "node_hp_units": 4.0,
       "spark_hp_units": 1.2,
-      "spark_units": 0.06
+      "spark_units": 0.06,
+      "salvo_units": 0.4,
+      "salvo_cd": 18.0,
+      "salvo_cast": 1.3,
+      "salvo_shots": 6.0
     },
     "vessa": {
       "level": 7.0,
@@ -325,7 +456,17 @@
       "curse_cast": 1.0,
       "nova_units": 0.5,
       "nova_cd": 9.0,
-      "nova_cast": 1.1
+      "nova_cast": 1.1,
+      "creep_units": 0.85,
+      "creep_cd": 19.0,
+      "creep_cast": 1.3,
+      "creep_seconds": 6.0,
+      "creep_radius": 3.0,
+      "stare_units": 0.3,
+      "stare_cd": 22.0,
+      "stare_cast": 1.4,
+      "stare_seconds": 5.0,
+      "stare_angle": 80.0
     },
     "xalathar": {
       "level": 50.0,
@@ -345,7 +486,13 @@
       "edge_cd": 12.0,
       "edge_cast": 1.1,
       "end_units": 0.18,
-      "end_period": 10.0
+      "end_period": 10.0,
+      "voidfall_units": 0.95,
+      "voidfall_cd": 24.0,
+      "voidfall_cast": 1.6,
+      "voidfall_waves": 3.0,
+      "voidfall_safe": 4.0,
+      "voidfall_radius": 3.0
     }
   }
 }
