@@ -56,6 +56,7 @@ public final class AstromancerSkills {
                 for (LivingEntity e : ctx.enemiesAround(at, r)) ctx.hit(e, "damage");
                 Fx.beam(ctx.level, at.add(0, 18, 0), at, 1.2f, 8, 0xFFD27A);
                 Fx.burst(ctx.level, at.add(0, 0.6, 0), (float) r, 12, 0xFFD27A);
+                Fx.wave(ctx.level, at, (float) r * 1.4f, 1.6f, 14, 0xFFD27A);
                 ctx.soundAt(at, SoundEvents.GENERIC_EXPLODE.value(), 0.9f, 1.3f);
             });
             ctx.sound(SoundEvents.AMETHYST_BLOCK_CHIME, 0.9f, 1.5f);
@@ -94,6 +95,7 @@ public final class AstromancerSkills {
                     Fx.beam(ctx.level, p.position(), e.position().add(0, 1, 0), 0.1f, 6, 0x7FD8FF);
                 }
             });
+            Fx.orb(ctx.level, ctx.point.add(0, 1.1, 0), 0.6f, ctx.ticks("duration"), 0xFFE27A);
             ctx.soundAt(ctx.point, SoundEvents.AMETHYST_CLUSTER_PLACE, 1.1f, 1.4f);
         }
     }
@@ -279,6 +281,7 @@ public final class AstromancerSkills {
                     ctx.status(e, StatusType.STUN, 1, "stun");
                 }
                 Fx.burst(ctx.level, at, (float) r, 14, 0xFFF3B0);
+                Fx.shards(ctx.level, at.add(0, 0.5, 0), (float) r, 22, 16, 0xFFD27A);
                 Fx.ring(ctx.level, at, (float) r, 14, 0xFFD27A);
                 star.vanish();
             }

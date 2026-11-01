@@ -207,6 +207,7 @@ public final class PyromancerSkills {
                     for (LivingEntity e : ctx.enemiesAround(at, mr)) ctx.hit(e, "damage");
                     Fx.pillar(ctx.level, at, (float) mr * 0.5f, 5f, 8, 0xFF6A2A);
                     Fx.burst(ctx.level, at.add(0, 0.6, 0), (float) mr, 8, 0xFF6A2A);
+                    Fx.wave(ctx.level, at, (float) mr * 1.3f, 1.4f, 12, 0xFF6A2A);
                     ctx.soundAt(at, SoundEvents.GENERIC_EXPLODE.value(), 0.8f, 0.8f);
                 });
             }
@@ -257,6 +258,7 @@ public final class PyromancerSkills {
                 Fx.pillar(ctx.level, ctx.caster.position(), 1.2f, 4f, ctx.ticks("duration"), 0xFF4A2E);
             }
             Fx.ring(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 16, 0xFFD27A);
+            Fx.wave(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 2.6f, 18, 0xFF4A2E);
             ctx.sound(SoundEvents.BLAZE_DEATH, 1f, 0.7f);
         }
     }

@@ -168,6 +168,7 @@ public final class CryomancerSkills {
                 Fx.ring(ctx.level, ctx.target.position(), (float) ctx.v("radius"), 12, 0x7FB8FF);
             }
             Fx.burst(ctx.level, ctx.target.position().add(0, 1, 0), 1.8f, 10, 0x7FB8FF);
+            Fx.shards(ctx.level, ctx.target.position().add(0, 1, 0), 3.4f, 18, 14, 0x8FE3FF);
             ctx.soundAt(ctx.target.position(), SoundEvents.GLASS_BREAK, 1.3f, 0.6f);
         }
     }
@@ -241,6 +242,7 @@ public final class CryomancerSkills {
                 Fx.pillar(ctx.level, e.position(), 0.9f, 2.6f, ctx.ticks("duration"), 0xFFFFFF);
             }
             Fx.ring(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 16, 0xFFFFFF);
+            Fx.wave(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 2.6f, 18, 0xD6F3FF);
             Fx.disc(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 20, 0xD6F3FF, false);
             ctx.sound(SoundEvents.PLAYER_HURT_FREEZE, 1.2f, 0.5f);
         }

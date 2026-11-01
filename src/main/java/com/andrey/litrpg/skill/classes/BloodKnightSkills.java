@@ -152,6 +152,7 @@ public final class BloodKnightSkills {
                 if (sum > 0) {
                     HealService.healFixed(ctx.caster, ctx.caster, (float) (sum * back));
                     Fx.pillar(ctx.level, ctx.caster.position(), 1.0f, 4, 20, 0xB0001A);
+                Fx.spiralOn(ctx.level, ctx.caster, 1.1f, 2.4f, 20, 0xD8343A);
                 }
                 ctx.gain(blood);
                 ctx.sound(SoundEvents.PLAYER_LEVELUP, 0.7f, 0.6f);
@@ -206,7 +207,7 @@ public final class BloodKnightSkills {
                     double taken = Math.max(0, before - e.getHealth());
                     if (taken > 0) HealService.healFixed(ctx.caster, ctx.caster, taken * back);
                     ctx.threat(e, taken);
-                    Fx.beam(z.level, e, ctx.caster, 0.14f, 12, 0xD8343A);
+                    Fx.bolt(z.level, e, ctx.caster, 0.16f, 12, 0xD8343A);
                 }
             });
             ctx.sound(SoundEvents.WITHER_SPAWN, 0.7f, 1.4f);

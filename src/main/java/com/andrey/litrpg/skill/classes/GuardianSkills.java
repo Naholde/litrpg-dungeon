@@ -156,6 +156,7 @@ public final class GuardianSkills {
             int dur = ctx.ticks("duration");
             Fx.disc(ctx.level, c, (float) r, dur, 0x8FE3FF, false);
             Fx.pillar(ctx.level, c, (float) r, 3.5f, dur, 0x8FE3FF);
+            Fx.dome(ctx.level, c, (float) r, dur, 0x8FE3FF);
             Zones.add(ctx.level, c, r, ctx.caster.getUUID(), dur, 5, z -> {
                 for (LivingEntity a : ctx.alliesAround(z.center, z.radius)) {
                     StatusService.apply(a, Status.of(StatusType.DAMAGE_TAKEN, "guardian.dome", ctx.caster.getUUID(),
@@ -195,6 +196,7 @@ public final class GuardianSkills {
             ctx.status(ctx.caster, StatusType.DAMAGE_TAKEN, 1 - Math.min(0.9, ctx.v("reduce")), "duration");
             ctx.status(ctx.caster, StatusType.WARD, 1, "duration");
             Fx.pillar(ctx.level, ctx.caster.position(), 1.0f, 4, ctx.ticks("duration"), 0xFFE27A);
+            Fx.domeOn(ctx.level, ctx.caster, 1.3f, ctx.ticks("duration"), 0xFFE27A);
             ctx.level.playSound(null, ctx.caster.blockPosition(), SoundEvents.TOTEM_USE, SoundSource.PLAYERS, 0.8f, 1.2f);
         }
     }

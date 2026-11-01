@@ -155,6 +155,7 @@ public final class MirrorSkills {
             }
             Fx.disc(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), dur, 0xA6E1FF, false);
             Fx.pillar(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 3f, dur, 0xA6E1FF);
+            Fx.dome(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), dur, 0xA6E1FF);
             ctx.sound(SoundEvents.BEACON_ACTIVATE, 0.9f, 1.6f);
         }
     }

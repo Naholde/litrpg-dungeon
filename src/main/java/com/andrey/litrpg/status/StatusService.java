@@ -70,6 +70,12 @@ public final class StatusService {
         if (e instanceof ServerPlayer p) sync(p);
     }
 
+    /** Цвет навыка, от которого метка — чтобы искры тика были под цвет класса. */
+    private static int colorOf(String key, int fallback) {
+        var skill = com.andrey.litrpg.skill.SkillRegistry.get(key);
+        return skill != null ? skill.color : fallback;
+    }
+
     /** Каждый тик для тех, у кого есть метки: срабатывания, истечение, движение. */
     public static void tick(LivingEntity e) {
         if (!e.hasData(ModAttachments.STATUSES) || !(e.level() instanceof ServerLevel level)) return;
@@ -81,8 +87,10 @@ public final class StatusService {
             if (s.type() == StatusType.DOT && e.isAlive()) {
                 LivingEntity attacker = src instanceof LivingEntity l2 ? l2 : e;
                 DamageService.deal(attacker, null, e, s.magnitude(), WeaponKind.FIXED);
+                com.andrey.litrpg.fx.Spell.burn(level, e, colorOf(s.key(), 0xD8343A));
             } else if (s.type() == StatusType.HOT && e.isAlive()) {
                 HealService.healFixed(src instanceof ServerPlayer sp ? sp : null, e, s.magnitude());
+                com.andrey.litrpg.fx.Spell.bloom(level, e, colorOf(s.key(), 0x7BF5A0));
             }
         }
         if (has(e, StatusType.STUN) && e instanceof Mob m) m.getNavigation().stop();

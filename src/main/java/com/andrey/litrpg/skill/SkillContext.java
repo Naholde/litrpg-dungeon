@@ -69,7 +69,9 @@ public final class SkillContext {
 
     public boolean hitShare(LivingEntity victim, double share) {
         if (victim == null || !victim.isAlive() || !isEnemy(victim)) return false;
-        return DamageService.deal(caster, null, victim, share * unit(), WeaponKind.SKILL);
+        boolean hit = DamageService.deal(caster, null, victim, share * unit(), WeaponKind.SKILL);
+        if (hit) com.andrey.litrpg.fx.Spell.impact(level, victim, skill.color);
+        return hit;
     }
 
     /** Урон, посчитанный сейчас (для отложенных ударов и урона со временем): усиление на момент применения. */
@@ -81,19 +83,23 @@ public final class SkillContext {
 
     /** Лечение: доля единицы × сила лечения лекаря. */
     public float heal(LivingEntity who, String healKey) {
-        return HealService.heal(caster, who, v(healKey) * unit());
+        float healed = HealService.heal(caster, who, v(healKey) * unit());
+        if (healed > 0) com.andrey.litrpg.fx.Spell.mend(level, who, skill.color);
+        return healed;
     }
 
     /** Щит-поглощение на союзника. */
     public void shield(LivingEntity who, String shieldKey, String secondsKey) {
         double amount = v(shieldKey) * unit() * PlayerService.breakdown(caster).get(Derived.HEAL_POWER);
         StatusService.apply(who, Status.of(StatusType.SHIELD, skill.id, caster.getUUID(), amount, now(), ticks(secondsKey)));
+        com.andrey.litrpg.fx.Spell.shield(level, who, skill.color);
     }
 
     /** Щит на готовую величину (когда её считает сам навык: за каждый тотем, за каждую душу). */
     public void shieldFixed(LivingEntity who, double amount, String secondsKey) {
         StatusService.apply(who, Status.of(StatusType.SHIELD, skill.id, caster.getUUID(), amount, now(),
                 ticks(secondsKey)));
+        com.andrey.litrpg.fx.Spell.shield(level, who, skill.color);
     }
 
     /** Наложить метку: сила — значение параметра (или готовое число). */

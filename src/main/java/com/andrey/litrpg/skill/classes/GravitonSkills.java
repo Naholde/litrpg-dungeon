@@ -59,6 +59,7 @@ public final class GravitonSkills {
                     if ((z.level.getGameTime() / 10) % 2 == 0) ctx.hit(e, "damage");
                 }
                 Fx.ring(z.level, z.center, (float) z.radius, 10, 0x9B8CFF);
+                Fx.vortex(z.level, z.center, (float) z.radius, 3.5f, 10, 0x9B8CFF);
             });
             ctx.soundAt(c, SoundEvents.ENDERMAN_TELEPORT, 0.9f, 0.5f);
         }
@@ -137,6 +138,7 @@ public final class GravitonSkills {
             var targets = ctx.enemiesAround(ctx.caster.position(), ctx.v("radius"));
             for (LivingEntity e : targets) ctx.toss(e, 0.75 * ctx.v("height"));
             Fx.ring(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 10, 0xB8A6FF);
+            Fx.wave(ctx.level, ctx.caster.position(), (float) ctx.v("radius"), 2.2f, 14, 0xB8A6FF);
             ctx.later(22, () -> {
                 for (LivingEntity e : targets) {
                     if (!e.isAlive()) continue;
@@ -231,6 +233,8 @@ public final class GravitonSkills {
                     ctx.now(), dur));
             Fx.disc(ctx.level, ctx.point, (float) r, dur, 0x3A2A9B, false);
             Fx.pillar(ctx.level, ctx.point, 1.6f, 8f, dur, 0x3A2A9B);
+            Fx.vortex(ctx.level, c, (float) r, 7f, dur, 0x9B8CFF);
+            Fx.orb(ctx.level, c.add(0, 1.2, 0), 1.1f, dur, 0x1A0A3A);
             Fx.beam(ctx.level, ctx.caster.position().add(0, 1, 0), c, 0.3f, dur, 0x9B8CFF);
             boolean[] alive = {true};
             Zones.add(ctx.level, c, r, ctx.caster.getUUID(), dur, 5, z -> {
@@ -264,6 +268,7 @@ public final class GravitonSkills {
                 }
                 Fx.ring(ctx.level, ctx.point, (float) r, 16, 0xB8A6FF);
                 Fx.burst(ctx.level, c, 4f, 14, 0x3A2A9B);
+                Fx.shards(ctx.level, c, (float) r, 26, 16, 0x9B8CFF);
                 ctx.soundAt(ctx.point, SoundEvents.GENERIC_EXPLODE.value(), 1.2f, 0.5f);
             });
             ctx.soundAt(ctx.point, SoundEvents.PORTAL_TRIGGER, 1f, 0.4f);

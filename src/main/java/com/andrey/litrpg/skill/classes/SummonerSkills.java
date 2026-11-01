@@ -230,6 +230,7 @@ public final class SummonerSkills {
             }
             ctx.summon(SummonKind.GOLEM, around(ctx, r, i, total), "hp", "damage", "duration");
             Fx.ring(ctx.level, ctx.caster.position(), (float) r + 1, 16, 0xFFE8A6);
+            Fx.wave(ctx.level, ctx.caster.position(), (float) r + 1, 2f, 18, 0xFFE8A6);
             ctx.sound(SoundEvents.WITHER_SPAWN, 0.8f, 1.2f);
         }
 

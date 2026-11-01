@@ -1,6 +1,9 @@
 package com.andrey.litrpg.fx;
 
 import com.andrey.litrpg.net.Net;
+import net.minecraft.core.particles.DustColorTransitionOptions;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -88,6 +91,126 @@ public final class Fx {
         Vec3 dir = e.getViewVector(1).multiply(1, 0, 1).normalize();
         send(l, e.position(), of(FxPayload.Shape.SLASH, e.position().add(0, e.getBbHeight() * 0.55, 0), dir, radius, arcDeg,
                 0.5f, 0, duration, color, false, -1, -1, ""));
+    }
+
+
+    // ------------------------------------------------------------------ объёмные фигуры
+
+    /** Светящийся шар в точке. */
+    public static void orb(ServerLevel l, Vec3 at, float radius, int duration, int color) {
+        send(l, at, of(FxPayload.Shape.ORB, at, at, radius, 0, 0, 0, duration, color, false, -1, -1, ""));
+    }
+
+    /** Шар, который держится на сущности. */
+    public static void orbOn(ServerLevel l, Entity e, float radius, int duration, int color) {
+        send(l, e.position(), of(FxPayload.Shape.ORB, e.position(), e.position(), radius, 0, 0, 0, duration, color,
+                false, e.getId(), -1, ""));
+    }
+
+    /** Воронка: всё закручивается в центр ({@code height} — высота столба). */
+    public static void vortex(ServerLevel l, Vec3 center, float radius, float height, int duration, int color) {
+        send(l, center, of(FxPayload.Shape.VORTEX, center, center, radius, 0, 0, height, duration, color, false, -1, -1, ""));
+    }
+
+    /** Осколки: {@code count} кусков разлетаются на {@code radius}. */
+    public static void shards(ServerLevel l, Vec3 center, float radius, int count, int duration, int color) {
+        send(l, center, of(FxPayload.Shape.SHARDS, center, center, radius, count, 0, 0, duration, color, false, -1, -1, ""));
+    }
+
+    /** Молния между точками. */
+    public static void bolt(ServerLevel l, Vec3 from, Vec3 to, float width, int duration, int color) {
+        send(l, from, of(FxPayload.Shape.BOLT, from, to, 0, 0, width, 0, duration, color, false, -1, -1, ""));
+    }
+
+    /** Молния между сущностями (держится за ними). */
+    public static void bolt(ServerLevel l, Entity from, Entity to, float width, int duration, int color) {
+        send(l, from.position(), of(FxPayload.Shape.BOLT, from.position(), to.position(), 0, 0, width, 0, duration,
+                color, false, from.getId(), to.getId(), ""));
+    }
+
+    /** Полумесяц взмаха в воздухе перед сущностью (не по полу). */
+    public static void arc(ServerLevel l, Entity e, float radius, float arcDeg, int duration, int color) {
+        Vec3 dir = e.getViewVector(1).multiply(1, 0, 1).normalize();
+        send(l, e.position(), of(FxPayload.Shape.ARC, e.position().add(0, e.getBbHeight() * 0.6, 0), dir, radius, arcDeg,
+                0.55f, 0, duration, color, false, -1, -1, ""));
+    }
+
+    /** Купол над точкой. */
+    public static void dome(ServerLevel l, Vec3 center, float radius, int duration, int color) {
+        send(l, center, of(FxPayload.Shape.DOME, center, center, radius, 0, 0, 0, duration, color, false, -1, -1, ""));
+    }
+
+    /** Купол, который держится на сущности. */
+    public static void domeOn(ServerLevel l, Entity e, float radius, int duration, int color) {
+        send(l, e.position(), of(FxPayload.Shape.DOME, e.position(), e.position(), radius, 0, 0, 0, duration, color,
+                false, e.getId(), -1, ""));
+    }
+
+    /** Восходящая спираль вокруг точки. */
+    public static void spiral(ServerLevel l, Vec3 base, float radius, float height, int duration, int color) {
+        send(l, base, of(FxPayload.Shape.SPIRAL, base, base, radius, 0, 0, height, duration, color, false, -1, -1, ""));
+    }
+
+    /** Спираль, которая держится на сущности (лечение, усиление). */
+    public static void spiralOn(ServerLevel l, Entity e, float radius, float height, int duration, int color) {
+        send(l, e.position(), of(FxPayload.Shape.SPIRAL, e.position(), e.position(), radius, 0, 0, height, duration,
+                color, false, e.getId(), -1, ""));
+    }
+
+    /** Ударная волна: кольцо растёт от 0 до {@code radius} и поднимается. */
+    public static void wave(ServerLevel l, Vec3 center, float radius, float height, int duration, int color) {
+        send(l, center, of(FxPayload.Shape.WAVE, center, center, 0, radius, 0, height, duration, color, false, -1, -1, ""));
+    }
+
+    /** Руна в воздухе: {@code spokes} спиц. */
+    public static void rune(ServerLevel l, Vec3 at, float radius, int spokes, int duration, int color) {
+        send(l, at, of(FxPayload.Shape.RUNE, at, at, radius, spokes, 0, 0, duration, color, false, -1, -1, ""));
+    }
+
+    /** Руна над сущностью. */
+    public static void runeOn(ServerLevel l, Entity e, float radius, int spokes, int duration, int color) {
+        send(l, e.position(), of(FxPayload.Shape.RUNE, e.position(), e.position(), radius, spokes, 0, 0, duration,
+                color, false, e.getId(), -1, ""));
+    }
+
+    // ------------------------------------------------------------------ частицы
+
+    /** Цветная пыль под цвет навыка: горсть искр в точке. */
+    public static void dust(ServerLevel l, Vec3 at, int color, int count, double spread, double speed, float size) {
+        l.sendParticles(new DustParticleOptions(colorVec(color), size), at.x, at.y, at.z, count, spread, spread, spread, speed);
+    }
+
+    /** Пыль, которая меняет цвет (например, от огня к пеплу). */
+    public static void dust(ServerLevel l, Vec3 at, int from, int to, int count, double spread, float size) {
+        l.sendParticles(new DustColorTransitionOptions(colorVec(from), colorVec(to), size), at.x, at.y, at.z, count,
+                spread, spread, spread, 0.02);
+    }
+
+    /** Любые частицы игры. */
+    public static void puff(ServerLevel l, ParticleOptions type, Vec3 at, int count, double spread, double speed) {
+        l.sendParticles(type, at.x, at.y, at.z, count, spread, spread, spread, speed);
+    }
+
+    /** Дорожка частиц от точки к точке. */
+    public static void trail(ServerLevel l, Vec3 from, Vec3 to, ParticleOptions type, int count) {
+        Vec3 step = to.subtract(from).scale(1.0 / Math.max(1, count));
+        for (int i = 0; i <= count; i++) {
+            Vec3 p = from.add(step.scale(i));
+            l.sendParticles(type, p.x, p.y, p.z, 1, 0.04, 0.04, 0.04, 0.005);
+        }
+    }
+
+    /** Кольцо частиц по земле. */
+    public static void ringOf(ServerLevel l, ParticleOptions type, Vec3 center, double radius, int count, double up) {
+        for (int i = 0; i < count; i++) {
+            double a = Math.PI * 2 * i / count;
+            l.sendParticles(type, center.x + Math.cos(a) * radius, center.y + 0.1, center.z + Math.sin(a) * radius,
+                    1, 0.02, 0.02, 0.02, up);
+        }
+    }
+
+    private static org.joml.Vector3f colorVec(int color) {
+        return new org.joml.Vector3f(((color >> 16) & 255) / 255f, ((color >> 8) & 255) / 255f, (color & 255) / 255f);
     }
 
     /** Знак над головой (символ, например «!», «✚», «⛨»). */

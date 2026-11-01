@@ -68,6 +68,7 @@ public final class BastionSkills {
             int dur = ctx.ticks("duration");
             double r = ctx.v("radius");
             Fx.discOn(ctx.level, ctx.caster, (float) r, dur, 0x8FE3FF, false);
+            Fx.domeOn(ctx.level, ctx.caster, 1.3f, dur, 0x8FE3FF);
             boolean[] burst = {false};
             Zones.add(ctx.level, ctx.caster.position(), r, ctx.caster.getUUID(), dur, 10, z -> {
                 if (burst[0]) return;
@@ -249,6 +250,7 @@ public final class BastionSkills {
             StatusService.apply(ctx.caster, Status.of(StatusType.ROOT, "bastion.tomb", ctx.caster.getUUID(), 1,
                     ctx.now(), dur));
             Fx.pillar(ctx.level, ctx.caster.position(), 1.4f, 4f, dur, 0xFFFFFF);
+            Fx.dome(ctx.level, ctx.caster.position(), (float) r, dur, 0xD6F3FF);
             Fx.disc(ctx.level, ctx.caster.position(), (float) r, dur, 0xD6F3FF, false);
             Zones.add(ctx.level, ctx.caster.position(), r, ctx.caster.getUUID(), dur, 10, z -> {
                 for (LivingEntity e : ctx.enemiesAround(ctx.caster.position(), r)) {

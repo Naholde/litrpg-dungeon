@@ -226,6 +226,7 @@ public final class StormcallerSkills {
                 ctx.status(e, StatusType.STUN, 1, "stun");
             }
             Fx.pillar(ctx.level, ctx.point, 1.0f, 6f, 10, 0xE8F0FF);
+            Fx.bolt(ctx.level, ctx.point.add(0, 10, 0), ctx.point, 0.3f, 10, 0xE8F0FF);
             Fx.ring(ctx.level, ctx.point, (float) ctx.v("radius"), 10, 0xE8F0FF);
             ctx.soundAt(ctx.point, SoundEvents.LIGHTNING_BOLT_IMPACT, 1.2f, 1f);
         }
@@ -262,6 +263,7 @@ public final class StormcallerSkills {
             int strikes = (int) Math.round(ctx.v("strikes"));
             Fx.disc(ctx.level, ctx.point, (float) r, dur, 0x4A5A9B, false);
             Fx.pillar(ctx.level, ctx.point, (float) r, 7f, dur, 0x4A5A9B);
+            Fx.dome(ctx.level, ctx.point, (float) r, dur, 0x6B7AB8);
             Zones.add(ctx.level, ctx.point, r, ctx.caster.getUUID(), dur, 20, z -> {
                 var foes = ctx.enemiesAround(z.center, z.radius);
                 if (foes.isEmpty()) return;
@@ -270,6 +272,7 @@ public final class StormcallerSkills {
                     ctx.hit(e, "damage");
                     charge(ctx, e, "static_time", "burst");
                     Fx.pillar(z.level, e.position(), 0.6f, 6f, 8, 0xE8F0FF);
+                    Fx.bolt(z.level, z.center.add(0, 7, 0), e.position().add(0, 1, 0), 0.22f, 8, 0xE8F0FF);
                     ctx.soundAt(e.position(), SoundEvents.LIGHTNING_BOLT_IMPACT, 0.7f, 1.2f);
                 }
             });

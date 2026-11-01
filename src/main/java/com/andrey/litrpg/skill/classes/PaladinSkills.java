@@ -121,6 +121,7 @@ public final class PaladinSkills {
             int dur = ctx.ticks("duration");
             Fx.pillar(ctx.level, ctx.caster.position(), 1.1f, 4f, dur, 0xFFFFFF);
             Fx.discOn(ctx.level, ctx.caster, 1.5f, dur, 0xFFFFFF, false);
+            Fx.domeOn(ctx.level, ctx.caster, 1.4f, dur, 0xFFFFFF);
             ctx.sound(SoundEvents.TOTEM_USE, 1f, 1.4f);
         }
     }
@@ -154,6 +155,7 @@ public final class PaladinSkills {
             HealService.heal(ctx.caster, who, ctx.v("heal") * ctx.unit());
             Fx.beam(ctx.level, ctx.caster, who, 0.2f, 14, 0xFFE27A);
             Fx.pillar(ctx.level, who.position(), 0.8f, 3.5f, 16, 0xFFE27A);
+            Fx.spiralOn(ctx.level, who, 0.9f, 2.2f, 16, 0xFFE27A);
             ctx.sound(SoundEvents.AMETHYST_BLOCK_RESONATE, 1f, 0.9f);
         }
     }
@@ -186,6 +188,7 @@ public final class PaladinSkills {
             double r = ctx.v("radius");
             Fx.disc(ctx.level, ctx.point, (float) r, dur, 0xFFFACD, false);
             Fx.pillar(ctx.level, ctx.point, (float) r, 5f, dur, 0xFFFACD);
+            Fx.spiral(ctx.level, ctx.point, (float) r * 0.6f, 3.5f, dur, 0xFFE27A);
             Zones.add(ctx.level, ctx.point, r, ctx.caster.getUUID(), dur, 20, z -> {
                 for (LivingEntity e : ctx.enemiesAround(z.center, z.radius)) ctx.hit(e, "damage");
                 for (LivingEntity a : ctx.alliesAround(z.center, z.radius)) ctx.heal(a, "heal");

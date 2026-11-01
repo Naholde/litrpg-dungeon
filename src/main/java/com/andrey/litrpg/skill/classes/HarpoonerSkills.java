@@ -239,6 +239,7 @@ public final class HarpoonerSkills {
             double slow = Math.min(0.8, ctx.v("slow"));
             Fx.disc(ctx.level, ctx.point, (float) r, dur, 0x3A4A6B, false);
             Fx.pillar(ctx.level, ctx.point, 1.0f, 4f, dur, 0x3A4A6B);
+            Fx.vortex(ctx.level, ctx.point, (float) r, 4.5f, dur, 0x6B8ABF);
             Zones.add(ctx.level, ctx.point, r, ctx.caster.getUUID(), dur, 5, z -> {
                 for (LivingEntity e : ctx.enemiesAround(z.center, z.radius)) {
                     ctx.pull(e, z.center, 1.6);

@@ -1,5 +1,6 @@
 package com.andrey.litrpg.skill;
 
+import com.andrey.litrpg.anim.AnimService;
 import com.andrey.litrpg.combat.HealService;
 import com.andrey.litrpg.core.ModAttachments;
 import com.andrey.litrpg.core.balance.Balance;
@@ -100,6 +101,8 @@ public final class SkillService {
         if (cast > 0) {
             st.casting = new SkillState.Casting(skill, slot, target, point, now, now + cast, p.position());
             st.dirty = true;
+            AnimService.cast(p, skill, cast);
+            com.andrey.litrpg.fx.Spell.channel(p.serverLevel(), p, skill.color, cast);
             sync(p);
             return true;
         }
@@ -118,12 +121,15 @@ public final class SkillService {
         st.dirty = true;
         StyleTracker.add(p, Style.SKILLS, 1);
         if (skill.cost(rank) <= 0) gain(p, Resource.Gain.CAST);
+        AnimService.play(p, skill.id);
+        com.andrey.litrpg.fx.Spell.cast(p.serverLevel(), p, skill.color);
         skill.execute(new SkillContext(p, skill, rank, target, point));
         sync(p);
     }
 
     private static boolean cancelCast(ServerPlayer p, String why) {
         state(p).casting = null;
+        AnimService.stop(p);
         state(p).dirty = true;
         fail(p, why);
         sync(p);
@@ -200,6 +206,7 @@ public final class SkillService {
         st.dashReady = now + st.dashTotal;
         st.dirty = true;
         if (st.casting != null) cancelCast(p, "Чтение прервано рывком");
+        AnimService.play(p, "common.dash");
         Fx.line(p.serverLevel(), p.position(), p.position().add(dir.scale(4)), 0.8f, 8, 0xA6E1FF, false);
         p.level().playSound(null, p.blockPosition(), SoundEvents.BREEZE_JUMP, SoundSource.PLAYERS, 0.6f, 1.4f);
         sync(p);
@@ -262,6 +269,7 @@ public final class SkillService {
             if (!s.passive() || now < st.readyAt(s.id)) continue;
             int rank = d.rank(s.id);
             if (!s.passiveTick(new SkillContext(p, s, rank, null, p.position()))) continue;
+            AnimService.play(p, s.id);
             double haste = PlayerService.breakdown(p).get(Derived.HASTE) + StatusService.sum(p, StatusType.HASTE);
             int cd = SkillMath.cooldownTicks(s.value("cooldown", rank), haste);
             st.cooldowns.put(s.id, new long[]{now + cd, cd});
