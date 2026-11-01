@@ -60,5 +60,14 @@
   "entity.litrpg.rot_ent": "Гнилой Древень",
   "entity.litrpg.morena": "Морена, Ведьма Изнанки",
   "entity.litrpg.cocoon": "Кокон",
-  "entity.litrpg.egg": "Кладка"
+  "entity.litrpg.egg": "Кладка",
+  "entity.litrpg.drowned_guard": "Утопленник-страж",
+  "entity.litrpg.deep_priest": "Жрец глубин",
+  "entity.litrpg.moray": "Мурена",
+  "entity.litrpg.crab": "Крабоид",
+  "entity.litrpg.jelly": "Медуза",
+  "entity.litrpg.harpooner": "Гарпунщик",
+  "entity.litrpg.tide_warden": "Страж Прилива",
+  "entity.litrpg.leviathan": "Левиафан",
+  "entity.litrpg.naiad": "Наяра, Жрица Глубин"
 }

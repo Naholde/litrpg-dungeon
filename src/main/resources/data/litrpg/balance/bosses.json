@@ -54,6 +54,22 @@
       "shield_cd": 26.0,
       "shield_cast": 3.0
     },
+    "leviathan": {
+      "level": 27.0,
+      "hp_units": 78.0,
+      "melee_units": 0.2,
+      "bite_units": 1.0,
+      "bite_cd": 9.0,
+      "bite_cast": 1.6,
+      "tail_units": 0.6,
+      "tail_cd": 14.0,
+      "tail_cast": 2.2,
+      "emerge_units": 0.9,
+      "dive_cd": 22.0,
+      "dive_cast": 1.0,
+      "tide_units": 0.12,
+      "tide_seconds": 22.0
+    },
     "lich": {
       "level": 10.0,
       "hp_units": 66.0,
@@ -109,6 +125,24 @@
       "link_cut": 0.5,
       "link_units": 0.06
     },
+    "naiad": {
+      "level": 30.0,
+      "hp_units": 88.0,
+      "melee_units": 0.2,
+      "staff_units": 0.95,
+      "staff_cd": 9.0,
+      "staff_cast": 1.6,
+      "spears_units": 0.55,
+      "spears_cd": 14.0,
+      "spears_cast": 2.0,
+      "song_units": 0.6,
+      "song_cd": 26.0,
+      "song_cast": 3.5,
+      "radiance_seconds": 10.0,
+      "radiance_cut": 0.9,
+      "radiance_cd": 30.0,
+      "radiance_cast": 2.0
+    },
     "rot_ent": {
       "level": 17.0,
       "hp_units": 70.0,
@@ -127,6 +161,24 @@
       "heart_share": 0.1,
       "heart_cd": 28.0,
       "heart_cast": 3.5
+    },
+    "tide_warden": {
+      "level": 24.0,
+      "hp_units": 72.0,
+      "melee_units": 0.18,
+      "trident_units": 0.95,
+      "trident_cd": 9.0,
+      "trident_cast": 1.6,
+      "wave_units": 1.0,
+      "wave_cd": 20.0,
+      "wave_cast": 3.5,
+      "whirl_units": 0.1,
+      "whirl_seconds": 12.0,
+      "whirl_cd": 28.0,
+      "whirl_cast": 1.5,
+      "bubble_units": 0.4,
+      "bubbles_cd": 13.0,
+      "bubbles_cast": 2.0
     },
     "trial_warden": {
       "level": 10.0,

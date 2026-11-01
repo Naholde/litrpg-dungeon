@@ -75,6 +75,28 @@ public final class BossRegistry {
             "cauldron_units", 0.09, "cauldron_seconds", 20, "cauldron_cd", 16, "cauldron_cast", 1.5,
             "inside_units", 0.7, "inside_cd", 22, "inside_cast", 2.2));
 
+    // ---------------------------------------------------------------- Этап 3 · Затопленный храм
+    public static final Type TIDE_WARDEN = reg("tide_warden", "Страж Прилива", "woops", p(
+            "level", 24, "hp_units", 72, "melee_units", 0.18,
+            "trident_units", 0.95, "trident_cd", 9, "trident_cast", 1.6,
+            "wave_units", 1.0, "wave_cd", 20, "wave_cast", 3.5,
+            "whirl_units", 0.1, "whirl_seconds", 12, "whirl_cd", 28, "whirl_cast", 1.5,
+            "bubble_units", 0.4, "bubbles_cd", 13, "bubbles_cast", 2.0));
+
+    public static final Type LEVIATHAN = reg("leviathan", "Левиафан", "red", p(
+            "level", 27, "hp_units", 78, "melee_units", 0.2,
+            "bite_units", 1.0, "bite_cd", 9, "bite_cast", 1.6,
+            "tail_units", 0.6, "tail_cd", 14, "tail_cast", 2.2,
+            "emerge_units", 0.9, "dive_cd", 22, "dive_cast", 1.0,
+            "tide_units", 0.12, "tide_seconds", 22));
+
+    public static final Type NAIAD = reg("naiad", "Наяра, Жрица Глубин", "aura", p(
+            "level", 30, "hp_units", 88, "melee_units", 0.2,
+            "staff_units", 0.95, "staff_cd", 9, "staff_cast", 1.6,
+            "spears_units", 0.55, "spears_cd", 14, "spears_cast", 2.0,
+            "song_units", 0.6, "song_cd", 26, "song_cast", 3.5,
+            "radiance_seconds", 10, "radiance_cut", 0.9, "radiance_cd", 30, "radiance_cast", 2.0));
+
     private BossRegistry() {
     }
 

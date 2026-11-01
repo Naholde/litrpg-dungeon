@@ -60,5 +60,14 @@
   "entity.litrpg.rot_ent": "Rotting Ent",
   "entity.litrpg.morena": "Morena, Witch of the Underside",
   "entity.litrpg.cocoon": "Cocoon",
-  "entity.litrpg.egg": "Egg Sac"
+  "entity.litrpg.egg": "Egg Sac",
+  "entity.litrpg.drowned_guard": "Drowned Guard",
+  "entity.litrpg.deep_priest": "Deep Priest",
+  "entity.litrpg.moray": "Moray",
+  "entity.litrpg.crab": "Crabling",
+  "entity.litrpg.jelly": "Jelly",
+  "entity.litrpg.harpooner": "Harpooner",
+  "entity.litrpg.tide_warden": "Tide Warden",
+  "entity.litrpg.leviathan": "Leviathan",
+  "entity.litrpg.naiad": "Nayara, Priestess of the Deep"
 }

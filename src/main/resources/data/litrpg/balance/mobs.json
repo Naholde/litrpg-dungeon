@@ -19,6 +19,11 @@
       "dmg_units": 0.02,
       "speed": 0.34
     },
+    "crab": {
+      "hp_units": 1.5,
+      "dmg_units": 0.065,
+      "speed": 0.2
+    },
     "crypt_archer": {
       "hp_units": 0.55,
       "dmg_units": 0.05,
@@ -28,6 +33,17 @@
       "hp_units": 0.8,
       "dmg_units": 0.055,
       "speed": 0.24
+    },
+    "deep_priest": {
+      "hp_units": 0.6,
+      "dmg_units": 0.035,
+      "speed": 0.24,
+      "heal_share": 0.2
+    },
+    "drowned_guard": {
+      "hp_units": 1.3,
+      "dmg_units": 0.06,
+      "speed": 0.21
     },
     "forest_witch": {
       "hp_units": 0.6,
@@ -42,11 +58,32 @@
       "hit_dot": 0.25,
       "dot_seconds": 4.0
     },
+    "harpooner": {
+      "hp_units": 0.55,
+      "dmg_units": 0.045,
+      "speed": 0.25,
+      "hit_pull": 3.0
+    },
+    "jelly": {
+      "hp_units": 0.25,
+      "dmg_units": 0.024,
+      "speed": 0.3,
+      "hit_dot": 0.2,
+      "dot_seconds": 3.0
+    },
     "jumper": {
       "hp_units": 0.55,
       "dmg_units": 0.05,
       "speed": 0.34,
       "leap": 4.0
+    },
+    "moray": {
+      "hp_units": 0.55,
+      "dmg_units": 0.05,
+      "speed": 0.35,
+      "leap": 5.0,
+      "hit_dot": 0.2,
+      "dot_seconds": 3.0
     },
     "spitter": {
       "hp_units": 0.5,

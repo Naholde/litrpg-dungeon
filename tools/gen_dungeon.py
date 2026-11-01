@@ -19,10 +19,12 @@ import kit  # noqa: E402
 import lobby  # noqa: E402
 import stage1  # noqa: E402
 import stage2  # noqa: E402
+import stage3  # noqa: E402
 
 STAGES = {n: draft for n in range(1, 6)}  # этапы, у которых есть настоящая карта, заменяют черновик
 STAGES[1] = stage1
 STAGES[2] = stage2
+STAGES[3] = stage3
 
 
 def main():

@@ -259,6 +259,16 @@ public class DungeonMob extends Monster implements GeoEntity {
             StatusService.apply(l, Status.of(StatusType.ROOT, species().id() + "_root", getUUID(), 1, now, (int) Math.round(root * 20)));
             if (level() instanceof ServerLevel sl) Fx.disc(sl, l.position(), 0.8f, (int) Math.round(root * 20), species().color(), false);
         }
+        double pull = p("hit_pull");
+        if (pull > 0) {
+            // Гарпун: подтащить попавшего на {@code hit_pull} блоков к стрелку.
+            Vec3 to = position().subtract(l.position()).multiply(1, 0, 1);
+            if (to.length() > 2) {
+                Vec3 d = to.normalize().scale(Math.min(pull, to.length() - 1.5) * 0.35);
+                l.push(d.x, 0.2, d.z);
+                l.hurtMarked = true;
+            }
+        }
         double dot = p("hit_dot");
         if (dot > 0) {
             double perSec = getAttributeValue(Attributes.ATTACK_DAMAGE) * dot;

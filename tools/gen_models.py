@@ -786,6 +786,152 @@ MODELS.update({"weaver": weaver, "jumper": jumper, "spitter": spitter, "wasp": w
                "cocoon": cocoon, "egg": egg})
 
 
+# ---------------------------------------------------------------------------- этап 3: глубины
+
+MATERIALS.update({
+    "drowned": ("#4E8A7A", 0.10, False, "plain"),
+    "drowned_dark": ("#2E5A50", 0.10, False, "plain"),
+    "coral": ("#D8507A", 0.10, False, "plain"),
+    "coral_blue": ("#3A6AD8", 0.10, False, "plain"),
+    "kelp": ("#3A6A2A", 0.12, False, "plain"),
+    "prismarine": ("#5AA89A", 0.12, False, "runes"),
+    "prismarine_dark": ("#2E5A54", 0.10, False, "plain"),
+    "pearl": ("#E8F4F8", 0.05, True, "plain"),
+    "sea_glow": ("#9FF0E8", 0.05, True, "plain"),
+    "eel": ("#6A7A3A", 0.10, False, "plain"),
+    "eel_belly": ("#C8C08A", 0.08, False, "plain"),
+    "shell": ("#C8603A", 0.10, False, "cracks"),
+    "shell_light": ("#E8905A", 0.08, False, "plain"),
+    "jelly": ("#C87FFF", 0.08, True, "plain"),
+    "jelly_core": ("#FFB8F0", 0.05, True, "plain"),
+    "scale_teal": ("#2A8A8A", 0.12, False, "plain"),
+    "gold_dark": ("#8A6A2A", 0.10, False, "rivets"),
+})
+
+
+def serpent(o):
+    """Змей (мурена, левиафан): голова и цепь сегментов, тело волной."""
+    seg, n, size = o.get("seg", 4), o.get("n", 5), o.get("size", 1.0)
+    body, belly, head = o.get("body", "eel"), o.get("belly", "eel_belly"), o.get("head", "eel")
+    w = 4 * size
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("head", [0, 3 * size, -seg], "root", [Cube([-w / 2, 1 * size, -seg - 6 * size], [w, 4 * size, 6 * size], head),
+                                                       Cube([-w / 2, 0.2 * size, -seg - 6 * size], [w, 1 * size, 5 * size], belly),
+                                                       Cube([-w / 2 - 0.2, 3.5 * size, -seg - 5 * size], [1, 1, 1], o.get("eyes", "eye_yellow")),
+                                                       Cube([w / 2 - 0.8, 3.5 * size, -seg - 5 * size], [1, 1, 1], o.get("eyes", "eye_yellow"))])]
+    parent = "root"
+    for i in range(n):
+        name = f"seg{i}"
+        z0 = -seg + i * seg
+        cubes = [Cube([-w / 2 * (1 - i * 0.08), 1 * size, z0], [w * (1 - i * 0.08), 3.5 * size * (1 - i * 0.06), seg], body if i % 2 == 0 else o.get("body2", body))]
+        if o.get("fin"):
+            cubes.append(Cube([-0.5, 4.5 * size, z0], [1, 2 * size, seg], o["fin"]))
+        bones.append(Bone(name, [0, 3 * size, z0], parent, cubes))
+        parent = name
+    wave = {f"seg{i}": {"rotation": kf([(0, [0, 12 * math.sin(i), 0]), (0.5, [0, -12 * math.sin(i + 1.2), 0]),
+                                        (1, [0, 12 * math.sin(i), 0])])} for i in range(n)}
+    anims = {"idle": loop(2, {k: {"rotation": kf([(0, [0, 4, 0]), (1, [0, -4, 0]), (2, [0, 4, 0])])} for k in wave}),
+             "walk": loop(1, wave),
+             "attack": once(0.5, {"head": {"rotation": kf([(0, [0, 0, 0]), (0.2, [-30, 0, 0]), (0.35, [20, 0, 0]), (0.5, [0, 0, 0])])}}),
+             "cast": loop(1.2, {"head": {"rotation": kf([(0, [-35, 0, 0]), (0.6, [-45, 0, 0]), (1.2, [-35, 0, 0])])}}),
+             "slam": once(0.8, {"head": {"rotation": kf([(0, [0, 0, 0]), (0.35, [-50, 0, 0]), (0.55, [30, 0, 0]), (0.8, [0, 0, 0])])}}),
+             "death": {"animation_length": 1.0, "hold_on_last_frame": True,
+                       "bones": {"root": {"rotation": kf([(0, [0, 0, 0]), (1.0, [0, 0, 160])])}}}}
+    return bones, anims
+
+
+def drowned_guard():
+    return humanoid({"head": "drowned", "body": "drowned_dark", "arm": "drowned", "leg": "drowned_dark", "eyes": "sea_glow", "extras": [
+        ("head", Cube([-4.5, 29, -4.5], [9, 3, 9], "kelp")),
+        ("left_arm", Cube([1, 4, -6], [8, 16, 2], "coral")), ("left_arm", Cube([3, 9, -6.5], [4, 5, 1], "coral_blue")),
+        ("right_arm", Cube([-6.5, -6, -1], [1, 18, 1], "prismarine_dark")), ("right_arm", Cube([-8, -8, -2], [4, 2, 1], "prismarine")),
+        ("body", Cube([-4.5, 12, -2.5], [9, 5, 5], "kelp")),
+    ]})
+
+
+def deep_priest():
+    return humanoid({"head": "drowned", "face": "drowned", "body": "scale_teal", "arm": "scale_teal", "leg": "scale_teal",
+                     "eyes": "pearl", "extras": [
+        ("head", Cube([-4.5, 25, -4.5], [9, 9, 9], "prismarine_dark")), ("head", Cube([-1, 34, -1], [2, 3, 2], "sea_glow")),
+        ("body", Cube([-4.5, 0, -2.5], [9, 12, 5], "scale_teal")),
+        ("right_arm", Cube([-6, -4, -1.5], [1, 26, 1], "gold_dark")), ("right_arm", Cube([-7.5, 21, -3], [4, 4, 4], "pearl")),
+    ]})
+
+
+def moray():
+    return serpent({"body": "eel", "body2": "eel", "belly": "eel_belly", "head": "eel", "eyes": "eye_yellow", "n": 4, "seg": 4, "size": 0.9,
+                    "fin": "kelp"})
+
+
+def crab():
+    o = {"body": "shell", "abdomen": "shell_light", "leg": "shell", "eyes": "eye_yellow", "marks": "shell",
+         "extras": [("head", Cube([-9, 3, -10], [4, 3, 4], "shell_light")), ("head", Cube([5, 3, -10], [4, 3, 4], "shell_light")),
+                    ("head", Cube([-9, 3, -13], [2, 2, 3], "shell")), ("head", Cube([7, 3, -13], [2, 2, 3], "shell"))]}
+    return spider(o)
+
+
+def jelly():
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("bell", [0, 12, 0], "root", [Cube([-5, 12, -5], [10, 6, 10], "jelly"), Cube([-3, 18, -3], [6, 2, 6], "jelly"),
+                                               Cube([-2, 13, -2], [4, 3, 4], "jelly_core")])]
+    for i, (x, z) in enumerate(((-3, -3), (3, -3), (-3, 3), (3, 3), (0, 0))):
+        bones.append(Bone(f"t{i}", [x, 12, z], "bell", [Cube([x - 0.5, 2, z - 0.5], [1, 10, 1], "jelly")]))
+    sway = {f"t{i}": {"rotation": kf([(0, [8 * (1 if i % 2 else -1), 0, 0]), (0.8, [-8 * (1 if i % 2 else -1), 0, 0]),
+                                      (1.6, [8 * (1 if i % 2 else -1), 0, 0])])} for i in range(5)}
+    bob = dict(sway)
+    bob["bell"] = {"position": kf([(0, [0, 0, 0]), (0.8, [0, 1.5, 0]), (1.6, [0, 0, 0])]),
+                   "scale": kf([(0, [1, 1, 1]), (0.8, [1.1, 0.9, 1.1]), (1.6, [1, 1, 1])])}
+    anims = {"idle": loop(1.6, bob), "walk": loop(1.6, bob),
+             "attack": once(0.4, {"bell": {"scale": kf([(0, [1, 1, 1]), (0.2, [1.3, 0.8, 1.3]), (0.4, [1, 1, 1])])}}),
+             "death": {"animation_length": 0.6, "hold_on_last_frame": True,
+                       "bones": {"bell": {"scale": kf([(0, [1, 1, 1]), (0.6, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+def harpooner():
+    return humanoid({"head": "scale_teal", "face": "drowned", "body": "drowned_dark", "arm": "scale_teal", "leg": "drowned_dark",
+                     "eyes": "eye_yellow", "extras": [
+        ("head", Cube([-1, 32, -2], [2, 4, 5], "kelp")),                  # плавник на голове
+        ("left_arm", Cube([5, -2, -6], [1, 1, 22], "gold_dark")), ("left_arm", Cube([4.5, -2.5, -9], [2, 2, 3], "steel")),
+        ("body", Cube([2, 13, 2], [4, 10, 3], "leather")),
+    ]})
+
+
+# ---------------------------------------------------------------------------- хранители этапа 3
+
+def tide_warden():
+    """Страж Прилива: латы из призмарина, шлем-раковина, трезубец."""
+    return boss_humanoid({"head": "prismarine", "face": "prismarine_dark", "body": "prismarine", "arm": "prismarine_dark",
+                          "leg": "prismarine", "eyes": "sea_glow", "extras": [
+        ("head", Cube([-5, 29, -5], [10, 4, 10], "shell")), ("head", Cube([-1, 33, -4], [2, 3, 8], "shell_light")),
+        ("body", Cube([-6, 18, -3.5], [12, 6, 7], "prismarine_dark")), ("body", Cube([-1.5, 14, -3.6], [3, 3, 1], "sea_glow")),
+        ("right_arm", Cube([-6, -10, -1], [1, 36, 1], "gold")),
+        ("right_arm", Cube([-9, 24, -1.5], [7, 1, 2], "gold")), ("right_arm", Cube([-9, 25, -1.5], [1, 4, 2], "gold")),
+        ("right_arm", Cube([-6, 25, -1.5], [1, 5, 2], "gold")), ("right_arm", Cube([-3, 25, -1.5], [1, 4, 2], "gold")),
+        ("left_arm", Cube([3, 4, -6], [7, 14, 2], "coral_blue")),
+    ]})
+
+
+def leviathan():
+    return serpent({"body": "scale_teal", "body2": "prismarine_dark", "belly": "eel_belly", "head": "scale_teal", "eyes": "eye_red",
+                    "n": 6, "seg": 6, "size": 2.0, "fin": "coral"})
+
+
+def naiad():
+    """Жрица Глубин Наяра: высокая, в жемчуге и чешуе, венец из кораллов, ореол."""
+    return boss_humanoid({"head": "drowned", "face": "pearl", "body": "scale_teal", "arm": "drowned", "leg": "scale_teal",
+                          "eyes": "sea_glow", "extras": [
+        ("head", Cube([-5, 31, -1], [2, 5, 2], "coral")), ("head", Cube([3, 31, -1], [2, 5, 2], "coral")),
+        ("head", Cube([-1, 32, -1], [2, 6, 2], "coral_blue")), ("head", Cube([-6, 34, 3], [12, 1, 1], "pearl")),
+        ("body", Cube([-5.5, 0, -3.5], [11, 14, 7], "scale_teal")), ("body", Cube([-5, 18, -2.7], [10, 2, 1], "pearl")),
+        ("left_arm", Cube([5, -6, -1.5], [1, 30, 1], "gold")), ("left_arm", Cube([4, 23, -2.5], [3, 3, 3], "pearl")),
+    ]})
+
+
+MODELS.update({"drowned_guard": drowned_guard, "deep_priest": deep_priest, "moray": moray, "crab": crab, "jelly": jelly,
+               "harpooner": harpooner, "tide_warden": tide_warden, "leviathan": leviathan, "naiad": naiad})
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None

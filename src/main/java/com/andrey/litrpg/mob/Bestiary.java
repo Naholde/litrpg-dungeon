@@ -67,6 +67,26 @@ public final class Bestiary {
             1.3f, 1.0f, 2.6f, 0x6B8A3A, "Медленный и крепкий; элитный бьёт по кругу — отойдите.",
             p("hp_units", 1.4, "dmg_units", 0.065, "speed", 0.2));
 
+    // ---------------------------------------------------------------- Этап 3 · Затопленный храм (глубины)
+    public static final Species DROWNED_GUARD = reg("drowned_guard", "Утопленник-страж", 3, MobRole.GUARD, "drowned_guard",
+            1.05f, 0.7f, 2.0f, 0x4AC8B0, "Коралловый щит спереди — заходите со спины.",
+            p("hp_units", 1.3, "dmg_units", 0.06, "speed", 0.21));
+    public static final Species DEEP_PRIEST = reg("deep_priest", "Жрец глубин", 3, MobRole.HEALER, "deep_priest",
+            1.0f, 0.6f, 1.95f, 0x5FE0FF, "Лечит утопленников светом жемчуга — убивать первым.",
+            p("hp_units", 0.6, "dmg_units", 0.035, "speed", 0.24, "heal_share", 0.2));
+    public static final Species MORAY = reg("moray", "Мурена", 3, MobRole.SKIRMISHER, "moray",
+            1.0f, 0.8f, 0.7f, 0x8A9A4A, "Бросается на дальних из-под воды, кусает с кровотечением.",
+            p("hp_units", 0.55, "dmg_units", 0.05, "speed", 0.35, "leap", 5, "hit_dot", 0.2, "dot_seconds", 3));
+    public static final Species CRAB = reg("crab", "Крабоид", 3, MobRole.BRUTE, "crab",
+            1.2f, 1.6f, 1.2f, 0xD86A3A, "Тяжёлые клешни; элитный бьёт по кругу — отойдите.",
+            p("hp_units", 1.5, "dmg_units", 0.065, "speed", 0.2));
+    public static final Species JELLY = reg("jelly", "Медуза", 3, MobRole.SWARM, "jelly",
+            1.0f, 0.8f, 1.2f, 0xC87FFF, "Плывут роем; жгучие нити оставляют ожог.",
+            p("hp_units", 0.25, "dmg_units", 0.024, "speed", 0.3, "hit_dot", 0.2, "dot_seconds", 3));
+    public static final Species HARPOONER = reg("harpooner", "Гарпунщик", 3, MobRole.ARCHER, "harpooner",
+            1.0f, 0.6f, 1.95f, 0x9AB0C0, "Гарпун подтаскивает попавшего к стае — держитесь за танком.",
+            p("hp_units", 0.55, "dmg_units", 0.045, "speed", 0.25, "hit_pull", 3));
+
     private Bestiary() {
     }
 
