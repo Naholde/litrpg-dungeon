@@ -207,6 +207,7 @@ public final class SkillService {
         st.dirty = true;
         if (st.casting != null) cancelCast(p, "Чтение прервано рывком");
         AnimService.play(p, "common.dash");
+        com.andrey.litrpg.gear.GearEffects.onDash(p);
         Fx.line(p.serverLevel(), p.position(), p.position().add(dir.scale(4)), 0.8f, 8, 0xA6E1FF, false);
         p.level().playSound(null, p.blockPosition(), SoundEvents.BREEZE_JUMP, SoundSource.PLAYERS, 0.6f, 1.4f);
         sync(p);

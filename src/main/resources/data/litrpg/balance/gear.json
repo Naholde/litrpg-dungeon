@@ -1,91 +1,152 @@
 {
   "stat_per_level": 0.25,
   "affixes": {
-    "skill_power": {
-      "min": 0.03,
-      "max": 0.08
-    },
-    "ranged_power": {
-      "min": 0.03,
-      "max": 0.08
-    },
-    "weapon_power": {
-      "min": 0.03,
-      "max": 0.08
-    },
-    "heal_power": {
-      "min": 0.03,
-      "max": 0.08
-    },
-    "haste": {
-      "min": 0.01,
-      "max": 0.04
-    },
-    "dodge": {
-      "min": 0.01,
-      "max": 0.03
-    },
-    "move_speed": {
-      "min": 0.01,
-      "max": 0.03
-    },
     "crit_damage": {
-      "min": 0.05,
-      "max": 0.15
+      "min": 0.08,
+      "max": 0.18
     },
     "toughness": {
-      "min": 0.01,
-      "max": 0.03
+      "min": 0.015,
+      "max": 0.035
+    },
+    "weapon_power": {
+      "min": 0.04,
+      "max": 0.1
     },
     "crit_chance": {
-      "min": 0.01,
+      "min": 0.02,
+      "max": 0.05
+    },
+    "move_speed": {
+      "min": 0.02,
       "max": 0.04
     },
+    "ranged_power": {
+      "min": 0.04,
+      "max": 0.1
+    },
+    "dodge": {
+      "min": 0.015,
+      "max": 0.035
+    },
+    "heal_power": {
+      "min": 0.04,
+      "max": 0.1
+    },
+    "haste": {
+      "min": 0.02,
+      "max": 0.05
+    },
     "find": {
-      "min": 0.03,
+      "min": 0.04,
+      "max": 0.12
+    },
+    "skill_power": {
+      "min": 0.04,
       "max": 0.1
     }
   },
   "drops": {
+    "elite_chance": 0.45,
+    "smart_slot": 0.6,
+    "epic_effect_chance": 0.5,
     "coins_per_level": 3.0,
-    "gear_chance": 0.04
+    "gear_chance": 0.06
+  },
+  "effects": {
+    "second_wind": {
+      "min": 0.15,
+      "max": 0.25
+    },
+    "thorns": {
+      "min": 0.15,
+      "max": 0.3
+    },
+    "warden": {
+      "min": 0.03,
+      "max": 0.06
+    },
+    "spark": {
+      "min": 0.3,
+      "max": 0.5
+    },
+    "tailwind": {
+      "min": 0.15,
+      "max": 0.3
+    },
+    "echo": {
+      "min": 0.1,
+      "max": 0.2
+    },
+    "bulwark": {
+      "min": 0.06,
+      "max": 0.12
+    },
+    "first_strike": {
+      "min": 0.3,
+      "max": 0.6
+    },
+    "overflow": {
+      "min": 0.3,
+      "max": 0.6
+    },
+    "dash_fury": {
+      "min": 0.12,
+      "max": 0.25
+    },
+    "vampiric": {
+      "min": 0.02,
+      "max": 0.05
+    },
+    "execute": {
+      "min": 0.15,
+      "max": 0.3
+    },
+    "opening": {
+      "min": 0.2,
+      "max": 0.4
+    },
+    "mercy": {
+      "min": 0.15,
+      "max": 0.3
+    }
   },
   "rarities": {
-    "rare": {
-      "weight": 90.0,
-      "power": 1.16,
-      "stats": 2,
-      "affixes": 2
-    },
-    "uncommon": {
-      "weight": 350.0,
-      "power": 1.08,
-      "stats": 1,
-      "affixes": 1
+    "epic": {
+      "weight": 55.0,
+      "power": 1.26,
+      "stats": 3,
+      "affixes": 3
     },
     "legendary": {
-      "weight": 3.0,
+      "weight": 8.0,
       "power": 1.38,
       "stats": 3,
       "affixes": 4
     },
+    "uncommon": {
+      "weight": 420.0,
+      "power": 1.08,
+      "stats": 2,
+      "affixes": 1
+    },
+    "rare": {
+      "weight": 190.0,
+      "power": 1.16,
+      "stats": 2,
+      "affixes": 2
+    },
     "common": {
-      "weight": 1000.0,
+      "weight": 550.0,
       "power": 1.0,
       "stats": 1,
-      "affixes": 0
+      "affixes": 1
     },
     "divine": {
       "weight": 0.0,
       "power": 1.55,
       "stats": 3,
       "affixes": 5
-    },
-    "epic": {
-      "weight": 18.0,
-      "power": 1.26,
-      "stats": 2,
-      "affixes": 3
     }
   },
   "weapons": {

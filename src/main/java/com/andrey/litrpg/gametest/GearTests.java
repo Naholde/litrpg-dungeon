@@ -117,4 +117,60 @@ public final class GearTests {
             h.succeed();
         });
     }
+
+    /** Особые свойства (фаза 13): у легендарной — одно, у божественной — два, у трофея — фирменное; сила в диапазоне. */
+    @GameTest(template = "arena", timeoutTicks = 100)
+    public static void effectsByRarityAndTrophy(GameTestHelper h) {
+        ServerPlayer p = player(h, Role.DAMAGE, 30);
+        var g = com.andrey.litrpg.core.balance.Balance.get(com.andrey.litrpg.core.balance.Balance.GEAR);
+        for (int i = 0; i < 20; i++) {
+            var leg = GearGen.make(GearKind.SWORD, 30, Rarity.LEGENDARY, Role.DAMAGE, p.getRandom()).get(ModComponents.GEAR.get());
+            h.assertTrue(leg.effects().size() == 1, "у легендарной одно свойство, а " + leg.effects().size());
+            var fx = leg.effects().get(0);
+            h.assertTrue(fx.type().role == Role.DAMAGE || fx.type().role == Role.NONE, "свойство не своей роли: " + fx.type());
+            var r = g.effects().get(fx.type());
+            h.assertTrue(fx.value() >= r.min() - 1e-9 && fx.value() <= r.max() + 1e-9, "сила вне диапазона: " + fx);
+            var div = GearGen.make(GearKind.RING, 30, Rarity.DIVINE, Role.DAMAGE, p.getRandom()).get(ModComponents.GEAR.get());
+            h.assertTrue(div.effects().size() == 2, "у божественной два свойства");
+            var common = GearGen.make(GearKind.HELMET, 30, Rarity.COMMON, Role.DAMAGE, p.getRandom()).get(ModComponents.GEAR.get());
+            h.assertTrue(common.effects().isEmpty() && common.affixes().size() == 1, "у обычной — одно простое свойство, без особых");
+        }
+        var trophy = com.andrey.litrpg.gear.Trophies.of("gatekeeper").get(1);
+        var t = com.andrey.litrpg.gear.Trophies.make(trophy, 4, Rarity.EPIC, Role.DAMAGE, p.getRandom()).get(ModComponents.GEAR.get());
+        h.assertTrue(!t.effects().isEmpty() && t.effects().get(0).type() == com.andrey.litrpg.gear.GearEffect.FIRST_STRIKE,
+                "у цепного топора Привратника — «Первый удар»: " + t.effects());
+        h.succeed();
+    }
+
+    /** «Кровопийца» лечит от нанесённого урона, «Шипы» отвечают ударившему в ближнем бою. */
+    @GameTest(template = "arena", timeoutTicks = 200)
+    public static void vampiricAndThornsWork(GameTestHelper h) {
+        ServerPlayer p = player(h, Role.DAMAGE, 20);
+        var zombie = h.spawn(EntityType.ZOMBIE, new BlockPos(4, 1, 4));
+        zombie.setNoAi(true);
+        zombie.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(2000);
+        zombie.setHealth(2000);
+        h.runAfterDelay(70, () -> {
+            var sword = GearGen.make(GearKind.SWORD, 20, Rarity.RARE, Role.DAMAGE, p.getRandom());
+            var d = sword.get(ModComponents.GEAR.get());
+            sword.set(ModComponents.GEAR.get(), d.withEffects(java.util.List.of(
+                    new com.andrey.litrpg.gear.GearData.Effect(com.andrey.litrpg.gear.GearEffect.VAMPIRIC, 0.5))));
+            p.setItemSlot(EquipmentSlot.MAINHAND, sword);
+            var chest = GearGen.make(GearKind.CHEST, 20, Rarity.RARE, Role.DAMAGE, p.getRandom());
+            var cd = chest.get(ModComponents.GEAR.get());
+            chest.set(ModComponents.GEAR.get(), cd.withEffects(java.util.List.of(
+                    new com.andrey.litrpg.gear.GearData.Effect(com.andrey.litrpg.gear.GearEffect.THORNS, 0.5))));
+            p.setItemSlot(EquipmentSlot.CHEST, chest);
+            PlayerService.refresh(p);
+            p.setHealth(p.getMaxHealth() * 0.5f);
+            float hp0 = p.getHealth();
+            com.andrey.litrpg.combat.DamageService.deal(p, null, zombie, 10, com.andrey.litrpg.combat.WeaponKind.MAGIC);
+            h.assertTrue(p.getHealth() > hp0 + 1, "кровопийца не вылечил: " + hp0 + " → " + p.getHealth());
+            float z0 = zombie.getHealth();
+            p.invulnerableTime = 0;
+            p.hurt(zombie.damageSources().mobAttack(zombie), 10);
+            h.assertTrue(zombie.getHealth() < z0, "шипы не ответили: " + z0 + " → " + zombie.getHealth());
+            h.succeed();
+        });
+    }
 }

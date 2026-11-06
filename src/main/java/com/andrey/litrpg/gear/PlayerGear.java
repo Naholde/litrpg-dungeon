@@ -22,6 +22,26 @@ public final class PlayerGear {
     private PlayerGear() {
     }
 
+    /** Каждая надетая вещь Системы: оружие в руке, щит, броня, украшения (Curios). */
+    public static void forEachWorn(Player p, java.util.function.Consumer<GearData> f) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            GearData d = p.getItemBySlot(slot).get(ModComponents.GEAR.get());
+            if (d != null && d.kind().slot == slot) f.accept(d);
+        }
+        try {
+            var inv = CuriosApi.getCuriosInventory(p);
+            if (inv.isPresent()) {
+                var h = inv.get().getEquippedCurios();
+                for (int i = 0; i < h.getSlots(); i++) {
+                    GearData d = h.getStackInSlot(i).get(ModComponents.GEAR.get());
+                    if (d != null && d.kind().isAccessory()) f.accept(d);
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Curios ещё не готов (самый первый тик входа) — без украшений.
+        }
+    }
+
     public static Totals collect(Player p) {
         double[] st = new double[Stat.ALL.length];
         Map<Derived, Double> der = new EnumMap<>(Derived.class);

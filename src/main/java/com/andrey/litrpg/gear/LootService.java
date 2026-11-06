@@ -64,6 +64,7 @@ public final class LootService {
         if (!(e.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel)) return;
         if (e.getSource().getEntity() instanceof ServerPlayer killer) {
             com.andrey.litrpg.skill.SkillService.onKill(killer);
+            GearEffects.onKill(killer);
         }
         markedDeath(mob);
         // Повтор после вайпа (награда уже выдана) — без добычи.
@@ -91,13 +92,14 @@ public final class LootService {
             Wallet.give(p, coins);
             double chance = switch (rank) {
                 case NORMAL -> g.drops().gearChance();
-                case ELITE -> 0.3;
+                case ELITE -> g.drops().eliteChance();
                 case CHAMPION -> 1.0;
             };
             if (p.getRandom().nextDouble() < chance * (1 + find)) {
                 Rarity r = GearGen.rollRarity(p.getRandom(), find,
-                        rank == com.andrey.litrpg.mob.MobRank.CHAMPION ? Rarity.RARE : Rarity.COMMON);
-                ItemStack item = GearGen.roll(p.getRandom(), PlayerService.data(p).role(), level, r);
+                        rank == com.andrey.litrpg.mob.MobRank.CHAMPION ? Rarity.RARE
+                                : rank == com.andrey.litrpg.mob.MobRank.ELITE ? Rarity.UNCOMMON : Rarity.COMMON);
+                ItemStack item = GearGen.rollFor(p, level, r);
                 dropFor(level, p, mob, item);
             }
         }

@@ -153,12 +153,41 @@ public final class Trophies {
         return make(pick, level, rarity, role, rnd);
     }
 
+    /**
+     * Фирменное особое свойство трофея (фаза 13): у каждого хранителя — своё на каждую из четырёх вещей,
+     * по смыслу хранителя (цепь Привратника держит удар, коса Морры добивает, посох Вессы лечит в избытке…).
+     */
+    private static final Map<String, GearEffect[]> SIGNATURE = Map.ofEntries(
+            Map.entry("gatekeeper", new GearEffect[]{GearEffect.BULWARK, GearEffect.FIRST_STRIKE, GearEffect.MERCY, GearEffect.TAILWIND}),
+            Map.entry("morra", new GearEffect[]{GearEffect.WARDEN, GearEffect.EXECUTE, GearEffect.OVERFLOW, GearEffect.TAILWIND}),
+            Map.entry("lich", new GearEffect[]{GearEffect.SECOND_WIND, GearEffect.SPARK, GearEffect.ECHO, GearEffect.TAILWIND}),
+            Map.entry("arachna", new GearEffect[]{GearEffect.THORNS, GearEffect.VAMPIRIC, GearEffect.MERCY, GearEffect.TAILWIND}),
+            Map.entry("rot_ent", new GearEffect[]{GearEffect.BULWARK, GearEffect.DASH_FURY, GearEffect.OVERFLOW, GearEffect.TAILWIND}),
+            Map.entry("morena", new GearEffect[]{GearEffect.WARDEN, GearEffect.OPENING, GearEffect.ECHO, GearEffect.TAILWIND}),
+            Map.entry("tide_warden", new GearEffect[]{GearEffect.SECOND_WIND, GearEffect.SPARK, GearEffect.MERCY, GearEffect.TAILWIND}),
+            Map.entry("leviathan", new GearEffect[]{GearEffect.THORNS, GearEffect.EXECUTE, GearEffect.OVERFLOW, GearEffect.TAILWIND}),
+            Map.entry("naiad", new GearEffect[]{GearEffect.WARDEN, GearEffect.FIRST_STRIKE, GearEffect.ECHO, GearEffect.TAILWIND}),
+            Map.entry("smelter", new GearEffect[]{GearEffect.BULWARK, GearEffect.VAMPIRIC, GearEffect.MERCY, GearEffect.TAILWIND}),
+            Map.entry("chariot", new GearEffect[]{GearEffect.SECOND_WIND, GearEffect.DASH_FURY, GearEffect.OVERFLOW, GearEffect.TAILWIND}),
+            Map.entry("ash_lord", new GearEffect[]{GearEffect.THORNS, GearEffect.OPENING, GearEffect.ECHO, GearEffect.TAILWIND}),
+            Map.entry("doppel", new GearEffect[]{GearEffect.WARDEN, GearEffect.SPARK, GearEffect.MERCY, GearEffect.TAILWIND}),
+            Map.entry("chronophage", new GearEffect[]{GearEffect.SECOND_WIND, GearEffect.DASH_FURY, GearEffect.OVERFLOW, GearEffect.TAILWIND}),
+            Map.entry("xalathar", new GearEffect[]{GearEffect.BULWARK, GearEffect.EXECUTE, GearEffect.ECHO, GearEffect.TAILWIND}));
+
+    /** Фирменное свойство трофея по его номеру у хранителя (0 — танк, 1 — боец, 2 — поддержка, 3 — украшение). */
+    public static GearEffect signature(Trophy t) {
+        GearEffect[] set = SIGNATURE.get(t.boss());
+        if (set == null) return null;
+        int i = Integer.parseInt(t.id().substring(t.id().lastIndexOf('_') + 1));
+        return i < set.length ? set[i] : null;
+    }
+
     /** Собрать трофей: основа и характеристики — как у вещи этой редкости, плюс два фирменных свойства (×1,5 от лучшего). */
     public static ItemStack make(Trophy t, int level, Rarity rarity, Role role, RandomSource rnd) {
         ItemStack base = GearGen.make(t.kind, level, rarity, role == Role.NONE ? Role.DAMAGE : role, rnd);
         GearData d = base.get(com.andrey.litrpg.core.ModComponents.GEAR.get());
         GearBalance g = Balance.get(Balance.GEAR);
-        double scale = Math.max(0.25, Math.min(1, level / 50.0));
+        double scale = GearGen.affixScale(level);
         List<GearData.Affix> affixes = new ArrayList<>();
         for (AffixType a : List.of(t.a, t.b)) {
             GearBalance.Range r = g.affixes().get(a);
@@ -167,7 +196,16 @@ public final class Trophies {
         for (GearData.Affix a : d.affixes()) if (a.type() != t.a && a.type() != t.b && affixes.size() < 4) affixes.add(a);
         Map<Stat, Double> stats = new EnumMap<>(Stat.class);
         stats.putAll(d.stats());
-        GearData nd = new GearData(t.kind, d.level(), rarity, d.base(), stats, affixes, t.id, 0);
+        // Особое свойство: фирменное всегда, у божественного — ещё одно случайное под роль.
+        List<GearData.Effect> effects = new ArrayList<>();
+        GearEffect sig = signature(t);
+        if (sig != null) effects.add(GearGen.effect(sig, rarity == Rarity.EPIC ? Rarity.LEGENDARY : rarity, rnd, g));
+        if (rarity == Rarity.DIVINE) {
+            List<GearEffect> pool = new ArrayList<>(GearEffect.forRole(role));
+            pool.remove(sig);
+            if (!pool.isEmpty()) effects.add(GearGen.effect(pool.get(rnd.nextInt(pool.size())), rarity, rnd, g));
+        }
+        GearData nd = new GearData(t.kind, d.level(), rarity, d.base(), stats, affixes, t.id, 0, effects);
         return GearGen.stack(nd, t.name);
     }
 }

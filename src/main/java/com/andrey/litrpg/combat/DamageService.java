@@ -100,6 +100,7 @@ public final class DamageService {
                 amount *= b.get(Derived.CRIT_DAMAGE);
                 CRIT.put(victim, true);
             }
+            amount *= com.andrey.litrpg.gear.GearEffects.outgoing(p, victim);
         }
         if (attacker instanceof LivingEntity la && !fixed) amount *= StatusService.product(la, StatusType.DAMAGE_DEALT);
         amount *= levelGap(attacker, victim);
@@ -134,6 +135,7 @@ public final class DamageService {
                         Balance.get(Balance.GEAR).armor());
             }
             amount = DamageMath.incoming(amount, b, isBoss(attacker));
+            if (attacker instanceof LivingEntity la && la != vp && !fixed) amount *= com.andrey.litrpg.gear.GearEffects.incoming(vp, la);
         }
 
         // 4. Несокрушимость: смертельный удар оставляет 1 здоровья.
@@ -195,6 +197,11 @@ public final class DamageService {
             siphon(victim, dealt);
         }
         if (!(src.getEntity() instanceof LivingEntity attacker) || attacker == victim || dealt <= 0) return;
+        // Особые свойства вещей: кровопийца и искра у атакующего, шипы и второе дыхание у жертвы.
+        if (attacker instanceof ServerPlayer sp && !(victim instanceof ServerPlayer)) com.andrey.litrpg.gear.GearEffects.afterDealt(sp, victim, dealt);
+        if (victim instanceof ServerPlayer vp && !(attacker instanceof ServerPlayer)) {
+            com.andrey.litrpg.gear.GearEffects.afterTaken(vp, attacker, src.getDirectEntity() == attacker && CONTEXT.get() == null, dealt);
+        }
         double leech = StatusService.sum(attacker, StatusType.LEECH);
         if (leech > 0) HealService.healFixed(attacker instanceof ServerPlayer sp ? sp : null, attacker, dealt * leech);
         if (attacker instanceof ServerPlayer sp) atonement(sp, dealt);

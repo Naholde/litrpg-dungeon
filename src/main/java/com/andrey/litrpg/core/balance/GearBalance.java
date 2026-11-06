@@ -11,7 +11,7 @@ import java.util.Map;
 
 /** Снаряжение: редкости, оружие, броня, характеристики и свойства вещей, добыча. Файл {@code balance/gear.json}. */
 public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Armor armor, double statPerLevel,
-                         Map<AffixType, Range> affixes, Drops drops) {
+                         Map<AffixType, Range> affixes, Drops drops, Map<com.andrey.litrpg.gear.GearEffect, Range> effects) {
 
     /**
      * @param weight  вес при выпадении (чем меньше, тем реже); 0 — не выпадает случайно
@@ -66,7 +66,7 @@ public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Arm
         }
     }
 
-    /** Диапазон свойства на 50 уровне (ниже — пропорционально, не меньше четверти). */
+    /** Диапазон свойства на 50 уровне (ниже — пропорционально, на 1 уровне — половина). */
     public record Range(double min, double max) {
         static final Codec<Range> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("min").forGetter(Range::min),
@@ -75,13 +75,19 @@ public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Arm
     }
 
     /**
-     * @param coinsPerLevel медных монет с обычного монстра за уровень
-     * @param gearChance    шанс вещи с обычного монстра
+     * @param coinsPerLevel    медных монет с обычного монстра за уровень
+     * @param gearChance       шанс вещи с обычного монстра
+     * @param eliteChance      шанс вещи с элитного (с чемпиона — всегда)
+     * @param smartSlot        доля добычи, которая выпадает в слот, где у игрока пусто или вещь старее всего
+     * @param epicEffectChance шанс особого свойства у эпической вещи (у легендарной одно всегда, у божественной два)
      */
-    public record Drops(double coinsPerLevel, double gearChance) {
+    public record Drops(double coinsPerLevel, double gearChance, double eliteChance, double smartSlot, double epicEffectChance) {
         static final Codec<Drops> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("coins_per_level").forGetter(Drops::coinsPerLevel),
-                Codec.DOUBLE.fieldOf("gear_chance").forGetter(Drops::gearChance)
+                Codec.DOUBLE.fieldOf("gear_chance").forGetter(Drops::gearChance),
+                Codec.DOUBLE.fieldOf("elite_chance").forGetter(Drops::eliteChance),
+                Codec.DOUBLE.fieldOf("smart_slot").forGetter(Drops::smartSlot),
+                Codec.DOUBLE.fieldOf("epic_effect_chance").forGetter(Drops::epicEffectChance)
         ).apply(i, Drops::new));
     }
 
@@ -91,7 +97,8 @@ public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Arm
             Armor.CODEC.fieldOf("armor").forGetter(GearBalance::armor),
             Codec.DOUBLE.fieldOf("stat_per_level").forGetter(GearBalance::statPerLevel),
             Codec.unboundedMap(AffixType.CODEC, Range.CODEC).fieldOf("affixes").forGetter(GearBalance::affixes),
-            Drops.CODEC.fieldOf("drops").forGetter(GearBalance::drops)
+            Drops.CODEC.fieldOf("drops").forGetter(GearBalance::drops),
+            Codec.unboundedMap(com.andrey.litrpg.gear.GearEffect.CODEC, Range.CODEC).fieldOf("effects").forGetter(GearBalance::effects)
     ).apply(i, GearBalance::new));
 
     public RarityInfo of(Rarity r) {
@@ -102,27 +109,43 @@ public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Arm
 
     static {
         Map<Rarity, RarityInfo> r = new EnumMap<>(Rarity.class);
-        r.put(Rarity.COMMON, new RarityInfo(1000, 1.0, 1, 0));
-        r.put(Rarity.UNCOMMON, new RarityInfo(350, 1.08, 1, 1));
-        r.put(Rarity.RARE, new RarityInfo(90, 1.16, 2, 2));
-        r.put(Rarity.EPIC, new RarityInfo(18, 1.26, 2, 3));
-        r.put(Rarity.LEGENDARY, new RarityInfo(3, 1.38, 3, 4));
+        // Фаза 13: обычных меньше, редких и эпических заметно больше — свойства у большинства вещей.
+        r.put(Rarity.COMMON, new RarityInfo(550, 1.0, 1, 1));
+        r.put(Rarity.UNCOMMON, new RarityInfo(420, 1.08, 2, 1));
+        r.put(Rarity.RARE, new RarityInfo(190, 1.16, 2, 2));
+        r.put(Rarity.EPIC, new RarityInfo(55, 1.26, 3, 3));
+        r.put(Rarity.LEGENDARY, new RarityInfo(8, 1.38, 3, 4));
         r.put(Rarity.DIVINE, new RarityInfo(0, 1.55, 3, 5));
         Map<AffixType, Range> a = new EnumMap<>(AffixType.class);
-        a.put(AffixType.CRIT_CHANCE, new Range(0.01, 0.04));
-        a.put(AffixType.CRIT_DAMAGE, new Range(0.05, 0.15));
-        a.put(AffixType.DODGE, new Range(0.01, 0.03));
-        a.put(AffixType.TOUGHNESS, new Range(0.01, 0.03));
-        a.put(AffixType.HASTE, new Range(0.01, 0.04));
-        a.put(AffixType.HEAL_POWER, new Range(0.03, 0.08));
-        a.put(AffixType.SKILL_POWER, new Range(0.03, 0.08));
-        a.put(AffixType.WEAPON_POWER, new Range(0.03, 0.08));
-        a.put(AffixType.RANGED_POWER, new Range(0.03, 0.08));
-        a.put(AffixType.MOVE_SPEED, new Range(0.01, 0.03));
-        a.put(AffixType.FIND, new Range(0.03, 0.1));
+        a.put(AffixType.CRIT_CHANCE, new Range(0.02, 0.05));
+        a.put(AffixType.CRIT_DAMAGE, new Range(0.08, 0.18));
+        a.put(AffixType.DODGE, new Range(0.015, 0.035));
+        a.put(AffixType.TOUGHNESS, new Range(0.015, 0.035));
+        a.put(AffixType.HASTE, new Range(0.02, 0.05));
+        a.put(AffixType.HEAL_POWER, new Range(0.04, 0.10));
+        a.put(AffixType.SKILL_POWER, new Range(0.04, 0.10));
+        a.put(AffixType.WEAPON_POWER, new Range(0.04, 0.10));
+        a.put(AffixType.RANGED_POWER, new Range(0.04, 0.10));
+        a.put(AffixType.MOVE_SPEED, new Range(0.02, 0.04));
+        a.put(AffixType.FIND, new Range(0.04, 0.12));
+        Map<com.andrey.litrpg.gear.GearEffect, Range> e = new EnumMap<>(com.andrey.litrpg.gear.GearEffect.class);
+        e.put(com.andrey.litrpg.gear.GearEffect.BULWARK, new Range(0.06, 0.12));
+        e.put(com.andrey.litrpg.gear.GearEffect.THORNS, new Range(0.15, 0.30));
+        e.put(com.andrey.litrpg.gear.GearEffect.SECOND_WIND, new Range(0.15, 0.25));
+        e.put(com.andrey.litrpg.gear.GearEffect.WARDEN, new Range(0.03, 0.06));
+        e.put(com.andrey.litrpg.gear.GearEffect.EXECUTE, new Range(0.15, 0.30));
+        e.put(com.andrey.litrpg.gear.GearEffect.FIRST_STRIKE, new Range(0.30, 0.60));
+        e.put(com.andrey.litrpg.gear.GearEffect.VAMPIRIC, new Range(0.02, 0.05));
+        e.put(com.andrey.litrpg.gear.GearEffect.SPARK, new Range(0.30, 0.50));
+        e.put(com.andrey.litrpg.gear.GearEffect.OPENING, new Range(0.20, 0.40));
+        e.put(com.andrey.litrpg.gear.GearEffect.DASH_FURY, new Range(0.12, 0.25));
+        e.put(com.andrey.litrpg.gear.GearEffect.MERCY, new Range(0.15, 0.30));
+        e.put(com.andrey.litrpg.gear.GearEffect.OVERFLOW, new Range(0.30, 0.60));
+        e.put(com.andrey.litrpg.gear.GearEffect.ECHO, new Range(0.10, 0.20));
+        e.put(com.andrey.litrpg.gear.GearEffect.TAILWIND, new Range(0.15, 0.30));
         DEFAULT = new GearBalance(Map.copyOf(r),
                 new Weapons(6, 1.0, 1.15, 6, 1.0, 5, 0.9),
                 new Armor(9, 0.15, 0.35, 0.25, 0.15, 0.1, 15, 75, 0.75),
-                0.25, Map.copyOf(a), new Drops(3, 0.04));
+                0.25, Map.copyOf(a), new Drops(3, 0.06, 0.45, 0.6, 0.5), Map.copyOf(e));
     }
 }

@@ -79,7 +79,7 @@ public final class Caches {
         };
         Rarity r = cache.tier() == 4 ? Rarity.DIVINE : GearGen.rollRarity(p.getRandom(), find + (cache.tier() == 3 ? 0.5 : 0), min);
         if (cache.tier() == 3 && r.ordinal() < Rarity.LEGENDARY.ordinal() && p.getRandom().nextDouble() < 0.25) r = Rarity.LEGENDARY;
-        ItemStack item = GearGen.roll(p.getRandom(), role, level, r);
+        ItemStack item = GearGen.rollFor(p, level, r);
         LootService.dropFor(level, p, p, item);
         if (cache.tier() >= 3) {
             ItemEntity extra = new ItemEntity(p.level(), p.getX(), p.getY() + 0.5, p.getZ(), new ItemStack(ModItems.ELIXIR.get()));

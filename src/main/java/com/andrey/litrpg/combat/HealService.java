@@ -79,10 +79,12 @@ public final class HealService {
      */
     public static float healFixed(ServerPlayer healer, LivingEntity target, double amount) {
         amount *= StatusService.product(target, StatusType.HEAL_TAKEN);
+        amount *= com.andrey.litrpg.gear.GearEffects.healBonus(healer, target);
         if (amount <= 0 || !target.isAlive()) return 0;
         float before = target.getHealth();
         target.heal((float) amount);
         float real = target.getHealth() - before;
+        com.andrey.litrpg.gear.GearEffects.afterHeal(healer, target, amount, real);
         if (healer != null && real > 0 && target != healer) {
             com.andrey.litrpg.skill.StyleTracker.add(healer, com.andrey.litrpg.skill.Style.HEALING, 1);
         }

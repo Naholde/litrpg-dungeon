@@ -124,7 +124,7 @@ public final class ShopService {
                 if (g != null && pay(p, rerollPrice(g))) {
                     var fresh = GearGen.make(g.kind(), g.level(), g.rarity(), d.role(), p.getRandom());
                     GearData nd = fresh.get(ModComponents.GEAR.get());
-                    nd = new GearData(g.kind(), g.level(), g.rarity(), g.base(), nd.stats(), nd.affixes(), g.unique(), g.rerolls() + 1);
+                    nd = new GearData(g.kind(), g.level(), g.rarity(), g.base(), nd.stats(), nd.affixes(), g.unique(), g.rerolls() + 1, g.effects());
                     held.set(ModComponents.GEAR.get(), nd);
                     SystemChat.send(p, Component.literal("Наковальня: вещь перекована — свойства новые.").withStyle(ChatFormatting.GOLD));
                     PlayerService.refresh(p);
@@ -139,7 +139,8 @@ public final class ShopService {
                     var stats = new java.util.EnumMap<com.andrey.litrpg.player.Stat, Double>(com.andrey.litrpg.player.Stat.class);
                     g.stats().forEach((st, v) -> stats.put(st, Math.round(v * k * 10) / 10.0));
                     double base = GearGen.base(g.kind(), to, Balance.get(Balance.GEAR).of(g.rarity()).power(), Balance.get(Balance.GEAR));
-                    GearData nd = new GearData(g.kind(), to, g.rarity(), Math.round(base * 10) / 10.0, stats, g.affixes(), g.unique(), g.rerolls());
+                    GearData nd = new GearData(g.kind(), to, g.rarity(), Math.round(base * 10) / 10.0, stats, g.affixes(), g.unique(), g.rerolls(),
+                            g.effects());
                     ItemStack fresh = GearGen.stack(nd, held.getHoverName().getString());
                     p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, fresh);
                     SystemChat.send(p, Component.literal("Наковальня: уровень вещи поднят до " + to + ".").withStyle(ChatFormatting.GOLD));
