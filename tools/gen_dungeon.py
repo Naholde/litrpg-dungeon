@@ -14,6 +14,7 @@ import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'dungeon'))
 import check  # noqa: E402
+import dress  # noqa: E402
 import kit  # noqa: E402
 import lobby  # noqa: E402
 import stage1  # noqa: E402
@@ -40,6 +41,7 @@ def main():
     stages = []
     for n, mod in STAGES.items():
         m, s = mod.build(n)
+        print(f'Этап {n}: отделка', dress.dress(m, s, n))
         maps[n] = m
         stages.append(s)
     layout = {'version': 1, 'lobby': lobby_json, 'stages': [s.json() for s in stages]}

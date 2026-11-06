@@ -44,12 +44,32 @@ public final class DevClientFiles {
                 msg -> LitRPG.LOG.info("[LitRPG] dev: {}", msg.getString()));
     }
 
+    private static void pressButton(Minecraft mc, String label) {
+        if (mc.screen == null) return;
+        for (var child : mc.screen.children()) {
+            if (child instanceof net.minecraft.client.gui.components.Button b && b.getMessage().getString().contains(label)) {
+                b.onPress();
+                LitRPG.LOG.info("[LitRPG] dev: нажата кнопка «{}»", b.getMessage().getString());
+                return;
+            }
+        }
+        LitRPG.LOG.info("[LitRPG] dev: кнопки «{}» нет", label);
+    }
+
     private static void openScreen(Minecraft mc) {
         Path file = mc.gameDirectory.toPath().resolve("dev_open.txt");
-        if (!Files.exists(file) || mc.player == null) return;
+        if (!Files.exists(file)) return;
         String[] cmd;
         try {
-            cmd = Files.readString(file, StandardCharsets.UTF_8).strip().split("\\s+");
+            String line = Files.readString(file, StandardCharsets.UTF_8).strip();
+            // «button <надпись>» — нажать кнопку текущего окна (и до входа в мир: предупреждения, меню).
+            if (line.startsWith("button ")) {
+                Files.delete(file);
+                pressButton(mc, line.substring(7).strip());
+                return;
+            }
+            if (mc.player == null) return;
+            cmd = line.split("\\s+");
             Files.delete(file);
         } catch (IOException ex) {
             return;
