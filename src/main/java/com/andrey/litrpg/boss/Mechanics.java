@@ -27,28 +27,24 @@ public final class Mechanics {
     }
 
     /**
-     * Залп: {@code shots} быстрых выстрелов подряд по случайным бойцам. Выстрел попадает только если
-     * хранитель видит цель — за колонной или за углом залп не достаёт. Это главный приём «ищи укрытие».
+     * Залп: {@code shots} выстрелов подряд по случайным бойцам. Под целью сначала загорается круг (0,8 с),
+     * потом прилетает выстрел — шаг в сторону или колонна между вами и хранителем спасают. Фаза 13:
+     * раньше залп бил без разметки и с одного захода снимал полздоровья.
      */
     public static void volley(BossEntity.Cast c, int shots, int everyTicks, double units, int color) {
         BossEntity b = c.boss();
-        b.tell(Component.literal(b.type().name() + ": залп! Прячьтесь за укрытия — за ними не достанет.")
+        b.tell(Component.literal(b.type().name() + ": залп! Уходите из кругов или за укрытие.")
                 .withStyle(ChatFormatting.GOLD));
+        int gap = Math.max(everyTicks, 14);
         for (int i = 0; i < shots; i++) {
-            c.at(c.ticks + i * everyTicks, () -> {
+            c.at(c.ticks + i * gap, () -> {
                 List<ServerPlayer> all = b.playersInArena();
                 if (all.isEmpty()) return;
                 ServerPlayer p = all.get(b.getRandom().nextInt(all.size()));
-                Vec3 from = b.position().add(0, b.getBbHeight() * 0.7, 0);
-                Vec3 to = p.position().add(0, 1, 0);
-                Fx.bolt(level(b), from, to, 0.18f, 6, color);
-                level(b).playSound(null, b.blockPosition(), SoundEvents.ARROW_SHOOT, SoundSource.HOSTILE, 1.1f, 1.3f);
-                if (b.hasLineOfSight(p)) {
-                    BossDamage.hit(b, p, units);
-                    Fx.burst(level(b), to, 1.1f, 6, color);
-                } else {
-                    Fx.burst(level(b), to.add(0, 0.2, 0), 0.6f, 6, 0x9BA6B8);
-                }
+                Telegraph.shot(b.testCast(16), p.position(), 1.6f, units, color);
+                level(b).playSound(null, b.blockPosition(), SoundEvents.CROSSBOW_LOADING_MIDDLE.value(), SoundSource.HOSTILE, 1.1f, 1.2f);
+                c.boss().schedule(16, () -> level(b).playSound(null, b.blockPosition(), SoundEvents.ARROW_SHOOT,
+                        SoundSource.HOSTILE, 1.1f, 1.3f));
             });
         }
     }

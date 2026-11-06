@@ -29,7 +29,7 @@ class VisualAssetsTest {
                 }
                 var anims = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonObject()
                         .getAsJsonObject("animations");
-                List<String> need = new ArrayList<>(List.of("phase", "enrage", "relocate", "death"));
+                List<String> need = new ArrayList<>(List.of("phase", "enrage", "relocate", "death", "tired"));
                 for (String k : t.params().keySet()) if (k.endsWith("_cast")) need.add("a_" + k.substring(0, k.length() - 5));
                 for (String n : need) if (!anims.has("animation." + t.id() + "." + n)) missing.add(t.id() + "." + n);
             }

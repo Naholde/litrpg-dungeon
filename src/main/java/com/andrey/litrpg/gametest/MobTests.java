@@ -86,7 +86,7 @@ public final class MobTests {
     public static void healthByLevelAndRank(GameTestHelper h) {
         DungeonMob n = mob(h, Bestiary.CRYPT_WARRIOR, 10, MobRank.NORMAL, 2, 2);
         DungeonMob e = mob(h, Bestiary.CRYPT_WARRIOR, 10, MobRank.ELITE, 6, 6);
-        double expected = Bestiary.CRYPT_WARRIOR.param("hp_units") * BossDamage.unit(10);
+        double expected = Bestiary.CRYPT_WARRIOR.param("hp_units") * BossDamage.unit(10) * com.andrey.litrpg.mob.DungeonMob.growHp(10);
         h.assertTrue(Math.abs(n.getMaxHealth() - expected) < 1, "здоровье " + n.getMaxHealth() + " ≠ " + expected);
         h.assertTrue(Math.abs(e.getMaxHealth() / n.getMaxHealth() - 2.2) < 0.01, "элитный ×2,2");
         h.assertTrue(n.getCustomName().getString().contains("Ур. 10"), "уровень в имени");

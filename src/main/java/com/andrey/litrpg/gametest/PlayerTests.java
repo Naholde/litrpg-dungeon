@@ -51,7 +51,8 @@ public final class PlayerTests {
         double before = PlayerService.breakdown(p).get(Stat.STRENGTH);
         h.assertTrue(PlayerService.allocate(p, new int[]{10, 0, 0, 0, 0}), "вложение 10 очков");
         double after = PlayerService.breakdown(p).get(Stat.STRENGTH);
-        h.assertTrue(Math.abs(after - before - 3) < 1e-9, "10 очков = +3 Силы, а " + (after - before));
+        double want = 10 * Balance.get(Balance.PROGRESSION).statPointValue();
+        h.assertTrue(Math.abs(after - before - want) < 1e-9, "10 очков = +" + want + " Силы, а " + (after - before));
         PlayerService.resetStats(p);
         h.assertTrue(PlayerService.data(p).spentStatPoints() == 0, "сброс вернул очки");
         h.succeed();

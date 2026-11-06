@@ -157,7 +157,21 @@ def specials(family, v):
         relocate = {"root": {"scale": kf([(0, [1, 1, 1]), (2.4, [1, 1, 1]), (3.0, [0.2, 0.2, 0.2])])}}
     shake = [(i * 0.08, [0, 0, (6 if i % 2 else -6) * k]) for i in range(13)]
     enrage = {"root": {"rotation": kf(shake)}}
-    return {"phase": once(1.6, phase), "enrage": once(1.0, enrage), "relocate": once(3.0, relocate)}
+    # Передышка «Изнурён» (фаза 13): осел, тяжело дышит; длина — common.rhythm.breather_seconds.
+    T = 4.5
+    breath = [(t * 0.75, [0, (-0.35 if t % 2 else -0.6) * k, 0]) for t in range(7)]
+    if family.startswith("humanoid"):
+        bend = [-28 * k, 0, 0]
+        tired = {"body": {"rotation": kf([(0, z), (0.4, bend), (T - 0.4, bend), (T, z)])},
+                 "head": {"rotation": kf([(0, z), (0.4, [-30, 10 * k, 0]), (T - 0.4, [-30, -10 * k, 0]), (T, z)])},
+                 "right_arm": {"rotation": kf([(0, z), (0.4, [-20, 0, 8]), (T - 0.4, [-25, 0, 10]), (T, z)])},
+                 "left_arm": {"rotation": kf([(0, z), (0.4, [-20, 0, -8]), (T - 0.4, [-25, 0, -10]), (T, z)])},
+                 "root": {"position": kf(breath + [(T, z)])}}
+    else:
+        tired = {"root": {"rotation": kf([(0, z), (0.4, [14 * k, 0, 0]), (T - 0.4, [14 * k, 0, 0]), (T, z)]),
+                          "position": kf(breath + [(T, z)])}}
+    return {"phase": once(1.6, phase), "enrage": once(1.0, enrage), "relocate": once(3.0, relocate),
+            "tired": once(T, tired)}
 
 
 def add(name, anims):

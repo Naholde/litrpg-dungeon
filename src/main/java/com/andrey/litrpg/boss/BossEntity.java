@@ -133,6 +133,12 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private boolean pressureTold;
     private long nextRush;
     private boolean rushMelee;
+    /**
+     * Ритм (фаза 13): до {@code busyUntil} хранитель доигрывает приём и стоит паузу — новых навыков и давки нет,
+     * только удар по цели. {@code tiredUntil} — передышка «Изнурён». {@code sinceBreather} — навыков с прошлой.
+     */
+    private long busyUntil, tiredUntil;
+    private int sinceBreather;
     private int partySize = 3;
     private int phase;
     private int enrageStage;
@@ -264,6 +270,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (casting == null) return;
         int id = casting.id;
         tasks.removeIf(t -> t.castId == id);
+        busyUntil = level().getGameTime() + gapTicks();
         endCast();
     }
 
@@ -375,19 +382,23 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             ThreatService.tick(this);
         }
         updateEnrage(now);
-        if (!dormant()) pressure(now, players);
-        if (!dormant()) rush(now, players);
+        boolean tired = now < tiredUntil;
+        if (!dormant() && !tired) pressure(now, players);
+        if (!dormant() && !tired) rush(now, players);
         tickPools(now);
         updatePhase();
         if (arena2 != null && !relocated && getHealth() <= getMaxHealth() * 0.5f) relocate();
         runTasks(now);
         if (dormant()) {
             getNavigation().stop();
+        } else if (tired) {
+            getNavigation().stop();
+            if (now + 1 >= tiredUntil) endBreather();
         } else if (casting != null) {
             getNavigation().stop();
             if (casting.target != null) getLookControl().setLookAt(casting.target);
             if (now >= casting.end) endCast();
-        } else if (!tryStartAbility(now)) {
+        } else if (now < busyUntil || !tryStartAbility(now)) {
             chaseAndHit(now);
         }
         updateShield();
@@ -404,6 +415,9 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         nextAuto = combatStart + 20;
         nextPulse = combatStart + 8 * 20;
         nextMark = combatStart + 12 * 20;
+        busyUntil = 0;
+        tiredUntil = 0;
+        sinceBreather = 0;
         pressureTold = false;
         partySize = Math.max(1, Math.min(com.andrey.litrpg.party.Party.MAX, fixedParty > 0 ? fixedParty : players.size()));
         double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize)
@@ -434,6 +448,9 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         readyAt.clear();
         phase = 0;
         enrageStage = 0;
+        busyUntil = 0;
+        tiredUntil = 0;
+        sinceBreather = 0;
         entityData.set(CAST_NAME, "");
         entityData.set(SHIELDED, false);
         removeSpawned();
@@ -472,8 +489,13 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             tell(Component.literal("«" + names.pulse() + "» бьёт весь отряд — лекарь, держите всех. «" + names.mark()
                     + "» — меченый, отойди от своих, пока круг не заполнился.").withStyle(ChatFormatting.GRAY));
         }
+        if (now >= nextPulse && (casting != null || now < busyUntil)) {
+            // Ритм: волна ждёт, пока хранитель доиграет приём, и бьёт в паузе — не вместе с навыком.
+            nextPulse = Math.max(nextPulse, busyUntil + Math.round(rhythm().pulseGapSeconds() * 20));
+        }
         if (now >= nextPulse) {
             nextPulse = now + Math.round(pr.pulseSeconds() * 20 * (0.85 + random.nextDouble() * 0.3));
+            busyUntil = Math.max(busyUntil, now + 30 + gapTicks());
             int wind = 30;
             Fx.wave(sl, position(), (float) arenaRadius, 2.5f, wind, names.color());
             Fx.pillar(sl, position(), 1.2f, 5, wind, names.color());
@@ -542,10 +564,11 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
      * и круг у ног хранителя, чтобы ближний бой не стоял в куче.
      */
     private void rush(long now, List<ServerPlayer> players) {
-        if (players.isEmpty() || casting != null || now < nextRush) return;
+        if (players.isEmpty() || casting != null || now < nextRush || now < busyUntil) return;
         BossesBalance.Rush r = Balance.get(Balance.BOSSES).common().rush();
         nextRush = now + Math.round(r.seconds() * 20 * (0.8 + random.nextDouble() * 0.4) * BossDamage.earlyCooldown(bossLevel()));
         int warn = Math.max(6, (int) Math.round(r.warn() * 20 * BossDamage.earlyCast(bossLevel())));
+        busyUntil = now + warn + gapTicks();
         rushMelee = !rushMelee;
         if (rushMelee) {
             Telegraph.circle(testCast(warn), position(), (float) r.meleeRadius(), r.meleeUnits() * enrageMultiplier());
@@ -575,23 +598,93 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
 
     // ------------------------------------------------------------------ навыки
 
+    private BossesBalance.Rhythm rhythm() {
+        return Balance.get(Balance.BOSSES).common().rhythm();
+    }
+
+    /** Пауза между приёмами; на ранних этапах — длиннее (как и замах). */
+    private long gapTicks() {
+        return Math.round(rhythm().gapSeconds() * 20 * BossDamage.earlyCast(bossLevel()));
+    }
+
+    /**
+     * Следующий навык. Из готовых берётся тот, кто ждёт дольше всех (а не первый в списке) — у хранителя
+     * читаемая очередь приёмов, и ни один не повторяется подряд, пока ждут другие. Хранитель занят, пока
+     * навык не доиграет до последнего удара, плюс пауза. После каждых {@code breather_every} — передышка.
+     */
     private boolean tryStartAbility(long now) {
         if (getTarget() == null) return false;
-        for (Ability a : abilities()) {
-            if (now < readyAt.getOrDefault(a.key(), 0L) || !a.usable().test(this)) continue;
-            readyAt.put(a.key(), now + Math.round(p(a.key() + "_cd") * 20 * BossDamage.earlyCooldown(bossLevel())));
-            int ticks = (int) Math.round(p(a.key() + "_cast") * 20 * BossDamage.earlyCast(bossLevel()));
-            casting = new Cast(a, getTarget(), ticks, ++castCounter, now + ticks);
-            entityData.set(CAST_NAME, a.name() + (a.interruptible() ? "|1" : "|0") + "|" + ticks + "|" + (now + ticks));
-            getNavigation().stop();
-            tell(Component.literal(type().name() + " готовит: ").withStyle(ChatFormatting.GOLD)
-                    .append(Component.literal(a.name()).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD))
-                    .append(Component.literal(a.interruptible() ? " — можно сбить оглушением!" : "").withStyle(ChatFormatting.AQUA)));
-            triggerAnim("main", "a_" + a.key());
-            a.start().accept(casting);
+        int every = rhythm().breatherEvery();
+        if (every > 0 && sinceBreather >= every) {
+            startBreather(now);
             return true;
         }
-        return false;
+        Ability pick = null;
+        long oldest = Long.MAX_VALUE;
+        for (Ability a : abilities()) {
+            long ready = readyAt.getOrDefault(a.key(), 0L);
+            if (now < ready || !a.usable().test(this)) continue;
+            if (ready < oldest) {
+                oldest = ready;
+                pick = a;
+            }
+        }
+        if (pick == null) return false;
+        Ability a = pick;
+        readyAt.put(a.key(), now + Math.round(p(a.key() + "_cd") * 20 * BossDamage.earlyCooldown(bossLevel())));
+        int ticks = (int) Math.round(p(a.key() + "_cast") * 20 * BossDamage.earlyCast(bossLevel()));
+        casting = new Cast(a, getTarget(), ticks, ++castCounter, now + ticks);
+        entityData.set(CAST_NAME, a.name() + (a.interruptible() ? "|1" : "|0") + "|" + ticks + "|" + (now + ticks));
+        getNavigation().stop();
+        tell(Component.literal(type().name() + " готовит: ").withStyle(ChatFormatting.GOLD)
+                .append(Component.literal(a.name()).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD))
+                .append(Component.literal(a.interruptible() ? " — можно сбить оглушением!" : "").withStyle(ChatFormatting.AQUA)));
+        triggerAnim("main", "a_" + a.key());
+        int before = tasks.size();
+        a.start().accept(casting);
+        long last = now + ticks;
+        for (int i = before; i < tasks.size(); i++) last = Math.max(last, tasks.get(i).at);
+        // +0,5 с на удары, которые навык ставит изнутри своих задач (волны обвала и т. п.).
+        busyUntil = last + 10 + gapTicks();
+        sinceBreather++;
+        return true;
+    }
+
+    /**
+     * Передышка: хранитель выдыхается после серии приёмов — стоит, не бьёт и получает больше урона.
+     * Полоса подготовки показывает «Изнурён», чтобы отряд видел своё окно.
+     */
+    private void startBreather(long now) {
+        sinceBreather = 0;
+        int ticks = (int) Math.round(rhythm().breatherSeconds() * 20);
+        tiredUntil = now + ticks;
+        busyUntil = tiredUntil + gapTicks();
+        nextAuto = Math.max(nextAuto, tiredUntil + 10);
+        entityData.set(CAST_NAME, "Изнурён — бейте!|0|" + ticks + "|" + tiredUntil);
+        getNavigation().stop();
+        triggerAnim("main", "tired");
+        tell(Component.literal(type().name() + " выдохся — окно! Урон по нему +"
+                + Math.round(rhythm().breatherBonus() * 100) + "%.").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+        ServerLevel sl = (ServerLevel) level();
+        Fx.pillar(sl, position(), getBbWidth() * 0.7f, getBbHeight() + 1, ticks, 0x9CFFB0);
+        Fx.ring(sl, position(), getBbWidth() + 1.5f, ticks, 0x9CFFB0);
+        level().playSound(null, blockPosition(), SoundEvents.RAVAGER_STUNNED, SoundSource.HOSTILE, 1.2f, 0.8f);
+    }
+
+    private void endBreather() {
+        tiredUntil = 0;
+        entityData.set(CAST_NAME, "");
+        level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 0.8f, 1.1f);
+    }
+
+    /** До какого тика хранитель доигрывает приём и стоит паузу (тесты ритма). */
+    public long busyUntil() {
+        return busyUntil;
+    }
+
+    /** Хранитель в передышке (стенд, тесты, рамка). */
+    public boolean tired() {
+        return level().getGameTime() < tiredUntil;
     }
 
     /** Навыки хранителя (стенд и проверки). */
@@ -619,6 +712,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         tasks.removeIf(t -> t.castId == id);
         readyAt.put(casting.ability.key(), level().getGameTime() + Math.round(p(casting.ability.key() + "_cd") * 10));
         tell(Component.literal("Подготовка «" + casting.ability.name() + "» сорвана!").withStyle(ChatFormatting.AQUA));
+        busyUntil = level().getGameTime() + gapTicks();
         Fx.burst((ServerLevel) level(), position().add(0, getBbHeight() * 0.7, 0), 2.5f, 10, Fx.ARCANE);
         level().playSound(null, blockPosition(), SoundEvents.SHIELD_BREAK, SoundSource.HOSTILE, 1f, 0.8f);
         endCast();
@@ -717,6 +811,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             Fx.burst((ServerLevel) level(), position().add(0, getBbHeight() * 0.6, 0), 1.6f, 6, Fx.ARCANE);
             return false;
         }
+        if (tired()) amount *= (float) (1 + rhythm().breatherBonus());
         return super.hurt(source, amount);
     }
 
@@ -795,7 +890,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
                 .triggerableAnim("death", RawAnimation.begin().thenPlayAndHold(m + "death"))
                 .triggerableAnim("phase", RawAnimation.begin().thenPlay(m + "phase"))
                 .triggerableAnim("enrage", RawAnimation.begin().thenPlay(m + "enrage"))
-                .triggerableAnim("relocate", RawAnimation.begin().thenPlay(m + "relocate"));
+                .triggerableAnim("relocate", RawAnimation.begin().thenPlay(m + "relocate"))
+                .triggerableAnim("tired", RawAnimation.begin().thenPlay(m + "tired"));
         // У каждого навыка — своя анимация замаха длиной в его подготовку (tools/gen_models.py).
         for (Ability a : abilities()) main.triggerableAnim("a_" + a.key(), RawAnimation.begin().thenPlay(m + "a_" + a.key()));
         controllers.add(main);

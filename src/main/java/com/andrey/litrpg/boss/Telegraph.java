@@ -79,6 +79,27 @@ public final class Telegraph {
         });
     }
 
+    /**
+     * Выстрел по месту: круг под бойцом горит {@code c.ticks}, потом снаряд летит от хранителя в центр круга.
+     * Задевает тех, кто ещё в круге и кого хранитель видит — уйти можно шагом в сторону или за укрытие.
+     */
+    public static void shot(BossEntity.Cast c, Vec3 center, float radius, double units, int color) {
+        final float r = scale(radius);
+        final double dmg = units(c, units, r);
+        note(c, "circle", r);
+        Fx.disc(level(c), center, r, c.ticks, Fx.DANGER, true);
+        Fx.ring(level(c), center, r, c.ticks, color);
+        c.at(c.ticks, () -> {
+            BossEntity b = c.boss();
+            Vec3 from = b.position().add(0, b.getBbHeight() * 0.7, 0);
+            Fx.bolt(level(c), from, center.add(0, 0.6, 0), 0.18f, 6, color);
+            Fx.burst(level(c), center.add(0, 0.4, 0), r * 0.7f, 6, color);
+            for (ServerPlayer p : b.playersInArena()) {
+                if (flat(p.position(), center) <= r && b.hasLineOfSight(p)) BossDamage.hit(b, p, dmg);
+            }
+        });
+    }
+
     /** Кольцо: безопасно ближе {@code inner} (у хранителя) — остальным до {@code outer} достаётся. */
     public static void donut(BossEntity.Cast c, Vec3 center, float inner, float outer, double units) {
         final float out = scale(outer);

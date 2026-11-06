@@ -26,10 +26,11 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
      *                        сильно не бьют — такой удар только давит и даёт работу лекарю)
      * @param hpScale         множитель здоровья для отряда из 1…6 человек (рассчитано на троих = 1)
      * @param pressure        общее давление всех хранителей: волна по отряду и метка на бойце
+     * @param rhythm          ритм боя (фаза 13): пауза между навыками и передышки хранителя
      */
     public record Common(double enrageSeconds, double enrageMult, double resetSeconds, double autoAttackSeconds,
                          double telegraphScale, double dashReach, double chipUnits,
-                         List<Double> hpScale, Pressure pressure, Rush rush) {
+                         List<Double> hpScale, Pressure pressure, Rush rush, Rhythm rhythm) {
         static final Codec<Common> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("enrage_seconds").forGetter(Common::enrageSeconds),
                 Codec.DOUBLE.fieldOf("enrage_mult").forGetter(Common::enrageMult),
@@ -41,7 +42,8 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
                 Codec.DOUBLE.listOf().validate(l -> l.size() == 6 ? DataResult.success(l)
                         : DataResult.error(() -> "hp_scale: нужно 6 чисел (отряд 1…6)")).fieldOf("hp_scale").forGetter(Common::hpScale),
                 Pressure.CODEC.fieldOf("pressure").forGetter(Common::pressure),
-                Rush.CODEC.fieldOf("rush").forGetter(Common::rush)
+                Rush.CODEC.fieldOf("rush").forGetter(Common::rush),
+                Rhythm.CODEC.fieldOf("rhythm").forGetter(Common::rhythm)
         ).apply(i, Common::new));
 
         public double hpScale(int partySize) {
@@ -88,6 +90,25 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
         ).apply(i, Rush::new));
     }
 
+    /**
+     * Ритм боя (отзыв владельца 06.11.2026: «спам без остановки всем, чем только можно»). Хранитель делает
+     * один приём за раз: следующий навык начинается, только когда предыдущий доиграл до последнего удара,
+     * и ещё через {@code gapSeconds}. После каждых {@code breatherEvery} навыков — передышка: хранитель
+     * {@code breatherSeconds} секунд «Изнурён», не бьёт и получает на {@code breatherBonus} больше урона.
+     *
+     * @param pulseGapSeconds волна давления не накладывается на навык: ждёт конца приёма и ещё столько секунд
+     */
+    public record Rhythm(double gapSeconds, int breatherEvery, double breatherSeconds, double breatherBonus,
+                         double pulseGapSeconds) {
+        static final Codec<Rhythm> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.DOUBLE.fieldOf("gap_seconds").forGetter(Rhythm::gapSeconds),
+                Codec.INT.fieldOf("breather_every").forGetter(Rhythm::breatherEvery),
+                Codec.DOUBLE.fieldOf("breather_seconds").forGetter(Rhythm::breatherSeconds),
+                Codec.DOUBLE.fieldOf("breather_bonus").forGetter(Rhythm::breatherBonus),
+                Codec.DOUBLE.fieldOf("pulse_gap_seconds").forGetter(Rhythm::pulseGapSeconds)
+        ).apply(i, Rhythm::new));
+    }
+
     private static final Codec<Map<String, Map<String, Double>>> BOSSES =
             Codec.unboundedMap(Codec.STRING, Codec.unboundedMap(Codec.STRING, Codec.DOUBLE)).validate(m -> {
                 for (var e : m.entrySet()) {
@@ -111,8 +132,9 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
      */
     public static final Common DEFAULT_COMMON = new Common(60, 1.15, 6, 1.5, 1.35, 5.5, 0.22,
             List.of(0.4, 0.7, 1.0, 1.4, 1.8, 2.2),
-            new Pressure(9, 0.3, 14, 0.08, 6, 0.5, 3),
-            new Rush(3.2, 1.1, 4.5, 0.55, 5, 0.75));
+            new Pressure(12, 0.3, 16, 0.08, 6, 0.5, 3),
+            new Rush(6, 1.3, 4.5, 0.55, 5, 0.75),
+            new Rhythm(2.0, 4, 4.5, 0.3, 1.5));
 
     public static BossesBalance defaults() {
         return new BossesBalance(DEFAULT_COMMON, BossRegistry.defaultValues());

@@ -59,9 +59,52 @@ public final class BossTests {
             h.assertTrue(b.engaged(), "хранитель вступил в бой");
             h.assertTrue(b.getTarget() != null, "у хранителя есть цель (по угрозе)");
             double expected = b.p("hp_units") * BossDamage.unit(b.bossLevel())
-                    * Balance.get(Balance.BOSSES).common().hpScale(3);
+                    * Balance.get(Balance.BOSSES).common().hpScale(3) * BossDamage.earlyHp(b.bossLevel());
             h.assertTrue(b.partySize() == 3, "отряд трое, а " + b.partySize());
             h.assertTrue(Math.abs(b.getMaxHealth() - expected) < 1, "здоровье " + b.getMaxHealth() + " ≠ " + expected);
+            b.resetFight();
+            h.succeed();
+        });
+    }
+
+    /**
+     * Ритм (фаза 13): за 50 с боя хранитель не начинает навык, пока прошлый не доиграл и не прошла пауза;
+     * навыки идут по очереди (не один и тот же подряд), и после серии приходит передышка, когда по нему
+     * проходит больше урона.
+     */
+    @GameTest(template = "arena", timeoutTicks = 1100)
+    public static void bossKeepsRhythm(GameTestHelper h) {
+        ServerPlayer[] ps = {player(h, Role.TANK, 3.5, 3.5), player(h, Role.DAMAGE, 6.5, 2.5), player(h, Role.SUPPORT, 2.5, 6.5)};
+        for (ServerPlayer p : ps) {
+            p.addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.DAMAGE_RESISTANCE,
+                    1200, 4, false, false));
+        }
+        TrialWarden b = boss(h);
+        long[] lastBusy = {0};
+        java.util.List<String> casts = new java.util.ArrayList<>();
+        boolean[] wasCasting = {false}, sawTired = {false};
+        String[] bad = {null};
+        for (int t = 0; t < 1000; t++) {
+            h.runAfterDelay(t + 1, () -> {
+                for (ServerPlayer p : ps) p.setHealth(p.getMaxHealth());
+                long now = h.getLevel().getGameTime();
+                boolean casting = b.isCasting();
+                if (casting && !wasCasting[0]) {
+                    if (now < lastBusy[0] && bad[0] == null) bad[0] = "навык начался на " + (lastBusy[0] - now) + " тиков раньше конца прошлого";
+                    casts.add(b.castName().split("[|]")[0]);
+                }
+                wasCasting[0] = casting;
+                if (b.tired()) sawTired[0] = true;
+                lastBusy[0] = b.busyUntil();
+            });
+        }
+        h.runAfterDelay(1050, () -> {
+            h.assertTrue(bad[0] == null, String.valueOf(bad[0]));
+            h.assertTrue(casts.size() >= 4, "мало навыков за 50 с: " + casts);
+            for (int i = 1; i < casts.size(); i++) {
+                h.assertFalse(casts.get(i).equals(casts.get(i - 1)), "один навык дважды подряд: " + casts);
+            }
+            h.assertTrue(sawTired[0], "передышки не было: " + casts);
             b.resetFight();
             h.succeed();
         });
@@ -79,7 +122,7 @@ public final class BossTests {
             h.assertTrue(b.partySize() == 6, "отряд шесть, а " + b.partySize());
             var c = Balance.get(Balance.BOSSES).common();
             h.assertTrue(c.hpScale(6) > c.hpScale(5), "вшестером здоровья больше, чем впятером");
-            double expected = b.p("hp_units") * BossDamage.unit(b.bossLevel()) * c.hpScale(6);
+            double expected = b.p("hp_units") * BossDamage.unit(b.bossLevel()) * c.hpScale(6) * BossDamage.earlyHp(b.bossLevel());
             h.assertTrue(Math.abs(b.getMaxHealth() - expected) < 1, "здоровье " + b.getMaxHealth() + " ≠ " + expected);
             b.resetFight();
             all.add(player(h, roles[6], at[6][0], at[6][1]));
@@ -96,7 +139,8 @@ public final class BossTests {
         ServerPlayer tank = player(h, Role.TANK, 2.5, 2.5), dps = player(h, Role.DAMAGE, 6.5, 2.5);
         TrialWarden b = boss(h);
         h.runAfterDelay(AFTER_SPAWN, () -> {
-            double unit = BossDamage.unit(10);
+            // Удар хранителя уровня b — в «единицах» его уровня, смягчён на ранних этапах (earlyDamage).
+            double unit = BossDamage.unit(b.bossLevel()) * BossDamage.earlyDamage(b.bossLevel());
             float t0 = tank.getHealth(), d0 = dps.getHealth();
             BossDamage.hit(b, tank, 0.5);
             BossDamage.hit(b, dps, 0.5);
