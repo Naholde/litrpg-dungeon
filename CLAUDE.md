@@ -18,7 +18,7 @@
 - Проект: `C:\Users\arsen\litrpg-dungeon`. JDK 21: `C:\Users\arsen\.litrpg-tools\jdk-21.0.13+9`.
 - Сборка (bash): `export JAVA_HOME="C:/Users/arsen/.litrpg-tools/jdk-21.0.13+9"; ./gradlew.bat build` → `build/libs/litrpg-dungeon-<версия>.jar`.
 - Игровые тесты: `./gradlew.bat runGameTestServer` (то же делает GitHub Actions после push).
-- Dev-клиент: `bash tools/dev/prepare_run.sh` один раз, затем `./gradlew.bat runClient -Pquickplay=<мир>` или `-Pjoin=109.248.163.212:25565`.
+- Dev-клиент: `bash tools/dev/prepare_run.sh` один раз, затем `./gradlew.bat runClient -Pquickplay=<мир>` или `-Pjoin=95.182.99.124:25565`.
 - Перед новым запуском — убить java-процессы с `litrpg-dungeon` в командной строке.
 - Зависимости: GeckoLib и Curios (версии в `gradle.properties`); на сервер их кладёт `deploy.sh` из кэша Gradle.
   Тестовые игроки — только через `gametest/TestPlayers.create` (иначе Curios роняет вход).
@@ -31,7 +31,7 @@
   PvP на тестовом сервере выключен — `setPvpAllowed(true)`.
 
 ## Сервер (VPS hostvds, Ubuntu 24.04, 8 ядер, 16 ГБ, Москва-время)
-- `ssh -i ~/.ssh/litrpg_vps root@109.248.163.212` — только по ключу, пароль отключён; ufw: открыты 22 и 25565.
+- `ssh -i ~/.ssh/litrpg_vps root@95.182.99.124` — только по ключу, пароль отключён; ufw: открыты 22 и 25565.
 - Сервер: `/opt/litrpg/server`, служба `systemctl {start|stop|restart|status} litrpg`, пользователь `mc`.
 - Команды серверу: `mc-cmd <команда>` (RCON на localhost). Лог: `/opt/litrpg/server/logs/latest.log`.
 - Белый список (online-mode=false): `cd /opt/litrpg && sudo -u mc python3 whitelist.py add Ник`, затем `mc-cmd "whitelist reload"`.

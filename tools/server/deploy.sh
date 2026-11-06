@@ -3,7 +3,7 @@
 #   bash tools/server/deploy.sh            — сборка + установка
 #   bash tools/server/deploy.sh --no-build — только установка готового jar
 set -euo pipefail
-HOST="${LITRPG_HOST:-root@109.248.163.212}"
+HOST="${LITRPG_HOST:-root@95.182.99.124}"
 KEY="${LITRPG_KEY:-$HOME/.ssh/litrpg_vps}"
 cd "$(dirname "$0")/../.."
 
