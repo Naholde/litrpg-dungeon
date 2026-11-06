@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import com.andrey.litrpg.boss.Mechanics;
@@ -67,7 +68,9 @@ public class Vessa extends TwinSister {
             new Ability("Взгляд Вессы", "stare", 1, false, b -> true, this::stare),
             new Ability("Тёмное лечение", "mend", 0, true, b -> woundedSister() != null, this::mend),
             new Ability("Тёмная волна", "nova", 1, false, b -> !playersNear(6).isEmpty(), this::nova),
-            new Ability("Проклятие", "curse", 2, false, b -> true, this::curse));
+            new Ability("Проклятие", "curse", 2, false, b -> true, this::curse),
+            new Ability("Тёмные свечи", "candles", 1, false, b -> spawnedAlive().stream().noneMatch(e ->
+                    e.getType() == com.andrey.litrpg.core.ModEntities.DARK_CANDLE.get()), this::candles));
 
     @Override
     protected List<Ability> abilities() {
@@ -100,7 +103,7 @@ public class Vessa extends TwinSister {
     }
 
     private void nova(Cast c) {
-        Telegraph.circle(c, position(), 6, p("nova_units"));
+        Telegraph.circle(c, position(), 4.5f, p("nova_units"));
         triggerAnim("main", "cast");
     }
 
@@ -127,6 +130,43 @@ public class Vessa extends TwinSister {
     /** Взгляд Вессы */
     private void stare(Cast c) {
         Mechanics.gaze(c, (int) p("stare_seconds"), p("stare_angle"), p("stare_units"), 0x7A4ACF);
+    }
+
+
+    /**
+     * Тёмные свечи: по арене встают три свечи и, пока стоят, раз в {@code candles_every} секунд бьют
+     * ближайшего бойца тенью (круг под ним — уйти или разбить свечу). Свечи гаснут сами через
+     * {@code candles_seconds}. Весса тем временем ведёт бой дальше.
+     */
+    private void candles(Cast c) {
+        triggerAnim("main", "cast");
+        ServerLevel sl = (ServerLevel) level();
+        c.at(c.ticks, () -> {
+            tell(Component.literal("Весса зажгла тёмные свечи — разбейте их, пока они бьют тенью!").withStyle(ChatFormatting.DARK_PURPLE));
+            int life = (int) Math.round(p("candles_seconds") * 20);
+            int every = (int) Math.round(p("candles_every") * 20);
+            for (int i = 0; i < 3; i++) {
+                double a = random.nextDouble() * Math.PI * 2;
+                double r = arenaRadius() * (0.4 + random.nextDouble() * 0.4);
+                Vec3 at = home().add(Math.cos(a) * r, 0, Math.sin(a) * r);
+                var node = spawnNode(com.andrey.litrpg.core.ModEntities.DARK_CANDLE.get(), at, p("candles_hp_units"), "Тёмная свеча");
+                if (node == null) continue;
+                Fx.pillar(sl, at, 0.6f, 3, 20, 0x9B5CFF);
+                for (int t = every; t < life; t += every) {
+                    detached(t, () -> {
+                        if (!node.isAlive()) return;
+                        ServerPlayer near = playersInArena().stream()
+                                .min(java.util.Comparator.comparingDouble(p -> p.distanceToSqr(node))).orElse(null);
+                        if (near == null) return;
+                        Fx.beam(sl, node.position().add(0, 1.2, 0), near.position().add(0, 1, 0), 0.12f, 16, 0x9B5CFF);
+                        Telegraph.shot(testCast(20), near.position(), 1.4f, p("candles_units"), 0x9B5CFF);
+                    });
+                }
+                detached(life, () -> {
+                    if (node.isAlive()) node.discard();
+                });
+            }
+        });
     }
 
 }

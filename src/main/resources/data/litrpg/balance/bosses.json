@@ -11,11 +11,11 @@
     },
     "rush": {
       "units": 0.55,
-      "melee_radius": 5.0,
+      "melee_radius": 4.0,
       "melee_units": 0.75,
       "seconds": 6.0,
-      "warn": 1.3,
-      "radius": 4.5
+      "warn": 1.6,
+      "radius": 3.5
     },
     "rhythm": {
       "breather_seconds": 4.5,
@@ -74,7 +74,13 @@
       "threads_cd": 21.0,
       "threads_cast": 1.3,
       "threads_seconds": 8.0,
-      "threads_dist": 7.0
+      "threads_dist": 7.0,
+      "pounce_units": 0.7,
+      "pounce_cd": 16.0,
+      "pounce_cast": 1.5,
+      "venom_units": 0.45,
+      "venom_cd": 18.0,
+      "venom_cast": 1.2
     },
     "ash_lord": {
       "level": 40.0,
@@ -90,7 +96,7 @@
       "lava_units": 0.195,
       "lava_seconds": 16.0,
       "collapse_cd": 6.0,
-      "collapse_cast": 1.0,
+      "collapse_cast": 1.5,
       "duel_units": 0.75,
       "duel_seconds": 10.0,
       "duel_cut": 0.9,
@@ -98,7 +104,7 @@
       "ego_cast": 1.0,
       "erupt_units": 0.75,
       "erupt_cd": 4.0,
-      "erupt_cast": 1.0,
+      "erupt_cast": 1.4,
       "ashfall_units": 1.35,
       "ashfall_cd": 24.0,
       "ashfall_cast": 1.6,
@@ -113,7 +119,14 @@
       "closing_cd": 30.0,
       "closing_cast": 1.6,
       "closing_seconds": 10.0,
-      "closing_units": 0.4
+      "closing_units": 0.4,
+      "brand_seconds": 6.0,
+      "brand_units": 0.12,
+      "brand_cd": 20.0,
+      "brand_cast": 1.2,
+      "crown_units": 0.75,
+      "crown_cd": 22.0,
+      "crown_cast": 1.3
     },
     "chariot": {
       "level": 37.0,
@@ -124,7 +137,7 @@
       "charge_cast": 1.0,
       "ring_units": 0.9,
       "ring_cd": 7.0,
-      "ring_cast": 1.0,
+      "ring_cast": 1.5,
       "trail_units": 0.15,
       "trail_seconds": 9.0,
       "pit_seconds": 7.0,
@@ -141,7 +154,13 @@
       "firesweep_cd": 24.0,
       "firesweep_cast": 1.4,
       "firesweep_seconds": 6.0,
-      "firesweep_units": 0.32
+      "firesweep_units": 0.32,
+      "exhaust_units": 0.8,
+      "exhaust_cd": 12.0,
+      "exhaust_cast": 1.1,
+      "phantoms_units": 0.9,
+      "phantoms_cd": 22.0,
+      "phantoms_cast": 1.6
     },
     "chronophage": {
       "level": 47.0,
@@ -176,7 +195,15 @@
       "hand_cd": 24.0,
       "hand_cast": 1.4,
       "hand_seconds": 7.0,
-      "hand_units": 0.34
+      "hand_units": 0.34,
+      "echo_units": 0.65,
+      "echo_delay": 1.6,
+      "echo_cd": 15.0,
+      "echo_cast": 1.2,
+      "stasis_units": 0.08,
+      "stasis_seconds": 9.0,
+      "stasis_cd": 22.0,
+      "stasis_cast": 1.2
     },
     "doppel": {
       "level": 44.0,
@@ -206,7 +233,14 @@
       "glasswall_cd": 25.0,
       "glasswall_cast": 1.4,
       "glasswall_height": 3.0,
-      "glasswall_seconds": 10.0
+      "glasswall_seconds": 10.0,
+      "shards_units": 0.6,
+      "shards_count": 10.0,
+      "shards_cd": 16.0,
+      "shards_cast": 1.2,
+      "fan_units": 1.0,
+      "fan_cd": 14.0,
+      "fan_cast": 1.2
     },
     "gatekeeper": {
       "level": 4.0,
@@ -217,7 +251,7 @@
       "chain_cast": 1.0,
       "rampart_units": 0.55,
       "rampart_cd": 9.0,
-      "rampart_cast": 1.2,
+      "rampart_cast": 2.4,
       "call_cd": 12.0,
       "call_cast": 1.0,
       "shield_share": 0.08,
@@ -230,7 +264,15 @@
       "lunge_units": 0.9,
       "lunge_cd": 21.0,
       "lunge_cast": 1.4,
-      "lunge_push": 1.1
+      "lunge_push": 1.1,
+      "grip_units": 0.35,
+      "grip_pull": 1.5,
+      "grip_cd": 15.0,
+      "grip_cast": 1.3,
+      "walls_units": 0.45,
+      "walls_count": 4.0,
+      "walls_cd": 20.0,
+      "walls_cast": 1.5
     },
     "leviathan": {
       "level": 27.0,
@@ -241,7 +283,7 @@
       "bite_cast": 1.0,
       "tail_units": 0.9,
       "tail_cd": 6.0,
-      "tail_cast": 1.0,
+      "tail_cast": 1.6,
       "emerge_units": 1.2,
       "dive_cd": 10.0,
       "dive_cast": 1.0,
@@ -264,7 +306,15 @@
       "deluge_cd": 28.0,
       "deluge_cast": 1.6,
       "deluge_seconds": 12.0,
-      "deluge_units": 0.25
+      "deluge_units": 0.25,
+      "spout_units": 0.22,
+      "spout_seconds": 8.0,
+      "spout_cd": 20.0,
+      "spout_cast": 1.2,
+      "roar_units": 0.45,
+      "roar_silence": 2.5,
+      "roar_cd": 22.0,
+      "roar_cast": 2.2
     },
     "lich": {
       "level": 10.0,
@@ -275,7 +325,7 @@
       "scythe_cast": 1.0,
       "storm_units": 0.5,
       "storm_cd": 7.0,
-      "storm_cast": 1.0,
+      "storm_cast": 1.4,
       "tomb_units": 0.75,
       "tomb_seconds": 8.0,
       "tomb_hp_units": 1.0,
@@ -293,7 +343,16 @@
       "frost_cast": 1.6,
       "frost_waves": 3.0,
       "frost_safe": 4.0,
-      "frost_radius": 3.0
+      "frost_radius": 3.0,
+      "frostpath_units": 0.45,
+      "frostpath_speed": 7.0,
+      "frostpath_cd": 13.0,
+      "frostpath_cast": 1.2,
+      "blizzard_units": 0.12,
+      "blizzard_seconds": 6.0,
+      "blizzard_move": 1.5,
+      "blizzard_cd": 26.0,
+      "blizzard_cast": 1.4
     },
     "morena": {
       "level": 20.0,
@@ -311,7 +370,7 @@
       "cauldron_cast": 1.0,
       "inside_units": 0.7,
       "inside_cd": 10.0,
-      "inside_cast": 1.0,
+      "inside_cast": 2.4,
       "eye_units": 0.32,
       "eye_cd": 20.0,
       "eye_cast": 1.4,
@@ -326,7 +385,15 @@
       "grove_cast": 1.4,
       "grove_count": 6.0,
       "grove_height": 4.0,
-      "grove_seconds": 16.0
+      "grove_seconds": 16.0,
+      "evil_seconds": 4.0,
+      "evil_units": 0.15,
+      "evil_cd": 19.0,
+      "evil_cast": 1.2,
+      "dance_units": 0.35,
+      "dance_seconds": 7.0,
+      "dance_cd": 22.0,
+      "dance_cast": 1.3
     },
     "morra": {
       "level": 7.0,
@@ -350,7 +417,12 @@
       "waves_cd": 18.0,
       "waves_cast": 1.4,
       "waves_waves": 3.0,
-      "waves_gap": 70.0
+      "waves_gap": 70.0,
+      "souls_share": 0.025,
+      "souls_units": 0.06,
+      "souls_speed": 2.2,
+      "souls_cd": 22.0,
+      "souls_cast": 1.2
     },
     "naiad": {
       "level": 30.0,
@@ -387,7 +459,14 @@
       "coral_cast": 1.4,
       "coral_count": 7.0,
       "coral_height": 4.0,
-      "coral_seconds": 16.0
+      "coral_seconds": 16.0,
+      "spiral_units": 0.6,
+      "spiral_cd": 15.0,
+      "spiral_cast": 1.2,
+      "tears_share": 0.03,
+      "tears_units": 0.3,
+      "tears_cd": 24.0,
+      "tears_cast": 1.3
     },
     "rot_ent": {
       "level": 17.0,
@@ -398,7 +477,7 @@
       "slam_cast": 1.0,
       "roots_units": 0.5,
       "roots_cd": 7.0,
-      "roots_cast": 1.0,
+      "roots_cast": 1.3,
       "spore_units": 0.08,
       "spore_grow": 0.25,
       "spore_seconds": 26.0,
@@ -416,7 +495,16 @@
       "bind_cd": 22.0,
       "bind_cast": 1.3,
       "bind_seconds": 8.0,
-      "bind_dist": 6.0
+      "bind_dist": 6.0,
+      "fruit_hp_units": 0.55,
+      "fruit_seconds": 7.0,
+      "fruit_cd": 20.0,
+      "fruit_cast": 1.2,
+      "grasp_units": 0.8,
+      "grasp_pull": 0.07,
+      "grasp_seconds": 4.0,
+      "grasp_cd": 24.0,
+      "grasp_cast": 1.2
     },
     "smelter": {
       "level": 34.0,
@@ -452,7 +540,15 @@
       "castwall_cd": 26.0,
       "castwall_cast": 1.4,
       "castwall_height": 3.0,
-      "castwall_seconds": 10.0
+      "castwall_seconds": 10.0,
+      "anvils_units": 0.8,
+      "anvils_cd": 16.0,
+      "anvils_cast": 1.2,
+      "ingot_units": 0.9,
+      "ingot_seconds": 5.0,
+      "ingot_passes": 3.0,
+      "ingot_cd": 26.0,
+      "ingot_cast": 1.2
     },
     "tide_warden": {
       "level": 24.0,
@@ -470,7 +566,7 @@
       "whirl_cast": 1.0,
       "bubble_units": 0.75,
       "bubbles_cd": 6.0,
-      "bubbles_cast": 1.0,
+      "bubbles_cast": 1.3,
       "salvo_units": 0.75,
       "salvo_cd": 17.0,
       "salvo_cast": 1.3,
@@ -484,7 +580,14 @@
       "columns_cast": 1.4,
       "columns_count": 6.0,
       "columns_height": 4.0,
-      "columns_seconds": 18.0
+      "columns_seconds": 18.0,
+      "spray_units": 0.6,
+      "spray_cd": 14.0,
+      "spray_cast": 1.1,
+      "backlash_units": 0.9,
+      "backlash_push": 1.3,
+      "backlash_cd": 20.0,
+      "backlash_cast": 1.5
     },
     "trial_warden": {
       "level": 10.0,
@@ -526,7 +629,7 @@
       "curse_cast": 1.0,
       "nova_units": 0.5,
       "nova_cd": 9.0,
-      "nova_cast": 1.1,
+      "nova_cast": 1.8,
       "creep_units": 0.85,
       "creep_cd": 19.0,
       "creep_cast": 1.3,
@@ -536,7 +639,13 @@
       "stare_cd": 22.0,
       "stare_cast": 1.4,
       "stare_seconds": 5.0,
-      "stare_angle": 80.0
+      "stare_angle": 80.0,
+      "candles_units": 0.25,
+      "candles_hp_units": 0.5,
+      "candles_seconds": 16.0,
+      "candles_every": 3.0,
+      "candles_cd": 26.0,
+      "candles_cast": 1.3
     },
     "xalathar": {
       "level": 50.0,
@@ -554,7 +663,7 @@
       "edge_units": 1.05,
       "void_units": 0.75,
       "edge_cd": 12.0,
-      "edge_cast": 1.1,
+      "edge_cast": 1.8,
       "end_units": 0.27,
       "end_period": 10.0,
       "voidfall_units": 1.425,
@@ -575,7 +684,16 @@
       "pillars_cast": 1.4,
       "pillars_count": 6.0,
       "pillars_height": 4.0,
-      "pillars_seconds": 16.0
+      "pillars_seconds": 16.0,
+      "maw_units": 1.0,
+      "maw_cd": 16.0,
+      "maw_cast": 1.5,
+      "eyes_units": 0.5,
+      "eyes_hp_units": 0.8,
+      "eyes_seconds": 18.0,
+      "eyes_every": 3.0,
+      "eyes_cd": 28.0,
+      "eyes_cast": 1.3
     }
   }
 }

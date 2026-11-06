@@ -2,6 +2,7 @@ package com.andrey.litrpg.boss.stage1;
 
 import com.andrey.litrpg.boss.BossRegistry;
 import com.andrey.litrpg.boss.Telegraph;
+import com.andrey.litrpg.fx.Fx;
 import com.andrey.litrpg.core.ModEntities;
 import com.andrey.litrpg.gear.LootService;
 import net.minecraft.ChatFormatting;
@@ -59,7 +60,8 @@ public class Morra extends TwinSister {
             new Ability("Сестринская нить", "bond", 0, false, b -> true, this::bond),
             new Ability("Волны косы", "waves", 1, false, b -> true, this::waves),
             new Ability("Костяные копья", "spears", 1, false, b -> true, this::spears),
-            new Ability("Жатва", "reap", 2, false, b -> b.getTarget() != null, this::reap));
+            new Ability("Жатва", "reap", 2, false, b -> b.getTarget() != null, this::reap),
+            new Ability("Рой душ", "souls", 1, false, b -> sister() != null && !sister().fallen(), this::souls));
 
     @Override
     protected List<Ability> abilities() {
@@ -109,4 +111,52 @@ public class Morra extends TwinSister {
         Mechanics.rings(c, (int) p("waves_waves"), p("waves_units"), p("waves_gap"), 0xB0001A);
     }
 
+
+    /**
+     * Рой душ: с края арены к Вессе плывут души. Дошла — Весса лечится; бойцы перехватывают души, встав
+     * на пути (лопаются о бойца, слегка обжигают).
+     */
+    private void souls(Cast c) {
+        TwinSister target = sister();
+        if (target == null) return;
+        triggerAnim("main", "cast");
+        tell(Component.literal("Морра зовёт души к сестре — перехватите их, встав на пути!").withStyle(ChatFormatting.LIGHT_PURPLE));
+        ServerLevel sl = (ServerLevel) level();
+        int n = 3 + partySize() / 2;
+        Vec3[] pos = new Vec3[n];
+        boolean[] gone = new boolean[n];
+        double base = random.nextDouble() * Math.PI * 2;
+        for (int i = 0; i < n; i++) {
+            double a = base + Math.PI * 2 * i / n;
+            pos[i] = home().add(Math.cos(a) * (arenaRadius() - 1), 0, Math.sin(a) * (arenaRadius() - 1));
+            Fx.orb(sl, pos[i].add(0, 1, 0), 0.5f, c.ticks, 0xB98CFF);
+        }
+        com.andrey.litrpg.boss.Telegraph.note(c, "intercept", 0);
+        double step = p("souls_speed") / 10;
+        for (int t = 0; t < 90; t++) {
+            c.at(c.ticks + t * 2, () -> {
+                if (!target.isAlive() || target.fallen()) return;
+                for (int i = 0; i < n; i++) {
+                    if (gone[i]) continue;
+                    Vec3 to = target.position().subtract(pos[i]).multiply(1, 0, 1);
+                    if (to.length() < 1.5) {
+                        gone[i] = true;
+                        target.heal((float) (target.getMaxHealth() * p("souls_share")));
+                        Fx.beam(sl, pos[i].add(0, 1, 0), target.position().add(0, 1.5, 0), 0.2f, 10, 0xB98CFF);
+                        continue;
+                    }
+                    pos[i] = pos[i].add(to.normalize().scale(step));
+                    Fx.orb(sl, pos[i].add(0, 1, 0), 0.45f, 3, 0xB98CFF);
+                    for (ServerPlayer p : playersInArena()) {
+                        if (p.position().distanceTo(pos[i]) > 1.3) continue;
+                        gone[i] = true;
+                        com.andrey.litrpg.boss.BossDamage.hit(this, p, p("souls_units"));
+                        Fx.burst(sl, pos[i].add(0, 1, 0), 0.8f, 8, 0xB98CFF);
+                        sl.playSound(null, p.blockPosition(), SoundEvents.SOUL_ESCAPE.value(), SoundSource.HOSTILE, 1.2f, 1.2f);
+                        break;
+                    }
+                }
+            });
+        }
+    }
 }

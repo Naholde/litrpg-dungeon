@@ -61,6 +61,8 @@ public class Chariot extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Огненный след", "firesweep", 0, false, b -> true, this::firesweep),
+            new Ability("Призрачный обгон", "phantoms", 0, false, b -> !stopped && laps >= 2, this::phantoms),
+            new Ability("Пламенный выхлоп", "exhaust", 1, false, b -> !stopped && b.getTarget() != null, this::exhaust),
             new Ability("Круги колёс", "wheels", 0, false, b -> true, this::wheels),
             new Ability("Затоптать", "trample", 1, false, b -> true, this::trample),
             new Ability("Разгон", "charge", 1, false, b -> !stopped, this::charge),
@@ -172,4 +174,47 @@ public class Chariot extends BossEntity {
         MapMechanics.sweep(c, (int) p("firesweep_seconds"), p("firesweep_units"), getRandom().nextBoolean(), 0xFF9A4A);
     }
 
+
+    /** Пламя: искры, дым, угли. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, 0xFF6A1A);
+        Fx.spiral(sl, at, radius * 0.4f, 2.2f, 10, 0xFFC14A);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.FLAME, at.x, at.y + 0.4, at.z,
+                Math.round(10 + radius * 4), radius * 0.4, 0.3, radius * 0.4, 0.04);
+    }
+
+    /** Пламенный выхлоп: за колесницей вырывается пламя — кто стоит сзади, тому достаётся. */
+    private void exhaust(Cast c) {
+        Vec3 back = position().subtract(c.target.position()).multiply(1, 0, 1);
+        if (back.lengthSqr() < 0.01) back = new Vec3(1, 0, 0);
+        Telegraph.cone(c, position(), back, 9, 70, p("exhaust_units"));
+        level().playSound(null, blockPosition(), SoundEvents.BLAZE_SHOOT, SoundSource.HOSTILE, 1.6f, 0.6f);
+    }
+
+    /**
+     * Призрачный обгон (со второго круга): по арене несутся призрачные колесницы — четыре полосы поперёк,
+     * между ними просветы. Встаньте в просвет.
+     */
+    private void phantoms(Cast c) {
+        tell(Component.literal("Призрачный обгон! Встаньте в просвет между полосами.").withStyle(ChatFormatting.GOLD));
+        ServerLevel sl = (ServerLevel) level();
+        double a = random.nextDouble() * Math.PI;
+        Vec3 dir = new Vec3(Math.cos(a), 0, Math.sin(a));
+        Vec3 side = new Vec3(-Math.sin(a), 0, Math.cos(a));
+        double len = arenaRadius() + 2;
+        double shift = (random.nextDouble() - 0.5) * 3;
+        for (int i = 0; i < 4; i++) {
+            double off = -9 + i * 6 + shift;
+            Vec3 mid = home().add(side.scale(off));
+            Vec3 from = mid.subtract(dir.scale(len)), to = mid.add(dir.scale(len));
+            Cast lane = testCast(c.ticks + (i % 2) * 8);
+            Telegraph.line(lane, from, to, 3.0f, p("phantoms_units"));
+            lane.at(lane.ticks, () -> {
+                Fx.bolt(sl, from.add(0, 1, 0), to.add(0, 1, 0), 0.5f, 8, 0xFFB070);
+                sl.playSound(null, net.minecraft.core.BlockPos.containing(mid), SoundEvents.HORSE_GALLOP, SoundSource.HOSTILE, 2f, 0.6f);
+            });
+        }
+    }
 }

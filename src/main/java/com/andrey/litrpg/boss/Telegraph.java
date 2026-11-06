@@ -23,7 +23,7 @@ public final class Telegraph {
     /** Проверка «от всего можно уйти» (стенд фазы 12): сюда пишется каждая разметка — фигура, размер, время. */
     public static java.util.function.BiConsumer<BossEntity.Cast, String> audit;
 
-    private static void note(BossEntity.Cast c, String shape, double size) {
+    public static void note(BossEntity.Cast c, String shape, double size) {
         if (audit != null) audit.accept(c, shape + ";" + String.format(java.util.Locale.ROOT, "%.1f", size) + ";" + c.ticks);
     }
 
@@ -68,6 +68,7 @@ public final class Telegraph {
         final double dmg = units(c, units, r);
         note(c, "circle", r);
         Fx.disc(level(c), center, r, c.ticks, Fx.DANGER, true);
+        Fx.ring(level(c), center, r, c.ticks, c.boss().element());
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
                 if (flat(p.position(), center) <= r) {
@@ -75,7 +76,7 @@ public final class Telegraph {
                     if (extra != null && p.isAlive()) extra.accept(p);
                 }
             }
-            Fx.burst(level(c), center.add(0, 0.5, 0), r * 0.8f, 8, Fx.DANGER);
+            c.boss().impact(center, r);
         });
     }
 
@@ -93,7 +94,7 @@ public final class Telegraph {
             BossEntity b = c.boss();
             Vec3 from = b.position().add(0, b.getBbHeight() * 0.7, 0);
             Fx.bolt(level(c), from, center.add(0, 0.6, 0), 0.18f, 6, color);
-            Fx.burst(level(c), center.add(0, 0.4, 0), r * 0.7f, 6, color);
+            b.impact(center, r * 0.8f);
             for (ServerPlayer p : b.playersInArena()) {
                 if (flat(p.position(), center) <= r && b.hasLineOfSight(p)) BossDamage.hit(b, p, dmg);
             }
@@ -106,12 +107,18 @@ public final class Telegraph {
         final double dmg = units(c, units, (out - inner) / 2.0);
         note(c, "donut", (out - inner) / 2.0);
         Fx.donut(level(c), center, inner, out, c.ticks, Fx.DANGER, true);
+        Fx.ring(level(c), center, inner, c.ticks, 0x7BF5A0);
         c.at(c.ticks, () -> {
             for (ServerPlayer p : c.boss().playersInArena()) {
                 double d = flat(p.position(), center);
                 if (d >= inner && d <= out) BossDamage.hit(c.boss(), p, dmg);
             }
-            Fx.ring(level(c), center, out, 12, Fx.DANGER);
+            Fx.wave(level(c), center, out, 1.4f, 12, c.boss().element());
+            for (int i = 0; i < 6; i++) {
+                double a = Math.PI * 2 * i / 6;
+                double rr = (inner + out) / 2;
+                c.boss().impact(center.add(Math.cos(a) * rr, 0, Math.sin(a) * rr), 1.5f);
+            }
         });
     }
 
@@ -132,6 +139,7 @@ public final class Telegraph {
                     BossDamage.hit(c.boss(), p, dmg);
                 }
             }
+            c.boss().impact(origin.add(d.scale(r * 0.55)), r * 0.45f);
         });
     }
 
@@ -149,6 +157,7 @@ public final class Telegraph {
             Vec3 ab = to.subtract(from).multiply(1, 0, 1);
             double len = ab.length();
             Vec3 n = ab.normalize();
+            for (int i = 1; i <= 3; i++) c.boss().impact(from.add(n.scale(len * i / 4)), w * 0.7f);
             for (ServerPlayer p : c.boss().playersInArena()) {
                 Vec3 ap = p.position().subtract(from).multiply(1, 0, 1);
                 double along = ap.dot(n);

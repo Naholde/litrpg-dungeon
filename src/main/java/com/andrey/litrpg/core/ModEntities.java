@@ -90,6 +90,9 @@ public final class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> COCOON = node("cocoon", 1.2f, 2.4f);
     public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> EGG = node("egg", 0.9f, 1.0f);
     public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> HOURGLASS = node("hourglass", 1.0f, 2.2f);
+    public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> VOID_EYE = node("void_eye", 1.0f, 2.2f);
+    public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> ROT_FRUIT = node("rot_fruit", 0.9f, 1.1f);
+    public static final DeferredHolder<EntityType<?>, EntityType<PowerNode>> DARK_CANDLE = node("dark_candle", 0.6f, 1.4f);
 
     private static <T extends BossEntity> DeferredHolder<EntityType<?>, EntityType<T>> boss(String id, EntityType.EntityFactory<T> f,
                                                                                          float w, float h) {

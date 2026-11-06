@@ -139,6 +139,14 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
      */
     private long busyUntil, tiredUntil;
     private int sinceBreather;
+    /**
+     * Чей приём сейчас идёт: номер подготовки последнего навыка и связанных с ним «проверочных» разметок
+     * (залп, цепи из стен). Задача, поставленная изнутри такого приёма (даже вложенная — волна обвала через
+     * 1,7 с после своей разметки), продлевает занятость хранителя — новый навык не ляжет поверх.
+     */
+    private int activeAbility = -1, runningCast = -1;
+    private Ability activeRef;
+    private final java.util.Set<Integer> linked = new java.util.HashSet<>();
     private int partySize = 3;
     private int phase;
     private int enrageStage;
@@ -451,6 +459,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         busyUntil = 0;
         tiredUntil = 0;
         sinceBreather = 0;
+        activeAbility = -1;
+        linked.clear();
         entityData.set(CAST_NAME, "");
         entityData.set(SHIELDED, false);
         removeSpawned();
@@ -640,12 +650,16 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
                 .append(Component.literal(a.name()).withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD))
                 .append(Component.literal(a.interruptible() ? " — можно сбить оглушением!" : "").withStyle(ChatFormatting.AQUA)));
         triggerAnim("main", "a_" + a.key());
-        int before = tasks.size();
-        a.start().accept(casting);
-        long last = now + ticks;
-        for (int i = before; i < tasks.size(); i++) last = Math.max(last, tasks.get(i).at);
-        // +0,5 с на удары, которые навык ставит изнутри своих задач (волны обвала и т. п.).
-        busyUntil = last + 10 + gapTicks();
+        activeAbility = casting.id;
+        activeRef = a;
+        linked.clear();
+        busyUntil = now + ticks + gapTicks();
+        runningCast = casting.id;
+        try {
+            a.start().accept(casting);
+        } finally {
+            runningCast = -1;
+        }
         sinceBreather++;
         return true;
     }
@@ -677,6 +691,24 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 0.8f, 1.1f);
     }
 
+    /** Цвет стихии хранителя (фаза 13): обводка его разметки и вспышка удара. */
+    public int element() {
+        BossGuide.Pressure pr = BossGuide.pressure(type().id());
+        return pr != null ? pr.color() : Fx.DANGER;
+    }
+
+    /**
+     * Как выглядит удар хранителя по месту: вспышка, осколки и пыль его стихии. Хранители переопределяют —
+     * у Привратника летят кости, у Карна лёд, у Древня споры.
+     */
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        int col = element();
+        Fx.burst(sl, at.add(0, 0.4, 0), radius * 0.8f, 8, col);
+        Fx.shards(sl, at.add(0, 0.3, 0), radius, Math.max(4, Math.round(radius * 3)), 12, col);
+        Fx.dust(sl, at.add(0, 0.5, 0), col, Math.round(6 + radius * 4), radius * 0.5, 0.05, 1.2f);
+    }
+
     /** До какого тика хранитель доигрывает приём и стоит паузу (тесты ритма). */
     public long busyUntil() {
         return busyUntil;
@@ -697,7 +729,15 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         long now = level().getGameTime();
         int ticks = (int) Math.round(p(a.key() + "_cast") * 20);
         casting = new Cast(a, getTarget(), ticks, ++castCounter, now + ticks);
-        a.start().accept(casting);
+        activeAbility = casting.id;
+        activeRef = a;
+        linked.clear();
+        runningCast = casting.id;
+        try {
+            a.start().accept(casting);
+        } finally {
+            runningCast = -1;
+        }
     }
 
     private void endCast() {
@@ -719,11 +759,24 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     }
 
     public void schedule(int delay, int castId, Runnable r) {
-        tasks.add(new Task(level().getGameTime() + delay, castId, r));
+        if (castId == -1) castId = runningCast;
+        long at = level().getGameTime() + delay;
+        tasks.add(new Task(at, castId, r));
+        if (castId >= 0 && (castId == activeAbility || linked.contains(castId))) {
+            busyUntil = Math.max(busyUntil, at + 10 + gapTicks());
+        }
     }
 
     public void schedule(int delay, Runnable r) {
         schedule(delay, -1, r);
+    }
+
+    /**
+     * Задача, не продлевающая приём: живёт сама (свечи стреляют, пока стоят), хранитель тем временем ведёт
+     * бой дальше. Срыв подготовки её не отменяет.
+     */
+    public void detached(int delay, Runnable r) {
+        schedule(delay, -2, r);
     }
 
     private void runTasks(long now) {
@@ -735,7 +788,15 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
                 it.remove();
             }
         }
-        for (Task t : due) if (isAlive() && engaged) t.run.run();
+        for (Task t : due) {
+            if (!isAlive() || !engaged) continue;
+            runningCast = t.castId;
+            try {
+                t.run.run();
+            } finally {
+                runningCast = -1;
+            }
+        }
     }
 
     // ------------------------------------------------------------------ движение и обычный удар
@@ -1048,7 +1109,12 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     public Cast testCast(int ticks) {
         Ability none = new Ability("Проверка", "test", 99, false, b -> false, c -> {
         });
-        return new Cast(none, getTarget(), ticks, ++castCounter, level().getGameTime() + ticks);
+        boolean inside = runningCast >= 0 && (runningCast == activeAbility || linked.contains(runningCast));
+        // Разметка, поставленная изнутри приёма, — часть приёма: занятость ждёт и её, проверка пишет её под его именем.
+        Cast c = new Cast(inside && activeRef != null ? activeRef : none, getTarget(), ticks, ++castCounter,
+                level().getGameTime() + ticks);
+        if (inside) linked.add(c.id);
+        return c;
     }
 
     public boolean isCasting() {

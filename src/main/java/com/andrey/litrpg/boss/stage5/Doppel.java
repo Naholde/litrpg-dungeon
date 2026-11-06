@@ -58,6 +58,8 @@ public class Doppel extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Подмена мест", "places", 0, false, b -> true, this::places),
+            new Ability("Зеркальный веер", "fan", 1, false, b -> b.phase() >= 1 && b.getTarget() != null, this::fan),
+            new Ability("Осколки зеркала", "shards", 1, false, b -> true, this::glassShards),
             new Ability("Зеркальная стена", "glasswall", 0, false, b -> true, this::glasswall),
             new Ability("Отражённая связь", "link", 0, false, b -> true, this::link),
             new Ability("Залп отражений", "copies", 1, false, b -> true, this::copies),
@@ -173,4 +175,42 @@ public class Doppel extends BossEntity {
         MapMechanics.wall(c, (int) p("glasswall_height"), (int) p("glasswall_seconds"), Blocks.GLASS.defaultBlockState(), 0xD6F3FF);
     }
 
+
+    /** Зеркало: стеклянные осколки и холодные блики. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.shards(sl, at.add(0, 0.4, 0), radius, Math.max(6, Math.round(radius * 4)), 16, 0xA8F0FF);
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.6f, 8, 0xFFFFFF);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.END_ROD, at.x, at.y + 0.5, at.z,
+                Math.round(6 + radius * 2), radius * 0.4, 0.3, radius * 0.4, 0.03);
+    }
+
+    /** Осколки зеркала: с потолка один за другим сыплются осколки — круги загораются по очереди, смотрите под ноги. */
+    private void glassShards(Cast c) {
+        triggerAnim("main", "cast");
+        tell(Component.literal("Зеркальный потолок трескается — осколки!").withStyle(ChatFormatting.AQUA));
+        int n = (int) p("shards_count") + partySize();
+        List<ServerPlayer> all = playersInArena();
+        for (int i = 0; i < n; i++) {
+            Vec3 at;
+            if (i % 3 == 0 && !all.isEmpty()) {
+                at = all.get(random.nextInt(all.size())).position();
+            } else {
+                double a = random.nextDouble() * Math.PI * 2, r = Math.sqrt(random.nextDouble()) * (arenaRadius() - 1);
+                at = home().add(Math.cos(a) * r, 0, Math.sin(a) * r);
+            }
+            Telegraph.circle(testCast(c.ticks + i * 5), at, 1.7f, p("shards_units"));
+        }
+        level().playSound(null, blockPosition(), SoundEvents.GLASS_BREAK, SoundSource.HOSTILE, 2f, 0.6f);
+    }
+
+    /** Зеркальный веер (с 80%): удар конусом по танку — и его отражение за спиной Двойника. Стойте сбоку. */
+    private void fan(Cast c) {
+        Vec3 dir = c.target.position().subtract(position()).multiply(1, 0, 1);
+        Telegraph.cone(c, position(), dir, 9, 70, p("fan_units"));
+        Telegraph.cone(c, position(), dir.scale(-1), 9, 70, p("fan_units"));
+        schedule(c.ticks - 8, () -> triggerAnim("main", "attack"));
+        level().playSound(null, blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 2f, 0.6f);
+    }
 }

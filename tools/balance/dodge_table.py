@@ -32,6 +32,10 @@ for f in sorted(glob.glob(os.path.join(ROOT, 'boss_*.txt'))):
         seen.add(sig)
         if shape == 'soak':
             verdict = 'встать вместе'
+        elif shape == 'move':
+            verdict = 'двигаться'
+        elif shape == 'intercept':
+            verdict = 'перехватить'
         else:
             need = REACT + size / SPEED
             need_dash = REACT + max(0.0, size - DASH) / SPEED

@@ -56,6 +56,8 @@ public class Smelter extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Расплав", "molten", 0, false, b -> true, this::molten),
+            new Ability("Раскалённый слиток", "ingot", 0, false, b -> b.phase() >= 1 && b.playersInArena().size() > 1 && !hasIngot(), this::ingot),
+            new Ability("Наковальни", "anvils", 1, false, b -> true, this::anvils),
             new Ability("Литейная стена", "castwall", 0, false, b -> true, this::castwall),
             new Ability("Сноп искр", "sparks", 0, false, b -> true, this::sparks),
             new Ability("Реки металла", "rivers", 1, false, b -> true, this::rivers),
@@ -92,6 +94,7 @@ public class Smelter extends BossEntity {
     @Override
     public void tick() {
         super.tick();
+        if (!level().isClientSide) tickIngot();
         if (level().isClientSide || !engaged() || tickCount % 40 != 0) return;
         ServerLevel sl = (ServerLevel) level();
         int max = (int) Math.round(p("heat_max"));
@@ -130,6 +133,16 @@ public class Smelter extends BossEntity {
         level().playSound(null, p.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1f, 1.2f);
         tell(Component.literal(p.getGameProfile().getName() + " перегрелся — расплав!").withStyle(ChatFormatting.RED));
     }
+
+    /** Раскалённый слиток: у кого он сейчас, до какого тика, сколько раз уже передан. */
+    private java.util.UUID ingot;
+
+    private boolean hasIngot() {
+        return ingot != null;
+    }
+
+    private long ingotUntil, ingotPassAt;
+    private int ingotPasses;
 
     @Override
     protected void onPhase(int phase) {
@@ -172,4 +185,95 @@ public class Smelter extends BossEntity {
         MapMechanics.wall(c, (int) p("castwall_height"), (int) p("castwall_seconds"), Blocks.BLACKSTONE.defaultBlockState(), 0xE05A2A);
     }
 
+
+    /** Металл: искры, окалина, раскалённые брызги. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, 0xFF8A3D);
+        Fx.shards(sl, at.add(0, 0.2, 0), radius, Math.max(5, Math.round(radius * 3)), 14, 0x6E6A66);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.LAVA, at.x, at.y + 0.4, at.z,
+                Math.round(4 + radius * 2), radius * 0.4, 0.2, radius * 0.4, 0.1);
+    }
+
+    /** Наковальни: три наковальни падают одна за другой, шагая к дальнему бойцу, — уходите вбок, не вдоль. */
+    private void anvils(Cast c) {
+        ServerPlayer far = playersByDistance().isEmpty() ? null : playersByDistance().get(playersByDistance().size() - 1);
+        if (far == null) return;
+        triggerAnim("main", "cast");
+        Vec3 dir = far.position().subtract(position()).multiply(1, 0, 1).normalize();
+        ServerLevel sl = (ServerLevel) level();
+        for (int i = 0; i < 3; i++) {
+            Vec3 at = position().add(dir.scale(5 + i * 4.5));
+            Cast fall = testCast(c.ticks + i * 12);
+            Fx.pillar(sl, at, 0.9f, 8, fall.ticks, 0x6E6A66);
+            Telegraph.circle(fall, at, 2.6f, p("anvils_units"));
+            fall.at(fall.ticks, () -> sl.playSound(null, net.minecraft.core.BlockPos.containing(at), SoundEvents.ANVIL_LAND,
+                    SoundSource.HOSTILE, 1.4f, 0.7f));
+        }
+    }
+
+    /**
+     * Раскалённый слиток (с 66%): слиток у бойца; через {@code ingot_seconds} он взрывается в руках.
+     * Подойдите к союзнику вплотную — слиток перейдёт к нему, и счёт начнётся заново. После
+     * {@code ingot_passes} передач слиток остывает.
+     */
+    private void ingot(Cast c) {
+        ServerPlayer p = randomNonTarget();
+        if (p == null) return;
+        triggerAnim("main", "cast");
+        Telegraph.note(c, "pass", 0);
+        Fx.beam((ServerLevel) level(), this, p, 0.25f, c.ticks, 0xFF8A3D);
+        c.at(c.ticks, () -> {
+            if (!p.isAlive()) return;
+            ingot = p.getUUID();
+            ingotPasses = 0;
+            ingotUntil = level().getGameTime() + Math.round(p("ingot_seconds") * 20);
+            ingotPassAt = level().getGameTime() + 20;
+            tell(Component.literal("У " + p.getGameProfile().getName() + " раскалённый слиток — передайте его, подойдя вплотную к союзнику!")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+        });
+    }
+
+    private void tickIngot() {
+        if (ingot == null || !(level() instanceof ServerLevel sl)) return;
+        ServerPlayer holder = getServer().getPlayerList().getPlayer(ingot);
+        long now = level().getGameTime();
+        if (holder == null || !holder.isAlive() || holder.isSpectator() || !engaged()) {
+            ingot = null;
+            return;
+        }
+        if (now % 4 == 0) Fx.orbOn(sl, holder, 0.5f, 5, 0xFF8A3D);
+        if (now % 20 == 0) {
+            holder.displayClientMessage(Component.literal("Слиток взорвётся через " + Math.max(0, (ingotUntil - now) / 20) + " с — к союзнику!")
+                    .withStyle(ChatFormatting.GOLD), true);
+        }
+        if (now >= ingotPassAt) {
+            for (ServerPlayer o : playersInArena()) {
+                if (o == holder || o.distanceTo(holder) > 2.2) continue;
+                ingotPasses++;
+                Fx.beam(sl, holder.position().add(0, 1, 0), o.position().add(0, 1, 0), 0.2f, 10, 0xFF8A3D);
+                if (ingotPasses >= (int) p("ingot_passes")) {
+                    ingot = null;
+                    tell(Component.literal("Слиток остыл.").withStyle(ChatFormatting.GREEN));
+                    sl.playSound(null, o.blockPosition(), SoundEvents.FIRE_EXTINGUISH, SoundSource.HOSTILE, 1.2f, 1f);
+                    return;
+                }
+                ingot = o.getUUID();
+                ingotUntil = now + Math.round(p("ingot_seconds") * 20);
+                ingotPassAt = now + 20;
+                sl.playSound(null, o.blockPosition(), SoundEvents.ANVIL_PLACE, SoundSource.HOSTILE, 0.8f, 1.6f);
+                return;
+            }
+        }
+        if (now >= ingotUntil) {
+            ingot = null;
+            com.andrey.litrpg.boss.BossDamage.hit(this, holder, p("ingot_units"));
+            for (ServerPlayer o : playersInArena()) {
+                if (o != holder && o.distanceTo(holder) <= 3) com.andrey.litrpg.boss.BossDamage.hit(this, o, p("ingot_units") * 0.4);
+            }
+            impact(holder.position(), 3);
+            sl.playSound(null, holder.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1.2f, 1.2f);
+        }
+    }
 }

@@ -62,6 +62,8 @@ public class AshLord extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Пепельные жилы", "veins", 0, false, b -> true, this::veins),
+            new Ability("Пепельная корона", "crown", 0, false, b -> relocated() || b.getHealth() < b.getMaxHealth() * 0.6, this::crown),
+            new Ability("Клеймо пепла", "brand", 1, false, b -> duelist == null && b.playersInArena().size() > 1, this::brand),
             new Ability("Пепел сужает круг", "closing", 0, false, b -> true, this::closing),
             new Ability("Пепельный обвал", "ashfall", 0, false, b -> true, this::ashfall),
             new Ability("Эго", "ego", 0, false, b -> b.playersInArena().size() > 1 && duelist == null, this::ego),
@@ -170,4 +172,65 @@ public class AshLord extends BossEntity {
         MapMechanics.shrink(c, (int) p("closing_seconds"), p("closing_units"), 0x8A3A2A);
     }
 
+
+    /** Пепел: угли, серые хлопья, жар. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, 0xFF5A2A);
+        Fx.shards(sl, at.add(0, 0.2, 0), radius, Math.max(4, Math.round(radius * 3)), 14, 0x5A5450);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.ASH, at.x, at.y + 0.6, at.z,
+                Math.round(20 + radius * 8), radius * 0.6, 0.5, radius * 0.6, 0.02);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.LAVA, at.x, at.y + 0.3, at.z, 3, radius * 0.3, 0.1, radius * 0.3, 0.1);
+    }
+
+    /**
+     * Клеймо пепла: меченый {@code brand_seconds} секунд оставляет за собой горящий след. Уводите след
+     * вдоль края, подальше от отряда, — лужи горят ещё долго.
+     */
+    private void brand(Cast c) {
+        ServerPlayer p = randomNonTarget();
+        if (p == null) return;
+        triggerAnim("main", "cast");
+        Telegraph.note(c, "lead", 0);
+        ServerLevel sl = (ServerLevel) level();
+        Fx.beam(sl, this, p, 0.2f, c.ticks, 0xFF5A2A);
+        int dur = (int) Math.round(p("brand_seconds") * 20);
+        c.at(c.ticks, () -> {
+            Fx.mark(sl, p, "♨", dur, 0xFF5A2A);
+            tell(Component.literal(p.getGameProfile().getName() + " заклеймён пеплом — уводи горящий след вдоль края!")
+                    .withStyle(ChatFormatting.GOLD));
+        });
+        for (int t = 10; t <= dur; t += 10) {
+            c.at(c.ticks + t, () -> {
+                if (!p.isAlive() || p.isSpectator()) return;
+                addPool(p.position(), 1.3, 0, 1.3, 9, p("brand_units"), 0xFF5A2A, null);
+                Fx.disc(sl, p.position(), 1.3f, 20, 0xFF5A2A, true);
+            });
+        }
+    }
+
+    /**
+     * Пепельная корона (с 60% и в Кальдере): кольцо огненных глыб падает вокруг Владыки по часовой — одна
+     * за другой, затем второе кольцо ближе. Держитесь за падающей глыбой, а не перед ней.
+     */
+    private void crown(Cast c) {
+        triggerAnim("main", "cast");
+        tell(Component.literal("Пепельная корона! Глыбы падают по кругу — идите за ними следом.").withStyle(ChatFormatting.GOLD));
+        ServerLevel sl = (ServerLevel) level();
+        double a0 = random.nextDouble() * Math.PI * 2;
+        Vec3 center = position();
+        for (int ring = 0; ring < 2; ring++) {
+            double r = ring == 0 ? 7.5 : 4;
+            int n = ring == 0 ? 10 : 6;
+            for (int i = 0; i < n; i++) {
+                double a = a0 + Math.PI * 2 * i / n;
+                Vec3 at = center.add(Math.cos(a) * r, 0, Math.sin(a) * r);
+                Cast rock = testCast(c.ticks + ring * 40 + i * 5);
+                Fx.pillar(sl, at, 0.7f, 6, rock.ticks, 0xFF5A2A);
+                Telegraph.circle(rock, at, 2.0f, p("crown_units"));
+            }
+        }
+        level().playSound(null, blockPosition(), SoundEvents.BLAZE_AMBIENT, SoundSource.HOSTILE, 2f, 0.5f);
+    }
 }

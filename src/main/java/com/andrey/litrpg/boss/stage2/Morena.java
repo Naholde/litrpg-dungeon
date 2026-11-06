@@ -64,6 +64,8 @@ public class Morena extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Лес Изнанки", "grove", 0, false, b -> true, this::grove),
+            new Ability("Хоровод теней", "dance", 0, false, b -> b.phase() >= 1, this::dance),
+            new Ability("Сглаз", "evil", 1, false, b -> b.playersInArena().size() > 1, this::evilEye),
             new Ability("Око Изнанки", "eye", 0, false, b -> true, this::eye),
             new Ability("Ползучий котёл", "crawl", 1, false, b -> true, this::crawl),
             new Ability("Вывернутая земля", "inside", 0, false, b -> relocated(), this::insideOut),
@@ -191,4 +193,61 @@ public class Morena extends BossEntity {
         MapMechanics.pillars(c, (int) p("grove_count"), (int) p("grove_height"), (int) p("grove_seconds"), Blocks.DARK_OAK_LOG.defaultBlockState());
     }
 
+
+    /** Изнанка: лиловый дым, тени, хлопья пепла. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, HEX);
+        Fx.spiral(sl, at, radius * 0.5f, 2f, 12, 0x2A0F3A);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.SQUID_INK, at.x, at.y + 0.5, at.z,
+                Math.round(6 + radius * 3), radius * 0.4, 0.3, radius * 0.4, 0.02);
+    }
+
+    /**
+     * Сглаз: на одного-двух бойцов ложится глаз. {@code evil_seconds} секунд нельзя смотреть на Морену:
+     * кто посмотрел — получает урон и страх (снимает союзник рядом, как обычно).
+     */
+    private void evilEye(Cast c) {
+        List<ServerPlayer> pool = new java.util.ArrayList<>(playersInArena());
+        pool.remove(getTarget());
+        java.util.Collections.shuffle(pool, new java.util.Random(random.nextLong()));
+        int n = Math.min(pool.size(), partySize() >= 5 ? 2 : 1);
+        if (n == 0) return;
+        triggerAnim("main", "cast");
+        int dur = (int) Math.round(p("evil_seconds") * 20);
+        Telegraph.note(c, "look", 0);
+        for (ServerPlayer p : pool.subList(0, n)) {
+            Fx.beam((ServerLevel) level(), this, p, 0.15f, c.ticks, HEX);
+            c.at(c.ticks, () -> {
+                Fx.mark((ServerLevel) level(), p, "◉", dur, HEX);
+                p.displayClientMessage(Component.literal("Сглаз! " + Math.round(p("evil_seconds")) + " с не смотрите на Морену!")
+                        .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD), false);
+            });
+            boolean[] caught = {false};
+            for (int t = 10; t <= dur; t += 10) {
+                c.at(c.ticks + t, () -> {
+                    if (caught[0] || !p.isAlive() || p.isSpectator()) return;
+                    Vec3 to = position().add(0, getBbHeight() * 0.6, 0).subtract(p.getEyePosition()).normalize();
+                    if (p.getViewVector(1).dot(to) < 0.55 || !p.hasLineOfSight(this)) return;
+                    caught[0] = true;
+                    com.andrey.litrpg.boss.BossDamage.hit(this, p, p("evil_units"));
+                    int fearDur = (int) Math.round(p("fear_seconds") * 20);
+                    StatusService.apply(p, Status.of(StatusType.DAMAGE_DEALT, "morena_fear", getUUID(), 0.0, level().getGameTime(), fearDur));
+                    feared.put(p.getUUID(), level().getGameTime() + fearDur);
+                    tell(Component.literal(p.getGameProfile().getName() + " взглянул на Морену — страх! Подойдите к нему.")
+                            .withStyle(ChatFormatting.LIGHT_PURPLE));
+                    p.serverLevel().playSound(null, p.blockPosition(), SoundEvents.WARDEN_HEARTBEAT, SoundSource.HOSTILE, 2f, 0.8f);
+                });
+            }
+        }
+    }
+
+    /** Хоровод теней (с 75%): пять огней кружат вокруг ведьмы — пропускайте их, шагая в просветы. */
+    private void dance(Cast c) {
+        triggerAnim("main", "cast");
+        tell(Component.literal("Хоровод теней! Огни кружат вокруг Морены — шагайте в просветы.").withStyle(ChatFormatting.LIGHT_PURPLE));
+        Mechanics.orbit(c, 5, 6.5, (int) p("dance_seconds"), 45, 1.4f, p("dance_units"), HEX,
+                p -> StatusService.apply(p, Status.of(StatusType.SLOW, "morena_dance", getUUID(), 0.35, level().getGameTime(), 30)));
+    }
 }

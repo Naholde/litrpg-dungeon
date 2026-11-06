@@ -133,7 +133,7 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
     public static final Common DEFAULT_COMMON = new Common(60, 1.15, 6, 1.5, 1.35, 5.5, 0.22,
             List.of(0.4, 0.7, 1.0, 1.4, 1.8, 2.2),
             new Pressure(12, 0.3, 16, 0.08, 6, 0.5, 3),
-            new Rush(6, 1.3, 4.5, 0.55, 5, 0.75),
+            new Rush(6, 1.6, 3.5, 0.55, 4, 0.75),
             new Rhythm(2.0, 4, 4.5, 0.3, 1.5));
 
     public static BossesBalance defaults() {

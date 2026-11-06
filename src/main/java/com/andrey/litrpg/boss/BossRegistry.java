@@ -28,11 +28,13 @@ public final class BossRegistry {
     public static final Type GATEKEEPER = reg("gatekeeper", "Привратник Склепа", "fragment", p(
             "level", 4, "hp_units", 38, "melee_units", 0.308,
             "chain_units", 0.75, "chain_cd", 4, "chain_cast", 1,
-            "rampart_units", 0.55, "rampart_cd", 9, "rampart_cast", 1.2,
+            "rampart_units", 0.55, "rampart_cd", 9, "rampart_cast", 2.4,
             "call_cd", 12, "call_cast", 1,
             "shield_share", 0.08, "shield_cd", 12, "shield_cast", 1.4,
             "salvo_units", 0.45, "salvo_cd", 17, "salvo_cast", 1.3, "salvo_shots", 6,
-            "lunge_units", 0.9, "lunge_cd", 21, "lunge_cast", 1.4, "lunge_push", 1.1));
+            "lunge_units", 0.9, "lunge_cd", 21, "lunge_cast", 1.4, "lunge_push", 1.1,
+            "grip_units", 0.35, "grip_pull", 1.5, "grip_cd", 15, "grip_cast", 1.3,
+            "walls_units", 0.45, "walls_count", 4, "walls_cd", 20, "walls_cast", 1.5));
 
     /** Сёстры: Морра (бьёт) — хранитель из схемы; Весса (колдует) появляется вместе с ней. */
     public static final Type MORRA = reg("morra", "Морра", "fight_club", p(
@@ -41,24 +43,29 @@ public final class BossRegistry {
             "spears_units", 0.5, "spears_cd", 8, "spears_cast", 1,
             "revive_seconds", 12, "link_cut", 0.5, "link_units", 0.06,
             "bond_units", 0.3, "bond_cd", 20, "bond_cast", 1.2, "bond_seconds", 8, "bond_dist", 7,
-            "waves_units", 0.75, "waves_cd", 18, "waves_cast", 1.4, "waves_waves", 3, "waves_gap", 70));
+            "waves_units", 0.75, "waves_cd", 18, "waves_cast", 1.4, "waves_waves", 3, "waves_gap", 70,
+            "souls_share", 0.025, "souls_units", 0.06, "souls_speed", 2.2, "souls_cd", 22, "souls_cast", 1.2));
     public static final Type VESSA = reg("vessa", "Весса", "fight_club", p(
             "level", 7, "hp_units", 20, "melee_units", 0.176,
             "mend_share", 0.08, "mend_cd", 9, "mend_cast", 1.4,
             "curse_units", 0.05, "curse_seconds", 10, "curse_cd", 6, "curse_cast", 1,
-            "nova_units", 0.5, "nova_cd", 9, "nova_cast", 1.1,
+            "nova_units", 0.5, "nova_cd", 9, "nova_cast", 1.8,
             "creep_units", 0.85, "creep_cd", 19, "creep_cast", 1.3, "creep_seconds", 6, "creep_radius", 3,
-            "stare_units", 0.3, "stare_cd", 22, "stare_cast", 1.4, "stare_seconds", 5, "stare_angle", 80));
+            "stare_units", 0.3, "stare_cd", 22, "stare_cast", 1.4, "stare_seconds", 5, "stare_angle", 80,
+            "candles_units", 0.25, "candles_hp_units", 0.5, "candles_seconds", 16, "candles_every", 3,
+            "candles_cd", 26, "candles_cast", 1.3));
 
     public static final Type LICH = reg("lich", "Король-лич Карн", "kurayami", p(
             "level", 10, "hp_units", 56, "melee_units", 0.396,
             "scythe_units", 0.9, "scythe_cd", 5, "scythe_cast", 1,
-            "storm_units", 0.5, "storm_cd", 7, "storm_cast", 1,
+            "storm_units", 0.5, "storm_cd", 7, "storm_cast", 1.4,
             "tomb_units", 0.75, "tomb_seconds", 8, "tomb_hp_units", 1.0, "tomb_cd", 11, "tomb_cast", 1,
             "raise_cd", 12, "raise_cast", 1.1,
             "dark_units", 0.07, "dark_seconds", 8, "dark_cd", 12, "dark_cast", 1,
             "phylactery_hp_units", 5,
-            "frost_units", 0.8, "frost_cd", 24, "frost_cast", 1.6, "frost_waves", 3, "frost_safe", 4, "frost_radius", 3));
+            "frost_units", 0.8, "frost_cd", 24, "frost_cast", 1.6, "frost_waves", 3, "frost_safe", 4, "frost_radius", 3,
+            "frostpath_units", 0.45, "frostpath_speed", 7, "frostpath_cd", 13, "frostpath_cast", 1.2,
+            "blizzard_units", 0.12, "blizzard_seconds", 6, "blizzard_move", 1.5, "blizzard_cd", 26, "blizzard_cast", 1.4));
 
     // ---------------------------------------------------------------- Этап 2 · Паучья чаща
     public static final Type ARACHNA = reg("arachna", "Аракна, Королева пауков", "blud", p(
@@ -69,26 +76,32 @@ public final class BossRegistry {
             "eggs_cd", 12, "eggs_cast", 1, "egg_hp_units", 0.7, "egg_seconds", 12,
             "aloft_seconds", 12, "rain_units", 0.5, "drop_units", 0.85,
             "skitter_units", 0.9, "skitter_cd", 18, "skitter_cast", 1.2, "skitter_seconds", 6, "skitter_radius", 3,
-            "threads_units", 0.3, "threads_cd", 21, "threads_cast", 1.3, "threads_seconds", 8, "threads_dist", 7));
+            "threads_units", 0.3, "threads_cd", 21, "threads_cast", 1.3, "threads_seconds", 8, "threads_dist", 7,
+            "pounce_units", 0.7, "pounce_cd", 16, "pounce_cast", 1.5,
+            "venom_units", 0.45, "venom_cd", 18, "venom_cast", 1.2));
 
     public static final Type ROT_ENT = reg("rot_ent", "Гнилой Древень", "jane", p(
             "level", 17, "hp_units", 66, "melee_units", 0.396,
             "slam_units", 0.95, "slam_cd", 4, "slam_cast", 1,
-            "roots_units", 0.5, "roots_cd", 7, "roots_cast", 1,
+            "roots_units", 0.5, "roots_cd", 7, "roots_cast", 1.3,
             "spore_units", 0.08, "spore_grow", 0.25, "spore_seconds", 26, "spores_cd", 8, "spores_cast", 1,
             "heart_share", 0.1, "heart_cd", 12, "heart_cast", 1.6,
             "circles_units", 0.7, "circles_cd", 19, "circles_cast", 1.4, "circles_waves", 3, "circles_gap", 75,
-            "bind_units", 0.3, "bind_cd", 22, "bind_cast", 1.3, "bind_seconds", 8, "bind_dist", 6));
+            "bind_units", 0.3, "bind_cd", 22, "bind_cast", 1.3, "bind_seconds", 8, "bind_dist", 6,
+            "fruit_hp_units", 0.55, "fruit_seconds", 7, "fruit_cd", 20, "fruit_cast", 1.2,
+            "grasp_units", 0.8, "grasp_pull", 0.07, "grasp_seconds", 4, "grasp_cd", 24, "grasp_cast", 1.2));
 
     public static final Type MORENA = reg("morena", "Морена, Ведьма Изнанки", "fear", p(
             "level", 20, "hp_units", 74, "melee_units", 0.396,
             "hex_units", 0.55, "hex_cd", 4, "hex_cast", 1,
             "fear_seconds", 7, "fear_cd", 8, "fear_cast", 1,
             "cauldron_units", 0.09, "cauldron_seconds", 20, "cauldron_cd", 7, "cauldron_cast", 1,
-            "inside_units", 0.7, "inside_cd", 10, "inside_cast", 1,
+            "inside_units", 0.7, "inside_cd", 10, "inside_cast", 2.4,
             "eye_units", 0.32, "eye_cd", 20, "eye_cast", 1.4, "eye_seconds", 5, "eye_angle", 80,
             "crawl_units", 0.9, "crawl_cd", 19, "crawl_cast", 1.2, "crawl_seconds", 6, "crawl_radius", 3.2,
-            "grove_cd", 26, "grove_cast", 1.4, "grove_count", 6, "grove_height", 4, "grove_seconds", 16));
+            "grove_cd", 26, "grove_cast", 1.4, "grove_count", 6, "grove_height", 4, "grove_seconds", 16,
+            "evil_seconds", 4, "evil_units", 0.15, "evil_cd", 19, "evil_cast", 1.2,
+            "dance_units", 0.35, "dance_seconds", 7, "dance_cd", 22, "dance_cast", 1.3));
 
     // ---------------------------------------------------------------- Этап 3 · Затопленный храм
     public static final Type TIDE_WARDEN = reg("tide_warden", "Страж Прилива", "woops", p(
@@ -96,21 +109,25 @@ public final class BossRegistry {
             "trident_units", 1.425, "trident_cd", 4, "trident_cast", 1,
             "wave_units", 1.275, "wave_cd", 9, "wave_cast", 1.6,
             "whirl_units", 0.15, "whirl_seconds", 12, "whirl_cd", 12, "whirl_cast", 1,
-            "bubble_units", 0.75, "bubbles_cd", 6, "bubbles_cast", 1,
+            "bubble_units", 0.75, "bubbles_cd", 6, "bubbles_cast", 1.3,
             "salvo_units", 0.75, "salvo_cd", 17, "salvo_cast", 1.3, "salvo_shots", 7,
             "surge_units", 1.2, "surge_cd", 19, "surge_cast", 1.4, "surge_waves", 3, "surge_gap", 70,
-            "columns_cd", 26, "columns_cast", 1.4, "columns_count", 6, "columns_height", 4, "columns_seconds", 18));
+            "columns_cd", 26, "columns_cast", 1.4, "columns_count", 6, "columns_height", 4, "columns_seconds", 18,
+            "spray_units", 0.6, "spray_cd", 14, "spray_cast", 1.1,
+            "backlash_units", 0.9, "backlash_push", 1.3, "backlash_cd", 20, "backlash_cast", 1.5));
 
     public static final Type LEVIATHAN = reg("leviathan", "Левиафан", "red", p(
             "level", 27, "hp_units", 139.5, "melee_units", 0.44,
             "bite_units", 1.5, "bite_cd", 4, "bite_cast", 1,
-            "tail_units", 0.9, "tail_cd", 6, "tail_cast", 1,
+            "tail_units", 0.9, "tail_cd", 6, "tail_cast", 1.6,
             "emerge_units", 1.2, "dive_cd", 10, "dive_cast", 1,
             "tide_units", 0.18, "tide_seconds", 22,
             "ram_units", 1.5, "ram_cd", 18, "ram_cast", 1.3, "ram_push", 1.2,
             "flood_units", 1.2, "flood_cd", 24, "flood_cast", 1.6, "flood_waves", 3, "flood_safe", 4, "flood_radius", 3,
             "wall_cd", 24, "wall_cast", 1.4, "wall_height", 3, "wall_seconds", 10,
-            "deluge_cd", 28, "deluge_cast", 1.6, "deluge_seconds", 12, "deluge_units", 0.25));
+            "deluge_cd", 28, "deluge_cast", 1.6, "deluge_seconds", 12, "deluge_units", 0.25,
+            "spout_units", 0.22, "spout_seconds", 8, "spout_cd", 20, "spout_cast", 1.2,
+            "roar_units", 0.45, "roar_silence", 2.5, "roar_cd", 22, "roar_cast", 2.2));
 
     public static final Type NAIAD = reg("naiad", "Наяра, Жрица Глубин", "aura", p(
             "level", 30, "hp_units", 150, "melee_units", 0.44,
@@ -121,7 +138,9 @@ public final class BossRegistry {
             "chase_units", 1.425, "chase_cd", 18, "chase_cast", 1.2, "chase_seconds", 6, "chase_radius", 3.2,
             "duet_units", 0.48, "duet_cd", 21, "duet_cast", 1.3, "duet_seconds", 8, "duet_dist", 7,
             "ray_cd", 26, "ray_cast", 1.5, "ray_seconds", 6, "ray_units", 0.3,
-            "coral_cd", 27, "coral_cast", 1.4, "coral_count", 7, "coral_height", 4, "coral_seconds", 16));
+            "coral_cd", 27, "coral_cast", 1.4, "coral_count", 7, "coral_height", 4, "coral_seconds", 16,
+            "spiral_units", 0.6, "spiral_cd", 15, "spiral_cast", 1.2,
+            "tears_share", 0.03, "tears_units", 0.3, "tears_cd", 24, "tears_cast", 1.3));
 
     // ---------------------------------------------------------------- Этап 4 · Кузни Пепла
     public static final Type SMELTER = reg("smelter", "Плавильный голем", "ring_frei", p(
@@ -132,27 +151,33 @@ public final class BossRegistry {
             "sparks_units", 0.75, "sparks_cd", 16, "sparks_cast", 1.2, "sparks_shots", 7,
             "rivers_units", 1.275, "rivers_cd", 23, "rivers_cast", 1.6, "rivers_waves", 3, "rivers_safe", 4, "rivers_radius", 3,
             "molten_cd", 25, "molten_cast", 1.5, "molten_sectors", 6, "molten_seconds", 12, "molten_units", 0.3,
-            "castwall_cd", 26, "castwall_cast", 1.4, "castwall_height", 3, "castwall_seconds", 10));
+            "castwall_cd", 26, "castwall_cast", 1.4, "castwall_height", 3, "castwall_seconds", 10,
+            "anvils_units", 0.8, "anvils_cd", 16, "anvils_cast", 1.2,
+            "ingot_units", 0.9, "ingot_seconds", 5, "ingot_passes", 3, "ingot_cd", 26, "ingot_cast", 1.2));
 
     public static final Type CHARIOT = reg("chariot", "Колесница Пламени", "formula", p(
             "level", 37, "hp_units", 181.5, "melee_units", 0.44,
             "charge_units", 1.275, "charge_cd", 4, "charge_cast", 1,
-            "ring_units", 0.9, "ring_cd", 7, "ring_cast", 1,
+            "ring_units", 0.9, "ring_cd", 7, "ring_cast", 1.5,
             "trail_units", 0.15, "trail_seconds", 9, "pit_seconds", 7, "pit_damage", 1.6,
             "wheels_units", 1.2, "wheels_cd", 18, "wheels_cast", 1.3, "wheels_waves", 3, "wheels_gap", 70,
             "trample_units", 1.575, "trample_cd", 17, "trample_cast", 1.2, "trample_push", 1.3,
-            "firesweep_cd", 24, "firesweep_cast", 1.4, "firesweep_seconds", 6, "firesweep_units", 0.32));
+            "firesweep_cd", 24, "firesweep_cast", 1.4, "firesweep_seconds", 6, "firesweep_units", 0.32,
+            "exhaust_units", 0.8, "exhaust_cd", 12, "exhaust_cast", 1.1,
+            "phantoms_units", 0.9, "phantoms_cd", 22, "phantoms_cast", 1.6));
 
     public static final Type ASH_LORD = reg("ash_lord", "Владыка Пепла", "blue_lock", p(
             "level", 40, "hp_units", 193.5, "melee_units", 0.484,
             "sword_units", 1.575, "sword_cd", 4, "sword_cast", 1,
             "storm_units", 0.9, "storm_cd", 8, "storm_cast", 1.4,
-            "collapse_units", 0.75, "lava_units", 0.195, "lava_seconds", 16, "collapse_cd", 6, "collapse_cast", 1,
+            "collapse_units", 0.75, "lava_units", 0.195, "lava_seconds", 16, "collapse_cd", 6, "collapse_cast", 1.5,
             "duel_units", 0.75, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 12, "ego_cast", 1,
-            "erupt_units", 0.75, "erupt_cd", 4, "erupt_cast", 1,
+            "erupt_units", 0.75, "erupt_cd", 4, "erupt_cast", 1.4,
             "ashfall_units", 1.35, "ashfall_cd", 24, "ashfall_cast", 1.6, "ashfall_waves", 3, "ashfall_safe", 4, "ashfall_radius", 3,
             "veins_cd", 26, "veins_cast", 1.5, "veins_sectors", 6, "veins_seconds", 12, "veins_units", 0.32,
-            "closing_cd", 30, "closing_cast", 1.6, "closing_seconds", 10, "closing_units", 0.4));
+            "closing_cd", 30, "closing_cast", 1.6, "closing_seconds", 10, "closing_units", 0.4,
+            "brand_seconds", 6, "brand_units", 0.12, "brand_cd", 20, "brand_cast", 1.2,
+            "crown_units", 0.75, "crown_cd", 22, "crown_cast", 1.3));
 
     // ---------------------------------------------------------------- Этап 5 · Шпиль Бездны
     public static final Type DOPPEL = reg("doppel", "Двойник", "next_opponent", p(
@@ -163,7 +188,9 @@ public final class BossRegistry {
             "link_units", 0.51, "link_cd", 20, "link_cast", 1.3, "link_seconds", 8, "link_dist", 7,
             "copies_units", 0.75, "copies_cd", 18, "copies_cast", 1.3, "copies_shots", 7,
             "places_cd", 20, "places_cast", 1.2,
-            "glasswall_cd", 25, "glasswall_cast", 1.4, "glasswall_height", 3, "glasswall_seconds", 10));
+            "glasswall_cd", 25, "glasswall_cast", 1.4, "glasswall_height", 3, "glasswall_seconds", 10,
+            "shards_units", 0.6, "shards_count", 10, "shards_cd", 16, "shards_cast", 1.2,
+            "fan_units", 1.0, "fan_cd", 14, "fan_cast", 1.2));
 
     public static final Type CHRONOPHAGE = reg("chronophage", "Хронофаг", "no_time", p(
             "level", 47, "hp_units", 226.5, "melee_units", 0.484,
@@ -173,19 +200,23 @@ public final class BossRegistry {
             "waves_units", 1.275, "waves_cd", 18, "waves_cast", 1.4, "waves_waves", 3, "waves_gap", 70,
             "clock_units", 1.5, "clock_cd", 19, "clock_cast", 1.2, "clock_seconds", 6, "clock_radius", 3.2,
             "closing_cd", 30, "closing_cast", 1.6, "closing_seconds", 10, "closing_units", 0.42,
-            "hand_cd", 24, "hand_cast", 1.4, "hand_seconds", 7, "hand_units", 0.34));
+            "hand_cd", 24, "hand_cast", 1.4, "hand_seconds", 7, "hand_units", 0.34,
+            "echo_units", 0.65, "echo_delay", 1.6, "echo_cd", 15, "echo_cast", 1.2,
+            "stasis_units", 0.08, "stasis_seconds", 9, "stasis_cd", 22, "stasis_cast", 1.2));
 
     public static final Type XALATHAR = reg("xalathar", "Ксалатар, Голод Бездны", "wutiwant", p(
             "level", 50, "hp_units", 232.5, "melee_units", 0.528,
             "smash_units", 1.65, "smash_cd", 4, "smash_cast", 1,
             "gaze_units", 1.05, "gaze_cd", 5, "gaze_cast", 1,
             "hunger_units", 1.2, "hunger_cd", 8, "hunger_cast", 1.1,
-            "edge_units", 1.05, "void_units", 0.75, "edge_cd", 12, "edge_cast", 1.1,
+            "edge_units", 1.05, "void_units", 0.75, "edge_cd", 12, "edge_cast", 1.8,
             "end_units", 0.27, "end_period", 10,
             "voidfall_units", 1.425, "voidfall_cd", 24, "voidfall_cast", 1.6, "voidfall_waves", 3, "voidfall_safe", 4, "voidfall_radius", 3,
             "edgefall_cd", 30, "edgefall_cast", 1.6, "edgefall_seconds", 10, "edgefall_units", 0.45,
             "ray_cd", 24, "ray_cast", 1.4, "ray_seconds", 7, "ray_units", 0.36,
-            "pillars_cd", 28, "pillars_cast", 1.4, "pillars_count", 6, "pillars_height", 4, "pillars_seconds", 16));
+            "pillars_cd", 28, "pillars_cast", 1.4, "pillars_count", 6, "pillars_height", 4, "pillars_seconds", 16,
+            "maw_units", 1.0, "maw_cd", 16, "maw_cast", 1.5,
+            "eyes_units", 0.5, "eyes_hp_units", 0.8, "eyes_seconds", 18, "eyes_every", 3, "eyes_cd", 28, "eyes_cast", 1.3));
 
     private BossRegistry() {
     }

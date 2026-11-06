@@ -56,6 +56,8 @@ public class Chronophage extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Время кончается", "closing", 0, false, b -> true, this::closing),
+            new Ability("Застывшее время", "stasis", 0, false, b -> b.phase() >= 1, this::stasis),
+            new Ability("Эхо удара", "echo", 1, false, b -> true, this::echo),
             new Ability("Стрелка часов", "hand", 0, false, b -> true, this::hand),
             new Ability("Волны времени", "waves", 0, false, b -> true, this::waves),
             new Ability("Часы идут за вами", "clock", 1, false, b -> true, this::clock),
@@ -156,4 +158,45 @@ public class Chronophage extends BossEntity {
         MapMechanics.sweep(c, (int) p("hand_seconds"), p("hand_units"), getRandom().nextBoolean(), 0xE8C06B);
     }
 
+
+    /** Время: песок, золотые искры, стрелки. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, 0xE8C878);
+        Fx.rune(sl, at, radius * 0.8f, 12, 12, 0xFFE9A8);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.WAX_ON, at.x, at.y + 0.5, at.z,
+                Math.round(8 + radius * 3), radius * 0.4, 0.3, radius * 0.4, 0.5);
+    }
+
+    /**
+     * Эхо удара: под каждым круг — а через {@code echo_delay} секунд время повторяет удар в том же месте.
+     * Ушли — не возвращайтесь.
+     */
+    private void echo(Cast c) {
+        triggerAnim("main", "cast");
+        int delay = (int) Math.round(p("echo_delay") * 20);
+        for (ServerPlayer p : playersInArena()) {
+            Vec3 at = p.position();
+            Telegraph.circle(c, at, 2.6f, p("echo_units"));
+            Telegraph.circle(testCast(c.ticks + delay), at, 2.6f, p("echo_units"));
+        }
+        level().playSound(null, blockPosition(), SoundEvents.BELL_RESONATE, SoundSource.HOSTILE, 1.6f, 1.4f);
+    }
+
+    /** Застывшее время (с половины): по арене ложатся пятна стоячего времени — в них медленно и больно. */
+    private void stasis(Cast c) {
+        triggerAnim("main", "cast");
+        ServerLevel sl = (ServerLevel) level();
+        tell(Component.literal("Время застывает пятнами — не стойте в них.").withStyle(ChatFormatting.GOLD));
+        c.at(c.ticks, () -> {
+            for (int i = 0; i < 2; i++) {
+                double a = random.nextDouble() * Math.PI * 2, r = arenaRadius() * (0.25 + random.nextDouble() * 0.45);
+                Vec3 at = home().add(Math.cos(a) * r, 0, Math.sin(a) * r);
+                addPool(at, 4.5, 0, 4.5, (int) Math.round(p("stasis_seconds")), p("stasis_units"), 0xE8C878,
+                        p -> StatusService.apply(p, Status.of(StatusType.SLOW, "chrono_stasis", getUUID(), 0.55, level().getGameTime(), 25)));
+                Fx.rune(sl, at, 4.5f, 12, (int) Math.round(p("stasis_seconds") * 20), 0xE8C878);
+            }
+        });
+    }
 }

@@ -60,6 +60,8 @@ public class Arachna extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Паучья погоня", "skitter", 0, false, b -> true, this::skitter),
+            new Ability("Прыжок охотницы", "pounce", 1, false, b -> farthest() != null, this::pounce),
+            new Ability("Ядовитый веер", "venom", 1, false, b -> b.phase() >= 1 && b.getTarget() != null, this::venom),
             new Ability("Нити паутины", "threads", 1, false, b -> true, this::threads),
             new Ability("Кладка", "eggs", 1, false, b -> spawnedAlive().size() < 8, this::eggs),
             new Ability("Кокон", "cocoon", 2, false, b -> b.playersInArena().size() > 1, this::cocoon),
@@ -231,4 +233,61 @@ public class Arachna extends BossEntity {
         Mechanics.tether(c, (int) p("threads_seconds"), p("threads_dist"), p("threads_units"), 0xD6F3C0);
     }
 
+
+    /** Яд: брызги кислоты и зелёные пузыри. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, 0x7CE36B);
+        Fx.shards(sl, at.add(0, 0.2, 0), radius, Math.max(4, Math.round(radius * 3)), 12, 0x4F8A2B);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.ITEM_SLIME, at.x, at.y + 0.4, at.z,
+                Math.round(8 + radius * 4), radius * 0.4, 0.2, radius * 0.4, 0.05);
+    }
+
+    private ServerPlayer farthest() {
+        ServerPlayer best = null;
+        double far = 6;
+        for (ServerPlayer p : playersInArena()) {
+            if (p == getTarget()) continue;
+            double d = distanceTo(p);
+            if (d > far) {
+                far = d;
+                best = p;
+            }
+        }
+        return best;
+    }
+
+    /** Прыжок охотницы: Аракна прыгает на дальнего бойца — круг приземления виден заранее; после — лужи яда. */
+    private void pounce(Cast c) {
+        ServerPlayer p = farthest();
+        if (p == null) return;
+        Vec3 at = p.position();
+        tell(Component.literal("Аракна целится в " + p.getGameProfile().getName() + " — уходите из круга!").withStyle(ChatFormatting.GREEN));
+        Telegraph.circle(c, at, 3.2f, p("pounce_units"), pl -> poison(pl, p("poison_units"), 4));
+        c.at(c.ticks - 4, () -> {
+            teleportTo(at.x, at.y, at.z);
+            level().playSound(null, blockPosition(), SoundEvents.SPIDER_AMBIENT, SoundSource.HOSTILE, 2f, 0.6f);
+        });
+        c.at(c.ticks, () -> {
+            for (int i = 0; i < 3; i++) {
+                double a = Math.PI * 2 * i / 3 + random.nextDouble();
+                addPool(at.add(Math.cos(a) * 3, 0, Math.sin(a) * 3), 1.4, 0, 1.4, 8, p("poison_units") * 2, 0x7CE36B, null);
+            }
+        });
+    }
+
+    /** Ядовитый веер (с 66%): три струи веером по танку и вбок — слева, по центру, справа, по очереди. */
+    private void venom(Cast c) {
+        triggerAnim("main", "attack");
+        Vec3 dir = c.target.position().subtract(position()).multiply(1, 0, 1).normalize();
+        int[] order = {-1, 1, 0};
+        for (int i = 0; i < 3; i++) {
+            double a = Math.toRadians(32 * order[i]);
+            Vec3 d = new Vec3(dir.x * Math.cos(a) - dir.z * Math.sin(a), 0, dir.x * Math.sin(a) + dir.z * Math.cos(a));
+            Telegraph.line(testCast(c.ticks + i * 10), position(), position().add(d.scale(arenaRadius() + 2)), 2.4f,
+                    p("venom_units"), pl -> poison(pl, p("poison_units"), 5));
+        }
+        level().playSound(null, blockPosition(), SoundEvents.LLAMA_SPIT, SoundSource.HOSTILE, 2f, 0.5f);
+    }
 }

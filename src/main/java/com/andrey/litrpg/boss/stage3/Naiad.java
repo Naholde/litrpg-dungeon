@@ -62,6 +62,8 @@ public class Naiad extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Песнь по кругу", "ray", 0, false, b -> true, this::ray),
+            new Ability("Слёзы глубин", "tears", 0, false, b -> b.phase() >= 1, this::tears),
+            new Ability("Спиральные копья", "spiral", 1, false, b -> true, this::spiral),
             new Ability("Коралловый лес", "coral", 0, false, b -> true, this::coral),
             new Ability("Водоворот по следу", "chase", 0, false, b -> true, this::chase),
             new Ability("Дуэт глубин", "duet", 1, false, b -> true, this::duet),
@@ -178,4 +180,57 @@ public class Naiad extends BossEntity {
         MapMechanics.pillars(c, (int) p("coral_count"), (int) p("coral_height"), (int) p("coral_seconds"), Blocks.DEAD_BRAIN_CORAL_BLOCK.defaultBlockState());
     }
 
+
+    /** Глубины: жемчужный свет, капли, блики. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, LIGHT);
+        Fx.spiral(sl, at, radius * 0.5f, 2f, 12, 0x6FD8FF);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.GLOW, at.x, at.y + 0.6, at.z,
+                Math.round(8 + radius * 3), radius * 0.4, 0.4, radius * 0.4, 0.02);
+    }
+
+    /** Спиральные копья: восемь копий во все стороны, затем ещё восемь со сдвигом — встать в просвет между ними. */
+    private void spiral(Cast c) {
+        triggerAnim("main", "cast");
+        double a0 = random.nextDouble() * Math.PI * 2;
+        for (int w = 0; w < 2; w++) {
+            Cast wave = testCast(c.ticks + w * 16);
+            for (int i = 0; i < 8; i++) {
+                double a = a0 + Math.PI * 2 * i / 8 + w * Math.PI / 8;
+                Telegraph.line(wave, position(), position().add(Math.cos(a) * 11, 0, Math.sin(a) * 11), 1.6f, p("spiral_units"));
+            }
+        }
+        level().playSound(null, blockPosition(), SoundEvents.TRIDENT_THROW.value(), SoundSource.HOSTILE, 1.6f, 0.8f);
+    }
+
+    /**
+     * Слёзы глубин (с 66%): на полу три слезы. Когда круг заполнится, на каждой должен стоять хотя бы один —
+     * пустая слеза уходит к жрице и лечит её; стоящих слегка обжигает.
+     */
+    private void tears(Cast c) {
+        triggerAnim("main", "cast");
+        tell(Component.literal("Слёзы глубин! Встаньте на каждую слезу, иначе они вылечат Наяру.").withStyle(ChatFormatting.AQUA));
+        Telegraph.note(c, "soak", 0);
+        ServerLevel sl = (ServerLevel) level();
+        for (int i = 0; i < 3; i++) {
+            double a = Math.PI * 2 * i / 3 + random.nextDouble();
+            double r = arenaRadius() * (0.35 + random.nextDouble() * 0.35);
+            Vec3 at = home().add(Math.cos(a) * r, 0, Math.sin(a) * r);
+            Fx.disc(sl, at, 1.6f, c.ticks + 50, Telegraph.SOAK, true);
+            Fx.pillar(sl, at, 0.4f, 3, c.ticks + 50, LIGHT);
+            c.at(c.ticks + 50, () -> {
+                List<ServerPlayer> on = playersInArena().stream().filter(p -> p.position().distanceTo(at) <= 1.8).toList();
+                if (on.isEmpty()) {
+                    heal((float) (getMaxHealth() * p("tears_share")));
+                    Fx.beam(sl, at.add(0, 0.5, 0), position().add(0, 1.5, 0), 0.25f, 12, LIGHT);
+                    tell(Component.literal("Слеза ушла к Наяре — она лечится!").withStyle(ChatFormatting.RED));
+                } else {
+                    for (ServerPlayer p : on) com.andrey.litrpg.boss.BossDamage.hit(this, p, p("tears_units") / on.size());
+                    Fx.burst(sl, at.add(0, 0.5, 0), 1.4f, 8, LIGHT);
+                }
+            });
+        }
+    }
 }

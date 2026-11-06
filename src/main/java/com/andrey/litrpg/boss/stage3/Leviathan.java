@@ -52,6 +52,8 @@ public class Leviathan extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Стена воды", "wall", 0, false, b -> true, this::wall),
+            new Ability("Рёв глубин", "roar", 0, false, b -> b.phase() >= 1, this::roar),
+            new Ability("Водяной смерч", "spout", 1, false, b -> true, this::spout),
             new Ability("Затопление зала", "deluge", 0, false, b -> true, this::deluge),
             new Ability("Таран", "ram", 0, false, b -> true, this::ram),
             new Ability("Затопление", "flood", 1, false, b -> true, this::flood),
@@ -166,4 +168,72 @@ public class Leviathan extends BossEntity {
         MapMechanics.flood(c, (int) p("deluge_seconds"), p("deluge_units"), 0x2A5A8A);
     }
 
+
+    /** Глубина: тёмная вода, пена, пузыри. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, 0x2FA3A0);
+        Fx.shards(sl, at.add(0, 0.2, 0), radius, Math.max(4, Math.round(radius * 3)), 12, 0x1B5E66);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.BUBBLE_POP, at.x, at.y + 0.4, at.z,
+                Math.round(14 + radius * 5), radius * 0.5, 0.3, radius * 0.5, 0.05);
+    }
+
+    /**
+     * Водяной смерч: смерч бродит по арене {@code spout_seconds} секунд и затягивает тех, кто рядом;
+     * внутри — урон каждую секунду. Обходить, не давать затянуть.
+     */
+    private void spout(Cast c) {
+        triggerAnim("main", "cast");
+        ServerLevel sl = (ServerLevel) level();
+        Telegraph.note(c, "orbit", 2.2);
+        Vec3[] at = {home().add((random.nextDouble() - 0.5) * arenaRadius(), 0, (random.nextDouble() - 0.5) * arenaRadius())};
+        Vec3[] dir = {new Vec3(random.nextDouble() - 0.5, 0, random.nextDouble() - 0.5).normalize()};
+        Fx.vortex(sl, at[0], 2.2f, 5, c.ticks, 0x2FA3A0);
+        int steps = (int) Math.round(p("spout_seconds") * 10);
+        for (int t = 0; t < steps; t++) {
+            final int tick = t;
+            c.at(c.ticks + t * 2, () -> {
+                if (tick % 15 == 0) dir[0] = dir[0].yRot((float) ((random.nextDouble() - 0.5) * 1.6));
+                Vec3 next = at[0].add(dir[0].scale(0.32));
+                if (next.distanceTo(home()) > arenaRadius() - 2) {
+                    dir[0] = home().subtract(at[0]).multiply(1, 0, 1).normalize();
+                    next = at[0].add(dir[0].scale(0.32));
+                }
+                at[0] = next;
+                if (tick % 2 == 0) Fx.vortex(sl, at[0], 2.2f, 5, 5, 0x2FA3A0);
+                for (ServerPlayer p : playersInArena()) {
+                    Vec3 v = at[0].subtract(p.position()).multiply(1, 0, 1);
+                    double d = v.length();
+                    if (d < 4.5 && d > 0.3) {
+                        v = v.normalize().scale(0.05);
+                        p.push(v.x, 0, v.z);
+                        p.hurtMarked = true;
+                    }
+                    if (d <= 2.2 && tick % 10 == 0) com.andrey.litrpg.boss.BossDamage.hit(this, p, p("spout_units"));
+                }
+            });
+        }
+    }
+
+    /**
+     * Рёв глубин (с 66%): круг 6 блоков вокруг Левиафана; кого рёв застал внутри — немота (нельзя применять
+     * навыки), урон и отброс. Отойдите заранее.
+     */
+    private void roar(Cast c) {
+        triggerAnim("main", "cast");
+        tell(Component.literal("Левиафан набирает воздух — отойдите, рёв лишает навыков!").withStyle(ChatFormatting.DARK_AQUA, ChatFormatting.BOLD));
+        int silence = (int) Math.round(p("roar_silence") * 20);
+        Vec3 at = position();
+        Telegraph.circle(c, at, 6, p("roar_units"), p -> {
+            StatusService.apply(p, Status.of(StatusType.SILENCE, "leviathan_roar", getUUID(), 1, level().getGameTime(), silence));
+            Vec3 v = p.position().subtract(at).multiply(1, 0, 1).normalize().scale(1.1);
+            p.setDeltaMovement(v.x, 0.4, v.z);
+            p.hurtMarked = true;
+        });
+        c.at(c.ticks, () -> {
+            Fx.wave((ServerLevel) level(), at, 10, 2f, 16, 0x2FA3A0);
+            level().playSound(null, blockPosition(), SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 2f, 0.5f);
+        });
+    }
 }

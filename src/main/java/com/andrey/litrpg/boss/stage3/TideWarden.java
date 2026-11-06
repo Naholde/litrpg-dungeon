@@ -55,6 +55,8 @@ public class TideWarden extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Колонны прилива", "columns", 0, false, b -> true, this::columns),
+            new Ability("Отбойный удар", "backlash", 0, false, b -> b.phase() >= 1 && b.getTarget() != null, this::backlash),
+            new Ability("Брызги прибоя", "spray", 1, false, b -> true, this::spray),
             new Ability("Залп прилива", "salvo", 0, false, b -> true, this::salvo),
             new Ability("Круги на воде", "surge", 1, false, b -> true, this::surge),
             new Ability("Волна", "wave", 0, false, b -> true, this::wave),
@@ -168,4 +170,46 @@ public class TideWarden extends BossEntity {
         MapMechanics.pillars(c, (int) p("columns_count"), (int) p("columns_height"), (int) p("columns_seconds"), Blocks.PRISMARINE.defaultBlockState());
     }
 
+
+    /** Вода: брызги, пена, капли. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.8f, 8, 0x4FB8FF);
+        Fx.wave(sl, at, radius, 1.2f, 10, 0xBFE8FF);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.SPLASH, at.x, at.y + 0.5, at.z,
+                Math.round(16 + radius * 6), radius * 0.5, 0.3, radius * 0.5, 0.2);
+    }
+
+    /** Брызги прибоя: три веера воды в разные стороны, один за другим — читайте, куда следующий. */
+    private void spray(Cast c) {
+        triggerAnim("main", "cast");
+        double a0 = random.nextDouble() * Math.PI * 2;
+        for (int i = 0; i < 3; i++) {
+            double a = a0 + i * (Math.PI * 2 / 3) + (random.nextDouble() - 0.5) * 0.6;
+            Telegraph.cone(testCast(c.ticks + i * 10), position(), new Vec3(Math.cos(a), 0, Math.sin(a)), 8, 60, p("spray_units"));
+        }
+        level().playSound(null, blockPosition(), SoundEvents.PLAYER_SPLASH_HIGH_SPEED, SoundSource.HOSTILE, 1.6f, 0.7f);
+    }
+
+    /**
+     * Отбойный удар (с половины): трезубец бьёт под танка, а волна от удара отбрасывает всех ближе 8 блоков
+     * к краю — туда, откуда идёт «Волна». Стоять дальше или держаться за колонной.
+     */
+    private void backlash(Cast c) {
+        Vec3 at = c.target.position();
+        Telegraph.circle(c, at, 3.2f, p("backlash_units"));
+        schedule(c.ticks - 8, () -> triggerAnim("main", "attack"));
+        c.at(c.ticks, () -> {
+            Fx.wave((ServerLevel) level(), at, 8, 1.6f, 14, 0x4FB8FF);
+            for (ServerPlayer p : playersInArena()) {
+                Vec3 v = p.position().subtract(at).multiply(1, 0, 1);
+                if (v.length() > 8 || v.lengthSqr() < 0.01) continue;
+                v = v.normalize().scale(p("backlash_push"));
+                p.setDeltaMovement(v.x, 0.45, v.z);
+                p.hurtMarked = true;
+            }
+            level().playSound(null, blockPosition(), SoundEvents.GENERIC_SPLASH, SoundSource.HOSTILE, 2f, 0.5f);
+        });
+    }
 }

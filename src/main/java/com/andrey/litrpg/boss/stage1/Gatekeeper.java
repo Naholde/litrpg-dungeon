@@ -49,6 +49,8 @@ public class Gatekeeper extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Костяной залп", "salvo", 0, false, b -> true, this::salvo),
+            new Ability("Цепная хватка", "grip", 1, false, b -> farthest() != null, this::grip),
+            new Ability("Цепи из стен", "walls", 1, false, b -> b.phase() >= 1, this::wallChains),
             new Ability("Рывок на цепи", "lunge", 1, false, b -> true, this::lunge),
             new Ability("Костяной щит", "shield", 0, true, b -> b.getHealth() < b.getMaxHealth() * 0.9, this::boneShield),
             new Ability("Зов костей", "call", 1, false, b -> spawnedAlive().size() < 6, this::callBones),
@@ -110,7 +112,8 @@ public class Gatekeeper extends BossEntity {
     @Override
     protected void onPhase(int phase) {
         if (phase == 1) {
-            tell(Component.literal("Привратник рвёт цепи: теперь цепь бьёт дважды!").withStyle(ChatFormatting.RED));
+            tell(Component.literal("Привратник рвёт цепи: теперь цепь бьёт дважды, а из стен бьют цепи склепа!")
+                    .withStyle(ChatFormatting.RED));
             level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 1.5f, 0.6f);
         }
     }
@@ -126,4 +129,64 @@ public class Gatekeeper extends BossEntity {
                 : (getTarget() instanceof ServerPlayer t ? t : null), p("lunge_units"), p("lunge_push"), 0xC9A055);
     }
 
+
+    /** Кость и цепь: осколки костей и звенья вместо общей вспышки. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.shards(sl, at.add(0, 0.3, 0), radius, Math.max(5, Math.round(radius * 3)), 14, 0xE8DCC0);
+        Fx.burst(sl, at.add(0, 0.4, 0), radius * 0.7f, 8, 0xC9A055);
+        Fx.dust(sl, at.add(0, 0.2, 0), 0xBFB59A, Math.round(8 + radius * 3), radius * 0.6, 0.04, 1.4f);
+    }
+
+    /** Самый дальний боец (не танк) дальше 5 блоков — его цепь и достаёт. */
+    private ServerPlayer farthest() {
+        ServerPlayer best = null;
+        double far = 5;
+        for (ServerPlayer p : playersInArena()) {
+            if (p == getTarget()) continue;
+            double d = distanceTo(p);
+            if (d > far) {
+                far = d;
+                best = p;
+            }
+        }
+        return best;
+    }
+
+    /** Цепная хватка: цепь летит к дальнему бойцу — кого застала, того дёргает к Привратнику. */
+    private void grip(Cast c) {
+        ServerPlayer p = farthest();
+        if (p == null) return;
+        tell(Component.literal("Привратник закидывает цепь на " + p.getGameProfile().getName() + " — шаг в сторону!")
+                .withStyle(ChatFormatting.GOLD));
+        Mechanics.grip(c, p, 2.2f, p("grip_units"), p("grip_pull"), 0xC9A055);
+    }
+
+    /**
+     * Цепи из стен (с половины): цепи склепа одна за другой бьют поперёк арены. Все линии видны сразу,
+     * а срабатывают по очереди — кого задело, того цепь держит полторы секунды.
+     */
+    private void wallChains(Cast c) {
+        tell(Component.literal("Цепи рвутся из стен! Уходите с линий — бьют по очереди.").withStyle(ChatFormatting.GOLD));
+        ServerLevel sl = (ServerLevel) level();
+        int n = (int) p("walls_count");
+        double base = random.nextDouble() * Math.PI;
+        double len = arenaRadius() + 1;
+        for (int i = 0; i < n; i++) {
+            double a = base + Math.PI * i / n;
+            Vec3 dir = new Vec3(Math.cos(a), 0, Math.sin(a));
+            Vec3 side = new Vec3(-Math.sin(a), 0, Math.cos(a));
+            double off = (random.nextDouble() * 2 - 1) * 2 + (i % 2 == 0 ? 3 : -3);
+            Vec3 mid = home().add(side.scale(off));
+            Vec3 from = mid.subtract(dir.scale(len)), to = mid.add(dir.scale(len));
+            Cast line = testCast(c.ticks + i * 14);
+            Telegraph.line(line, from, to, 2.0f, p("walls_units"), pl -> StatusService.apply(pl,
+                    Status.of(StatusType.ROOT, "gatekeeper_walls", getUUID(), 1, level().getGameTime(), 30)));
+            line.at(line.ticks, () -> {
+                Fx.bolt(sl, from.add(0, 1.1, 0), to.add(0, 1.1, 0), 0.26f, 10, 0xC9A055);
+                level().playSound(null, net.minecraft.core.BlockPos.containing(from), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.6f, 0.5f);
+            });
+        }
+    }
 }

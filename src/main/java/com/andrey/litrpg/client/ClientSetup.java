@@ -65,6 +65,9 @@ public final class ClientSetup {
             e.registerEntityRenderer(ModEntities.CHRONOPHAGE.get(), ctx -> GeoRenderers.glowing(ctx, "chronophage", 1.8f));
             e.registerEntityRenderer(ModEntities.XALATHAR.get(), ctx -> GeoRenderers.glowing(ctx, "xalathar", 2.6f));
             e.registerEntityRenderer(ModEntities.HOURGLASS.get(), ctx -> GeoRenderers.glowing(ctx, "hourglass", 1.0f));
+            e.registerEntityRenderer(ModEntities.VOID_EYE.get(), ctx -> GeoRenderers.glowing(ctx, "void_eye", 1.0f));
+            e.registerEntityRenderer(ModEntities.ROT_FRUIT.get(), ctx -> GeoRenderers.glowing(ctx, "rot_fruit", 1.0f));
+            e.registerEntityRenderer(ModEntities.DARK_CANDLE.get(), ctx -> GeoRenderers.glowing(ctx, "dark_candle", 1.0f));
             e.registerEntityRenderer(ModEntities.SMELTER.get(), ctx -> GeoRenderers.glowing(ctx, "smelter", 2.4f));
             e.registerEntityRenderer(ModEntities.CHARIOT.get(), ctx -> GeoRenderers.glowing(ctx, "chariot", 1.5f));
             e.registerEntityRenderer(ModEntities.ASH_LORD.get(), ctx -> GeoRenderers.glowing(ctx, "ash_lord", 1.7f));

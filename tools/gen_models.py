@@ -1175,6 +1175,56 @@ def hourglass():
     return bones, anims
 
 
+
+def dark_candle():
+    """Тёмная свеча Вессы: костяная подставка, свеча и душевное пламя."""
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 0, 0], "root", [Cube([-4, 0, -4], [8, 2, 8], "bone_dark"), Cube([-3, 2, -3], [6, 1, 6], "bone"),
+                                              Cube([-2, 3, -2], [4, 12, 4], "bone"), Cube([-2.5, 9, -2.5], [5, 1, 5], "iron_dark")]),
+             Bone("flame", [0, 16, 0], "core", [Cube([-1, 15, -1], [2, 4, 2], "soul"), Cube([-0.5, 19, -0.5], [1, 2, 1], "eye_purple")])]
+    anims = {"idle": loop(2, {"flame": {"scale": kf([(0, [1, 1, 1]), (0.5, [1.2, 1.4, 1.2]), (1, [0.9, 1.1, 0.9]),
+                                                     (1.5, [1.2, 1.3, 1.2]), (2, [1, 1, 1])]),
+                                        "rotation": kf([(0, [0, 0, 0]), (2, [0, 360, 0])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.5, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.5, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+MODELS["dark_candle"] = dark_candle
+
+
+def rot_fruit():
+    """Гнилой плод Древня: раздутый плод на хвостике, пульсирует перед тем как лопнуть."""
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 6, 0], "root", [Cube([-4.5, 1, -4.5], [9, 9, 9], "rot"), Cube([-3.5, 0, -3.5], [7, 1, 7], "bark_dark"),
+                                              Cube([-2, 3, -5], [4, 3, 1], "mushroom_red"), Cube([3.5, 5, -2], [2, 3, 4], "moss"),
+                                              Cube([-0.5, 10, -0.5], [1, 3, 1], "bark"), Cube([0.5, 12, -0.5], [3, 1, 1], "leaves")])]
+    anims = {"idle": loop(1.5, {"core": {"scale": kf([(0, [1, 1, 1]), (0.75, [1.12, 0.92, 1.12]), (1.5, [1, 1, 1])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.5, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.25, [1.4, 1.4, 1.4]), (0.5, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+MODELS["rot_fruit"] = rot_fruit
+
+
+def void_eye():
+    """Глаз Бездны Ксалатара: глаз в обсидиановой оправе, зрачок следит."""
+    bones = [Bone("root", [0, 0, 0]),
+             Bone("core", [0, 12, 0], "root", [Cube([-5, 6, -5], [10, 10, 10], "void"), Cube([-6, 9, -2], [1, 4, 4], "obsidian"),
+                                               Cube([5, 9, -2], [1, 4, 4], "obsidian"), Cube([-2, 16, -2], [4, 1, 4], "obsidian"),
+                                               Cube([-4, 8, -5.5], [8, 6, 1], "amethyst")]),
+             Bone("pupil", [0, 11, -6], "core", [Cube([-1.5, 9.5, -6.2], [3, 3, 1], "void_glow")]),
+             Bone("stalk", [0, 0, 0], "root", [Cube([-1.5, 0, -1.5], [3, 12, 3], "obsidian"), Cube([-3, 0, -3], [6, 1, 6], "purpur")])]
+    anims = {"idle": loop(3, {"core": {"rotation": kf([(0, [0, -30, 0]), (1.5, [0, 30, 0]), (3, [0, -30, 0])])},
+                              "pupil": {"scale": kf([(0, [1, 1, 1]), (1.4, [1, 1, 1]), (1.5, [1, 0.1, 1]), (1.6, [1, 1, 1]), (3, [1, 1, 1])])}}),
+             "walk": loop(2, {}), "death": {"animation_length": 0.5, "hold_on_last_frame": True,
+                                            "bones": {"core": {"scale": kf([(0, [1, 1, 1]), (0.5, [0.1, 0.1, 0.1])])}}}}
+    return bones, anims
+
+
+MODELS["void_eye"] = void_eye
+
 MODELS.update({"void_sentinel": void_sentinel, "light_eater": light_eater, "shard": shard, "wanderer": wanderer,
                "warped_archer": warped_archer, "colossus": colossus, "shadow": shadow, "doppel": doppel,
                "chronophage": chronophage, "xalathar": xalathar, "hourglass": hourglass})

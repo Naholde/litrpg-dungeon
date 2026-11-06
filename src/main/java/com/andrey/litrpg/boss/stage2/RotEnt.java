@@ -51,6 +51,9 @@ public class RotEnt extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Кольца спор", "circles", 0, false, b -> true, this::circles),
+            new Ability("Хватка корней", "grasp", 0, false, b -> b.phase() >= 1, this::grasp),
+            new Ability("Гнилые плоды", "fruit", 1, false, b -> spawnedAlive().stream().noneMatch(e ->
+                    e.getType() == com.andrey.litrpg.core.ModEntities.ROT_FRUIT.get()), this::fruit),
             new Ability("Корни-путы", "bind", 1, false, b -> true, this::bind),
             new Ability("Сердцевина", "heart", 0, true, b -> b.getHealth() < b.getMaxHealth() * 0.85, this::heartwood),
             new Ability("Споровое облако", "spores", 1, false, b -> poolCount() < 4, this::spores),
@@ -132,4 +135,69 @@ public class RotEnt extends BossEntity {
         Mechanics.tether(c, (int) p("bind_seconds"), p("bind_dist"), p("bind_units"), 0x6B8A3A);
     }
 
+
+    /** Гниль: споры, щепа, бурые хлопья. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.burst(sl, at.add(0, 0.3, 0), radius * 0.7f, 8, 0x8BA24A);
+        Fx.shards(sl, at.add(0, 0.2, 0), radius, Math.max(4, Math.round(radius * 3)), 14, 0x5A3E22);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.SPORE_BLOSSOM_AIR, at.x, at.y + 0.6, at.z,
+                Math.round(10 + radius * 5), radius * 0.5, 0.4, radius * 0.5, 0.01);
+    }
+
+    /**
+     * Гнилые плоды: с ветвей падают три плода; через {@code fruit_seconds} каждый лопается в споровое облако,
+     * если его не разбили. Работа для бойцов издалека.
+     */
+    private void fruit(Cast c) {
+        triggerAnim("main", "cast");
+        ServerLevel sl = (ServerLevel) level();
+        c.at(c.ticks, () -> {
+            tell(Component.literal("С Древня падают гнилые плоды — разбейте, пока не лопнули!").withStyle(ChatFormatting.DARK_GREEN));
+            int life = (int) Math.round(p("fruit_seconds") * 20);
+            for (int i = 0; i < 3; i++) {
+                double a = Math.PI * 2 * i / 3 + random.nextDouble();
+                double r = arenaRadius() * (0.35 + random.nextDouble() * 0.4);
+                Vec3 at = home().add(Math.cos(a) * r, 0, Math.sin(a) * r);
+                var node = spawnNode(com.andrey.litrpg.core.ModEntities.ROT_FRUIT.get(), at, p("fruit_hp_units"), "Гнилой плод");
+                if (node == null) continue;
+                Fx.disc(sl, at, 3f, life, 0x8BA24A, false);
+                detached(life, () -> {
+                    if (!node.isAlive()) return;
+                    node.discard();
+                    addPool(at, 3, 0.1, 4, (int) Math.round(p("spore_seconds") * 0.6), p("spore_units"), 0x8BA24A, null);
+                    impact(at, 3);
+                    sl.playSound(null, net.minecraft.core.BlockPos.containing(at), SoundEvents.SLIME_SQUISH, SoundSource.HOSTILE, 2f, 0.5f);
+                });
+            }
+        });
+    }
+
+    /**
+     * Хватка корней (с половины): корни тянут весь отряд к Древню, а вокруг него заполняется круг — нужно
+     * уходить против тяги, а не стоять.
+     */
+    private void grasp(Cast c) {
+        triggerAnim("main", "cast");
+        tell(Component.literal("Корни тянут к Древню — уходите из круга против тяги!").withStyle(ChatFormatting.DARK_GREEN, ChatFormatting.BOLD));
+        int ticks = (int) Math.round(p("grasp_seconds") * 20);
+        Vec3 center = position();
+        Telegraph.circle(testCast(c.ticks + ticks), center, 5.5f, p("grasp_units"));
+        for (int t = 0; t < ticks; t += 2) {
+            c.at(c.ticks + t, () -> {
+                for (ServerPlayer p : playersInArena()) {
+                    Vec3 v = center.subtract(p.position()).multiply(1, 0, 1);
+                    if (v.lengthSqr() < 1) continue;
+                    v = v.normalize().scale(p("grasp_pull"));
+                    p.push(v.x, 0, v.z);
+                    p.hurtMarked = true;
+                }
+                if ((level().getGameTime() & 7) == 0) {
+                    for (ServerPlayer p : playersInArena()) Fx.bolt((ServerLevel) level(), center.add(0, 0.3, 0), p.position().add(0, 0.3, 0),
+                            0.12f, 8, 0x5A3E22);
+                }
+            });
+        }
+    }
 }

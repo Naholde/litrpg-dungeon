@@ -66,6 +66,8 @@ public class LichKing extends BossEntity {
 
     private final List<Ability> abilities = List.of(
             new Ability("Ледяная корка", "frost", 0, false, b -> true, this::frost),
+            new Ability("Зов вьюги", "blizzard", 0, false, b -> relocated(), this::blizzard),
+            new Ability("Ледяная тропа", "frostpath", 2, false, b -> true, this::frostpath),
             new Ability("Во тьме", "dark", 0, false, b -> relocated(), this::darkness),
             new Ability("Ледяная гробница", "tomb", 1, false, b -> b.playersInArena().size() > 1, this::tomb),
             new Ability("Поднять мёртвых", "raise", 2, false, b -> spawnedAlive().size() < 4, this::raise),
@@ -199,4 +201,62 @@ public class LichKing extends BossEntity {
         Mechanics.crumble(c, (int) p("frost_waves"), (int) p("frost_safe"), p("frost_radius"), p("frost_units"), 0x8FE3FF);
     }
 
+
+    /** Лёд: осколки, иней и снежинки. */
+    @Override
+    public void impact(Vec3 at, float radius) {
+        ServerLevel sl = (ServerLevel) level();
+        Fx.shards(sl, at.add(0, 0.3, 0), radius, Math.max(6, Math.round(radius * 4)), 16, Fx.ICE);
+        Fx.spiral(sl, at, radius * 0.5f, 1.6f, 10, 0xD8F4FF);
+        sl.sendParticles(net.minecraft.core.particles.ParticleTypes.SNOWFLAKE, at.x, at.y + 0.6, at.z,
+                Math.round(10 + radius * 4), radius * 0.4, 0.3, radius * 0.4, 0.02);
+    }
+
+    /**
+     * Ледяная тропа: по ледяному сгустку к каждому — катятся по полу, дорожка видна заранее.
+     * Задетого прихватывает инеем (замедление на 2 с).
+     */
+    private void frostpath(Cast c) {
+        triggerAnim("main", "cast");
+        List<ServerPlayer> all = new java.util.ArrayList<>(playersInArena());
+        java.util.Collections.shuffle(all, new java.util.Random(random.nextLong()));
+        for (int i = 0; i < Math.min(3, all.size()); i++) {
+            Vec3 dir = all.get(i).position().subtract(position());
+            Cast lane = testCast(c.ticks + i * 8);
+            Mechanics.missile(lane, position(), dir, p("frostpath_speed"), arenaRadius() * 2, 1.3f, p("frostpath_units"), Fx.ICE,
+                    pl -> StatusService.apply(pl, Status.of(StatusType.SLOW, "lich_frostpath", getUUID(), 0.4,
+                            level().getGameTime(), 40)));
+        }
+        level().playSound(null, blockPosition(), SoundEvents.POWDER_SNOW_STEP, SoundSource.HOSTILE, 2f, 0.5f);
+    }
+
+    /**
+     * Зов вьюги (Тронный зал): {@code blizzard_seconds} секунд кто за секунду прошёл меньше
+     * {@code blizzard_move} блоков, тот замерзает. Стоять нельзя — нужно кружить.
+     */
+    private void blizzard(Cast c) {
+        triggerAnim("main", "cast");
+        tell(Component.literal("Карн зовёт вьюгу: кто стоит — замерзает. Двигайтесь!").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+        ServerLevel sl = (ServerLevel) level();
+        int secs = (int) Math.round(p("blizzard_seconds"));
+        Telegraph.note(c, "move", 0);
+        Map<UUID, Vec3> last = new HashMap<>();
+        Fx.vortex(sl, home(), (float) arenaRadius() * 0.7f, 7, c.ticks + secs * 20, Fx.ICE);
+        c.at(c.ticks, () -> {
+            for (ServerPlayer p : playersInArena()) last.put(p.getUUID(), p.position());
+        });
+        for (int s = 1; s <= secs; s++) {
+            c.at(c.ticks + s * 20, () -> {
+                for (ServerPlayer p : playersInArena()) {
+                    Vec3 prev = last.put(p.getUUID(), p.position());
+                    sl.sendParticles(net.minecraft.core.particles.ParticleTypes.SNOWFLAKE, p.getX(), p.getY() + 1.6, p.getZ(),
+                            8, 0.6, 0.4, 0.6, 0.02);
+                    if (prev == null || prev.distanceTo(p.position()) >= p("blizzard_move")) continue;
+                    BossDamage.hit(this, p, p("blizzard_units"));
+                    StatusService.apply(p, Status.of(StatusType.SLOW, "lich_blizzard", getUUID(), 0.3, level().getGameTime(), 25));
+                    p.displayClientMessage(Component.literal("Вы замерзаете — двигайтесь!").withStyle(ChatFormatting.AQUA), true);
+                }
+            });
+        }
+    }
 }

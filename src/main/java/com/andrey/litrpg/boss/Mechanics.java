@@ -27,7 +27,7 @@ public final class Mechanics {
     }
 
     /**
-     * Залп: {@code shots} выстрелов подряд по случайным бойцам. Под целью сначала загорается круг (0,8 с),
+     * Залп: {@code shots} выстрелов подряд по случайным бойцам. Под целью сначала загорается круг (1 с),
      * потом прилетает выстрел — шаг в сторону или колонна между вами и хранителем спасают. Фаза 13:
      * раньше залп бил без разметки и с одного захода снимал полздоровья.
      */
@@ -41,9 +41,9 @@ public final class Mechanics {
                 List<ServerPlayer> all = b.playersInArena();
                 if (all.isEmpty()) return;
                 ServerPlayer p = all.get(b.getRandom().nextInt(all.size()));
-                Telegraph.shot(b.testCast(16), p.position(), 1.6f, units, color);
+                Telegraph.shot(b.testCast(20), p.position(), 1.6f, units, color);
                 level(b).playSound(null, b.blockPosition(), SoundEvents.CROSSBOW_LOADING_MIDDLE.value(), SoundSource.HOSTILE, 1.1f, 1.2f);
-                c.boss().schedule(16, () -> level(b).playSound(null, b.blockPosition(), SoundEvents.ARROW_SHOOT,
+                c.boss().schedule(20, () -> level(b).playSound(null, b.blockPosition(), SoundEvents.ARROW_SHOOT,
                         SoundSource.HOSTILE, 1.1f, 1.3f));
             });
         }
@@ -241,5 +241,93 @@ public final class Mechanics {
             Fx.wave(level(b), to, 4f, 1.4f, 12, color);
             level(b).playSound(null, b.blockPosition(), SoundEvents.RAVAGER_ATTACK, SoundSource.HOSTILE, 1.4f, 0.7f);
         });
+    }
+
+    /**
+     * Хватка: полоса от хранителя к бойцу; кого полоса застала — того дёргает к хранителю (под его удары).
+     * Уйти — шаг в сторону, пока полоса заполняется.
+     */
+    public static void grip(BossEntity.Cast c, ServerPlayer at, float width, double units, double pull, int color) {
+        BossEntity b = c.boss();
+        if (at == null) return;
+        Vec3 from = b.position();
+        Vec3 dir = at.position().subtract(from).multiply(1, 0, 1).normalize();
+        Vec3 to = from.add(dir.scale(at.position().distanceTo(from) + 3));
+        Telegraph.line(c, from, to, width, units, p -> {
+            Vec3 v = b.position().subtract(p.position()).multiply(1, 0, 1).normalize().scale(pull);
+            p.setDeltaMovement(v.x, 0.35, v.z);
+            p.hurtMarked = true;
+            Fx.bolt(level(b), b.position().add(0, b.getBbHeight() * 0.6, 0), p.position().add(0, 1, 0), 0.2f, 10, color);
+        });
+        c.at(c.ticks, () -> {
+            Fx.bolt(level(b), b.position().add(0, b.getBbHeight() * 0.6, 0), to.add(0, 1, 0), 0.22f, 8, color);
+            level(b).playSound(null, b.blockPosition(), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.6f, 0.6f);
+        });
+    }
+
+    /**
+     * Снаряд по полу: пятно радиуса {@code radius} катится от {@code from} по {@code dir} со скоростью {@code speed}
+     * блоков в секунду на {@code range} блоков и задевает каждого на пути один раз. Путь подсвечен заранее —
+     * уйти с дорожки вбок.
+     */
+    public static void missile(BossEntity.Cast c, Vec3 from, Vec3 dir, double speed, double range, float radius, double units,
+                               int color, java.util.function.Consumer<ServerPlayer> extra) {
+        BossEntity b = c.boss();
+        Vec3 d = dir.multiply(1, 0, 1).normalize();
+        Telegraph.note(c, "line", radius + 0.3);
+        Fx.line(level(b), from, from.add(d.scale(range)), radius * 2, c.ticks, color, false);
+        java.util.Set<java.util.UUID> hit = new java.util.HashSet<>();
+        int steps = (int) Math.ceil(range / speed * 10);
+        for (int i = 0; i <= steps; i++) {
+            final Vec3 at = from.add(d.scale(Math.min(range, speed * i / 10.0)));
+            c.at(c.ticks + i * 2, () -> {
+                Fx.orb(level(b), at.add(0, 0.6, 0), radius * 0.7f, 4, color);
+                if ((at.x + at.z) % 2 < 1) Fx.dust(level(b), at.add(0, 0.3, 0), color, 4, radius * 0.4, 0.02, 1.1f);
+                for (ServerPlayer p : b.playersInArena()) {
+                    if (hit.contains(p.getUUID())) continue;
+                    double dx = p.getX() - at.x, dz = p.getZ() - at.z;
+                    if (dx * dx + dz * dz > radius * radius) continue;
+                    hit.add(p.getUUID());
+                    BossDamage.hit(b, p, units);
+                    if (extra != null && p.isAlive()) extra.accept(p);
+                    b.impact(p.position(), radius);
+                }
+            });
+        }
+    }
+
+    /**
+     * Хоровод: {@code count} огней кружат вокруг хранителя на радиусе {@code radius} {@code seconds} секунд
+     * ({@code degPerSecond} градусов в секунду). Задетый огнём получает {@code units} (не чаще раза в секунду).
+     * Огни видно — нужно пропускать их, шагая в просветы, или держаться ближе/дальше круга.
+     */
+    public static void orbit(BossEntity.Cast c, int count, double radius, int seconds, double degPerSecond, float size,
+                             double units, int color, java.util.function.Consumer<ServerPlayer> extra) {
+        BossEntity b = c.boss();
+        Telegraph.note(c, "orbit", size);
+        Fx.ring(level(b), b.position(), (float) radius, c.ticks, color);
+        java.util.Map<java.util.UUID, Long> last = new java.util.HashMap<>();
+        double start = b.getRandom().nextDouble() * 360;
+        for (int t = 0; t <= seconds * 10; t++) {
+            final int tick = t;
+            c.at(c.ticks + t * 2, () -> {
+                Vec3 center = b.position();
+                long now = b.level().getGameTime();
+                for (int i = 0; i < count; i++) {
+                    double a = Math.toRadians(start + 360.0 * i / count + degPerSecond * tick / 10.0);
+                    Vec3 at = center.add(Math.cos(a) * radius, 0, Math.sin(a) * radius);
+                    Fx.orb(level(b), at.add(0, 0.9, 0), size * 0.6f, 4, color);
+                    if (tick % 3 == 0) Fx.disc(level(b), at, size, 6, color, false);
+                    for (ServerPlayer p : b.playersInArena()) {
+                        double dx = p.getX() - at.x, dz = p.getZ() - at.z;
+                        if (dx * dx + dz * dz > size * size) continue;
+                        if (now - last.getOrDefault(p.getUUID(), -100L) < 20) continue;
+                        last.put(p.getUUID(), now);
+                        BossDamage.hit(b, p, units);
+                        if (extra != null && p.isAlive()) extra.accept(p);
+                    }
+                }
+            });
+        }
     }
 }
