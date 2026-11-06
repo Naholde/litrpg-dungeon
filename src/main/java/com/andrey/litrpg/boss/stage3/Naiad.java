@@ -61,6 +61,8 @@ public class Naiad extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Жемчужные кольца", "pearlrings", 1, false, b -> true, this::pearlRings),
+            new Ability("Святые воды", "holywater", 0, false, b -> b.phase() >= 1, this::holyWater),
             new Ability("Песнь по кругу", "ray", 0, false, b -> true, this::ray),
             new Ability("Слёзы глубин", "tears", 0, false, b -> b.phase() >= 1, this::tears),
             new Ability("Спиральные копья", "spiral", 1, false, b -> true, this::spiral),
@@ -230,6 +232,41 @@ public class Naiad extends BossEntity {
                     for (ServerPlayer p : on) com.andrey.litrpg.boss.BossDamage.hit(this, p, p("tears_units") / on.size());
                     Fx.burst(sl, at.add(0, 0.5, 0), 1.4f, 8, LIGHT);
                 }
+            });
+        }
+    }
+
+    /** Жемчужные кольца: вокруг Наяры загорается ближнее кольцо, потом дальнее, потом снова ближнее — шагайте между ними. */
+    private void pearlRings(Cast c) {
+        triggerAnim("main", "cast");
+        Vec3 at = position();
+        for (int k = 0; k < 3; k++) {
+            boolean near = k % 2 == 0;
+            com.andrey.litrpg.boss.Ground.ring(testCast(c.ticks + k * 60), at, near ? 3 : 9, near ? 6.5f : 12.5f, 3, p("pearlrings_units"), LIGHT, null);
+        }
+    }
+
+    /**
+     * Святые воды (с 66%): на полу — святой источник на {holywater_seconds}. Пока Наяра стоит в нём, она лечится
+     * каждую секунду. Танк, уведите её от воды.
+     */
+    private void holyWater(Cast c) {
+        triggerAnim("main", "cast");
+        Vec3 at = randomSpot(0.2, 0.6);
+        com.andrey.litrpg.boss.Telegraph.note(c, "zone", 0);
+        Fx.disc((ServerLevel) level(), at, 3.5f, c.ticks, Telegraph.SOAK, true);
+        tell(Component.literal("Святые воды! Пока Наяра в источнике — она лечится. Уводите её.").withStyle(ChatFormatting.AQUA));
+        int life = (int) Math.round(p("holywater_seconds") * 20);
+        c.at(c.ticks, () -> addZone(life, 0, pt -> false, sl -> {
+            Fx.disc(sl, at, 3.5f, 12, Telegraph.SOAK, false);
+            Fx.pillar(sl, at, 0.5f, 3, 12, LIGHT);
+        }, null));
+        for (int t = 20; t <= life; t += 20) {
+            c.at(c.ticks + t, () -> {
+                Vec3 d = position().subtract(at).multiply(1, 0, 1);
+                if (d.length() > 3.5) return;
+                heal((float) (getMaxHealth() * p("holywater_share")));
+                Fx.beam((ServerLevel) level(), at.add(0, 0.5, 0), position().add(0, 1.5, 0), 0.25f, 12, LIGHT);
             });
         }
     }

@@ -1401,7 +1401,7 @@
     "tank.taunt": {
       "cooldown": 8.0,
       "cast": 0.0,
-      "range": 14.0,
+      "radius": 9.0,
       "duration": 4.0
     },
     "warlock.circle": {

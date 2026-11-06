@@ -58,6 +58,8 @@ public class Xalathar extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Разрывы пустоты", "rifts", 1, false, b -> true, this::rifts),
+            new Ability("Тьма сгущается", "gloom", 0, false, b -> b.phase() >= 1, this::gloom),
             new Ability("Край рушится", "edgefall", 0, false, b -> true, this::edgefall),
             new Ability("Тысяча глаз", "eyes", 0, false, b -> b.phase() >= 1 && spawnedAlive().stream().noneMatch(e ->
                     e.getType() == com.andrey.litrpg.core.ModEntities.VOID_EYE.get()), this::eyes),
@@ -240,5 +242,22 @@ public class Xalathar extends BossEntity {
                 Fx.pillar(sl, at, 0.8f, 4, 20, VOID);
             }
         });
+    }
+
+    /** Разрывы пустоты: четыре разрыва хордами через арену на {rifts_seconds} — их не перешагнуть, только обойти. */
+    private void rifts(Cast c) {
+        triggerAnim("main", "cast");
+        for (int i = 0; i < 4; i++) {
+            double a = random.nextDouble() * 360, b = a + 100 + random.nextDouble() * 160;
+            Vec3 p1 = home().add(dir(a).scale(arenaRadius())), p2 = home().add(dir(b).scale(arenaRadius()));
+            com.andrey.litrpg.boss.Ground.line(c, p1, p2, 2f, (int) p("rifts_seconds"), p("rifts_units"), VOID, null);
+        }
+    }
+
+    /** Тьма сгущается (с 75%): {gloom_seconds} секунд светло только рядом с Ксалатаром — все к нему, в его удары. */
+    private void gloom(Cast c) {
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.outside(c, position(), 7, (int) p("gloom_seconds"), p("gloom_units"), 0x2A0A44, null);
+        tell(Component.literal("Тьма сгущается — свет только у Ксалатара!").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.BOLD));
     }
 }

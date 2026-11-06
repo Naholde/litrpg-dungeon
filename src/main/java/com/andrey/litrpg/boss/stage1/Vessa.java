@@ -64,6 +64,9 @@ public class Vessa extends TwinSister {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Порченая земля", "blight", 1, false, b -> true, this::blight),
+            new Ability("Тёмный круг", "darkring", 1, false, b -> true, this::darkRing),
+            new Ability("Ползучая тень", "shade", 1, false, b -> b.playersInArena().size() > 0, this::shade),
             new Ability("Ползучая порча", "creep", 0, false, b -> true, this::creep),
             new Ability("Взгляд Вессы", "stare", 1, false, b -> true, this::stare),
             new Ability("Тёмное лечение", "mend", 0, true, b -> woundedSister() != null, this::mend),
@@ -169,4 +172,36 @@ public class Vessa extends TwinSister {
         });
     }
 
+
+    /** Порченая земля: под каждым загорается круг и тлеет {blight_seconds} — сойдите и не возвращайтесь. */
+    private void blight(Cast c) {
+        triggerAnim("main", "cast");
+        for (ServerPlayer p : playersInArena()) {
+            com.andrey.litrpg.boss.Ground.circle(c, p.position(), 2.2f, (int) p("blight_seconds"), p("blight_units"), 0x7A4ACF, null);
+        }
+    }
+
+    /** Тёмный круг: середина зала темнеет на {darkring_seconds} — бой уходит к стенам. */
+    private void darkRing(Cast c) {
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.circle(c, home(), 5.5f, (int) p("darkring_seconds"), p("darkring_units"), 0x2A0F3A, null);
+        tell(Component.literal("Середина зала темнеет — уходите к стенам.").withStyle(ChatFormatting.DARK_PURPLE));
+    }
+
+    /** Ползучая тень: тень ползёт за бойцом {shade_seconds} — уводите её от своих, не стойте на месте. */
+    private void shade(Cast c) {
+        ServerPlayer prey = randomNonTarget();
+        if (prey == null) return;
+        triggerAnim("main", "cast");
+        tell(Component.literal("Тень Вессы ползёт за " + prey.getGameProfile().getName() + " — уводи её от своих!")
+                .withStyle(ChatFormatting.DARK_PURPLE));
+        com.andrey.litrpg.boss.Ground.moving(c, position(), () -> prey.isAlive() ? prey.position() : null, 2.4f, 2.2, (int) p("shade_seconds"),
+                p("shade_units"), 0x7A4ACF, null);
+    }
+
+    /** Бой сестёр — один: журнал Вессы пишется в бой Морры. */
+    @Override
+    public com.andrey.litrpg.boss.BossEntity logOwner() {
+        return sister() != null ? sister() : this;
+    }
 }

@@ -51,6 +51,8 @@ public class Leviathan extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Чернильное пятно", "ink", 1, false, b -> b.playersInArena().size() > 0, this::ink),
+            new Ability("Отбойное течение", "undertow", 1, false, b -> b.phase() >= 1, this::undertow),
             new Ability("Стена воды", "wall", 0, false, b -> true, this::wall),
             new Ability("Рёв глубин", "roar", 0, false, b -> b.phase() >= 1, this::roar),
             new Ability("Водяной смерч", "spout", 1, false, b -> true, this::spout),
@@ -235,5 +237,24 @@ public class Leviathan extends BossEntity {
             Fx.wave((ServerLevel) level(), at, 10, 2f, 16, 0x2FA3A0);
             level().playSound(null, blockPosition(), SoundEvents.ELDER_GUARDIAN_CURSE, SoundSource.HOSTILE, 2f, 0.5f);
         });
+    }
+
+    /** Чернильное пятно: облако чернил ползёт за дальним бойцом {ink_seconds} — в нём темно и больно. */
+    private void ink(Cast c) {
+        List<ServerPlayer> by = playersByDistance();
+        if (by.isEmpty()) return;
+        ServerPlayer far = by.get(by.size() - 1);
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.moving(c, randomSpot(0.6, 0.9), () -> far.isAlive() ? far.position() : null, 3f, 1.8, (int) p("ink_seconds"),
+                p("ink_units"), 0x1B1B2A, pl -> pl.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                        net.minecraft.world.effect.MobEffects.BLINDNESS, 40, 0, false, false)));
+        tell(Component.literal("Чернила ползут за " + far.getGameProfile().getName() + " — не давай им догнать.").withStyle(ChatFormatting.DARK_AQUA));
+    }
+
+    /** Отбойное течение (с 66%): половину зала {undertow_seconds} несёт к краю — выходите на спокойную сторону. */
+    private void undertow(Cast c) {
+        triggerAnim("main", "cast");
+        Vec3 d = dir(random.nextDouble() * 360);
+        com.andrey.litrpg.boss.Ground.half(c, home(), d, (int) p("undertow_seconds"), p("undertow_units"), 0x2FA3A0, pl -> push(pl, d, 0.5));
     }
 }

@@ -24,7 +24,7 @@ public enum GearEffect implements StringRepresentable {
     FIRST_STRIKE("first_strike", "Первый удар", Role.DAMAGE, "+{v} урона по врагам с полным здоровьем"),
     VAMPIRIC("vampiric", "Кровопийца", Role.DAMAGE, "{v} нанесённого урона лечит вас"),
     SPARK("spark", "Искра", Role.DAMAGE, "Удар с шансом 12% бьёт молнией ещё двоих рядом на {v} урона"),
-    OPENING("opening", "Окно", Role.DAMAGE, "+{v} урона по изнурённому хранителю"),
+    OPENING("opening", "Окно", Role.DAMAGE, "+{v} урона по хранителю, пока он готовит приём (и в его передышку)"),
     DASH_FURY("dash_fury", "Рывок ярости", Role.DAMAGE, "После рывка +{v} урона на 3 с"),
     // поддержка
     MERCY("mercy", "Милосердие", Role.SUPPORT, "+{v} лечения союзникам ниже половины здоровья"),

@@ -85,6 +85,7 @@ public final class HealService {
         target.heal((float) amount);
         float real = target.getHealth() - before;
         com.andrey.litrpg.gear.GearEffects.afterHeal(healer, target, amount, real);
+        com.andrey.litrpg.boss.FightLog.healed(healer, real);
         if (healer != null && real > 0 && target != healer) {
             com.andrey.litrpg.skill.StyleTracker.add(healer, com.andrey.litrpg.skill.Style.HEALING, 1);
         }

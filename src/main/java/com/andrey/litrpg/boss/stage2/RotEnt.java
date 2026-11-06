@@ -50,6 +50,8 @@ public class RotEnt extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Корневая решётка", "rootgrid", 1, false, b -> true, this::rootGrid),
+            new Ability("Споровый след", "sporetrail", 1, false, b -> b.phase() >= 1, this::sporeTrail),
             new Ability("Кольца спор", "circles", 0, false, b -> true, this::circles),
             new Ability("Хватка корней", "grasp", 0, false, b -> b.phase() >= 1, this::grasp),
             new Ability("Гнилые плоды", "fruit", 1, false, b -> spawnedAlive().stream().noneMatch(e ->
@@ -199,5 +201,26 @@ public class RotEnt extends BossEntity {
                 }
             });
         }
+    }
+
+    /** Корневая решётка: корни решёткой «#» поперёк арены на {rootgrid_seconds} — стойте в клетках, не на корнях. */
+    private void rootGrid(Cast c) {
+        triggerAnim("main", "cast");
+        double a = random.nextDouble() * 90, len = arenaRadius() + 2;
+        for (int axis = 0; axis < 2; axis++) {
+            Vec3 d = dir(a + axis * 90), side = dir(a + axis * 90 + 90);
+            for (int s = -1; s <= 1; s += 2) {
+                Vec3 mid = home().add(side.scale(4 * s));
+                com.andrey.litrpg.boss.Ground.line(c, mid.subtract(d.scale(len)), mid.add(d.scale(len)), 2f, (int) p("rootgrid_seconds"), p("rootgrid_units"),
+                        0x5A3E22, pl -> slow(pl, 0.4, 25));
+            }
+        }
+    }
+
+    /** Споровый след (с половины): за Древнем десять секунд остаются споры — танк, уводите его по кругу. */
+    private void sporeTrail(Cast c) {
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.trail(c, this, 10, 15, 2.2f, 10, p("sporetrail_units"), 0x8BA24A, null);
+        tell(Component.literal("Древень сеет споры за собой — водите его по краю.").withStyle(ChatFormatting.DARK_GREEN));
     }
 }

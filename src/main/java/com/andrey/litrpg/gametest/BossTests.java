@@ -68,11 +68,10 @@ public final class BossTests {
     }
 
     /**
-     * Ритм (фаза 13): за 50 с боя хранитель не начинает навык, пока прошлый не доиграл и не прошла пауза;
-     * навыки идут по очереди (не один и тот же подряд), и после серии приходит передышка, когда по нему
-     * проходит больше урона.
+     * Ритм (фаза 13, второй заход): за 40 с боя хранитель начинает приём раз в 3–5 с (не чаще 3 с и не раньше конца
+     * прошлого замаха), навыки идут по очереди (не один и тот же подряд), общей передышки нет.
      */
-    @GameTest(template = "arena", timeoutTicks = 1100)
+    @GameTest(template = "arena", timeoutTicks = 900)
     public static void bossKeepsRhythm(GameTestHelper h) {
         ServerPlayer[] ps = {player(h, Role.TANK, 3.5, 3.5), player(h, Role.DAMAGE, 6.5, 2.5), player(h, Role.SUPPORT, 2.5, 6.5)};
         for (ServerPlayer p : ps) {
@@ -80,32 +79,53 @@ public final class BossTests {
                     1200, 4, false, false));
         }
         TrialWarden b = boss(h);
-        long[] lastBusy = {0};
         java.util.List<String> casts = new java.util.ArrayList<>();
+        java.util.List<Long> starts = new java.util.ArrayList<>();
         boolean[] wasCasting = {false}, sawTired = {false};
-        String[] bad = {null};
-        for (int t = 0; t < 1000; t++) {
+        for (int t = 0; t < 800; t++) {
             h.runAfterDelay(t + 1, () -> {
                 for (ServerPlayer p : ps) p.setHealth(p.getMaxHealth());
                 long now = h.getLevel().getGameTime();
                 boolean casting = b.isCasting();
                 if (casting && !wasCasting[0]) {
-                    if (now < lastBusy[0] && bad[0] == null) bad[0] = "навык начался на " + (lastBusy[0] - now) + " тиков раньше конца прошлого";
                     casts.add(b.castName().split("[|]")[0]);
+                    starts.add(now);
                 }
                 wasCasting[0] = casting;
                 if (b.tired()) sawTired[0] = true;
-                lastBusy[0] = b.busyUntil();
             });
         }
-        h.runAfterDelay(1050, () -> {
-            h.assertTrue(bad[0] == null, String.valueOf(bad[0]));
-            h.assertTrue(casts.size() >= 4, "мало навыков за 50 с: " + casts);
-            for (int i = 1; i < casts.size(); i++) {
+        h.runAfterDelay(850, () -> {
+            h.assertTrue(casts.size() >= 6, "мало навыков за 40 с: " + casts);
+            for (int i = 1; i < starts.size(); i++) {
+                long gap = starts.get(i) - starts.get(i - 1);
+                h.assertTrue(gap >= 58, "приёмы чаще 3 с (" + gap + " тиков): " + casts);
                 h.assertFalse(casts.get(i).equals(casts.get(i - 1)), "один навык дважды подряд: " + casts);
             }
-            h.assertTrue(sawTired[0], "передышки не было: " + casts);
+            h.assertFalse(sawTired[0], "у пробного хранителя не должно быть передышки");
             b.resetFight();
+            h.succeed();
+        });
+    }
+
+    /** Журнал боя: удар бойца и удар хранителя попадают в итог; победа — в списке последних боёв. */
+    @GameTest(template = "arena", timeoutTicks = 200)
+    public static void fightIsLogged(GameTestHelper h) {
+        ServerPlayer dps = player(h, Role.DAMAGE, 6.5, 2.5);
+        player(h, Role.TANK, 2.5, 2.5);
+        TrialWarden b = boss(h);
+        h.runAfterDelay(AFTER_SPAWN, () -> {
+            b.hurt(b.damageSources().playerAttack(dps), 50);
+            BossDamage.hit(b, dps, 0.2);
+            b.kill();
+        });
+        h.runAfterDelay(AFTER_SPAWN + 5, () -> {
+            var last = com.andrey.litrpg.boss.FightLog.last();
+            // Тесты идут одновременно — свой бой ищем среди последних по победе.
+            var won = last.stream().filter(l -> l.get(0).contains("победа")).findFirst();
+            h.assertTrue(won.isPresent(), "победа не записана: " + last);
+            String row = String.join(" | ", won.get());
+            h.assertTrue(row.contains(dps.getGameProfile().getName() + ": урон") && row.contains("получил"), "нет строки бойца: " + row);
             h.succeed();
         });
     }

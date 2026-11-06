@@ -57,6 +57,9 @@ public class Morra extends TwinSister {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Поле жатвы", "harvest", 1, false, b -> true, this::harvestField),
+            new Ability("След косы", "scythetrail", 1, false, b -> true, this::scytheTrail),
+            new Ability("Сестринская черта", "bondline", 1, false, b -> sister() != null && !sister().fallen(), this::bondLine),
             new Ability("Сестринская нить", "bond", 0, false, b -> true, this::bond),
             new Ability("Волны косы", "waves", 1, false, b -> true, this::waves),
             new Ability("Костяные копья", "spears", 1, false, b -> true, this::spears),
@@ -158,5 +161,49 @@ public class Morra extends TwinSister {
                 }
             });
         }
+    }
+
+    /** Поле жатвы: горят две противоположные четверти арены, потом — две другие. Переходите вместе с полем. */
+    private void harvestField(Cast c) {
+        triggerAnim("main", "cast");
+        double a0 = random.nextDouble() * 90;
+        for (int k = 0; k < 2; k++) {
+            Cast part = testCast(c.ticks + k * 100);
+            for (int q = 0; q < 2; q++) {
+                com.andrey.litrpg.boss.Ground.sector(part, home(), dir(a0 + k * 90 + q * 180), (float) arenaRadius() + 3, 90, 5, p("harvest_units"), 0xB98CFF, null);
+            }
+        }
+        tell(Component.literal("Поле жатвы! Две четверти горят — потом две другие.").withStyle(ChatFormatting.LIGHT_PURPLE));
+    }
+
+    /** След косы: восемь секунд за Моррой остаётся горящая полоса — танк, водите её по краю, а не через отряд. */
+    private void scytheTrail(Cast c) {
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.trail(c, this, 8, 10, 1.7f, 7, p("scythetrail_units"), 0xB0001A, null);
+        tell(Component.literal("За Моррой тянется след косы — водите её по краю.").withStyle(ChatFormatting.LIGHT_PURPLE));
+    }
+
+    /**
+     * Сестринская черта: между сёстрами {bondline_seconds} секунд горит черта — кто стоит между ними, тот горит.
+     * Разведите сестёр, чтобы черта не резала арену пополам.
+     */
+    private void bondLine(Cast c) {
+        TwinSister s = sister();
+        if (s == null) return;
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Telegraph.note(c, "zone", 0);
+        Fx.beam((ServerLevel) level(), this, s, 0.3f, c.ticks, 0xB98CFF);
+        c.at(c.ticks, () -> addZone((int) (p("bondline_seconds") * 20), p("bondline_units"), pt -> {
+            if (!s.isAlive()) return false;
+            Vec3 a = position(), b = s.position();
+            Vec3 ab = b.subtract(a).multiply(1, 0, 1), ap = pt.subtract(a).multiply(1, 0, 1);
+            double len = ab.length();
+            if (len < 1) return false;
+            double along = ap.dot(ab) / len;
+            return along >= 0 && along <= len && ap.subtract(ab.scale(along / len)).length() <= 1.4;
+        }, sl -> {
+            if (s.isAlive()) Fx.line(sl, position(), s.position(), 2.8f, 12, 0xB98CFF, false);
+        }, null));
+        tell(Component.literal("Между сёстрами горит черта — не стойте между ними!").withStyle(ChatFormatting.LIGHT_PURPLE));
     }
 }

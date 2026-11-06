@@ -63,6 +63,8 @@ public class Morena extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Круг ведьмы", "witchcircle", 1, false, b -> true, this::witchCircle),
+            new Ability("Изнаночные клетки", "checker", 0, false, b -> b.phase() >= 1, this::checker),
             new Ability("Лес Изнанки", "grove", 0, false, b -> true, this::grove),
             new Ability("Хоровод теней", "dance", 0, false, b -> b.phase() >= 1, this::dance),
             new Ability("Сглаз", "evil", 1, false, b -> b.playersInArena().size() > 1, this::evilEye),
@@ -249,5 +251,21 @@ public class Morena extends BossEntity {
         tell(Component.literal("Хоровод теней! Огни кружат вокруг Морены — шагайте в просветы.").withStyle(ChatFormatting.LIGHT_PURPLE));
         Mechanics.orbit(c, 5, 6.5, (int) p("dance_seconds"), 45, 1.4f, p("dance_units"), HEX,
                 p -> StatusService.apply(p, Status.of(StatusType.SLOW, "morena_dance", getUUID(), 0.35, level().getGameTime(), 30)));
+    }
+
+    /** Круг ведьмы: вокруг Морены на {witchcircle_seconds} встаёт круг порчи — танк, выведите её из него. */
+    private void witchCircle(Cast c) {
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.circle(c, position(), 5.5f, (int) p("witchcircle_seconds"), p("witchcircle_units"), HEX, pl -> slow(pl, 0.3, 25));
+        tell(Component.literal("Морена чертит круг — выведите её из него!").withStyle(ChatFormatting.LIGHT_PURPLE));
+    }
+
+    /** Изнаночные клетки (с 75%): пол — шахматная доска, горят то чёрные, то белые клетки. Перепрыгивайте. */
+    private void checker(Cast c) {
+        triggerAnim("main", "cast");
+        for (int k = 0; k < 3; k++) {
+            com.andrey.litrpg.boss.Ground.tiles(testCast(c.ticks + k * 60), home(), 6, 5f, k % 2 == 0, 3, p("checker_units"), HEX, null);
+        }
+        tell(Component.literal("Пол Изнанки — шахматная доска! Переходите на тёмные клетки.").withStyle(ChatFormatting.LIGHT_PURPLE));
     }
 }

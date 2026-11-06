@@ -61,6 +61,8 @@ public class AshLord extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Пепельное облако", "ashcloud", 1, false, b -> b.playersInArena().size() > 0, this::ashCloud),
+            new Ability("Озёра лавы", "lavalakes", 0, false, b -> relocated(), this::lavaLakes),
             new Ability("Пепельные жилы", "veins", 0, false, b -> true, this::veins),
             new Ability("Пепельная корона", "crown", 0, false, b -> relocated() || b.getHealth() < b.getMaxHealth() * 0.6, this::crown),
             new Ability("Клеймо пепла", "brand", 1, false, b -> duelist == null && b.playersInArena().size() > 1, this::brand),
@@ -232,5 +234,23 @@ public class AshLord extends BossEntity {
             }
         }
         level().playSound(null, blockPosition(), SoundEvents.BLAZE_AMBIENT, SoundSource.HOSTILE, 2f, 0.5f);
+    }
+
+    /** Пепельное облако: облако пепла ползёт за дальним бойцом {ashcloud_seconds} — уводи по краю. */
+    private void ashCloud(Cast c) {
+        List<ServerPlayer> by = playersByDistance();
+        if (by.isEmpty()) return;
+        ServerPlayer far = by.get(by.size() - 1);
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.moving(c, position(), () -> far.isAlive() ? far.position() : null, 3f, 2.0, (int) p("ashcloud_seconds"),
+                p("ashcloud_units"), 0x5A5450, pl -> slow(pl, 0.3, 25));
+    }
+
+    /** Озёра лавы (Кальдера): три озера лавы на {lavalakes_seconds} — места становится всё меньше. */
+    private void lavaLakes(Cast c) {
+        triggerAnim("main", "cast");
+        for (int i = 0; i < 3; i++) {
+            com.andrey.litrpg.boss.Ground.circle(c, randomSpot(0.25, 0.8), 3f, (int) p("lavalakes_seconds"), p("lavalakes_units"), 0xFF5A2A, null);
+        }
     }
 }

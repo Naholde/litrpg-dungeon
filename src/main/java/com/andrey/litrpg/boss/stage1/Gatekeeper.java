@@ -48,6 +48,8 @@ public class Gatekeeper extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Костяной частокол", "palisade", 1, false, b -> true, this::palisade),
+            new Ability("Склеп оживает", "crypt", 1, false, b -> b.phase() >= 1, this::crypt),
             new Ability("Костяной залп", "salvo", 0, false, b -> true, this::salvo),
             new Ability("Цепная хватка", "grip", 1, false, b -> farthest() != null, this::grip),
             new Ability("Цепи из стен", "walls", 1, false, b -> b.phase() >= 1, this::wallChains),
@@ -187,6 +189,26 @@ public class Gatekeeper extends BossEntity {
                 Fx.bolt(sl, from.add(0, 1.1, 0), to.add(0, 1.1, 0), 0.26f, 10, 0xC9A055);
                 level().playSound(null, net.minecraft.core.BlockPos.containing(from), SoundEvents.CHAIN_BREAK, SoundSource.HOSTILE, 1.6f, 0.5f);
             });
+        }
+    }
+
+    /** Костяной частокол: три гряды костей расходятся от Привратника и стоят {palisade_seconds} — арена делится на клинья. */
+    private void palisade(Cast c) {
+        triggerAnim("main", "slam");
+        double a0 = random.nextDouble() * 360;
+        for (int i = 0; i < 3; i++) {
+            Vec3 d = dir(a0 + i * 120);
+            com.andrey.litrpg.boss.Ground.line(c, position(), position().add(d.scale(arenaRadius() + 2)), 2.2f, (int) p("palisade_seconds"),
+                    p("palisade_units"), 0xE8DCC0, pl -> slow(pl, 0.3, 25));
+        }
+        tell(Component.literal("Костяной частокол делит арену — не стойте на грядах.").withStyle(ChatFormatting.GOLD));
+    }
+
+    /** Склеп оживает (с половины): из пола встают четыре круга костяной трухи и не уходят {crypt_seconds}. */
+    private void crypt(Cast c) {
+        triggerAnim("main", "cast");
+        for (int i = 0; i < 4; i++) {
+            com.andrey.litrpg.boss.Ground.circle(c, randomSpot(0.25, 0.85), 2.6f, (int) p("crypt_seconds"), p("crypt_units"), 0xBFB59A, null);
         }
     }
 }

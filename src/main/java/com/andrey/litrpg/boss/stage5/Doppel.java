@@ -57,6 +57,8 @@ public class Doppel extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Зеркальные лужи", "mirrorpools", 1, false, b -> true, this::mirrorPools),
+            new Ability("Зеркальный коридор", "corridor", 0, false, b -> b.phase() >= 1, this::corridor),
             new Ability("Подмена мест", "places", 0, false, b -> true, this::places),
             new Ability("Зеркальный веер", "fan", 1, false, b -> b.phase() >= 1 && b.getTarget() != null, this::fan),
             new Ability("Осколки зеркала", "shards", 1, false, b -> true, this::glassShards),
@@ -212,5 +214,41 @@ public class Doppel extends BossEntity {
         Telegraph.cone(c, position(), dir.scale(-1), 9, 70, p("fan_units"));
         schedule(c.ticks - 8, () -> triggerAnim("main", "attack"));
         level().playSound(null, blockPosition(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.HOSTILE, 2f, 0.6f);
+    }
+
+    /** Зеркальные лужи: под каждым и в его отражении через центр зала — лужи на {mirrorpools_seconds}. */
+    private void mirrorPools(Cast c) {
+        triggerAnim("main", "cast");
+        Vec3 h = home();
+        for (ServerPlayer p : playersInArena()) {
+            Vec3 at = p.position(), mirror = h.scale(2).subtract(at);
+            com.andrey.litrpg.boss.Ground.circle(c, at, 2.5f, (int) p("mirrorpools_seconds"), p("mirrorpools_units"), 0xA8F0FF, null);
+            com.andrey.litrpg.boss.Ground.circle(c, new Vec3(mirror.x, at.y, mirror.z), 2.5f, (int) p("mirrorpools_seconds"), p("mirrorpools_units"), 0xA8F0FF, null);
+        }
+    }
+
+    /** Зеркальный коридор (с 80%): всё, кроме коридора шириной 6 через центр, горит {corridor_seconds} — все в коридор. */
+    private void corridor(Cast c) {
+        triggerAnim("main", "cast");
+        Vec3 d = dir(random.nextDouble() * 180), side = d.yRot((float) Math.PI / 2);
+        Vec3 h = home();
+        double len = arenaRadius() + 3;
+        tell(Component.literal("Зеркала сходятся — все в коридор!").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+        com.andrey.litrpg.boss.Telegraph.note(c, "zone", 0);
+        ServerLevel sl0 = (ServerLevel) level();
+        for (int s = -1; s <= 1; s += 2) {
+            Vec3 band = h.add(side.scale(s * (3 + (len - 3) / 2)));
+            Fx.line(sl0, band.subtract(d.scale(len)), band.add(d.scale(len)), (float) (len - 3), c.ticks, Fx.DANGER, true);
+        }
+        Fx.line(sl0, h.subtract(d.scale(len)), h.add(d.scale(len)), 6f, c.ticks, 0x7BF5A0, false);
+        c.at(c.ticks, () -> addZone((int) (p("corridor_seconds") * 20), p("corridor_units"), pt -> {
+            Vec3 ap = pt.subtract(h).multiply(1, 0, 1);
+            return Math.abs(ap.dot(side.normalize())) > 3;
+        }, sl -> {
+            for (int s = -1; s <= 1; s += 2) {
+                Vec3 band = h.add(side.scale(s * (3 + (len - 3) / 2)));
+                Fx.line(sl, band.subtract(d.scale(len)), band.add(d.scale(len)), (float) (len - 3), 12, 0xA8F0FF, false);
+            }
+        }, null));
     }
 }

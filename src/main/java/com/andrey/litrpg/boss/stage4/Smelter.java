@@ -55,6 +55,8 @@ public class Smelter extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Разлив металла", "spill", 1, false, b -> true, this::spill),
+            new Ability("Горячий пол", "hotfloor", 0, false, b -> b.phase() >= 1, this::hotFloor),
             new Ability("Расплав", "molten", 0, false, b -> true, this::molten),
             new Ability("Раскалённый слиток", "ingot", 0, false, b -> b.phase() >= 1 && b.playersInArena().size() > 1 && !hasIngot(), this::ingot),
             new Ability("Наковальни", "anvils", 1, false, b -> true, this::anvils),
@@ -274,6 +276,30 @@ public class Smelter extends BossEntity {
             }
             impact(holder.position(), 3);
             sl.playSound(null, holder.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 1.2f, 1.2f);
+        }
+    }
+
+    /** Разлив металла: к трём бойцам растекаются реки металла и стынут {spill_seconds} — арена режется на части. */
+    private void spill(Cast c) {
+        triggerAnim("main", "cast");
+        List<ServerPlayer> all = new java.util.ArrayList<>(playersInArena());
+        java.util.Collections.shuffle(all, new java.util.Random(random.nextLong()));
+        for (int i = 0; i < Math.min(3, all.size()); i++) {
+            Vec3 d = all.get(i).position().subtract(position());
+            com.andrey.litrpg.boss.Ground.line(c, position(), position().add(d.multiply(1, 0, 1).normalize().scale(arenaRadius() + 2)), 2.4f,
+                    (int) p("spill_seconds"), p("spill_units"), 0xFF8A3D, null);
+        }
+    }
+
+    /** Горячий пол (с 66%): горят два сектора по 60°, потом пол поворачивается на четверть — идите за холодом. */
+    private void hotFloor(Cast c) {
+        triggerAnim("main", "cast");
+        double a0 = random.nextDouble() * 360;
+        for (int k = 0; k < 2; k++) {
+            Cast part = testCast(c.ticks + k * 80);
+            for (int q = 0; q < 2; q++) {
+                com.andrey.litrpg.boss.Ground.sector(part, home(), dir(a0 + k * 90 + q * 180), (float) arenaRadius() + 3, 60, 4, p("hotfloor_units"), 0xFF6A1A, null);
+            }
         }
     }
 }

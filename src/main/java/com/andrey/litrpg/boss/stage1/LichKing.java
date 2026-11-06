@@ -65,6 +65,8 @@ public class LichKing extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Ледяное поле", "icefield", 1, false, b -> true, this::icefield),
+            new Ability("Ледяные стены", "icewalls", 0, false, b -> relocated(), this::icewalls),
             new Ability("Ледяная корка", "frost", 0, false, b -> true, this::frost),
             new Ability("Зов вьюги", "blizzard", 0, false, b -> relocated(), this::blizzard),
             new Ability("Ледяная тропа", "frostpath", 2, false, b -> true, this::frostpath),
@@ -257,6 +259,27 @@ public class LichKing extends BossEntity {
                     p.displayClientMessage(Component.literal("Вы замерзаете — двигайтесь!").withStyle(ChatFormatting.AQUA), true);
                 }
             });
+        }
+    }
+
+    /** Ледяное поле: край арены замерзает на {icefield_seconds} — бой сжимается к центру, у края — холод и вязкость. */
+    private void icefield(Cast c) {
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Ground.ring(c, home(), (float) arenaRadius() - 5, (float) arenaRadius() + 3, (int) p("icefield_seconds"), p("icefield_units"),
+                Fx.ICE, pl -> slow(pl, 0.4, 25));
+        tell(Component.literal("Край зала покрывается льдом — к центру!").withStyle(ChatFormatting.AQUA));
+    }
+
+    /** Ледяные стены (Тронный зал): две ледяные гряды поперёк зала стоят {icewalls_seconds} — между ними коридор. */
+    private void icewalls(Cast c) {
+        triggerAnim("main", "cast");
+        double a = random.nextDouble() * 180;
+        Vec3 d = dir(a), side = dir(a + 90);
+        double len = arenaRadius() + 2;
+        for (int s = -1; s <= 1; s += 2) {
+            Vec3 mid = home().add(side.scale(4.5 * s));
+            com.andrey.litrpg.boss.Ground.line(c, mid.subtract(d.scale(len)), mid.add(d.scale(len)), 2.6f, (int) p("icewalls_seconds"), p("icewalls_units"),
+                    Fx.ICE, pl -> slow(pl, 0.5, 25));
         }
     }
 }

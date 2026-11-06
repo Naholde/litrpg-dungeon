@@ -51,6 +51,7 @@ public final class Spirits {
 
     /** Гибель участника прохождения: стать духом на месте. */
     static void become(ServerPlayer p) {
+        com.andrey.litrpg.boss.FightLog.died(p);
         RunState s = RunService.state(p.server);
         BlockPos at = p.blockPosition();
         s.spirits.put(p.getUUID(), at);

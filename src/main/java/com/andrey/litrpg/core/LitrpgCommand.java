@@ -32,6 +32,27 @@ public final class LitrpgCommand {
                                 .suggests((c, b) -> SharedSuggestionProvider.suggest(
                                         Balance.keys().stream().map(BalanceKey::name), b))
                                 .executes(c -> showSection(c.getSource(), StringArgumentType.getString(c, "section")))));
+        // Журнал боя: /litrpg fights — последние бои, /litrpg fights <номер> — итог боя (1 — последний).
+        root.then(Commands.literal("fights")
+                .executes(c -> {
+                    var all = com.andrey.litrpg.boss.FightLog.last();
+                    if (all.isEmpty()) c.getSource().sendSuccess(() -> Component.literal("Боёв с хранителями ещё не было."), false);
+                    for (int i = 0; i < all.size(); i++) {
+                        String line = (i + 1) + ". " + all.get(i).get(0);
+                        c.getSource().sendSuccess(() -> Component.literal(line), false);
+                    }
+                    return all.size();
+                })
+                .then(Commands.argument("n", com.mojang.brigadier.arguments.IntegerArgumentType.integer(1, 10)).executes(c -> {
+                    var all = com.andrey.litrpg.boss.FightLog.last();
+                    int n = com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(c, "n");
+                    if (n > all.size()) {
+                        c.getSource().sendFailure(Component.literal("Нет боя №" + n));
+                        return 0;
+                    }
+                    for (String line : all.get(n - 1)) c.getSource().sendSuccess(() -> Component.literal(line), false);
+                    return 1;
+                })));
         PlayerCommands.addTo(root);
         CombatCommands.addTo(root);
         com.andrey.litrpg.run.RunCommands.addTo(root);

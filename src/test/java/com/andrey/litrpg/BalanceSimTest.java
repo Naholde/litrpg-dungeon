@@ -237,8 +237,9 @@ class BalanceSimTest {
         var common = Balance.get(Balance.BOSSES).common();
         var pr = common.pressure();
         double hp = p.get("hp_units") * unit * common.hpScale(n) * BossDamage.earlyHp(level);
-        // Ритм (фаза 13): один приём за раз — замах + доигрыш (~1 с) + пауза; после breather_every — передышка,
-        // в которую урон по хранителю выше. Средняя занятость приёма и длина цикла — по навыкам хранителя.
+        // Ритм (фаза 13): приём раз в 3–5 с (и не раньше конца замаха). У хранителя с «яростью и передышкой»
+        // (Страж Прилива) — в ярость приёмы чаще и откаты вдвое короче, урон по нему ×armor; в передышку он не бьёт,
+        // а урон по нему ×bonus.
         var rh = common.rhythm();
         double castSum = 0;
         int casts = 0;
@@ -251,13 +252,23 @@ class BalanceSimTest {
             Double cd = p.get(k + "_cd");
             if (cd != null) freq += 1 / (cd * BossDamage.earlyCooldown(level));
         }
-        double occupy = (casts > 0 ? castSum / casts : 1.2) + 1.0 + rh.gapSeconds() * BossDamage.earlyCast(level);
-        double cycle = rh.breatherEvery() * occupy + rh.breatherSeconds() + rh.gapSeconds();
+        double avgCast = casts > 0 ? castSum / casts : 1.2;
+        double pace = Math.max((rh.minSeconds() + rh.maxSeconds()) / 2, avgCast + rh.afterCast());
+        boolean frenzy = p.containsKey("frenzy_surge");
+        double surgeShare = 1, windowShare = 0, dpsFactor = 1;
+        if (frenzy) {
+            double surge = p.get("frenzy_surge"), window = p.get("frenzy_window");
+            surgeShare = surge / (surge + window);
+            windowShare = window / (surge + window);
+            pace = Math.max(p.get("frenzy_pace"), avgCast + rh.afterCast());
+            freq *= 2;
+            dpsFactor = surgeShare * p.get("frenzy_armor") + windowShare * p.get("frenzy_bonus");
+        }
         // Сколько раз в секунду хранитель реально успевает применять навыки: не чаще, чем позволяет ритм.
-        double rhythmCap = rh.breatherEvery() / cycle;
-        double slow = freq > rhythmCap ? rhythmCap / freq : 1;
-        double dps = party.stream().mapToDouble(BalanceSimTest::fightDps).sum()
-                * (1 + rh.breatherBonus() * rh.breatherSeconds() / cycle);
+        double rhythmCap = surgeShare / pace;
+        double slow = freq * surgeShare > rhythmCap ? rhythmCap / (freq * surgeShare) : 1;
+        slow *= surgeShare;
+        double dps = party.stream().mapToDouble(BalanceSimTest::fightDps).sum() * dpsFactor;
         double ttk = hp / dps;
         int enrage = (int) (ttk / common.enrageSeconds());
         // средний множитель неистовства за бой (ровная прибавка за каждую ступень)
@@ -282,18 +293,20 @@ class BalanceSimTest {
                     busterCd = cd;
                 }
             } else {
-                // по площади: ошибаются MISTAKES, длинные лужи/волны считаем раз в 20 с
-                areaPerSec += u / (cd != null ? cd * BossDamage.earlyCooldown(level) : 20) * MISTAKES * slow;
+                // по площади: ошибаются MISTAKES, длинные лужи/волны считаем раз в 20 с; зоны (есть «_seconds»)
+                // жгут раз в секунду — ошибившийся стоит в зоне в среднем полторы секунды
+                double hold = p.containsKey(k + "_seconds") && u < 0.3 ? 1.5 : 1;
+                areaPerSec += u * hold / (cd != null ? cd * BossDamage.earlyCooldown(level) : 20) * MISTAKES * slow;
                 bigHit = Math.max(bigHit, u);
             }
         }
         double early = BossDamage.earlyDamage(level);
         // Давка — только в паузах ритма: доля пауз в цикле × частота; ловят её с той же долей ошибок.
         var rush = common.rush();
-        double idle = rh.gapSeconds() * BossDamage.earlyCast(level) * rh.breatherEvery() / cycle;
-        double rushPerSec = Math.min(1 / (rush.seconds() * BossDamage.earlyCooldown(level)), idle / (rush.warn() + rh.gapSeconds()));
+        double idle = Math.max(0, pace - avgCast - rh.afterCast()) / pace * surgeShare;
+        double rushPerSec = Math.min(1 / (rush.seconds() * BossDamage.earlyCooldown(level)), idle / (rush.warn() + rh.afterCast()));
         areaPerSec += rush.units() * rushPerSec * MISTAKES * 0.5;
-        double tankDtps = (p.get("melee_units") / common.autoAttackSeconds() * (1 - rh.breatherSeconds() / cycle)
+        double tankDtps = (p.get("melee_units") / common.autoAttackSeconds() * (1 - windowShare)
                 + buster / (busterCd * BossDamage.earlyCooldown(level)) * slow) * unit * bossTaken(tank) * avgEnrage * early;
         // Давление: волна по всем, метки на бойцах (на 5+ — по две), ошибки в разметке.
         double grow = com.andrey.litrpg.boss.BossEntity.pressureGrow(level, n);
@@ -341,7 +354,7 @@ class BalanceSimTest {
         r.append("# Баланс подземелья — симуляция\n\n");
         r.append("Считано по формулам игры (`BalanceSimTest`): отряд — танк, поддержка и бойцы; уровень — на 1 ниже хранителя;\n");
         r.append("вещи — ожидаемой к этапу редкости; очки вложены в главные характеристики роли. Бой: 75% времени в атаке,\n");
-        r.append("каждый не-танк ловит 20% ударов по площади; хранитель делает один приём за раз (ритм фазы 13, передышки)\n");
+        r.append("каждый не-танк ловит 20% ударов по площади; хранитель начинает приём раз в 3–5 с (у Стража Прилива — прилив и отлив)\n");
         r.append("и до 30-го уровня смягчён (`BossDamage.early*`). Нагрузка лекаря — доля его лечения, которая уходит на входящий урон.\n");
         r.append(bench() ? "Урон и лечение ролей — медианы стенда классов (`gradlew runGameTestServer -Pbench`) × вещи и очки.\n\n"
                 : "Стенд классов не запускали — урон и лечение оценены формулой (грубо). " + BENCH.keySet() + "\n\n");

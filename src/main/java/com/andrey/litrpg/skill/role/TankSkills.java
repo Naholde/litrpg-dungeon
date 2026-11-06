@@ -15,32 +15,39 @@ public final class TankSkills {
     private TankSkills() {
     }
 
-    /** Провокация: враг бросает всех и бьёт танка. */
+    /** Провокация: все враги вокруг бросают остальных и бьют танка. */
     public static final class Taunt extends Skill {
         public Taunt() {
             super("tank.taunt", "Провокация", Fx.SHIELD, "!", 8, 0);
-            blocks("range", 14);
+            blocks("radius", 9);
             seconds("duration", 4);
         }
 
         @Override
         public Targeting targeting() {
-            return Targeting.ENEMY;
+            return Targeting.SELF;
         }
 
         @Override
         public String template() {
-            return "Враг бросает всех и бьёт вас {duration}: не отвлечётся, даже если другие нанесут больше урона. "
-                    + "После провокации ваша угроза выше всех.";
+            return "Боевой клич: все враги в {radius} вокруг бросают остальных и бьют вас {duration} — не отвлекутся, даже "
+                    + "если другие нанесут больше урона. После провокации ваша угроза у каждого из них выше всех.";
         }
 
         @Override
         public void execute(SkillContext ctx) {
-            if (!(ctx.target instanceof Mob mob)) return;
-            ThreatService.taunt(mob, ctx.caster, ctx.ticks("duration"));
-            Fx.beam(ctx.level, ctx.caster, mob, 0.25f, 10, Fx.SHIELD);
-            Fx.mark(ctx.level, mob, "!", ctx.ticks("duration"), Fx.SHIELD);
-            ctx.level.playSound(null, ctx.caster.blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.PLAYERS, 0.6f, 1.4f);
+            // Отзыв владельца 06.11.2026: провокация — по площади вокруг танка, а не по одной цели.
+            double r = ctx.v("radius");
+            int dur = ctx.ticks("duration");
+            for (var e : ctx.enemiesAround(ctx.caster.position(), r)) {
+                if (!(e instanceof Mob mob)) continue;
+                ThreatService.taunt(mob, ctx.caster, dur);
+                Fx.beam(ctx.level, ctx.caster, mob, 0.2f, 10, Fx.SHIELD);
+                Fx.mark(ctx.level, mob, "!", dur, Fx.SHIELD);
+            }
+            Fx.wave(ctx.level, ctx.caster.position(), (float) r, 1.6f, 12, Fx.SHIELD);
+            Fx.ring(ctx.level, ctx.caster.position(), (float) r, 14, Fx.SHIELD);
+            ctx.level.playSound(null, ctx.caster.blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.PLAYERS, 0.8f, 1.3f);
         }
     }
 

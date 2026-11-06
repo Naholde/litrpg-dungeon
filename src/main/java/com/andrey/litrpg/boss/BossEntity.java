@@ -88,7 +88,19 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         }
     }
 
-    private record Task(long at, int castId, Runnable run) {
+    private record Task(long at, int castId, Runnable run, String label) {
+    }
+
+    /** Каким приёмом сейчас бьёт хранитель — для журнала боя («Удар цепью», «Гул врат», «Давка»…). */
+    private String hitLabel = "Удар";
+
+    public String hitLabel() {
+        return hitLabel;
+    }
+
+    /** Боец, в чей журнал боя пишется этот хранитель (у Вессы — бой Морры). */
+    public BossEntity logOwner() {
+        return this;
     }
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -107,6 +119,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         final long until;
         final int color;
         final java.util.function.Consumer<ServerPlayer> extra;
+        String label = "Лужа";
 
         Pool(Vec3 at, double radius, double grow, double maxRadius, long until, double units, int color,
              java.util.function.Consumer<ServerPlayer> extra) {
@@ -134,11 +147,11 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private long nextRush;
     private boolean rushMelee;
     /**
-     * Ритм (фаза 13): до {@code busyUntil} хранитель доигрывает приём и стоит паузу — новых навыков и давки нет,
-     * только удар по цели. {@code tiredUntil} — передышка «Изнурён». {@code sinceBreather} — навыков с прошлой.
+     * Ритм: до {@code busyUntil} новый приём не начнётся (3–5 с от начала прошлого и не раньше конца его замаха).
+     * Ярость/передышка — только у хранителей с {@link #frenzy()}: {@code surgeUntil} — конец ярости (приёмы
+     * чаще), {@code tiredUntil} — конец передышки «Изнурён» (не бьёт, урон по нему выше).
      */
-    private long busyUntil, tiredUntil;
-    private int sinceBreather;
+    private long busyUntil, tiredUntil, surgeUntil;
     /**
      * Чей приём сейчас идёт: номер подготовки последнего навыка и связанных с ним «проверочных» разметок
      * (залп, цепи из стен). Задача, поставленная изнутри такого приёма (даже вложенная — волна обвала через
@@ -302,6 +315,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
      */
     private void relocate() {
         relocated = true;
+        FightLog.event(this, "бой перенесён: " + secondArenaName());
         triggerAnim("main", "relocate");
         tell(Component.literal(type().name() + " уходит в " + secondArenaName() + " — Система переносит отряд следом!")
                 .withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD));
@@ -390,6 +404,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             ThreatService.tick(this);
         }
         updateEnrage(now);
+        if (frenzy()) updateFrenzy(now);
         boolean tired = now < tiredUntil;
         if (!dormant() && !tired) pressure(now, players);
         if (!dormant() && !tired) rush(now, players);
@@ -401,7 +416,6 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             getNavigation().stop();
         } else if (tired) {
             getNavigation().stop();
-            if (now + 1 >= tiredUntil) endBreather();
         } else if (casting != null) {
             getNavigation().stop();
             if (casting.target != null) getLookControl().setLookAt(casting.target);
@@ -425,7 +439,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         nextMark = combatStart + 12 * 20;
         busyUntil = 0;
         tiredUntil = 0;
-        sinceBreather = 0;
+        surgeUntil = frenzy() ? combatStart + Math.round(p("frenzy_surge") * 20) : 0;
         pressureTold = false;
         partySize = Math.max(1, Math.min(com.andrey.litrpg.party.Party.MAX, fixedParty > 0 ? fixedParty : players.size()));
         double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize)
@@ -444,12 +458,14 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (!quote.isEmpty()) {
             tell(Component.literal(type().name() + ": «" + quote + "»").withStyle(ChatFormatting.DARK_RED, ChatFormatting.ITALIC));
         }
+        FightLog.start(this, players);
         onEngage(players);
         level().playSound(null, blockPosition(), SoundEvents.WITHER_SPAWN, SoundSource.HOSTILE, 0.6f, 1.4f);
     }
 
     /** Сброс боя: всё как было — здоровье, фазы, щит, подручные, угроза. */
     public void resetFight() {
+        if (engaged && logOwner() == this) FightLog.end(this, "сброс (отряд пал или ушёл)", watchers());
         engaged = false;
         casting = null;
         tasks.clear();
@@ -458,7 +474,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         enrageStage = 0;
         busyUntil = 0;
         tiredUntil = 0;
-        sinceBreather = 0;
+        surgeUntil = 0;
         activeAbility = -1;
         linked.clear();
         entityData.set(CAST_NAME, "");
@@ -506,6 +522,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (now >= nextPulse) {
             nextPulse = now + Math.round(pr.pulseSeconds() * 20 * (0.85 + random.nextDouble() * 0.3));
             busyUntil = Math.max(busyUntil, now + 30 + gapTicks());
+            hitLabel = names.pulse();
             int wind = 30;
             Fx.wave(sl, position(), (float) arenaRadius, 2.5f, wind, names.color());
             Fx.pillar(sl, position(), 1.2f, 5, wind, names.color());
@@ -517,6 +534,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
                 }
                 sl.playSound(null, blockPosition(), SoundEvents.WARDEN_SONIC_BOOM, SoundSource.HOSTILE, 0.6f, 1.2f);
             });
+            hitLabel = "Удар";
         }
         if (now >= nextMark) {
             nextMark = now + Math.round(pr.markSeconds() * 20 * (0.85 + random.nextDouble() * 0.3));
@@ -524,6 +542,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             pool.remove(getTarget());
             java.util.Collections.shuffle(pool, new java.util.Random(random.nextLong()));
             int count = Math.min(pool.size(), partySize >= 5 ? 2 : 1);
+            hitLabel = names.mark();
             int dur = (int) Math.round(pr.markDuration() * 20);
             float r = (float) pr.markRadius();
             for (ServerPlayer p : pool.subList(0, count)) {
@@ -545,6 +564,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
                     sl.playSound(null, p.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.HOSTILE, 0.5f, 1.5f);
                 });
             }
+            hitLabel = "Удар";
         }
     }
 
@@ -560,6 +580,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         int stage = (int) ((now - combatStart) / Math.max(20, Math.round(Balance.get(Balance.BOSSES).common().enrageSeconds() * 20)));
         if (stage > enrageStage) {
             enrageStage = stage;
+            FightLog.event(this, "неистовство ×" + Derived.trim2(enrageMultiplier()));
             triggerAnim("main", "enrage");
             tell(Component.literal(type().name() + " впадает в неистовство: удары сильнее (×"
                     + Derived.trim2(enrageMultiplier()) + ").").withStyle(ChatFormatting.DARK_RED));
@@ -580,9 +601,11 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         int warn = Math.max(6, (int) Math.round(r.warn() * 20 * BossDamage.earlyCast(bossLevel())));
         busyUntil = now + warn + gapTicks();
         rushMelee = !rushMelee;
+        hitLabel = "Давка";
         if (rushMelee) {
             Telegraph.circle(testCast(warn), position(), (float) r.meleeRadius(), r.meleeUnits() * enrageMultiplier());
             level().playSound(null, blockPosition(), SoundEvents.RAVAGER_STEP, SoundSource.HOSTILE, 1.2f, 0.6f);
+            hitLabel = "Удар";
             return;
         }
         List<ServerPlayer> aim = new ArrayList<>(players);
@@ -594,6 +617,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             Telegraph.circle(testCast(warn), aim.get(i).position(), (float) r.radius(), r.units() * enrageMultiplier());
         }
         level().playSound(null, blockPosition(), SoundEvents.BREEZE_SHOOT, SoundSource.HOSTILE, 1.1f, 0.8f);
+        hitLabel = "Удар";
     }
 
     private void updatePhase() {
@@ -601,6 +625,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         double ratio = getHealth() / getMaxHealth();
         while (phase < th.length && ratio <= th[phase]) {
             phase++;
+            FightLog.event(this, type().name() + ": фаза " + (phase + 1));
             triggerAnim("main", "phase");
             onPhase(phase);
         }
@@ -612,23 +637,28 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         return Balance.get(Balance.BOSSES).common().rhythm();
     }
 
-    /** Пауза между приёмами; на ранних этапах — длиннее (как и замах). */
+    /** Пауза после замаха, пока следующий приём не может начаться. */
     private long gapTicks() {
-        return Math.round(rhythm().gapSeconds() * 20 * BossDamage.earlyCast(bossLevel()));
+        return Math.round(rhythm().afterCast() * 20);
+    }
+
+    /** Через сколько тиков от начала приёма можно начать следующий: 3–5 с, в ярости — {@code frenzy_pace}. */
+    private long paceTicks() {
+        if (frenzy() && level().getGameTime() < surgeUntil) {
+            double f = p("frenzy_pace");
+            return Math.round(f * 20 * (0.85 + random.nextDouble() * 0.3));
+        }
+        var r = rhythm();
+        return Math.round((r.minSeconds() + random.nextDouble() * (r.maxSeconds() - r.minSeconds())) * 20);
     }
 
     /**
      * Следующий навык. Из готовых берётся тот, кто ждёт дольше всех (а не первый в списке) — у хранителя
-     * читаемая очередь приёмов, и ни один не повторяется подряд, пока ждут другие. Хранитель занят, пока
-     * навык не доиграет до последнего удара, плюс пауза. После каждых {@code breather_every} — передышка.
+     * читаемая очередь приёмов, и ни один не повторяется подряд, пока ждут другие. Следующий — через 3–5 с
+     * от начала этого и не раньше конца его замаха.
      */
     private boolean tryStartAbility(long now) {
         if (getTarget() == null) return false;
-        int every = rhythm().breatherEvery();
-        if (every > 0 && sinceBreather >= every) {
-            startBreather(now);
-            return true;
-        }
         Ability pick = null;
         long oldest = Long.MAX_VALUE;
         for (Ability a : abilities()) {
@@ -641,7 +671,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         }
         if (pick == null) return false;
         Ability a = pick;
-        readyAt.put(a.key(), now + Math.round(p(a.key() + "_cd") * 20 * BossDamage.earlyCooldown(bossLevel())));
+        double cdMult = BossDamage.earlyCooldown(bossLevel()) * (frenzy() && now < surgeUntil ? 0.5 : 1);
+        readyAt.put(a.key(), now + Math.round(p(a.key() + "_cd") * 20 * cdMult));
         int ticks = (int) Math.round(p(a.key() + "_cast") * 20 * BossDamage.earlyCast(bossLevel()));
         casting = new Cast(a, getTarget(), ticks, ++castCounter, now + ticks);
         entityData.set(CAST_NAME, a.name() + (a.interruptible() ? "|1" : "|0") + "|" + ticks + "|" + (now + ticks));
@@ -653,42 +684,94 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         activeAbility = casting.id;
         activeRef = a;
         linked.clear();
-        busyUntil = now + ticks + gapTicks();
+        busyUntil = Math.max(now + ticks + gapTicks(), now + paceTicks());
         runningCast = casting.id;
+        hitLabel = a.name();
+        FightLog.cast(this, a.name());
         try {
             a.start().accept(casting);
         } finally {
             runningCast = -1;
+            hitLabel = "Удар";
         }
-        sinceBreather++;
         return true;
     }
 
     /**
-     * Передышка: хранитель выдыхается после серии приёмов — стоит, не бьёт и получает больше урона.
-     * Полоса подготовки показывает «Изнурён», чтобы отряд видел своё окно.
+     * Хранитель с идеей «ярость и передышка» (сейчас — Страж Прилива): {@code frenzy_surge} секунд бьёт без остановки
+     * (приём раз в {@code frenzy_pace} с, откаты вдвое короче), урона по нему проходит лишь {@code frenzy_armor};
+     * потом {@code frenzy_window} секунд «Изнурён» — стоит, не бьёт, урон по нему ×{@code frenzy_bonus}.
+     * Убивают его в окнах — здоровье считается под это (BalanceSimTest).
      */
-    private void startBreather(long now) {
-        sinceBreather = 0;
-        int ticks = (int) Math.round(rhythm().breatherSeconds() * 20);
+    protected boolean frenzy() {
+        return false;
+    }
+
+    /** Название ярости и передышки для фраз (переопределяют). */
+    protected String surgeName() {
+        return "Ярость";
+    }
+
+    protected String windowName() {
+        return "Изнурён";
+    }
+
+    private void updateFrenzy(long now) {
+        if (tiredUntil > 0 && now >= tiredUntil) {
+            tiredUntil = 0;
+            surgeUntil = now + Math.round(p("frenzy_surge") * 20);
+            busyUntil = now + 20;
+            entityData.set(CAST_NAME, "");
+            tell(Component.literal(type().name() + ": " + surgeName() + "! Уходите из-под ударов — урон по нему почти не проходит.")
+                    .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 1.2f, 0.9f);
+            return;
+        }
+        if (tiredUntil == 0 && surgeUntil > 0 && now >= surgeUntil && casting == null) startWindow(now);
+    }
+
+    private void startWindow(long now) {
+        int ticks = (int) Math.round(p("frenzy_window") * 20);
         tiredUntil = now + ticks;
-        busyUntil = tiredUntil + gapTicks();
+        busyUntil = tiredUntil + 20;
+        FightLog.event(this, windowName().toLowerCase());
         nextAuto = Math.max(nextAuto, tiredUntil + 10);
-        entityData.set(CAST_NAME, "Изнурён — бейте!|0|" + ticks + "|" + tiredUntil);
+        entityData.set(CAST_NAME, windowName() + " — бейте!|0|" + ticks + "|" + tiredUntil);
         getNavigation().stop();
         triggerAnim("main", "tired");
-        tell(Component.literal(type().name() + " выдохся — окно! Урон по нему +"
-                + Math.round(rhythm().breatherBonus() * 100) + "%.").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+        tell(Component.literal(type().name() + ": " + windowName().toLowerCase() + " — окно! Урон по нему ×"
+                + Derived.trim2(p("frenzy_bonus")) + ".").withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
         ServerLevel sl = (ServerLevel) level();
         Fx.pillar(sl, position(), getBbWidth() * 0.7f, getBbHeight() + 1, ticks, 0x9CFFB0);
         Fx.ring(sl, position(), getBbWidth() + 1.5f, ticks, 0x9CFFB0);
         level().playSound(null, blockPosition(), SoundEvents.RAVAGER_STUNNED, SoundSource.HOSTILE, 1.2f, 0.8f);
     }
 
-    private void endBreather() {
-        tiredUntil = 0;
-        entityData.set(CAST_NAME, "");
-        level().playSound(null, blockPosition(), SoundEvents.RAVAGER_ROAR, SoundSource.HOSTILE, 0.8f, 1.1f);
+    /** Замедлить бойца на долю {@code amount} на {@code ticks} (лужи, сети, течения). */
+    public void slow(ServerPlayer p, double amount, int ticks) {
+        com.andrey.litrpg.status.StatusService.apply(p, com.andrey.litrpg.status.Status.of(com.andrey.litrpg.status.StatusType.SLOW,
+                type().id() + "_slow", getUUID(), amount, level().getGameTime(), ticks));
+    }
+
+    /** Толкнуть бойца по направлению {@code dir} (течения, рёв). */
+    public static void push(ServerPlayer p, Vec3 dir, double strength) {
+        Vec3 d = dir.multiply(1, 0, 1);
+        if (d.lengthSqr() < 1e-4) return;
+        d = d.normalize().scale(strength);
+        p.push(d.x, 0.05, d.z);
+        p.hurtMarked = true;
+    }
+
+    /** Направление под углом {@code deg} в плоскости пола. */
+    public static Vec3 dir(double deg) {
+        double a = Math.toRadians(deg);
+        return new Vec3(Math.cos(a), 0, Math.sin(a));
+    }
+
+    /** Случайная точка арены на доле радиуса от {@code from} до {@code to}. */
+    public Vec3 randomSpot(double from, double to) {
+        double a = random.nextDouble() * Math.PI * 2, r = arenaRadius() * (from + random.nextDouble() * (to - from));
+        return home().add(Math.cos(a) * r, 0, Math.sin(a) * r);
     }
 
     /** Цвет стихии хранителя (фаза 13): обводка его разметки и вспышка удара. */
@@ -761,10 +844,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     public void schedule(int delay, int castId, Runnable r) {
         if (castId == -1) castId = runningCast;
         long at = level().getGameTime() + delay;
-        tasks.add(new Task(at, castId, r));
-        if (castId >= 0 && (castId == activeAbility || linked.contains(castId))) {
-            busyUntil = Math.max(busyUntil, at + 10 + gapTicks());
-        }
+        tasks.add(new Task(at, castId, r, hitLabel));
+
     }
 
     public void schedule(int delay, Runnable r) {
@@ -791,10 +872,12 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         for (Task t : due) {
             if (!isAlive() || !engaged) continue;
             runningCast = t.castId;
+            hitLabel = t.label;
             try {
                 t.run.run();
             } finally {
                 runningCast = -1;
+                hitLabel = "Удар";
             }
         }
     }
@@ -862,6 +945,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         spawned.clear();
         shieldNodes.clear();
         pools.clear();
+        zones.clear();
     }
 
     @Override
@@ -872,8 +956,11 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             Fx.burst((ServerLevel) level(), position().add(0, getBbHeight() * 0.6, 0), 1.6f, 6, Fx.ARCANE);
             return false;
         }
-        if (tired()) amount *= (float) (1 + rhythm().breatherBonus());
-        return super.hurt(source, amount);
+        if (frenzy()) amount *= (float) (tired() ? p("frenzy_bonus") : p("frenzy_armor"));
+        float before = getHealth();
+        boolean ok = super.hurt(source, amount);
+        if (ok && source.getEntity() instanceof ServerPlayer sp) FightLog.dealt(this, sp, before - getHealth());
+        return ok;
     }
 
     /** Хранителей не оглушить, не замедлить и не обездвижить — только сбить подготовку. */
@@ -901,6 +988,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         removeSpawned();
         triggerAnim("main", "death");
         List<ServerPlayer> players = playersInArena();
+        if (logOwner() == this) FightLog.end(this, "победа", watchers());
+        else FightLog.event(this, type().name() + " пала");
         long secs = (level().getGameTime() - combatStart) / 20;
         for (ServerPlayer p : players) {
             SystemChat.title(p, Component.literal(type().name() + " повержен").withStyle(ChatFormatting.GOLD),
@@ -1055,17 +1144,73 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
      */
     public void addPool(Vec3 at, double radius, double grow, double maxRadius, int seconds, double units, int color,
                         java.util.function.Consumer<ServerPlayer> extra) {
-        pools.add(new Pool(at, radius, grow, maxRadius, level().getGameTime() + seconds * 20L, units, color, extra));
+        Pool pool = new Pool(at, radius, grow, maxRadius, level().getGameTime() + seconds * 20L, units, color, extra);
+        pool.label = hitLabel;
+        pools.add(pool);
     }
 
     public int poolCount() {
         return pools.size();
     }
 
+    /**
+     * Зона на полу любой формы (фаза 13, «зонировать, а не закидывать»): {@code inside} — кто в зоне, {@code draw} —
+     * как её рисовать (раз в полсекунды). Раз в секунду бьёт стоящих внутри на {@code units} и делает {@code extra}.
+     */
+    public static final class Zone {
+        final java.util.function.Predicate<Vec3> inside;
+        final java.util.function.Consumer<ServerLevel> draw;
+        final long until;
+        final double units;
+        final java.util.function.Consumer<ServerPlayer> extra;
+        final String label;
+
+        Zone(java.util.function.Predicate<Vec3> inside, java.util.function.Consumer<ServerLevel> draw, long until, double units,
+             java.util.function.Consumer<ServerPlayer> extra, String label) {
+            this.inside = inside;
+            this.draw = draw;
+            this.until = until;
+            this.units = units;
+            this.extra = extra;
+            this.label = label;
+        }
+    }
+
+    private final List<Zone> zones = new ArrayList<>();
+
+    /** Поставить зону на {@code ticks} тиков (см. {@link Zone}). */
+    public void addZone(int ticks, double units, java.util.function.Predicate<Vec3> inside,
+                        java.util.function.Consumer<ServerLevel> draw, java.util.function.Consumer<ServerPlayer> extra) {
+        zones.add(new Zone(inside, draw, level().getGameTime() + ticks, units, extra, hitLabel));
+    }
+
+    public int zoneCount() {
+        return zones.size();
+    }
+
+    private void tickZones(long now) {
+        if (zones.isEmpty() || now % 10 != 0 || !(level() instanceof ServerLevel sl)) return;
+        zones.removeIf(z -> now >= z.until);
+        boolean hit = now % 20 == 0;
+        for (Zone z : List.copyOf(zones)) {
+            z.draw.accept(sl);
+            if (!hit) continue;
+            hitLabel = z.label;
+            for (ServerPlayer pl : playersInArena()) {
+                if (!z.inside.test(pl.position())) continue;
+                if (z.units > 0) BossDamage.hit(this, pl, z.units);
+                if (z.extra != null && pl.isAlive()) z.extra.accept(pl);
+            }
+            hitLabel = "Удар";
+        }
+    }
+
     private void tickPools(long now) {
+        tickZones(now);
         if (pools.isEmpty() || now % 20 != 0 || !(level() instanceof ServerLevel sl)) return;
         pools.removeIf(p -> now >= p.until);
         for (Pool p : pools) {
+            hitLabel = p.label;
             Fx.disc(sl, p.at, (float) p.radius, 21, p.color, false);
             for (ServerPlayer pl : playersInArena()) {
                 double dx = pl.getX() - p.at.x, dz = pl.getZ() - p.at.z;
@@ -1076,6 +1221,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
             }
             p.radius = Math.min(p.maxRadius, p.radius + p.grow);
         }
+        hitLabel = "Удар";
     }
 
     /** Живые подручные этого хранителя. */

@@ -55,6 +55,8 @@ public class Chronophage extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Часовая стрелка", "clockhand", 1, false, b -> true, this::clockHand),
+            new Ability("Застывшие следы", "frozensteps", 0, false, b -> b.phase() >= 1, this::frozenSteps),
             new Ability("Время кончается", "closing", 0, false, b -> true, this::closing),
             new Ability("Застывшее время", "stasis", 0, false, b -> b.phase() >= 1, this::stasis),
             new Ability("Эхо удара", "echo", 1, false, b -> true, this::echo),
@@ -198,5 +200,36 @@ public class Chronophage extends BossEntity {
                 Fx.rune(sl, at, 4.5f, 12, (int) Math.round(p("stasis_seconds") * 20), 0xE8C878);
             }
         });
+    }
+
+    /** Часовая стрелка: сектор времени идёт по кругу шаг за шагом — за ним горит след. Идите перед стрелкой... или за следом. */
+    private void clockHand(Cast c) {
+        triggerAnim("main", "cast");
+        double a0 = random.nextDouble() * 360;
+        boolean cw = random.nextBoolean();
+        for (int i = 0; i < 8; i++) {
+            com.andrey.litrpg.boss.Ground.sector(testCast(c.ticks + i * 20), home(), dir(a0 + (cw ? 45 : -45) * i), (float) arenaRadius() + 3, 50, 2,
+                    p("clockhand_units"), 0xE8C878, null);
+        }
+        tell(Component.literal("Часовая стрелка пошла по кругу!").withStyle(ChatFormatting.GOLD));
+    }
+
+    /** Застывшие следы (с половины): шесть секунд там, где боец стоял две секунды назад, застывает время. Не стойте на месте. */
+    private void frozenSteps(Cast c) {
+        triggerAnim("main", "cast");
+        com.andrey.litrpg.boss.Telegraph.note(c, "move", 0);
+        tell(Component.literal("Ваши следы застывают во времени — не возвращайтесь туда, где были.").withStyle(ChatFormatting.GOLD));
+        for (int t = 0; t < 120; t += 20) {
+            c.at(c.ticks + t, () -> {
+                for (ServerPlayer p : playersInArena()) {
+                    Vec3 at = p.position();
+                    Fx.disc((ServerLevel) level(), at, 1.8f, 40, 0xE8C878, true);
+                    schedule(40, () -> addZone(80, p("frozensteps_units"), pt -> {
+                        double dx = pt.x - at.x, dz = pt.z - at.z;
+                        return dx * dx + dz * dz <= 1.8 * 1.8;
+                    }, sl -> Fx.disc(sl, at, 1.8f, 12, 0xE8C878, false), null));
+                }
+            });
+        }
     }
 }

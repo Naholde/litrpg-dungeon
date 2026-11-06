@@ -91,20 +91,18 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
     }
 
     /**
-     * Ритм боя (отзыв владельца 06.11.2026: «спам без остановки всем, чем только можно»). Хранитель делает
-     * один приём за раз: следующий навык начинается, только когда предыдущий доиграл до последнего удара,
-     * и ещё через {@code gapSeconds}. После каждых {@code breatherEvery} навыков — передышка: хранитель
-     * {@code breatherSeconds} секунд «Изнурён», не бьёт и получает на {@code breatherBonus} больше урона.
+     * Ритм боя. Хранитель начинает приём раз в {@code minSeconds}…{@code maxSeconds} секунд (отзыв владельца
+     * 06.11.2026: раньше — каждые полсекунды, кучей; потом — раз в 10 с, скучно; нужно 3–5 с). Следующий приём не
+     * начнётся, пока не кончился замах предыдущего, и ещё {@code afterCast} секунд — чтобы разметки не
+     * ложились одна на другую в момент удара. Передышки «Изнурён» у всех нет — это идея одного хранителя.
      *
-     * @param pulseGapSeconds волна давления не накладывается на навык: ждёт конца приёма и ещё столько секунд
+     * @param pulseGapSeconds волна давления не накладывается на замах: ждёт его конца и ещё столько секунд
      */
-    public record Rhythm(double gapSeconds, int breatherEvery, double breatherSeconds, double breatherBonus,
-                         double pulseGapSeconds) {
+    public record Rhythm(double minSeconds, double maxSeconds, double afterCast, double pulseGapSeconds) {
         static final Codec<Rhythm> CODEC = RecordCodecBuilder.create(i -> i.group(
-                Codec.DOUBLE.fieldOf("gap_seconds").forGetter(Rhythm::gapSeconds),
-                Codec.INT.fieldOf("breather_every").forGetter(Rhythm::breatherEvery),
-                Codec.DOUBLE.fieldOf("breather_seconds").forGetter(Rhythm::breatherSeconds),
-                Codec.DOUBLE.fieldOf("breather_bonus").forGetter(Rhythm::breatherBonus),
+                Codec.DOUBLE.fieldOf("min_seconds").forGetter(Rhythm::minSeconds),
+                Codec.DOUBLE.fieldOf("max_seconds").forGetter(Rhythm::maxSeconds),
+                Codec.DOUBLE.fieldOf("after_cast").forGetter(Rhythm::afterCast),
                 Codec.DOUBLE.fieldOf("pulse_gap_seconds").forGetter(Rhythm::pulseGapSeconds)
         ).apply(i, Rhythm::new));
     }
@@ -134,7 +132,7 @@ public record BossesBalance(Common common, Map<String, Map<String, Double>> boss
             List.of(0.4, 0.7, 1.0, 1.4, 1.8, 2.2),
             new Pressure(10, 0.3, 16, 0.08, 6, 0.5, 3),
             new Rush(6, 1.6, 3.5, 0.55, 4, 0.75),
-            new Rhythm(2.0, 4, 4.5, 0.3, 1.5));
+            new Rhythm(3, 5, 0.5, 1.5));
 
     public static BossesBalance defaults() {
         return new BossesBalance(DEFAULT_COMMON, BossRegistry.defaultValues());

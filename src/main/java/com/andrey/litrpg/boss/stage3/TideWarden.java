@@ -43,6 +43,26 @@ public class TideWarden extends BossEntity {
         return BossRegistry.TIDE_WARDEN;
     }
 
+    /**
+     * Идея Стража: прилив и отлив. {@code frenzy_surge} секунд прилива он бьёт приёмом за приёмом, и урон по нему почти
+     * не проходит — отряд уходит от ударов; потом отлив — Страж выдохся, стоит и получает ×{@code frenzy_bonus}.
+     * Убивают его в отливы — копите сильные навыки к окну.
+     */
+    @Override
+    protected boolean frenzy() {
+        return true;
+    }
+
+    @Override
+    protected String surgeName() {
+        return "прилив";
+    }
+
+    @Override
+    protected String windowName() {
+        return "Отлив";
+    }
+
     @Override
     public String modelId() {
         return "tide_warden";
@@ -54,6 +74,8 @@ public class TideWarden extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Течения", "currents", 1, false, b -> true, this::currents),
+            new Ability("Пена", "foam", 1, false, b -> true, this::foam),
             new Ability("Колонны прилива", "columns", 0, false, b -> true, this::columns),
             new Ability("Отбойный удар", "backlash", 0, false, b -> b.phase() >= 1 && b.getTarget() != null, this::backlash),
             new Ability("Брызги прибоя", "spray", 1, false, b -> true, this::spray),
@@ -211,5 +233,25 @@ public class TideWarden extends BossEntity {
             }
             level().playSound(null, blockPosition(), SoundEvents.GENERIC_SPLASH, SoundSource.HOSTILE, 2f, 0.5f);
         });
+    }
+
+    /** Течения: две полосы течения поперёк зала на {currents_seconds} — сносят вбок и холодят. */
+    private void currents(Cast c) {
+        triggerAnim("main", "cast");
+        double a = random.nextDouble() * 180, len = arenaRadius() + 2;
+        Vec3 d = dir(a), side = dir(a + 90);
+        for (int s = -1; s <= 1; s += 2) {
+            Vec3 mid = home().add(side.scale(5 * s));
+            com.andrey.litrpg.boss.Ground.line(c, mid.subtract(d.scale(len)), mid.add(d.scale(len)), 3f, (int) p("currents_seconds"), p("currents_units"),
+                    0x4FB8FF, pl -> push(pl, d, 0.45));
+        }
+    }
+
+    /** Пена: четыре пятна пены на {foam_seconds} — вязко и холодно. */
+    private void foam(Cast c) {
+        triggerAnim("main", "cast");
+        for (int i = 0; i < 4; i++) {
+            com.andrey.litrpg.boss.Ground.circle(c, randomSpot(0.2, 0.85), 2.5f, (int) p("foam_seconds"), p("foam_units"), 0xBFE8FF, pl -> slow(pl, 0.35, 25));
+        }
     }
 }

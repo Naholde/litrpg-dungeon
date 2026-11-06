@@ -60,6 +60,8 @@ public class Chariot extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Огненная колея", "ruts", 1, false, b -> !stopped, this::ruts),
+            new Ability("Гоночный круг", "track", 1, false, b -> !stopped && laps >= 2, this::track),
             new Ability("Огненный след", "firesweep", 0, false, b -> true, this::firesweep),
             new Ability("Призрачный обгон", "phantoms", 0, false, b -> !stopped && laps >= 2, this::phantoms),
             new Ability("Пламенный выхлоп", "exhaust", 1, false, b -> !stopped && b.getTarget() != null, this::exhaust),
@@ -216,5 +218,21 @@ public class Chariot extends BossEntity {
                 sl.playSound(null, net.minecraft.core.BlockPos.containing(mid), SoundEvents.HORSE_GALLOP, SoundSource.HOSTILE, 2f, 0.6f);
             });
         }
+    }
+
+    /** Огненная колея: две колеи огня поперёк ристалища горят {ruts_seconds}. */
+    private void ruts(Cast c) {
+        double a = random.nextDouble() * 180, len = arenaRadius() + 2;
+        Vec3 d = dir(a), side = dir(a + 90);
+        for (int s = -1; s <= 1; s += 2) {
+            Vec3 mid = home().add(side.scale(3.5 * s));
+            com.andrey.litrpg.boss.Ground.line(c, mid.subtract(d.scale(len)), mid.add(d.scale(len)), 2.2f, (int) p("ruts_seconds"), p("ruts_units"), 0xFF6A1A, null);
+        }
+    }
+
+    /** Гоночный круг (со второго круга): край ристалища горит {track_seconds} — бой в середине. */
+    private void track(Cast c) {
+        com.andrey.litrpg.boss.Ground.ring(c, home(), (float) arenaRadius() - 4, (float) arenaRadius() + 3, (int) p("track_seconds"), p("track_units"), 0xFF6A1A, null);
+        tell(Component.literal("Край ристалища в огне — в середину!").withStyle(ChatFormatting.GOLD));
     }
 }

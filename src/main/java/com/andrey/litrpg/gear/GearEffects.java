@@ -59,7 +59,7 @@ public final class GearEffects {
         double hp = victim.getHealth() / Math.max(1, victim.getMaxHealth());
         if (hp < 0.3) k += of(p, GearEffect.EXECUTE);
         if (hp >= 0.999) k += of(p, GearEffect.FIRST_STRIKE);
-        if (victim instanceof BossEntity b && b.tired()) k += of(p, GearEffect.OPENING);
+        if (victim instanceof BossEntity b && (b.tired() || b.isCasting())) k += of(p, GearEffect.OPENING);
         return k;
     }
 

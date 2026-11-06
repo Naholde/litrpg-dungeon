@@ -59,6 +59,8 @@ public class Arachna extends BossEntity {
     }
 
     private final List<Ability> abilities = List.of(
+            new Ability("Ядовитые лужи", "venompools", 1, false, b -> true, this::venomPools),
+            new Ability("Сеть на полу", "net", 1, false, b -> b.phase() >= 1, this::net),
             new Ability("Паучья погоня", "skitter", 0, false, b -> true, this::skitter),
             new Ability("Прыжок охотницы", "pounce", 1, false, b -> farthest() != null, this::pounce),
             new Ability("Ядовитый веер", "venom", 1, false, b -> b.phase() >= 1 && b.getTarget() != null, this::venom),
@@ -289,5 +291,22 @@ public class Arachna extends BossEntity {
                     p("venom_units"), pl -> poison(pl, p("poison_units"), 5));
         }
         level().playSound(null, blockPosition(), SoundEvents.LLAMA_SPIT, SoundSource.HOSTILE, 2f, 0.5f);
+    }
+
+    /** Ядовитые лужи: под тремя бойцами разливается яд и стоит {venompools_seconds} — арена становится теснее. */
+    private void venomPools(Cast c) {
+        List<ServerPlayer> all = new java.util.ArrayList<>(playersInArena());
+        java.util.Collections.shuffle(all, new java.util.Random(random.nextLong()));
+        for (int i = 0; i < Math.min(3, all.size()); i++) {
+            com.andrey.litrpg.boss.Ground.circle(c, all.get(i).position(), 2.5f, (int) p("venompools_seconds"), p("venompools_units"), 0x7CE36B,
+                    pl -> poison(pl, p("poison_units"), 3));
+        }
+    }
+
+    /** Сеть на полу (с 66%): половина арены затянута паутиной на {net_seconds} — там вязнут и травятся. */
+    private void net(Cast c) {
+        triggerAnim("main", "attack");
+        com.andrey.litrpg.boss.Ground.half(c, home(), dir(random.nextDouble() * 360), (int) p("net_seconds"), p("net_units"), 0xD8D8D8, pl -> slow(pl, 0.5, 25));
+        tell(Component.literal("Половину логова затянуло паутиной — уходите на чистую сторону.").withStyle(ChatFormatting.GREEN));
     }
 }

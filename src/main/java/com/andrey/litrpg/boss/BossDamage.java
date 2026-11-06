@@ -65,6 +65,12 @@ public final class BossDamage {
         if (target == null || !target.isAlive() || (target instanceof ServerPlayer p && p.isSpectator())) return false;
         double amount = units * unit(boss.bossLevel()) * boss.enrageMultiplier() * earlyDamage(boss.bossLevel());
         target.invulnerableTime = 0;
-        return target.hurt(boss.damageSources().mobAttack(boss), (float) amount);
+        float before = target.getHealth() + target.getAbsorptionAmount();
+        boolean ok = target.hurt(boss.damageSources().mobAttack(boss), (float) amount);
+        if (target instanceof ServerPlayer p) {
+            float after = p.isAlive() ? p.getHealth() + p.getAbsorptionAmount() : 0;
+            FightLog.hit(boss, p, boss.hitLabel(), before - after);
+        }
+        return ok;
     }
 }
