@@ -43,7 +43,7 @@ public final class CryomancerSkills {
         public IceNeedle() {
             super("cryo.needle", "Ледяная игла", 0x8FE3FF, "❄", 3, 0);
             blocks("range", 22);
-            damage("damage", 1.103);
+            damage("damage", 2.576);
             seconds("duration", 10);
         }
 
@@ -75,7 +75,7 @@ public final class CryomancerSkills {
             blocks("range", 16);
             blocks("radius", 6);
             seconds("duration", 8);
-            damage("damage", 0.331);
+            damage("damage", 0.773);
         }
 
         @Override
@@ -110,7 +110,7 @@ public final class CryomancerSkills {
         public Freeze() {
             super("cryo.freeze", "Заморозка", 0xD6F3FF, "❆", 14, 0);
             blocks("range", 20);
-            damage("damage", 0.883);
+            damage("damage", 2.061);
             seconds("duration", 10);
             count("stacks", 2);
         }
@@ -140,9 +140,9 @@ public final class CryomancerSkills {
             super("cryo.shatter", "Раскол", 0x7FB8FF, "✹", 16, 0);
             blocks("range", 20);
             blocks("radius", 4);
-            damage("damage", 1.766);
+            damage("damage", 4.124);
             percent("frozen", 2.0);
-            damage("shards", 0.883);
+            damage("shards", 2.061);
         }
 
         @Override
@@ -179,7 +179,7 @@ public final class CryomancerSkills {
             super("cryo.spikes", "Ледяные шипы", 0xA6E1FF, "⁂", 26, 0);
             blocks("length", 12);
             blocks("width", 2);
-            damage("damage", 1.655);
+            damage("damage", 3.864);
             seconds("duration", 10);
         }
 
@@ -218,7 +218,7 @@ public final class CryomancerSkills {
         public AbsoluteZero() {
             super("cryo.zero", "Абсолютный ноль", 0xFFFFFF, "⬣", 96, 0);
             blocks("radius", 9);
-            damage("damage", 1.986);
+            damage("damage", 4.637);
             seconds("duration", 3);
         }
 

@@ -67,7 +67,7 @@ class BalanceSimTest {
         int points = (int) Math.round(prog.statPointsPerLevel() * (level - 1));
         StatSet gear;
         Map<Derived, Double> der = new EnumMap<>(Derived.class);
-        double scale = Math.max(0.25, Math.min(1, level / 50.0));
+        double scale = com.andrey.litrpg.gear.GearGen.affixScale(level);
         double affix = 2.2 * scale; // ~2,2 свойства на вещь × 9 вещей / разные виды → столько «средних» на нужное
         switch (role) {
             case TANK -> {
@@ -236,8 +236,28 @@ class BalanceSimTest {
         double unit = BossDamage.unit(level);
         var common = Balance.get(Balance.BOSSES).common();
         var pr = common.pressure();
-        double hp = p.get("hp_units") * unit * common.hpScale(n);
-        double dps = party.stream().mapToDouble(BalanceSimTest::fightDps).sum();
+        double hp = p.get("hp_units") * unit * common.hpScale(n) * BossDamage.earlyHp(level);
+        // Ритм (фаза 13): один приём за раз — замах + доигрыш (~1 с) + пауза; после breather_every — передышка,
+        // в которую урон по хранителю выше. Средняя занятость приёма и длина цикла — по навыкам хранителя.
+        var rh = common.rhythm();
+        double castSum = 0;
+        int casts = 0;
+        double freq = 0;
+        for (var e : p.entrySet()) {
+            if (!e.getKey().endsWith("_cast")) continue;
+            String k = e.getKey().replace("_cast", "");
+            castSum += e.getValue() * BossDamage.earlyCast(level);
+            casts++;
+            Double cd = p.get(k + "_cd");
+            if (cd != null) freq += 1 / (cd * BossDamage.earlyCooldown(level));
+        }
+        double occupy = (casts > 0 ? castSum / casts : 1.2) + 1.0 + rh.gapSeconds() * BossDamage.earlyCast(level);
+        double cycle = rh.breatherEvery() * occupy + rh.breatherSeconds() + rh.gapSeconds();
+        // Сколько раз в секунду хранитель реально успевает применять навыки: не чаще, чем позволяет ритм.
+        double rhythmCap = rh.breatherEvery() / cycle;
+        double slow = freq > rhythmCap ? rhythmCap / freq : 1;
+        double dps = party.stream().mapToDouble(BalanceSimTest::fightDps).sum()
+                * (1 + rh.breatherBonus() * rh.breatherSeconds() / cycle);
         double ttk = hp / dps;
         int enrage = (int) (ttk / common.enrageSeconds());
         // средний множитель неистовства за бой (ровная прибавка за каждую ступень)
@@ -263,11 +283,18 @@ class BalanceSimTest {
                 }
             } else {
                 // по площади: ошибаются MISTAKES, длинные лужи/волны считаем раз в 20 с
-                areaPerSec += u / (cd != null ? cd : 20) * MISTAKES;
+                areaPerSec += u / (cd != null ? cd * BossDamage.earlyCooldown(level) : 20) * MISTAKES * slow;
                 bigHit = Math.max(bigHit, u);
             }
         }
-        double tankDtps = (p.get("melee_units") / common.autoAttackSeconds() + buster / busterCd) * unit * bossTaken(tank) * avgEnrage;
+        double early = BossDamage.earlyDamage(level);
+        // Давка — только в паузах ритма: доля пауз в цикле × частота; ловят её с той же долей ошибок.
+        var rush = common.rush();
+        double idle = rh.gapSeconds() * BossDamage.earlyCast(level) * rh.breatherEvery() / cycle;
+        double rushPerSec = Math.min(1 / (rush.seconds() * BossDamage.earlyCooldown(level)), idle / (rush.warn() + rh.gapSeconds()));
+        areaPerSec += rush.units() * rushPerSec * MISTAKES * 0.5;
+        double tankDtps = (p.get("melee_units") / common.autoAttackSeconds() * (1 - rh.breatherSeconds() / cycle)
+                + buster / (busterCd * BossDamage.earlyCooldown(level)) * slow) * unit * bossTaken(tank) * avgEnrage * early;
         // Давление: волна по всем, метки на бойцах (на 5+ — по две), ошибки в разметке.
         double grow = com.andrey.litrpg.boss.BossEntity.pressureGrow(level, n);
         double pulse = 0;
@@ -275,10 +302,10 @@ class BalanceSimTest {
         Member dd = party.get(Math.min(2, n - 1));
         double marks = (n >= 5 ? 2 : 1) * pr.markUnits() * grow * pr.markDuration() / pr.markSeconds() * unit * bossTaken(dd);
         double others = areaPerSec * unit * (n - 1) * bossTaken(dd);
-        double incoming = tankDtps + (pulse + marks + others) * avgEnrage;
+        double incoming = tankDtps + (pulse + marks + others) * avgEnrage * early;
         double healLoad = incoming / fightHps(healer);
-        double busterTank = buster * unit * bossTaken(tank) * endEnrage / tank.b().get(Derived.MAX_HEALTH);
-        double bigOthers = bigHit * unit * bossTaken(dd) * endEnrage / dd.b().get(Derived.MAX_HEALTH);
+        double busterTank = buster * unit * bossTaken(tank) * endEnrage * early / tank.b().get(Derived.MAX_HEALTH);
+        double bigOthers = bigHit * unit * bossTaken(dd) * endEnrage * early / dd.b().get(Derived.MAX_HEALTH);
         return new BossRow(t.name(), level, n, ttk, enrage, tankDtps / tank.b().get(Derived.MAX_HEALTH), healLoad, busterTank, bigOthers);
     }
 
@@ -314,7 +341,8 @@ class BalanceSimTest {
         r.append("# Баланс подземелья — симуляция\n\n");
         r.append("Считано по формулам игры (`BalanceSimTest`): отряд — танк, поддержка и бойцы; уровень — на 1 ниже хранителя;\n");
         r.append("вещи — ожидаемой к этапу редкости; очки вложены в главные характеристики роли. Бой: 75% времени в атаке,\n");
-        r.append("каждый не-танк ловит 20% ударов по площади. Нагрузка лекаря — доля его лечения, которая уходит на входящий урон.\n");
+        r.append("каждый не-танк ловит 20% ударов по площади; хранитель делает один приём за раз (ритм фазы 13, передышки)\n");
+        r.append("и до 30-го уровня смягчён (`BossDamage.early*`). Нагрузка лекаря — доля его лечения, которая уходит на входящий урон.\n");
         r.append(bench() ? "Урон и лечение ролей — медианы стенда классов (`gradlew runGameTestServer -Pbench`) × вещи и очки.\n\n"
                 : "Стенд классов не запускали — урон и лечение оценены формулой (грубо). " + BENCH.keySet() + "\n\n");
         r.append("## Хранители\n\n| Хранитель | Ур. | Отряд | Бой | Неистовство | Танк теряет в с | Нагрузка лекаря | Сильнейший удар по танку | Сильнейший удар по бойцу |\n");
@@ -332,10 +360,13 @@ class BalanceSimTest {
                     r.append(String.format(Locale.ROOT, "| %s | %d | %d | %d:%02d | ×%d | %.1f%% | %.0f%% | %.0f%% | %.0f%% |%n", row.name(),
                             row.level(), n, (int) row.ttk() / 60, (int) row.ttk() % 60, row.enrage(), row.tankLoad() * 100,
                             row.healLoad() * 100, row.busterTank() * 100, row.bigHitOthers() * 100));
-                    if (!t.id().equals("morra") && (row.ttk() < 150 || row.ttk() > 360)) problems.add(t.name() + " (" + n + "): бой " + Math.round(row.ttk()) + " с");
+                    // Решение владельца 02.11.2026: первые два этапа заметно проще — бой короче, лекарь свободнее.
+                    double minTtk = row.level() <= 20 ? 35 : 150;
+                    double minHeal = row.level() <= 20 ? 0.3 : 0.5;
+                    if (!t.id().equals("morra") && (row.ttk() < minTtk || row.ttk() > 360)) problems.add(t.name() + " (" + n + "): бой " + Math.round(row.ttk()) + " с");
                     if (row.busterTank() > 0.75) problems.add(t.name() + " (" + n + "): удар по танку " + Math.round(row.busterTank() * 100) + "% здоровья");
                     if (row.healLoad() > 1.05) problems.add(t.name() + " (" + n + "): лекарь не успевает (" + Math.round(row.healLoad() * 100) + "%)");
-                    if (row.healLoad() < 0.5) problems.add(t.name() + " (" + n + "): лекарю скучно (" + Math.round(row.healLoad() * 100) + "%)");
+                    if (row.healLoad() < minHeal) problems.add(t.name() + " (" + n + "): лекарю скучно (" + Math.round(row.healLoad() * 100) + "%)");
                 }
             }
         }
@@ -351,7 +382,7 @@ class BalanceSimTest {
         }
         r.append("\nЗдоровье хранителей для боя втроём 3:45 (hp_units): ").append(String.join(", ", suggest)).append("\n");
         r.append("\n## Замечания\n\n");
-        if (problems.isEmpty()) r.append("Всё в пределах: хранители 2,5–6,5 мин, танк держит удары, лекарь занят, но успевает.\n");
+        if (problems.isEmpty()) r.append("Всё в пределах: на этапах 1–2 хранители короткие и мягкие (решение владельца), дальше 2,5–6 мин; танк держит удары, лекарь занят, но успевает.\n");
         for (String p : problems) r.append("- ").append(p).append('\n');
         Path root = Path.of(System.getProperty("litrpg.root", "."));
         Path out = root.resolve("build/reports/balance.md");

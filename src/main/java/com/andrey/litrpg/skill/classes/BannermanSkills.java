@@ -34,9 +34,9 @@ public final class BannermanSkills {
             super("banner.power", "Знамя силы", 0xD8343A, "⚑", 26, 0);
             blocks("range", 10);
             blocks("radius", 8);
-            shield("hp", 5.121);
+            shield("hp", 7.428);
             percent("power", 0.225);
-            heal("heal", 0.263);
+            heal("heal", 0.382);
             seconds("duration", 16);
         }
 
@@ -73,9 +73,9 @@ public final class BannermanSkills {
             super("banner.guard", "Знамя стойкости", 0x7FB8FF, "⚐", 26, 0);
             blocks("range", 10);
             blocks("radius", 8);
-            shield("hp", 5.121);
+            shield("hp", 7.428);
             percent("reduce", 0.225);
-            heal("heal", 0.263);
+            heal("heal", 0.382);
             seconds("duration", 16);
         }
 
@@ -112,7 +112,7 @@ public final class BannermanSkills {
             super("banner.shout", "Клич", 0xFFE27A, "❖", 40, 0);
             blocks("radius", 20);
             seconds("duration", 6);
-            heal("heal", 1.756);
+            heal("heal", 2.547);
         }
 
         @Override
@@ -148,10 +148,10 @@ public final class BannermanSkills {
             super("banner.speed", "Знамя скорости", 0x7FF0D0, "⚏", 30, 0);
             blocks("range", 10);
             blocks("radius", 8);
-            shield("hp", 4.389);
+            shield("hp", 6.367);
             percent("speed", 0.5);
             percent("haste", 0.225);
-            heal("heal", 0.263);
+            heal("heal", 0.382);
             seconds("duration", 16);
         }
 
@@ -190,7 +190,7 @@ public final class BannermanSkills {
         public CloseRanks() {
             super("banner.ranks", "Сомкнуть ряды", 0xC9D6E8, "⊞", 45, 0);
             blocks("radius", 25);
-            shield("shield", 2.926);
+            shield("shield", 4.244);
             seconds("duration", 8);
         }
 
@@ -227,7 +227,7 @@ public final class BannermanSkills {
         public LastStand() {
             super("banner.last_stand", "Последний бой", 0xFFFFFF, "✠", 144, 0);
             blocks("radius", 10);
-            shield("hp", 11.705);
+            shield("hp", 16.979);
             seconds("duration", 10);
         }
 

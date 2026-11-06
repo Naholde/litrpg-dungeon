@@ -26,7 +26,7 @@ public final class ClericSkills {
         public Bandage() {
             super("cleric.bandage", "Повязка", 0x9BF5C8, "✚", 3, 0);
             blocks("range", 30);
-            heal("heal", 1.323);
+            heal("heal", 0.91);
         }
 
         @Override
@@ -53,7 +53,7 @@ public final class ClericSkills {
         public Prayer() {
             super("cleric.prayer", "Молитва", 0xFFE27A, "☥", 0, 2.0);
             blocks("range", 30);
-            heal("heal", 2.939);
+            heal("heal", 2.021);
         }
 
         @Override
@@ -81,7 +81,7 @@ public final class ClericSkills {
             blocks("range", 20);
             blocks("radius", 5);
             seconds("duration", 8);
-            heal("heal", 0.258);
+            heal("heal", 0.178);
             percent("reduce", 0.225);
         }
 
@@ -119,8 +119,8 @@ public final class ClericSkills {
         public Miracle() {
             super("cleric.miracle", "Чудо", 0xFFFFFF, "✺", 144, 0);
             blocks("radius", 30);
-            heal("heal", 3.674);
-            shield("shield", 1.102);
+            heal("heal", 2.527);
+            shield("shield", 0.758);
             seconds("duration", 8);
         }
 

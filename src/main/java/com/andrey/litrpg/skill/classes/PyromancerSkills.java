@@ -34,8 +34,8 @@ public final class PyromancerSkills {
         public Spark() {
             super("pyro.spark", "Искра", 0xFF7A2E, "♨", 3, 0);
             blocks("range", 22);
-            damage("damage", 0.531);
-            damage("burn", 0.472);
+            damage("damage", 1.598);
+            damage("burn", 1.42);
             seconds("duration", 8);
         }
 
@@ -67,8 +67,8 @@ public final class PyromancerSkills {
             blocks("range", 16);
             blocks("radius", 4);
             seconds("duration", 8);
-            damage("damage", 0.206);
-            damage("burn", 0.295);
+            damage("damage", 0.621);
+            damage("burn", 0.888);
         }
 
         @Override
@@ -142,8 +142,8 @@ public final class PyromancerSkills {
             super("pyro.breath", "Выдох пламени", 0xFF9A4A, "⌁", 14, 0);
             blocks("radius", 8);
             param("angle", 70, com.andrey.litrpg.skill.SkillParam.Unit.FLAT, com.andrey.litrpg.skill.SkillParam.Scale.NONE);
-            damage("damage", 0.768);
-            damage("burn", 0.354);
+            damage("damage", 2.311);
+            damage("burn", 1.065);
             seconds("duration", 8);
         }
 
@@ -177,7 +177,7 @@ public final class PyromancerSkills {
             blocks("radius", 8);
             blocks("meteor", 3);
             count("meteors", 5);
-            damage("damage", 0.885);
+            damage("damage", 2.663);
             seconds("delay", 1.2);
         }
 
@@ -220,7 +220,7 @@ public final class PyromancerSkills {
         public Inferno() {
             super("pyro.inferno", "Пекло", 0xFFD27A, "✹", 88, 0);
             blocks("radius", 10);
-            damage("damage", 1.181);
+            damage("damage", 3.555);
             percent("per_burning", 0.35);
             percent("self_burn", 0.1);
             seconds("duration", 6);

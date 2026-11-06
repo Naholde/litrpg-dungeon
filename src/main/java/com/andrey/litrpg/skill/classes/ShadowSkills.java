@@ -27,7 +27,7 @@ public final class ShadowSkills {
         public FromDark() {
             super("shadow.from_dark", "Из темноты", 0x9B5CFF, "➹", 10, 0);
             blocks("range", 14);
-            damage("damage", 1.406);
+            damage("damage", 1.642);
             percent("behind", 1.0);
         }
 
@@ -59,7 +59,7 @@ public final class ShadowSkills {
             super("shadow.knives", "Веер ножей", 0xB8A6FF, "⁂", 9, 0);
             blocks("radius", 9);
             param("angle", 70, com.andrey.litrpg.skill.SkillParam.Unit.FLAT, com.andrey.litrpg.skill.SkillParam.Scale.NONE);
-            damage("damage", 0.811);
+            damage("damage", 0.947);
             count("knives", 5);
         }
 
@@ -170,7 +170,7 @@ public final class ShadowSkills {
         public BladePoison() {
             super("shadow.poison", "Яд на клинке", 0x6BE38A, "☣", 16, 0);
             blocks("range", 4);
-            damage("damage", 2.595);
+            damage("damage", 3.03);
             seconds("duration", 8);
             percent("extra", 0.375);
         }
@@ -200,7 +200,7 @@ public final class ShadowSkills {
         public Cut() {
             super("shadow.cut", "Перерезать", 0x8B0000, "☠", 20, 0);
             blocks("range", 4);
-            damage("damage", 2.379);
+            damage("damage", 2.778);
             percent("threshold", 0.3);
             percent("bonus", 1.5);
         }

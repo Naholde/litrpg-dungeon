@@ -29,7 +29,7 @@ public final class DruidSkills {
         public Flower() {
             super("druid.flower", "Цветок жизни", 0x6BE38A, "✿", 5, 0);
             blocks("range", 30);
-            heal("heal", 3.2);
+            heal("heal", 3.703);
             seconds("duration", 9);
         }
 
@@ -59,7 +59,7 @@ public final class DruidSkills {
         public Vine() {
             super("druid.vine", "Лоза", 0x3AA85A, "⌇", 16, 0);
             blocks("range", 25);
-            heal("heal", 0.6);
+            heal("heal", 0.694);
             seconds("duration", 12);
             count("jumps", 4);
         }
@@ -154,8 +154,8 @@ public final class DruidSkills {
             super("druid.tree", "Живое древо", 0x4A8B3A, "♣", 55, 0);
             blocks("range", 12);
             blocks("radius", 7);
-            shield("hp", 5.0);
-            heal("heal", 0.5);
+            shield("hp", 5.786);
+            heal("heal", 0.579);
             seconds("duration", 16);
         }
 
@@ -190,7 +190,7 @@ public final class DruidSkills {
         public Bloom() {
             super("druid.bloom", "Цветение", 0xB8F57A, "❀", 35, 0);
             blocks("radius", 25);
-            heal("heal", 2.0);
+            heal("heal", 2.314);
             percent("bonus", 0.5);
         }
 

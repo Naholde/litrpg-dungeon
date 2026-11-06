@@ -105,7 +105,7 @@ public final class BossRegistry {
 
     // ---------------------------------------------------------------- Этап 3 · Затопленный храм
     public static final Type TIDE_WARDEN = reg("tide_warden", "Страж Прилива", "woops", p(
-            "level", 24, "hp_units", 127.5, "melee_units", 0.396,
+            "level", 24, "hp_units", 152, "melee_units", 0.48,
             "trident_units", 1.425, "trident_cd", 4, "trident_cast", 1,
             "wave_units", 1.275, "wave_cd", 9, "wave_cast", 1.6,
             "whirl_units", 0.15, "whirl_seconds", 12, "whirl_cd", 12, "whirl_cast", 1,
@@ -117,7 +117,7 @@ public final class BossRegistry {
             "backlash_units", 0.9, "backlash_push", 1.3, "backlash_cd", 20, "backlash_cast", 1.5));
 
     public static final Type LEVIATHAN = reg("leviathan", "Левиафан", "red", p(
-            "level", 27, "hp_units", 139.5, "melee_units", 0.44,
+            "level", 27, "hp_units", 153, "melee_units", 0.44,
             "bite_units", 1.5, "bite_cd", 4, "bite_cast", 1,
             "tail_units", 0.9, "tail_cd", 6, "tail_cast", 1.6,
             "emerge_units", 1.2, "dive_cd", 10, "dive_cast", 1,
@@ -130,7 +130,7 @@ public final class BossRegistry {
             "roar_units", 0.45, "roar_silence", 2.5, "roar_cd", 22, "roar_cast", 2.2));
 
     public static final Type NAIAD = reg("naiad", "Наяра, Жрица Глубин", "aura", p(
-            "level", 30, "hp_units", 150, "melee_units", 0.44,
+            "level", 30, "hp_units", 156, "melee_units", 0.44,
             "staff_units", 1.425, "staff_cd", 4, "staff_cast", 1,
             "spears_units", 0.825, "spears_cd", 6, "spears_cast", 1,
             "song_units", 0.9, "song_cd", 12, "song_cast", 1.6,
@@ -144,7 +144,7 @@ public final class BossRegistry {
 
     // ---------------------------------------------------------------- Этап 4 · Кузни Пепла
     public static final Type SMELTER = reg("smelter", "Плавильный голем", "ring_frei", p(
-            "level", 34, "hp_units", 168, "melee_units", 0.44,
+            "level", 34, "hp_units", 180, "melee_units", 0.44,
             "hammer_units", 1.5, "hammer_cd", 4, "hammer_cast", 1,
             "pour_units", 0.825, "pour_burn_units", 0.15, "pour_seconds", 10, "pour_cd", 7, "pour_cast", 1,
             "heat_radius", 5, "heat_max", 6, "melt_units", 0.825, "rivet_hp_units", 3.0,
@@ -156,7 +156,7 @@ public final class BossRegistry {
             "ingot_units", 0.9, "ingot_seconds", 5, "ingot_passes", 3, "ingot_cd", 26, "ingot_cast", 1.2));
 
     public static final Type CHARIOT = reg("chariot", "Колесница Пламени", "formula", p(
-            "level", 37, "hp_units", 181.5, "melee_units", 0.44,
+            "level", 37, "hp_units", 195, "melee_units", 0.44,
             "charge_units", 1.275, "charge_cd", 4, "charge_cast", 1,
             "ring_units", 0.9, "ring_cd", 7, "ring_cast", 1.5,
             "trail_units", 0.15, "trail_seconds", 9, "pit_seconds", 7, "pit_damage", 1.6,
@@ -167,9 +167,9 @@ public final class BossRegistry {
             "phantoms_units", 0.9, "phantoms_cd", 22, "phantoms_cast", 1.6));
 
     public static final Type ASH_LORD = reg("ash_lord", "Владыка Пепла", "blue_lock", p(
-            "level", 40, "hp_units", 193.5, "melee_units", 0.484,
+            "level", 40, "hp_units", 213, "melee_units", 0.484,
             "sword_units", 1.575, "sword_cd", 4, "sword_cast", 1,
-            "storm_units", 0.9, "storm_cd", 8, "storm_cast", 1.4,
+            "storm_units", 0.9, "storm_cd", 8, "storm_cast", 2.4,
             "collapse_units", 0.75, "lava_units", 0.195, "lava_seconds", 16, "collapse_cd", 6, "collapse_cast", 1.5,
             "duel_units", 0.75, "duel_seconds", 10, "duel_cut", 0.9, "ego_cd", 12, "ego_cast", 1,
             "erupt_units", 0.75, "erupt_cd", 4, "erupt_cast", 1.4,
@@ -181,7 +181,7 @@ public final class BossRegistry {
 
     // ---------------------------------------------------------------- Этап 5 · Шпиль Бездны
     public static final Type DOPPEL = reg("doppel", "Двойник", "next_opponent", p(
-            "level", 44, "hp_units", 214.5, "melee_units", 0.484,
+            "level", 44, "hp_units", 240, "melee_units", 0.484,
             "strike_units", 1.575, "strike_cd", 4, "strike_cast", 1,
             "mirror_seconds", 4, "mirror_share", 0.6, "mirror_cd", 11, "mirror_cast", 1.1,
             "swap_cd", 9, "swap_cast", 1, "shadow_cut", 0.9,
@@ -193,7 +193,7 @@ public final class BossRegistry {
             "fan_units", 1.0, "fan_cd", 14, "fan_cast", 1.2));
 
     public static final Type CHRONOPHAGE = reg("chronophage", "Хронофаг", "no_time", p(
-            "level", 47, "hp_units", 226.5, "melee_units", 0.484,
+            "level", 47, "hp_units", 255, "melee_units", 0.484,
             "slash_units", 1.575, "slash_cd", 4, "slash_cast", 1,
             "glass_hp_units", 1.4, "glass_seconds", 16, "stop_units", 0.75, "glass_cd", 12, "glass_cast", 1,
             "rewind_units", 1.05, "rewind_seconds", 6, "rewind_cd", 10, "rewind_cast", 1,
@@ -205,7 +205,7 @@ public final class BossRegistry {
             "stasis_units", 0.08, "stasis_seconds", 9, "stasis_cd", 22, "stasis_cast", 1.2));
 
     public static final Type XALATHAR = reg("xalathar", "Ксалатар, Голод Бездны", "wutiwant", p(
-            "level", 50, "hp_units", 232.5, "melee_units", 0.528,
+            "level", 50, "hp_units", 264, "melee_units", 0.528,
             "smash_units", 1.65, "smash_cd", 4, "smash_cast", 1,
             "gaze_units", 1.05, "gaze_cd", 5, "gaze_cast", 1,
             "hunger_units", 1.2, "hunger_cd", 8, "hunger_cast", 1.1,

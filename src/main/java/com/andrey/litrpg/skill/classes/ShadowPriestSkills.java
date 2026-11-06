@@ -177,7 +177,7 @@ public final class ShadowPriestSkills {
         public Veil() {
             super("priest.veil", "Покров тьмы", 0x3A2A5A, "◘", 30, 0);
             blocks("range", 25);
-            shield("shield", 5.475);
+            shield("shield", 5.897);
             seconds("duration", 8);
             damage("burst", 1.3);
             blocks("burst_radius", 4);

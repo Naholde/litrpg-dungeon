@@ -27,7 +27,7 @@ public final class SniperSkills {
         public Aim() {
             super("sniper.aim", "Прицелиться", 0xC9D6E8, "◎", 6, 0);
             blocks("range", 40);
-            damage("damage", 0.977);
+            damage("damage", 1.446);
             seconds("full", 3);
             percent("bonus", 1.5);
         }
@@ -119,7 +119,7 @@ public final class SniperSkills {
             blocks("radius", 1.8);
             shield("hp", 1.5);
             seconds("duration", 30);
-            damage("damage", 0.838);
+            damage("damage", 1.24);
             seconds("hold", 3);
         }
 
@@ -158,7 +158,7 @@ public final class SniperSkills {
             super("sniper.pierce", "Навылет", 0xA6B8D8, "⇢", 18, 0.8);
             blocks("length", 30);
             blocks("width", 1.2);
-            damage("damage", 1.397);
+            damage("damage", 2.067);
         }
 
         @Override
@@ -193,7 +193,7 @@ public final class SniperSkills {
         public Finisher() {
             super("sniper.finisher", "Контрольный", 0x8B0000, "✹", 36, 0);
             blocks("range", 50);
-            damage("damage", 3.142);
+            damage("damage", 4.651);
             percent("marked", 1.0);
         }
 

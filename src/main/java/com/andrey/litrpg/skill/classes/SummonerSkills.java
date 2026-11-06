@@ -28,7 +28,7 @@ public final class SummonerSkills {
             super("summon.skeleton", "Поднять скелета", 0xBFE8FF, "☗", 14, 0);
             blocks("range", 12);
             shield("hp", 4.0);
-            damage("damage", 0.55);
+            damage("damage", 1.015);
             seconds("duration", 40);
         }
 
@@ -56,7 +56,7 @@ public final class SummonerSkills {
             super("summon.wolves", "Тени-волки", 0x9B5CFF, "⛤", 20, 0);
             blocks("range", 12);
             shield("hp", 2.2);
-            damage("damage", 0.4);
+            damage("damage", 0.738);
             count("count", 2);
             seconds("duration", 30);
         }
@@ -129,7 +129,7 @@ public final class SummonerSkills {
             super("summon.golem", "Костяной голем", 0xE8E8D8, "⛨", 50, 0);
             blocks("range", 10);
             shield("hp", 10.0);
-            damage("damage", 0.7);
+            damage("damage", 1.292);
             seconds("duration", 30);
             seconds("hold", 6);
         }
@@ -160,7 +160,7 @@ public final class SummonerSkills {
             super("summon.burst", "Разрыв душ", 0x8B5CFF, "✹", 40, 0);
             blocks("search", 30);
             blocks("radius", 4.5);
-            damage("damage", 2.0);
+            damage("damage", 3.692);
             count("souls", 15);
         }
 
@@ -199,7 +199,7 @@ public final class SummonerSkills {
             blocks("radius", 4);
             count("cost", 40);
             shield("hp", 5.0);
-            damage("damage", 0.6);
+            damage("damage", 1.108);
             count("skeletons", 3);
             count("wolves", 2);
             seconds("duration", 25);

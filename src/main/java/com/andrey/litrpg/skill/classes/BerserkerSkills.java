@@ -24,7 +24,7 @@ public final class BerserkerSkills {
             super("berserker.cleave", "Размах", 0xD8343A, "⚔", 4, 0);
             blocks("radius", 4);
             param("angle", 120, com.andrey.litrpg.skill.SkillParam.Unit.FLAT, com.andrey.litrpg.skill.SkillParam.Scale.NONE);
-            damage("damage", 1.3);
+            damage("damage", 1.185);
         }
 
         @Override
@@ -53,7 +53,7 @@ public final class BerserkerSkills {
         public Rend() {
             super("berserker.rend", "Рваная рана", 0xA01818, "≋", 8, 0);
             blocks("range", 4);
-            damage("damage", 2.4);
+            damage("damage", 2.188);
             seconds("duration", 8);
         }
 
@@ -82,7 +82,7 @@ public final class BerserkerSkills {
             super("berserker.leap", "Прыжок", 0xE07A3A, "⤴", 14, 0);
             blocks("range", 12);
             blocks("radius", 3);
-            damage("damage", 1.2);
+            damage("damage", 1.094);
             percent("slow", 0.4);
             seconds("duration", 3);
         }
@@ -157,7 +157,7 @@ public final class BerserkerSkills {
             super("berserker.execute", "Добить", 0x8B0000, "☠", 8, 0);
             blocks("range", 4);
             count("cost", 30);
-            damage("damage", 2.0);
+            damage("damage", 1.823);
             param("threshold", 0.3, com.andrey.litrpg.skill.SkillParam.Unit.PERCENT, com.andrey.litrpg.skill.SkillParam.Scale.NONE);
         }
 

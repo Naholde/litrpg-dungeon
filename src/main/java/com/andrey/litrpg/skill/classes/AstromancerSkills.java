@@ -31,7 +31,7 @@ public final class AstromancerSkills {
             super("astro.falling", "Падающая звезда", 0xFFD27A, "✦", 8, 0);
             blocks("range", 24);
             blocks("radius", 4);
-            damage("damage", 1.99);
+            damage("damage", 5.094);
             seconds("delay", 1.0);
         }
 
@@ -70,7 +70,7 @@ public final class AstromancerSkills {
             blocks("range", 16);
             blocks("radius", 5);
             shield("hp", 2.0);
-            damage("damage", 0.497);
+            damage("damage", 1.272);
             seconds("duration", 24);
         }
 
@@ -106,7 +106,7 @@ public final class AstromancerSkills {
             super("astro.beam", "Звёздный луч", 0xBFE8FF, "➤", 5, 0);
             blocks("range", 24);
             blocks("near", 6);
-            damage("damage", 1.437);
+            damage("damage", 3.678);
             percent("amplify", 0.5);
         }
 
@@ -144,7 +144,7 @@ public final class AstromancerSkills {
             super("astro.constellation", "Созвездие", 0xFFFFFF, "✶", 20, 0);
             blocks("search", 40);
             blocks("width", 2);
-            damage("damage", 1.769);
+            damage("damage", 4.528);
             count("times", 3);
             seconds("duration", 3);
         }
@@ -202,7 +202,7 @@ public final class AstromancerSkills {
             blocks("search", 40);
             seconds("duration", 4);
             percent("slow", 0.35);
-            damage("damage", 0.442);
+            damage("damage", 1.131);
         }
 
         @Override
@@ -249,7 +249,7 @@ public final class AstromancerSkills {
             super("astro.supernova", "Сверхновая", 0xFFF3B0, "✺", 68, 0);
             blocks("search", 40);
             blocks("radius", 7);
-            damage("damage", 3.095);
+            damage("damage", 7.923);
             percent("center", 1.0);
             seconds("stun", 1);
         }

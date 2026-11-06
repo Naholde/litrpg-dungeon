@@ -5,7 +5,7 @@
       "mark_duration": 6.0,
       "mark_burst_units": 0.5,
       "mark_radius": 3.0,
-      "pulse_seconds": 12.0,
+      "pulse_seconds": 10.0,
       "pulse_units": 0.3,
       "mark_seconds": 16.0
     },
@@ -84,14 +84,14 @@
     },
     "ash_lord": {
       "level": 40.0,
-      "hp_units": 193.5,
+      "hp_units": 213.0,
       "melee_units": 0.484,
       "sword_units": 1.575,
       "sword_cd": 4.0,
       "sword_cast": 1.0,
       "storm_units": 0.9,
       "storm_cd": 8.0,
-      "storm_cast": 1.4,
+      "storm_cast": 2.4,
       "collapse_units": 0.75,
       "lava_units": 0.195,
       "lava_seconds": 16.0,
@@ -130,7 +130,7 @@
     },
     "chariot": {
       "level": 37.0,
-      "hp_units": 181.5,
+      "hp_units": 195.0,
       "melee_units": 0.44,
       "charge_units": 1.275,
       "charge_cd": 4.0,
@@ -164,7 +164,7 @@
     },
     "chronophage": {
       "level": 47.0,
-      "hp_units": 226.5,
+      "hp_units": 255.0,
       "melee_units": 0.484,
       "slash_units": 1.575,
       "slash_cd": 4.0,
@@ -207,7 +207,7 @@
     },
     "doppel": {
       "level": 44.0,
-      "hp_units": 214.5,
+      "hp_units": 240.0,
       "melee_units": 0.484,
       "strike_units": 1.575,
       "strike_cd": 4.0,
@@ -276,7 +276,7 @@
     },
     "leviathan": {
       "level": 27.0,
-      "hp_units": 139.5,
+      "hp_units": 153.0,
       "melee_units": 0.44,
       "bite_units": 1.5,
       "bite_cd": 4.0,
@@ -426,7 +426,7 @@
     },
     "naiad": {
       "level": 30.0,
-      "hp_units": 150.0,
+      "hp_units": 156.0,
       "melee_units": 0.44,
       "staff_units": 1.425,
       "staff_cd": 4.0,
@@ -508,7 +508,7 @@
     },
     "smelter": {
       "level": 34.0,
-      "hp_units": 168.0,
+      "hp_units": 180.0,
       "melee_units": 0.44,
       "hammer_units": 1.5,
       "hammer_cd": 4.0,
@@ -552,8 +552,8 @@
     },
     "tide_warden": {
       "level": 24.0,
-      "hp_units": 127.5,
-      "melee_units": 0.396,
+      "hp_units": 152.0,
+      "melee_units": 0.48,
       "trident_units": 1.425,
       "trident_cd": 4.0,
       "trident_cast": 1.0,
@@ -649,7 +649,7 @@
     },
     "xalathar": {
       "level": 50.0,
-      "hp_units": 232.5,
+      "hp_units": 264.0,
       "melee_units": 0.528,
       "smash_units": 1.65,
       "smash_cd": 4.0,

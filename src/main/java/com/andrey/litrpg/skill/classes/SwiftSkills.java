@@ -22,7 +22,7 @@ public final class SwiftSkills {
         public Rush() {
             super("swift.rush", "Порыв", 0x7FF0D0, "➤", 6, 0);
             blocks("range", 12);
-            damage("damage", 2.37);
+            damage("damage", 3.321);
             percent("behind", 0.5);
         }
 
@@ -57,7 +57,7 @@ public final class SwiftSkills {
             super("swift.fan", "Веер клинков", 0xB8F5E0, "⋔", 8, 0);
             blocks("radius", 4);
             param("angle", 100, com.andrey.litrpg.skill.SkillParam.Unit.FLAT, com.andrey.litrpg.skill.SkillParam.Scale.NONE);
-            damage("damage", 1.293);
+            damage("damage", 1.812);
             count("hits", 3);
         }
 
@@ -212,7 +212,7 @@ public final class SwiftSkills {
             super("swift.last_swing", "Последний взмах", 0x3AD8B0, "✹", 48, 0);
             blocks("range", 4);
             count("cost", 50);
-            damage("damage", 4.741);
+            damage("damage", 6.643);
             param("per_momentum", 0.03, com.andrey.litrpg.skill.SkillParam.Unit.DAMAGE,
                     com.andrey.litrpg.skill.SkillParam.Scale.POWER);
         }
