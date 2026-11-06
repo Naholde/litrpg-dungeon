@@ -152,6 +152,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
      * чаще), {@code tiredUntil} — конец передышки «Изнурён» (не бьёт, урон по нему выше).
      */
     private long busyUntil, tiredUntil, surgeUntil;
+    /** Когда начат последний приём (страховка темпа: не реже раза в max_seconds). */
+    private long lastStart;
     /**
      * Чей приём сейчас идёт: номер подготовки последнего навыка и связанных с ним «проверочных» разметок
      * (залп, цепи из стен). Задача, поставленная изнутри такого приёма (даже вложенная — волна обвала через
@@ -407,7 +409,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         if (frenzy()) updateFrenzy(now);
         boolean tired = now < tiredUntil;
         if (!dormant() && !tired) pressure(now, players);
-        if (!dormant() && !tired) rush(now, players);
+        // Давка (заполняла простои между навыками) снята: при темпе 3–5 с простоев нет, а давка отодвигала приёмы.
         tickPools(now);
         updatePhase();
         if (arena2 != null && !relocated && getHealth() <= getMaxHealth() * 0.5f) relocate();
@@ -521,7 +523,6 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         }
         if (now >= nextPulse) {
             nextPulse = now + Math.round(pr.pulseSeconds() * 20 * (0.85 + random.nextDouble() * 0.3));
-            busyUntil = Math.max(busyUntil, now + 30 + gapTicks());
             hitLabel = names.pulse();
             int wind = 30;
             Fx.wave(sl, position(), (float) arenaRadius, 2.5f, wind, names.color());
@@ -669,8 +670,20 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
                 pick = a;
             }
         }
+        if (pick == null && now - lastStart >= Math.round(rhythm().maxSeconds() * 20)) {
+            // Страховка темпа: прошло больше max_seconds, а готовых нет — берём тот, что откатится раньше всех.
+            long soonest = Long.MAX_VALUE;
+            for (Ability a : abilities()) {
+                long ready = readyAt.getOrDefault(a.key(), 0L);
+                if (a.usable().test(this) && ready < soonest) {
+                    soonest = ready;
+                    pick = a;
+                }
+            }
+        }
         if (pick == null) return false;
         Ability a = pick;
+        lastStart = now;
         double cdMult = BossDamage.earlyCooldown(bossLevel()) * (frenzy() && now < surgeUntil ? 0.5 : 1);
         readyAt.put(a.key(), now + Math.round(p(a.key() + "_cd") * 20 * cdMult));
         int ticks = (int) Math.round(p(a.key() + "_cast") * 20 * BossDamage.earlyCast(bossLevel()));

@@ -305,7 +305,8 @@ class BalanceSimTest {
         var rush = common.rush();
         double idle = Math.max(0, pace - avgCast - rh.afterCast()) / pace * surgeShare;
         double rushPerSec = Math.min(1 / (rush.seconds() * BossDamage.earlyCooldown(level)), idle / (rush.warn() + rh.afterCast()));
-        areaPerSec += rush.units() * rushPerSec * MISTAKES * 0.5;
+        // Давка снята вместе с простоями (темп 3–5 с) — в счёт не идёт.
+        if (rushPerSec < 0) areaPerSec += rush.units() * rushPerSec * MISTAKES * 0.5;
         double tankDtps = (p.get("melee_units") / common.autoAttackSeconds() * (1 - windowShare)
                 + buster / (busterCd * BossDamage.earlyCooldown(level)) * slow) * unit * bossTaken(tank) * avgEnrage * early;
         // Давление: волна по всем, метки на бойцах (на 5+ — по две), ошибки в разметке.

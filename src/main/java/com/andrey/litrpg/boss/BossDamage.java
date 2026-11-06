@@ -51,9 +51,9 @@ public final class BossDamage {
         return 0.2 + 0.8 * early(level);
     }
 
-    /** Откаты хранителя и «давки»: ×1,6 в начале → ×1. */
+    /** Откаты хранителя и «давки»: ×1,25 в начале → ×1 (с темпом 3–5 с больше не нужно — приёмы и так реже). */
     public static double earlyCooldown(int level) {
-        return 1.6 - 0.6 * early(level);
+        return 1.25 - 0.25 * early(level);
     }
 
     /** Замах (время на уход из разметки): ×1,4 в начале → ×1. */

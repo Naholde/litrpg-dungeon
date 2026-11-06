@@ -57,21 +57,24 @@ public final class SkillTests {
         p.lookAt(EntityAnchorArgument.Anchor.EYES, d.position().add(0, 1.2, 0));
     }
 
-    /** Провокация: танк забирает врага у бойца, который нанёс намного больше урона. */
+    /** Провокация по площади: танк забирает у бойца всех врагов вокруг, даже тех, что не под прицелом. */
     @GameTest(template = "arena")
     public static void tauntSkillTakesTheTarget(GameTestHelper h) {
         ServerPlayer tank = player(h, Role.TANK, 5, 2.5), dps = player(h, Role.DAMAGE, 5, 3.0);
         TrainingDummy d = dummy(h);
-        DamageService.deal(dps, null, d, 500, WeaponKind.PLAIN);
-        ThreatService.tick(d);
-        h.assertTrue(d.getTarget() == dps, "сначала бьют бойца");
-        aim(tank, d);
-        var seen = SkillService.enemyTarget(tank, 14);
-        h.assertTrue(seen == d, "манекен под прицелом");
+        TrainingDummy d2 = h.spawn(ModEntities.TRAINING_DUMMY.get(), new BlockPos(2, 1, 6));
+        d2.setAggressive(true);
+        for (TrainingDummy x : java.util.List.of(d, d2)) {
+            DamageService.deal(dps, null, x, 500, WeaponKind.PLAIN);
+            ThreatService.tick(x);
+            h.assertTrue(x.getTarget() == dps, "сначала бьют бойца");
+        }
         h.assertTrue(SkillService.use(tank, 0), "провокация сработала");
-        DamageService.deal(dps, null, d, 2000, WeaponKind.PLAIN);
-        ThreatService.tick(d);
-        h.assertTrue(d.getTarget() == tank, "после провокации враг бьёт танка, даже когда боец бьёт сильнее");
+        for (TrainingDummy x : java.util.List.of(d, d2)) {
+            DamageService.deal(dps, null, x, 2000, WeaponKind.PLAIN);
+            ThreatService.tick(x);
+            h.assertTrue(x.getTarget() == tank, "после провокации каждый враг вокруг бьёт танка, даже когда боец бьёт сильнее");
+        }
         h.assertFalse(SkillService.use(tank, 0), "провокация на перезарядке");
         h.succeed();
     }
