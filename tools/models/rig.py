@@ -76,6 +76,24 @@ def humanoid(m, h, mats, legs=True, skirt=False, arm_out=0):
     return r
 
 
+def features(m, r, h, skin, nose=1.0, brow=True, ears=0, chin=0.0, cheek=None):
+    """Объём лица поверх плоской декали: нос, надбровье, уши, подбородок — голова перестаёт быть «коробкой с лицом»."""
+    hb, y0, fz = r["head"], r["head_y"], r["face_z"]
+    H_ = h.head
+    if nose:
+        m.box(hb, [0, y0 + H_ * 0.38, fz - 0.45 * nose], [1.2 * nose, 1.8 * nose, 0.9 * nose], skin)
+    if brow:
+        m.box(hb, [0, y0 + H_ * 0.62, fz - 0.25], [H_ * 0.78, 0.7, 0.5], skin, light=0.9)
+    if chin:
+        m.box(hb, [0, y0 + 0.4, fz + 0.3], [H_ * 0.5, 1.2, 1.0 + chin], skin, light=0.95)
+    if ears:
+        for sx in (-1, 1):
+            m.box(hb, [(H_ / 2 + 0.3) * sx, y0 + H_ * 0.48, 0.6], [0.6, 1.8 * ears, 1.4], skin,
+                  rot=[0, 0, -18 * sx * ears], pivot=[(H_ / 2) * sx, y0 + H_ * 0.48, 0.6])
+    if cheek:
+        m.mirror(hb, [H_ * 0.26, y0 + H_ * 0.26, fz - 0.15], [H_ * 0.18, 1.0, 0.3], cheek)
+
+
 class Persona:
     """Характер движений: weight (0 лёгкий … 1 тяжёлый), caster (колдует, а не рубит), hunch (сутулость),
     left (главная рука левая), float_ (парит — ноги почти не шагают), menace (размах угроз)."""

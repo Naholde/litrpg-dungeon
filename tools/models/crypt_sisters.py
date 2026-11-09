@@ -1,7 +1,7 @@
 """Этап 1 · Сёстры Морра и Весса, Король-лич Карн, ледяная могила и филактерия."""
 import hy
 from hy import Model, mat, kf, loop, once, sway, beats, mul, rgb
-from rig import H, humanoid, motions, Persona, cloth_sway
+from rig import H, humanoid, motions, Persona, cloth_sway, features
 from crypt import rivets, tatter, skull
 
 # ---------------------------------------------------------------------------- материалы
@@ -291,6 +291,7 @@ def vessa():
     fl = m.bone("flame", [x, ty - 2.5, 0], lt)
     m.box(fl, [x, ty - 2.5, 0], [1.8, 2.8, 1.8], "v_flame")
     m.box(fl, [x, ty - 1.4, 0], [0.8, 1.6, 0.8], "v_flame")
+    features(m, r, h, "pale_green", nose=1.1, ears=0)
     motions(m, r, Persona(weight=0.25, caster=True, left=True, hunch=6),
             extra={"skirt_front": cloth_sway(5, 0.15), "skirt_back": cloth_sway(6, 0.4, 4), "book": cloth_sway(8, 0.3),
                    "hood_tip0": cloth_sway(4, 0.1), "hood_tip2": cloth_sway(8, 0.3),

@@ -3,7 +3,7 @@
 import math
 import hy
 from hy import Model, mat, kf, loop, once, sway, beats
-from rig import H, humanoid, motions, Persona, cloth_sway
+from rig import H, humanoid, motions, Persona, cloth_sway, features
 from crypt import rivets, tatter
 
 mat("sp_chitin", "#2E2A2C", "chitin", dark="#141214", light="#5A5258", gloss=0.6)
@@ -306,6 +306,7 @@ def forest_witch():
     st = m.bone("staff", [x, y, 0], rh, rot=[12, 0, -6])
     m.segments("root", st, [x, y - 10, 0], [(8, 1.4, [0, 0, 4]), (8, 1.3, [0, 0, -6]), (7, 1.2, [0, 0, 6]), (3, 1.0, [20, 0, -10]),
                                             (2.4, 2.4, [0, 0, 0])], ["bark", "bark", "bark", "bark", "amber"])
+    features(m, r, h, "witch_skin", nose=1.6, chin=0.8)
     motions(m, r, Persona(weight=0.3, caster=True, hunch=10), extra={"cloak": cloth_sway(6, 0.3, 4)})
     return m
 
@@ -422,6 +423,7 @@ def morena():
     m.box(eye, [x, ey, -2.5], [1.2, 1.8, 0.3], "socket")
     for a in (-1, 1):
         m.box(st, [x + 2.6 * a, ey, 0], [1.0, 5, 1.0], "antler", rot=[0, 0, 30 * a], pivot=[x, ey - 2, 0])
+    features(m, r, h, "mor_skin", nose=0.9)
     motions(m, r, Persona(weight=0.3, caster=True, left=True, hunch=4, menace=1.3),
             extra={"cloak": cloth_sway(5, 0.3, 4),
                    "eye": {"idle": lambda T: {"rotation": kf([(0, [0, 0, 0]), (T * 0.3, [0, 30, 0]), (T * 0.6, [10, -30, 0]), (T, [0, 0, 0])])}}})
