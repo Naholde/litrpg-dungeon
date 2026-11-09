@@ -10,6 +10,7 @@ import json
 import math
 import random
 import sys
+sys.stdout.reconfigure(encoding="utf-8")
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -1614,11 +1615,30 @@ def mob_anims(name, bones, anims):
 BIG_TEX = {"minion_golem"}
 
 
+def new_models():
+    """Модели нового каркаса (tools/models, «как Hytale»): имя → функция, возвращающая hy.Model."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "models"))
+    import importlib
+    out = {}
+    for mod in ("crypt",):
+        out.update(importlib.import_module(mod).MODELS)
+    return out
+
+
 def main():
     only = sys.argv[sys.argv.index("--only") + 1] if "--only" in sys.argv else None
     preview = Path(sys.argv[sys.argv.index("--preview") + 1]) if "--preview" in sys.argv else None
+    fresh = new_models()
+    for name, fn in fresh.items():
+        if only and name != only:
+            continue
+        m = fn()
+        boss_anims.add(name, m.anims)
+        print("written", m.save())
     for name, fn in MODELS.items():
         if only and name != only:
+            continue
+        if name in fresh:
             continue
         bones, anims = fn()
         boss_anims.add(name, anims)

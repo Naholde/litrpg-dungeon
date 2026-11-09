@@ -382,6 +382,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     public void tick() {
         super.tick();
         if (level().isClientSide || !isAlive()) return;
+        if (com.andrey.litrpg.dev.Showcase.is(this)) return;   // витрина модели: без боя
         if (home == null) home = position();
         long now = level().getGameTime();
         List<ServerPlayer> players = playersInArena();

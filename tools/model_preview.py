@@ -331,7 +331,8 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     for n in names:
         suffix = f"_{anim}_{t:g}" if anim else ""
-        render(n, size, anim, t).save(out / f"{n}{suffix}.png")
+        yaws = tuple(float(v) for v in opt("--yaws", "-35,90,180").split(","))
+        render(n, size, anim, t, yaws=yaws).save(out / f"{n}{suffix}.png")
         print(out / f"{n}{suffix}.png")
 
 

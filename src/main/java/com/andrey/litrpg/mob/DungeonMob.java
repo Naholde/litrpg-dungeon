@@ -175,6 +175,7 @@ public class DungeonMob extends Monster implements GeoEntity {
     public void tick() {
         super.tick();
         if (level().isClientSide) return;
+        if (com.andrey.litrpg.dev.Showcase.is(this)) return;   // витрина модели: без боя
         if (!setUp) {
             Player near = level().getNearestPlayer(this, 32);
             setup(near instanceof ServerPlayer sp ? com.andrey.litrpg.player.PlayerService.data(sp).level() : 1, MobRank.NORMAL);
