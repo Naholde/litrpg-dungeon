@@ -103,6 +103,21 @@ def shackle(f):
     rivets(f, 5)
 
 
+def skull(m, bone, y, w, mat_main, mat_shadow, face=None, jaw_bone=None):
+    """Череп из частей: свод с глазницами, верхняя челюсть с зубами, скулы, отдельная нижняя челюсть.
+    y — низ свода, w — ширина свода. Возвращает (кость челюсти, верх черепа)."""
+    h = w * 0.72
+    d = w * 0.94
+    m.box(bone, [0, y + h / 2, -0.4], [w, h, d], mat_main, decal={"north": face or skull_face, "east": skull_side, "west": skull_side})
+    m.box(bone, [0, y + h + 0.5, -0.2], [w * 0.82, 1.2, d * 0.84], mat_main)
+    m.box(bone, [0, y - 1.2, -0.4 - d * 0.16], [w * 0.7, 3.0, d * 0.7], mat_shadow, decal={"north": maxilla_face})
+    m.mirror(bone, [w * 0.32, y - 1.6, -0.4 - d * 0.52], [w * 0.2, 2.4, d * 0.36], mat_main)
+    m.box(bone, [0, y + h * 0.4, d / 2 - 0.1], [w * 0.76, h * 0.6, 1.2], mat_shadow)
+    jb = m.bone(jaw_bone or "jaw", [0, y - 2.6, d * 0.2], bone)
+    m.box(jb, [0, y - 3.8, -0.4 - d * 0.18], [w * 0.74, 2.2, d * 0.68], mat_main, decal={"north": jaw_front})
+    return jb, y + h + 1.1
+
+
 # ---------------------------------------------------------------------------- Привратник Склепа
 
 def gatekeeper():

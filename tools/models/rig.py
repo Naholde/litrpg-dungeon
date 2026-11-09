@@ -19,7 +19,7 @@ class H:
         self.leg, self.arm, self.limb, self.hand, self.neck, self.lean, self.belly = leg, arm, limb, hand, neck, lean, belly
 
 
-def humanoid(m, h, mats, legs=True, skirt=False):
+def humanoid(m, h, mats, legs=True, skirt=False, arm_out=0):
     """Кости и базовые объёмы. mats: skin, torso, arm (рукав), hand, leg, boot, head (если голова не кожа).
     skirt — вместо ног длинное одеяние (ноги есть, но короче и спрятаны)."""
     g = lambda k, d=None: mats.get(k, d)
@@ -48,7 +48,7 @@ def humanoid(m, h, mats, legs=True, skirt=False):
     sh_y = top_y - 1.6
     for side, sx in (("right", -1), ("left", 1)):
         x = sx * (h.shoulders / 2 + h.limb / 2 - 0.2)
-        arm = m.bone(f"{side}_arm", [x, sh_y, 0], r["chest"])
+        arm = m.bone(f"{side}_arm", [x, sh_y, 0], r["chest"], rot=[0, 0, -arm_out * sx] if arm_out else None)
         up = h.arm * 0.48
         m.box(arm, [x, sh_y - up / 2 + 0.6, 0], [h.limb + 0.4, up + 1.2, h.limb + 0.4], g("arm", g("torso")))
         fore = m.bone(f"{side}_forearm", [x, sh_y - up, 0], arm)

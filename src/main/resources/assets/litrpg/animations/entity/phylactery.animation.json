@@ -3,7 +3,7 @@
  "animations": {
   "animation.phylactery.idle": {
    "loop": true,
-   "animation_length": 2,
+   "animation_length": 4.0,
    "bones": {
     "core": {
      "rotation": {
@@ -12,53 +12,109 @@
        0,
        0
       ],
-      "2": [
+      "4": [
        0,
        360,
        0
       ]
      },
      "position": {
-      "0": [
-       0,
-       0,
-       0
-      ],
-      "1": [
-       0,
-       1.5,
-       0
-      ],
-      "2": [
-       0,
-       0,
-       0
-      ]
+      "0": {
+       "post": [
+        0,
+        0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "1": {
+       "post": [
+        0,
+        0.8,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "2": {
+       "post": [
+        0,
+        0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "3": {
+       "post": [
+        0,
+        -0.8,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "4": {
+       "post": [
+        0,
+        -0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      }
      }
-    }
-   }
-  },
-  "animation.phylactery.walk": {
-   "loop": true,
-   "animation_length": 2,
-   "bones": {}
-  },
-  "animation.phylactery.death": {
-   "animation_length": 0.5,
-   "hold_on_last_frame": true,
-   "bones": {
-    "core": {
-     "scale": {
+    },
+    "cage": {
+     "rotation": {
       "0": [
-       1,
-       1,
-       1
+       0,
+       0,
+       0
       ],
-      "0.5": [
-       0.1,
-       0.1,
-       0.1
+      "4": [
+       0,
+       -360,
+       0
       ]
+     },
+     "position": {
+      "0": {
+       "post": [
+        0,
+        0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "1": {
+       "post": [
+        0,
+        0.8,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "2": {
+       "post": [
+        0,
+        0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "3": {
+       "post": [
+        0,
+        -0.8,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "4": {
+       "post": [
+        0,
+        -0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      }
      }
     }
    }

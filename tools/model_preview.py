@@ -230,7 +230,7 @@ def triangles(geo, anim=None, t=0.0):
 
 # ---------------------------------------------------------------------------- растеризация
 
-def render(name, size=360, anim_name=None, t=0.0, yaws=(-35, 90, 180), pitch=12, bg=(34, 36, 44)):
+def render(name, size=360, anim_name=None, t=0.0, yaws=(-35, 90, 180), pitch=12, bg=(96, 104, 118)):
     geo = json.loads((ASSETS / f"geo/entity/{name}.geo.json").read_text(encoding="utf-8"))
     tw, th, tex = read_png(ASSETS / f"textures/entity/{name}.png")
     gpath = ASSETS / f"textures/entity/{name}_glowmask.png"
