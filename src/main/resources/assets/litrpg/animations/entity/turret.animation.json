@@ -3,50 +3,75 @@
  "animations": {
   "animation.turret.idle": {
    "loop": true,
-   "animation_length": 4,
+   "animation_length": 4.5,
    "bones": {
-    "gun": {
+    "head": {
      "rotation": {
-      "0": [
-       0,
-       -35,
-       0
-      ],
-      "2": [
-       0,
-       35,
-       0
-      ],
-      "4": [
-       0,
-       -35,
-       0
-      ]
+      "0": {
+       "post": [
+        0,
+        0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "1.5": {
+       "post": [
+        0,
+        30,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "3": {
+       "post": [
+        0,
+        -30,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "4.5": {
+       "post": [
+        0,
+        0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      }
      }
     }
    }
   },
-  "animation.turret.walk": {
-   "loop": true,
-   "animation_length": 4,
-   "bones": {}
-  },
-  "animation.turret.death": {
+  "animation.turret.attack": {
    "animation_length": 0.4,
-   "hold_on_last_frame": true,
    "bones": {
-    "root": {
-     "rotation": {
-      "0": [
-       0,
-       0,
-       0
-      ],
-      "0.4": [
-       0,
-       0,
-       75
-      ]
+    "head": {
+     "position": {
+      "0": {
+       "post": [
+        0,
+        0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "0.12": {
+       "post": [
+        0,
+        0,
+        1.2
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "0.4": {
+       "post": [
+        0,
+        0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      }
      }
     }
    }

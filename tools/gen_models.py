@@ -1620,7 +1620,7 @@ def new_models():
     sys.path.insert(0, str(Path(__file__).resolve().parent / "models"))
     import importlib
     out = {}
-    for mod in ("crypt", "crypt_sisters", "crypt_mobs", "thicket", "temple", "forge", "spire"):
+    for mod in ("crypt", "crypt_sisters", "crypt_mobs", "thicket", "temple", "forge", "spire", "props"):
         out.update(importlib.import_module(mod).MODELS)
     return out
 

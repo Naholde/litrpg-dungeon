@@ -3,61 +3,63 @@
  "animations": {
   "animation.star.idle": {
    "loop": true,
-   "animation_length": 2.4,
+   "animation_length": 2.0,
    "bones": {
     "core": {
+     "position": {
+      "0": {
+       "post": [
+        0,
+        0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "0.5": {
+       "post": [
+        0,
+        0.8,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "1": {
+       "post": [
+        0,
+        0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "1.5": {
+       "post": [
+        0,
+        -0.8,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      },
+      "2": {
+       "post": [
+        0,
+        -0.0,
+        0
+       ],
+       "lerp_mode": "catmullrom"
+      }
+     }
+    },
+    "rays": {
      "rotation": {
       "0": [
        0,
        0,
        0
       ],
-      "2.4": [
+      "2": [
        0,
        360,
-       180
-      ]
-     },
-     "position": {
-      "0": [
-       0,
-       0,
        0
-      ],
-      "1.2": [
-       0,
-       1.5,
-       0
-      ],
-      "2.4": [
-       0,
-       0,
-       0
-      ]
-     }
-    }
-   }
-  },
-  "animation.star.walk": {
-   "loop": true,
-   "animation_length": 2.4,
-   "bones": {}
-  },
-  "animation.star.death": {
-   "animation_length": 0.4,
-   "hold_on_last_frame": true,
-   "bones": {
-    "core": {
-     "scale": {
-      "0": [
-       1,
-       1,
-       1
-      ],
-      "0.4": [
-       0.1,
-       0.1,
-       0.1
       ]
      }
     }
