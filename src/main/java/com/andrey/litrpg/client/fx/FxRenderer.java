@@ -61,11 +61,14 @@ public final class FxRenderer {
             float age = now - a.born + partial;
             // Эффект живёт либо свой срок, либо пока жива сущность, к которой он привязан:
             // разбили светило или тотем — вместе с ним гаснет и его свечение.
-            if (age > p.duration() || (age > 5 && gone(mc, p.entityA())) || (age > 5 && gone(mc, p.entityB()))) {
+            int life = life(p);
+            if (age > life || (age > 5 && gone(mc, p.entityA())) || (age > 5 && gone(mc, p.entityB()))) {
                 it.remove();
                 continue;
             }
-            float t = Mth.clamp(age / Math.max(1, p.duration()), 0, 1);
+            float t = Mth.clamp(age / Math.max(1, life), 0, 1);
+            // Удар навыка — ярче и дольше гаснет; фон (тотемы, ауры, зоны) — приглушён, чтобы не спорить с разметкой.
+            alphaMul = p.style() == FxPayload.IMPACT ? IMPACT_GLOW : p.style() == FxPayload.AMBIENT ? AMBIENT_DIM : 1f;
             Vec3 at = follow(p.entityA(), p.a(), partial);
             switch (p.shape()) {
                 case RING -> ring(m, vc, at, Mth.lerp(t, p.r1(), p.r2()), p.width(), p.color(), 1 - t);
@@ -96,6 +99,7 @@ public final class FxRenderer {
                 }
             }
         }
+        alphaMul = 1f;
         ps.popPose();
         // Знаки — текстом поверх (отдельный проход: другой тип отрисовки).
         for (Active a : ACTIVE) {
@@ -124,8 +128,76 @@ public final class FxRenderer {
         budget = BUDGET;
         for (Active a : ACTIVE) {
             float age = now - a.born;
-            if (age > a.p.duration() || budget <= 0) continue;
-            emit(mc, a.p, age, now, follow(a.p.entityA(), a.p.a(), 1));
+            if (age > life(a.p) || budget <= 0) continue;
+            Vec3 at = follow(a.p.entityA(), a.p.a(), 1);
+            if (a.p.style() == FxPayload.AMBIENT) {
+                // Фон сыплет втрое реже: тотем рядом не должен заслонять круг хранителя.
+                if ((now + a.born) % 3 == 0) emit(mc, a.p, age, now, at);
+                continue;
+            }
+            if (a.p.style() == FxPayload.IMPACT) {
+                if (age < 1) impactBurst(mc, a.p, at);
+                else if (age > a.p.duration() && now % 2 == 0) embers(mc, a.p, at);
+                if (age > a.p.duration()) continue;
+            }
+            emit(mc, a.p, age, now, at);
+        }
+    }
+
+    // ------------------------------------------------------------------ удар и фон
+
+    /** Яркость удара навыка и фона (множитель прозрачности). */
+    private static final float IMPACT_GLOW = 1.25f, AMBIENT_DIM = 0.4f;
+    private static float alphaMul = 1f;
+
+    /**
+     * Сколько живёт эффект на экране. Короткий удар навыка (вспышка за 5–10 тиков) вдвое дольше гаснет:
+     * иначе он «мигает и пропадает» раньше, чем глаз его заметит.
+     */
+    private static int life(FxPayload p) {
+        if (p.style() != FxPayload.IMPACT) return p.duration();
+        return Math.min(30, Math.max(p.duration() + 8, Math.round(p.duration() * 1.8f)));
+    }
+
+    /** Размер фигуры для искр: радиус, а у луча — четверть длины. */
+    private static float sizeOf(FxPayload p, Vec3 at) {
+        return switch (p.shape()) {
+            case BEAM, BOLT, LINE -> (float) Math.min(3, at.distanceTo(p.b()) * 0.25);
+            case DONUT -> p.r2();
+            case RING, WAVE -> Math.max(p.r1(), p.r2());
+            default -> Math.max(0.5f, p.r1());
+        };
+    }
+
+    /** Миг удара: сноп искр под цвет навыка во все стороны и пара ярких «звёздочек» стихии. */
+    private static void impactBurst(Minecraft mc, FxPayload p, Vec3 at0) {
+        Vec3 at = p.shape() == FxPayload.Shape.BEAM || p.shape() == FxPayload.Shape.BOLT
+                ? follow(p.entityB(), p.b(), 1).add(0, height(p.entityB()) * 0.6, 0) : at0.add(0, 0.6, 0);
+        // Свой каст (вспышка у груди) искрами в лицо не сыплет — его и так видно по рукам.
+        if (mc.gameRenderer.getMainCamera().getPosition().distanceToSqr(at) < 9) return;
+        float r = Mth.clamp(sizeOf(p, at0), 0.5f, 4f);
+        int n = (int) Mth.clamp(6 + r * 4, 8, 20);
+        for (int i = 0; i < n; i++) {
+            double th = Math.PI * 2 * rnd(mc), ph = (rnd(mc) - 0.3) * Math.PI * 0.8;
+            double sp = 0.12 + rnd(mc) * 0.18 * Math.min(2, r);
+            dustAt(mc, at, p.color(), 0.9f + (float) rnd(mc) * 0.5f,
+                    Math.cos(th) * Math.cos(ph) * sp, Math.sin(ph) * sp + 0.05, Math.sin(th) * Math.cos(ph) * sp);
+        }
+        for (int i = 0; i < 3; i++) {
+            if (budget-- <= 0) return;
+            mc.level.addParticle(ParticleTypes.END_ROD, at.x + (rnd(mc) - 0.5) * r * 0.6, at.y + rnd(mc) * 0.4,
+                    at.z + (rnd(mc) - 0.5) * r * 0.6, (rnd(mc) - 0.5) * 0.06, 0.04 + rnd(mc) * 0.05, (rnd(mc) - 0.5) * 0.06);
+        }
+        for (int i = 0; i < 3; i++) themedAt(mc, at.add((rnd(mc) - 0.5) * r, rnd(mc) * 0.5, (rnd(mc) - 0.5) * r), p.color(), 0.08);
+    }
+
+    /** Послесвечение удара: редкие угольки оседают там, где ударило. */
+    private static void embers(Minecraft mc, FxPayload p, Vec3 at) {
+        float r = Mth.clamp(sizeOf(p, at), 0.4f, 3f);
+        for (int i = 0; i < 2; i++) {
+            double th = Math.PI * 2 * rnd(mc), rr = r * Math.sqrt(rnd(mc));
+            dustAt(mc, at.add(Math.cos(th) * rr, 0.3 + rnd(mc) * 1.2, Math.sin(th) * rr), p.color(), 0.9f,
+                    0, -0.01 - rnd(mc) * 0.02, 0);
         }
     }
 
@@ -370,7 +442,7 @@ public final class FxRenderer {
     }
 
     private static void quad(Matrix4f m, VertexConsumer vc, float[] p, int color, float alpha) {
-        int a = (int) (Mth.clamp(alpha, 0, 1) * 255);
+        int a = (int) (Mth.clamp(alpha * alphaMul, 0, 1) * 255);
         if (a <= 2) return;
         int r = (color >> 16) & 255, g = (color >> 8) & 255, b = color & 255;
         for (int i = 0; i < 4; i++) vc.addVertex(m, p[i * 3], p[i * 3 + 1], p[i * 3 + 2]).setColor(r, g, b, a);

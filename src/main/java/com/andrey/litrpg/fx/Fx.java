@@ -23,6 +23,49 @@ public final class Fx {
     private Fx() {
     }
 
+    // ------------------------------------------------------------------ навык игрока: удар или фон
+
+    /** Чей сейчас эффект: 0 — мира/хранителя, {@link #SKILL} — действие навыка, {@link #PERSIST} — постоянный объект навыка. */
+    private static final ThreadLocal<int[]> SCOPE = ThreadLocal.withInitial(() -> new int[1]);
+    private static final int SKILL = 1, PERSIST = 2;
+
+    /** Всё, что нарисует {@code r}, — эффекты действия навыка (удар, вспышка, луч): короткие станут сочнее. */
+    public static void asSkill(Runnable r) {
+        scoped(SKILL, r);
+    }
+
+    /** Всё, что нарисует {@code r}, — фон от постоянного объекта навыка (тотем, аура, зона): станет тише. */
+    public static void asPersistent(Runnable r) {
+        scoped(PERSIST, r);
+    }
+
+    private static void scoped(int kind, Runnable r) {
+        int[] s = SCOPE.get();
+        int was = s[0];
+        // Постоянный объект важнее: удар внутри пульса тотема всё равно фон.
+        s[0] = Math.max(was, kind);
+        try {
+            r.run();
+        } finally {
+            s[0] = was;
+        }
+    }
+
+    /** Короткий удар: до этой длительности (тиков) эффект навыка рисуется ярче и живёт дольше. */
+    static final int IMPACT_MAX = 14;
+    /** Долгий эффект навыка (щит на союзнике, привязка, аура) — фон. */
+    static final int AMBIENT_MIN = 60;
+
+    static byte styleOf(FxPayload.Shape s, int duration, boolean fill) {
+        int kind = SCOPE.get()[0];
+        if (kind == PERSIST) return FxPayload.AMBIENT;
+        if (kind != SKILL || s == FxPayload.Shape.MARK) return FxPayload.NORMAL;
+        if (fill) return FxPayload.NORMAL;                       // своя разметка навыка («сюда упадёт») — как есть
+        if (duration <= IMPACT_MAX) return FxPayload.IMPACT;
+        if (duration >= AMBIENT_MIN) return FxPayload.AMBIENT;
+        return FxPayload.NORMAL;
+    }
+
     public static void send(ServerLevel level, Vec3 near, FxPayload p) {
         for (ServerPlayer pl : level.players()) {
             if (pl.position().distanceToSqr(near) < RANGE * RANGE) Net.send(pl, p);
@@ -31,7 +74,7 @@ public final class Fx {
 
     private static FxPayload of(FxPayload.Shape s, Vec3 a, Vec3 b, float r1, float r2, float width, float height,
                                 int duration, int color, boolean fill, int ea, int eb, String text) {
-        return new FxPayload(s, a, b, r1, r2, width, height, duration, color, fill, ea, eb, text);
+        return new FxPayload(s, a, b, r1, r2, width, height, duration, color, fill, ea, eb, text, styleOf(s, duration, fill));
     }
 
     /** Волна от центра: кольцо растёт от 0 до {@code radius}. */

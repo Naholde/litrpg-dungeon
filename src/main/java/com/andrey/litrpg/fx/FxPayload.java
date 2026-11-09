@@ -16,11 +16,16 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
  *   <li>{@code width} — толщина (кольцо, полоса, луч); {@code height} — высота (столб);</li>
  *   <li>{@code fill} — заполняется ли фигура к концу срока (разметка удара: «когда заполнится — бьёт»);</li>
  *   <li>{@code entityA}/{@code entityB} — привязка к сущностям (луч между ними, знак над головой), иначе −1;</li>
- *   <li>{@code text} — символ знака.</li>
+ *   <li>{@code text} — символ знака;</li>
+ *   <li>{@code style} — как рисовать эффект навыка игрока: {@link #NORMAL}, {@link #IMPACT} (короткий удар — живёт дольше,
+ *   с искрами и послесвечением), {@link #AMBIENT} (постоянный фон: тотемы, ауры, зоны — тише, чтобы не перекрывать
+ *   разметку хранителя). Разметка и эффекты хранителей — всегда {@link #NORMAL}.</li>
  * </ul>
  */
 public record FxPayload(Shape shape, Vec3 a, Vec3 b, float r1, float r2, float width, float height, int duration,
-                        int color, boolean fill, int entityA, int entityB, String text) implements CustomPacketPayload {
+                        int color, boolean fill, int entityA, int entityB, String text, byte style) implements CustomPacketPayload {
+
+    public static final byte NORMAL = 0, IMPACT = 1, AMBIENT = 2;
 
     public enum Shape {
         /** Расходящаяся волна-кольцо по земле. */
@@ -80,12 +85,13 @@ public record FxPayload(Shape shape, Vec3 a, Vec3 b, float r1, float r2, float w
         buf.writeVarInt(p.entityA + 1);
         buf.writeVarInt(p.entityB + 1);
         buf.writeUtf(p.text, 8);
+        buf.writeByte(p.style);
     }
 
     private static FxPayload read(FriendlyByteBuf buf) {
         return new FxPayload(buf.readEnum(Shape.class), buf.readVec3(), buf.readVec3(), buf.readFloat(), buf.readFloat(),
                 buf.readFloat(), buf.readFloat(), buf.readVarInt(), buf.readInt(), buf.readBoolean(),
-                buf.readVarInt() - 1, buf.readVarInt() - 1, buf.readUtf(8));
+                buf.readVarInt() - 1, buf.readVarInt() - 1, buf.readUtf(8), buf.readByte());
     }
 
     @Override

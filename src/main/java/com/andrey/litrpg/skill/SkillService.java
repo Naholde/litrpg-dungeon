@@ -122,8 +122,10 @@ public final class SkillService {
         StyleTracker.add(p, Style.SKILLS, 1);
         if (skill.cost(rank) <= 0) gain(p, Resource.Gain.CAST);
         AnimService.play(p, skill.id);
-        com.andrey.litrpg.fx.Spell.cast(p.serverLevel(), p, skill.color);
-        skill.execute(new SkillContext(p, skill, rank, target, point));
+        com.andrey.litrpg.fx.Fx.asSkill(() -> {
+            com.andrey.litrpg.fx.Spell.cast(p.serverLevel(), p, skill.color);
+            skill.execute(new SkillContext(p, skill, rank, target, point));
+        });
         sync(p);
     }
 
@@ -219,14 +221,14 @@ public final class SkillService {
     public static void tick(ServerPlayer p) {
         SkillState st = state(p);
         long now = p.level().getGameTime();
-        if (st.casting != null) tickCast(p, st, now);
+        if (st.casting != null) com.andrey.litrpg.fx.Fx.asSkill(() -> tickCast(p, st, now));
         if (st.onLanding != null && now - st.landingSince > 4 && (p.onGround() || now - st.landingSince > 60)) {
             Runnable r = st.onLanding;
             st.onLanding = null;
             r.run();
         }
         tickResource(p, st, now);
-        if (now % 10 == 0) tickPassives(p, st, now);
+        if (now % 10 == 0) com.andrey.litrpg.fx.Fx.asPersistent(() -> tickPassives(p, st, now));
         if (st.dirty || (now % 10 == 0 && anyTimer(st, now))) sync(p);
     }
 

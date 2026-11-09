@@ -184,8 +184,8 @@ public class ClassProp extends Mob implements GeoEntity {
             vanish();
             return;
         }
-        if (tickCount % 20 == 0) ring();
-        if (pulse != null && tickCount % interval == 0) pulse.accept(this);
+        if (tickCount % 20 == 0) com.andrey.litrpg.fx.Fx.asPersistent(this::ring);
+        if (pulse != null && tickCount % interval == 0) com.andrey.litrpg.fx.Fx.asPersistent(() -> pulse.accept(this));
     }
 
     /** Время вышло: объект тихо гаснет (это не поломка — действие просто кончилось). */
