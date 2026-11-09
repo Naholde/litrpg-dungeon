@@ -41,7 +41,8 @@ neoForge {
             if (project.hasProperty('join')) {
                 programArguments.addAll('--quickPlayMultiplayer', project.property('join').toString())
             }
-            programArguments.addAll('--username', 'Dev')
+            // Ник игрока: -Pplayer=Ник (по умолчанию Dev).
+            programArguments.addAll('--username', project.findProperty('player')?.toString() ?: 'Dev')
         }
         server {
             server()
