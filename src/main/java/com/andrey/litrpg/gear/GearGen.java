@@ -55,14 +55,17 @@ public final class GearGen {
     private static final GearKind[] ARMOR = {GearKind.HELMET, GearKind.CHEST, GearKind.LEGS, GearKind.BOOTS};
     private static final GearKind[] TRINKETS = {GearKind.RING, GearKind.RING, GearKind.AMULET, GearKind.CHARM};
 
-    /** Редкость по весам; {@code find} (находки) поднимает вес редких: × (1 + find)^ступень. */
+    /**
+     * Редкость по весам (каждая ступень в 3 раза реже); {@code find} (находки) поднимает вес редких:
+     * × (1 + find·find_rarity)^ступень — при находках 0,6 ступень всё ещё в ~2,3 раза реже предыдущей.
+     */
     public static Rarity rollRarity(RandomSource rnd, double find, Rarity min) {
         GearBalance g = Balance.get(Balance.GEAR);
         double total = 0;
         double[] w = new double[Rarity.values().length];
         for (Rarity r : Rarity.values()) {
             if (r.ordinal() < min.ordinal()) continue;
-            w[r.ordinal()] = g.of(r).weight() * Math.pow(1 + Math.max(0, find), r.ordinal());
+            w[r.ordinal()] = g.of(r).weight() * Math.pow(1 + Math.max(0, find) * g.drops().findRarity(), r.ordinal());
             total += w[r.ordinal()];
         }
         if (total <= 0) return min;

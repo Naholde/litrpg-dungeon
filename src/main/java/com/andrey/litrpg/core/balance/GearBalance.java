@@ -80,14 +80,18 @@ public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Arm
      * @param eliteChance      шанс вещи с элитного (с чемпиона — всегда)
      * @param smartSlot        доля добычи, которая выпадает в слот, где у игрока пусто или вещь старее всего
      * @param epicEffectChance шанс особого свойства у эпической вещи (у легендарной одно всегда, у божественной два)
+     * @param findRarity       какая доля «Находок» сдвигает редкость (вес ступени × (1 + find·доля)^ступень);
+     *                         остальное идёт в шанс выпадения — так каждая редкость остаётся в разы реже предыдущей
      */
-    public record Drops(double coinsPerLevel, double gearChance, double eliteChance, double smartSlot, double epicEffectChance) {
+    public record Drops(double coinsPerLevel, double gearChance, double eliteChance, double smartSlot, double epicEffectChance,
+                        double findRarity) {
         static final Codec<Drops> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.DOUBLE.fieldOf("coins_per_level").forGetter(Drops::coinsPerLevel),
                 Codec.DOUBLE.fieldOf("gear_chance").forGetter(Drops::gearChance),
                 Codec.DOUBLE.fieldOf("elite_chance").forGetter(Drops::eliteChance),
                 Codec.DOUBLE.fieldOf("smart_slot").forGetter(Drops::smartSlot),
-                Codec.DOUBLE.fieldOf("epic_effect_chance").forGetter(Drops::epicEffectChance)
+                Codec.DOUBLE.fieldOf("epic_effect_chance").forGetter(Drops::epicEffectChance),
+                Codec.DOUBLE.fieldOf("find_rarity").forGetter(Drops::findRarity)
         ).apply(i, Drops::new));
     }
 
@@ -109,12 +113,12 @@ public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Arm
 
     static {
         Map<Rarity, RarityInfo> r = new EnumMap<>(Rarity.class);
-        // Фаза 13: обычных меньше, редких и эпических заметно больше — свойства у большинства вещей.
-        r.put(Rarity.COMMON, new RarityInfo(550, 1.0, 1, 1));
-        r.put(Rarity.UNCOMMON, new RarityInfo(420, 1.08, 2, 1));
-        r.put(Rarity.RARE, new RarityInfo(190, 1.16, 2, 2));
-        r.put(Rarity.EPIC, new RarityInfo(55, 1.26, 3, 3));
-        r.put(Rarity.LEGENDARY, new RarityInfo(8, 1.38, 3, 4));
+        // Каждая следующая редкость ровно в 3 раза реже предыдущей (решение владельца, 10.11.2026).
+        r.put(Rarity.COMMON, new RarityInfo(810, 1.0, 1, 1));
+        r.put(Rarity.UNCOMMON, new RarityInfo(270, 1.08, 2, 1));
+        r.put(Rarity.RARE, new RarityInfo(90, 1.16, 2, 2));
+        r.put(Rarity.EPIC, new RarityInfo(30, 1.26, 3, 3));
+        r.put(Rarity.LEGENDARY, new RarityInfo(10, 1.38, 3, 4));
         r.put(Rarity.DIVINE, new RarityInfo(0, 1.55, 3, 5));
         Map<AffixType, Range> a = new EnumMap<>(AffixType.class);
         a.put(AffixType.CRIT_CHANCE, new Range(0.02, 0.05));
@@ -146,6 +150,6 @@ public record GearBalance(Map<Rarity, RarityInfo> rarities, Weapons weapons, Arm
         DEFAULT = new GearBalance(Map.copyOf(r),
                 new Weapons(6, 1.0, 1.15, 6, 1.0, 5, 0.9),
                 new Armor(9, 0.15, 0.35, 0.25, 0.15, 0.1, 15, 75, 0.75),
-                0.25, Map.copyOf(a), new Drops(3, 0.06, 0.45, 0.6, 0.5), Map.copyOf(e));
+                0.25, Map.copyOf(a), new Drops(3, 0.06, 0.45, 0.6, 0.5, 0.5), Map.copyOf(e));
     }
 }

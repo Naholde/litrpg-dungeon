@@ -51,7 +51,8 @@
     "smart_slot": 0.6,
     "epic_effect_chance": 0.5,
     "coins_per_level": 3.0,
-    "gear_chance": 0.06
+    "gear_chance": 0.06,
+    "find_rarity": 0.5
   },
   "effects": {
     "second_wind": {
@@ -113,31 +114,31 @@
   },
   "rarities": {
     "epic": {
-      "weight": 55.0,
+      "weight": 30.0,
       "power": 1.26,
       "stats": 3,
       "affixes": 3
     },
     "legendary": {
-      "weight": 8.0,
+      "weight": 10.0,
       "power": 1.38,
       "stats": 3,
       "affixes": 4
     },
     "uncommon": {
-      "weight": 420.0,
+      "weight": 270.0,
       "power": 1.08,
       "stats": 2,
       "affixes": 1
     },
     "rare": {
-      "weight": 190.0,
+      "weight": 90.0,
       "power": 1.16,
       "stats": 2,
       "affixes": 2
     },
     "common": {
-      "weight": 550.0,
+      "weight": 810.0,
       "power": 1.0,
       "stats": 1,
       "affixes": 1
