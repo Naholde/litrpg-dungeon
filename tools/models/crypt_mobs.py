@@ -91,7 +91,7 @@ def skeleton(m, height=32, B="sk_bone", S="sk_bone2", skull_w=8.4, wide=1.0, eye
         r[f"{side}_hand_y"] = hy_ - 2.4
     for side, sx in (("right", -1), ("left", 1)):
         x = sx * 2.4 * wide
-        leg = m.bone(f"{side}_leg", [x, hip, 0], r["body"])
+        leg = m.bone(f"{side}_leg", [x, hip, 0])
         m.box(leg, [x, hip - 0.4, 0], [2.6, 1.8, 2.6], S)
         m.box(leg, [x, hip - 3.6 * k, 0], [1.9, 6 * k, 1.9], B)
         ky = hip - 6.6 * k

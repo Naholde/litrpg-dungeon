@@ -62,7 +62,7 @@ def humanoid(m, h, mats, legs=True, skirt=False, arm_out=0):
     # ноги
     for side, sx in (("right", -1), ("left", 1)):
         x = sx * (h.hips / 4 + 0.6)
-        leg = m.bone(f"{side}_leg", [x, hip_y, 0], r["body"])
+        leg = m.bone(f"{side}_leg", [x, hip_y, 0])
         th = h.leg * 0.5
         lw = h.limb + 0.6
         if legs:

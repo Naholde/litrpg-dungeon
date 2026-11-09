@@ -20,6 +20,6 @@ if [ $# -gt 0 ]; then
     echo "execute as Dev at Dev run litrpg show $e" >> dev_commands.txt
     i=$((i + 1))
   done
-  echo "execute in litrpg:dungeon run tp Dev 12 152 $(( 22 + n )) 180 8" >> dev_commands.txt
+  echo "execute in litrpg:dungeon run tp Dev 12 152 $(( 18 + n / 2 )) 180 10" >> dev_commands.txt
   sleep 1.5
 fi

@@ -1521,7 +1521,7 @@
       11,
       0
      ],
-     "parent": "body",
+     "parent": "root",
      "cubes": [
       {
        "origin": [
@@ -1765,7 +1765,7 @@
       11,
       0
      ],
-     "parent": "body",
+     "parent": "root",
      "cubes": [
       {
        "origin": [
