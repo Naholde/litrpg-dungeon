@@ -275,6 +275,7 @@ public final class Mechanics {
         BossEntity b = c.boss();
         Vec3 d = dir.multiply(1, 0, 1).normalize();
         Telegraph.note(c, "line", radius + 0.3);
+        Telegraph.reach(c, from.add(dir.multiply(1, 0, 1).normalize().scale(range)), radius);
         Fx.line(level(b), from, from.add(d.scale(range)), radius * 2, c.ticks, color, false);
         java.util.Set<java.util.UUID> hit = new java.util.HashSet<>();
         int steps = (int) Math.ceil(range / speed * 10);
@@ -305,6 +306,7 @@ public final class Mechanics {
                              double units, int color, java.util.function.Consumer<ServerPlayer> extra) {
         BossEntity b = c.boss();
         Telegraph.note(c, "orbit", size);
+        Telegraph.reach(c, c.boss().position(), radius + size);
         Fx.ring(level(b), b.position(), (float) radius, c.ticks, color);
         java.util.Map<java.util.UUID, Long> last = new java.util.HashMap<>();
         double start = b.getRandom().nextDouble() * 360;

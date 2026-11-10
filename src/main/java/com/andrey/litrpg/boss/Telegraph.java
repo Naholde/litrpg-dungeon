@@ -23,6 +23,17 @@ public final class Telegraph {
     /** Проверка «от всего можно уйти» (стенд фазы 12): сюда пишется каждая разметка — фигура, размер, время. */
     public static java.util.function.BiConsumer<BossEntity.Cast, String> audit;
 
+    /** Дальность разметки (обновление 14, арены): удар достаёт до {@code r} блоков от точки {@code at}. */
+    public static java.util.function.BiConsumer<BossEntity.Cast, String> auditReach;
+
+    /** Записать дальность: насколько далеко от центра арены легла разметка, какого она размера и далеко ли от хранителя. */
+    public static void reach(BossEntity.Cast c, Vec3 at, double r) {
+        if (auditReach == null) return;
+        double off = flat(at, c.boss().home());
+        double self = flat(at, c.boss().position());
+        auditReach.accept(c, String.format(java.util.Locale.ROOT, "%.1f;%.1f;%.1f", off, r, self));
+    }
+
     public static void note(BossEntity.Cast c, String shape, double size) {
         if (audit != null) audit.accept(c, shape + ";" + String.format(java.util.Locale.ROOT, "%.1f", size) + ";" + c.ticks);
     }
@@ -67,6 +78,7 @@ public final class Telegraph {
         final float r = scale(radius);
         final double dmg = units(c, units, r);
         note(c, "circle", r);
+        reach(c, center, r);
         Fx.disc(level(c), center, r, c.ticks, Fx.DANGER, true);
         Fx.ring(level(c), center, r, c.ticks, c.boss().element());
         c.at(c.ticks, () -> {
@@ -88,6 +100,7 @@ public final class Telegraph {
         final float r = scale(radius);
         final double dmg = units(c, units, r);
         note(c, "circle", r);
+        reach(c, center, r);
         Fx.disc(level(c), center, r, c.ticks, Fx.DANGER, true);
         Fx.ring(level(c), center, r, c.ticks, color);
         c.at(c.ticks, () -> {
@@ -106,6 +119,7 @@ public final class Telegraph {
         final float out = scale(outer);
         final double dmg = units(c, units, (out - inner) / 2.0);
         note(c, "donut", (out - inner) / 2.0);
+        reach(c, center, out);
         Fx.donut(level(c), center, inner, out, c.ticks, Fx.DANGER, true);
         Fx.ring(level(c), center, inner, c.ticks, 0x7BF5A0);
         c.at(c.ticks, () -> {
@@ -130,6 +144,7 @@ public final class Telegraph {
         final double escape = angleDeg >= 180 ? r - 1 : Math.min(r - 2, 2 * Math.sin(Math.toRadians(angleDeg / 2)) + 0.5);
         final double dmg = units(c, units, escape);
         note(c, "cone", escape);
+        reach(c, origin, r);
         Fx.cone(level(c), origin, d, r, angleDeg, c.ticks, Fx.DANGER, true);
         double cos = Math.cos(Math.toRadians(angleDeg / 2));
         c.at(c.ticks, () -> {
@@ -152,6 +167,8 @@ public final class Telegraph {
         final float w = scale(width);
         final double dmg = units(c, units, w / 2.0 + 0.3);
         note(c, "line", w / 2.0 + 0.3);
+        reach(c, from, w / 2.0);
+        reach(c, to, w / 2.0);
         Fx.line(level(c), from, to, w, c.ticks, Fx.DANGER, true);
         c.at(c.ticks, () -> {
             Vec3 ab = to.subtract(from).multiply(1, 0, 1);
@@ -176,6 +193,7 @@ public final class Telegraph {
      */
     public static void soak(BossEntity.Cast c, Vec3 center, float radius, double totalUnits, int need) {
         note(c, "soak", 0);
+        reach(c, center, radius);
         Fx.disc(level(c), center, radius, c.ticks, SOAK, true);
         Fx.pillar(level(c), center, radius * 0.3f, 3, c.ticks, SOAK);
         c.at(c.ticks, () -> {

@@ -23,7 +23,7 @@ for f in sorted(glob.glob(os.path.join(ROOT, 'boss_*.txt'))):
         elif k == 'error':
             print(f'{boss}: ОШИБКА {v}')
     marked = set()
-    for key, shape, size, ticks in marks:
+    for key, shape, size, ticks, *_ in marks:
         marked.add(key)
         size, t = float(size), int(ticks) / 20
         sig = (key, shape, size, t)

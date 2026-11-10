@@ -389,6 +389,21 @@ def check_stage(m, st, species, bosses, errors, strict=False, warns=None):
         bx, by, bz = b['at']
         if room(bx, by, bz, b['arena'] * 0.7, dy=4) < 80:
             errors.append(f'{sid}: зал {b["id"]} тесен для шестерых')
+    if strict:
+        # Арены под приёмы (обновление 14, пункт 10): радиус и пол — по `arenas.ARENAS`.
+        from arenas import ARENAS, FLOOR_SHARE
+        for b in st['bosses']:
+            a = ARENAS.get(b['type'])
+            if not a:
+                errors.append(f'{sid}: хранителя {b["type"]} нет в arenas.py — нужен радиус под его приёмы')
+                continue
+            if b['arena'] < a['need']:
+                errors.append(f'{sid}: арена {b["id"]} радиусом {b["arena"]} меньше нужной {a["need"]} ({a["why"]})')
+            bx, by, bz = b['at']
+            rr = a['need'] * 0.8
+            have, want = room(bx, by, bz, rr, dy=4), int(3.14159 * rr * rr * FLOOR_SHARE)
+            if have < want:
+                errors.append(f'{sid}: в зале {b["id"]} мало пола — {have} кл. в {rr:.0f} блоках, нужно {want}')
     for mc in st.get('mechs', []):
         if mc['type'] != 'plates':
             continue

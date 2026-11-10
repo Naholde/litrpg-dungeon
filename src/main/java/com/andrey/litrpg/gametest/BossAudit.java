@@ -32,6 +32,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @GameTestHolder(LitRPG.MOD_ID)
 public final class BossAudit {
     private static final Map<BossEntity, List<String>> SEEN = new ConcurrentHashMap<>();
+    /** Дальность разметки: навык;удаление от центра;размер (обновление 14 — арены под приёмы). */
+    private static final Map<BossEntity, List<String>> REACH = new ConcurrentHashMap<>();
 
     private BossAudit() {
     }
@@ -41,6 +43,7 @@ public final class BossAudit {
         List<TestFunction> out = new ArrayList<>();
         if (!Boolean.getBoolean("litrpg.bench") || !System.getProperty("litrpg.bench.only", "").isEmpty()) return out;
         Telegraph.audit = (c, line) -> SEEN.computeIfAbsent(c.boss(), b -> new ArrayList<>()).add(c.ability.key() + ";" + line);
+        Telegraph.auditReach = (c, line) -> REACH.computeIfAbsent(c.boss(), b -> new ArrayList<>()).add(c.ability.key() + ";" + line);
         for (var holder : ModEntities.BOSSES) {
             String id = holder.getId().getPath();
             out.add(new TestFunction("audit", "audit_" + id, "litrpg:arena", 1400, 0, true, h -> run(h, holder.get(), id)));
@@ -50,7 +53,10 @@ public final class BossAudit {
 
     private static void run(GameTestHelper h, EntityType<? extends BossEntity> type, String id) {
         BossEntity b = h.spawn(type, new BlockPos(4, 2, 4));
-        b.setArena(b.position(), 14);
+        // радиус арены — как в схеме карты (приёмы, завязанные на край арены, меряются по-настоящему)
+        double arena = com.andrey.litrpg.run.Layout.get().stages().stream().flatMap(st -> st.bosses().stream())
+                .filter(x -> x.type().equals(id)).mapToDouble(com.andrey.litrpg.run.Layout.Boss::arena).findFirst().orElse(14);
+        b.setArena(b.position(), arena);
         Role[] roles = {Role.TANK, Role.SUPPORT, Role.DAMAGE};
         double[][] at = {{2.5, 4.5}, {7.5, 7.5}, {7.5, 1.5}};
         for (int i = 0; i < 3; i++) {
@@ -78,11 +84,13 @@ public final class BossAudit {
             h.runAfterDelay(list.size() * 80L + 40, () -> {
                 StringBuilder sb = new StringBuilder();
                 sb.append("boss=").append(id).append('\n');
+                sb.append("arena=").append(arena).append('\n');
                 for (var a : list) {
                     sb.append("ability=").append(a.key()).append(';').append(a.name()).append(';')
                             .append(Math.round(b.p(a.key() + "_cast") * 20)).append('\n');
                 }
                 for (String l : SEEN.getOrDefault(b, List.of())) sb.append("mark=").append(l).append('\n');
+                for (String l : REACH.getOrDefault(b, List.of())) sb.append("reach=").append(l).append('\n');
                 for (String l : errors) sb.append("error=").append(l).append('\n');
                 try {
                     Path dir = Path.of(System.getProperty("litrpg.root", "."), "build/reports/bench");
@@ -92,6 +100,7 @@ public final class BossAudit {
                     LitRPG.LOG.error("[LitRPG] проверка хранителя {}", id, e);
                 }
                 SEEN.remove(b);
+                REACH.remove(b);
                 if (b.isAlive()) b.discard();
                 h.succeed();
             });

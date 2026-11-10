@@ -37,6 +37,7 @@ public final class Ground {
     /** Круглая зона. */
     public static void circle(BossEntity.Cast c, Vec3 at, float r, int seconds, double ups, int color, Consumer<ServerPlayer> extra) {
         note(c);
+        Telegraph.reach(c, at, r);
         Fx.disc(level(c), at, r, c.ticks, color, true);
         c.at(c.ticks, () -> c.boss().addZone(seconds * 20, ups, p -> flat(p, at) <= r,
                 sl -> Fx.disc(sl, at, r, 12, color, false), extra));
@@ -46,6 +47,8 @@ public final class Ground {
     public static void line(BossEntity.Cast c, Vec3 from, Vec3 to, float width, int seconds, double ups, int color,
                             Consumer<ServerPlayer> extra) {
         note(c);
+        Telegraph.reach(c, from, width / 2.0);
+        Telegraph.reach(c, to, width / 2.0);
         Fx.line(level(c), from, to, width, c.ticks, color, true);
         Vec3 ab = to.subtract(from).multiply(1, 0, 1);
         double len = ab.length();
@@ -61,6 +64,7 @@ public final class Ground {
     public static void sector(BossEntity.Cast c, Vec3 center, Vec3 dir, float radius, float angle, int seconds, double ups,
                               int color, Consumer<ServerPlayer> extra) {
         note(c);
+        Telegraph.reach(c, center, radius);
         Vec3 d = dir.multiply(1, 0, 1).normalize();
         double cos = Math.cos(Math.toRadians(angle / 2));
         Fx.cone(level(c), center, d, radius, angle, c.ticks, color, true);
@@ -74,6 +78,7 @@ public final class Ground {
     public static void ring(BossEntity.Cast c, Vec3 center, float in, float out, int seconds, double ups, int color,
                             Consumer<ServerPlayer> extra) {
         note(c);
+        Telegraph.reach(c, center, out);
         Fx.donut(level(c), center, in, out, c.ticks, color, true);
         Fx.ring(level(c), center, in, c.ticks, 0x7BF5A0);
         c.at(c.ticks, () -> c.boss().addZone(seconds * 20, ups, p -> {
@@ -100,6 +105,7 @@ public final class Ground {
     public static void moving(BossEntity.Cast c, Vec3 start, Supplier<Vec3> goal, float r, double speed, int seconds, double ups,
                               int color, Consumer<ServerPlayer> extra) {
         note(c);
+        Telegraph.reach(c, start, r);
         Vec3[] at = {start};
         Fx.disc(level(c), start, r, c.ticks, color, true);
         c.at(c.ticks, () -> c.boss().addZone(seconds * 20, ups, p -> flat(p, at[0]) <= r, sl -> {
@@ -134,6 +140,7 @@ public final class Ground {
     public static void tiles(BossEntity.Cast c, Vec3 center, int n, float tile, boolean odd, int seconds, double ups, int color,
                              Consumer<ServerPlayer> extra) {
         note(c);
+        Telegraph.reach(c, center, n * tile / 2.0);
         double half = n * tile / 2.0;
         Vec3 corner = center.add(-half, 0, -half);
         Consumer<ServerLevel> draw = sl -> {
