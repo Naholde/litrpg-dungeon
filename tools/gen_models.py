@@ -1620,7 +1620,7 @@ def new_models():
     sys.path.insert(0, str(Path(__file__).resolve().parent / "models"))
     import importlib
     out = {}
-    for mod in ("crypt", "crypt_sisters", "crypt_mobs", "thicket", "temple", "forge", "spire", "props"):
+    for mod in ("crypt", "crypt_sisters", "crypt_mobs", "thicket", "temple", "forge", "spire", "props", "looks"):
         out.update(importlib.import_module(mod).MODELS)
     return out
 
@@ -1633,6 +1633,11 @@ def main():
         if only and name != only:
             continue
         m = fn()
+        if name.startswith("look_"):
+            # Облик класса — слой поверх игрока (client/look): анимации ему не нужны, его ведут части тела.
+            print("written", m.save())
+            (ASSETS / f"animations/entity/{name}.animation.json").unlink(missing_ok=True)
+            continue
         boss_anims.add(name, m.anims)
         print("written", m.save())
     for name, fn in MODELS.items():

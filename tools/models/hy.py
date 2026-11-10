@@ -284,12 +284,13 @@ def rune_px(x, y, seed):
 # ============================================================================ модель
 
 class Cube:
-    def __init__(self, origin, size, mat, faces=None, inflate=0.0, rot=None, pivot=None, decal=None, light=1.0):
+    def __init__(self, origin, size, mat, faces=None, inflate=0.0, rot=None, pivot=None, decal=None, light=1.0, skip=()):
         self.origin, self.size, self.mat, self.inflate = list(origin), list(size), mat, inflate
         self.faces = faces or {}    # {"north": "other_mat"}
         self.rot, self.pivot = rot, pivot
         self.decal = decal or {}    # {"north": fn(face)}
         self.light = light          # множитель яркости (тени во впадинах, яркие кромки)
+        self.skip = tuple(skip)     # грани, которых нет (открытый капюшон, полотно без торцов)
         self.uv = {}
 
 
@@ -429,7 +430,8 @@ class Model:
                 w, h, d = (max(1, math.ceil(v * D - 1e-6)) for v in c.size)
                 for f, (fw, fh) in {"north": (w, h), "south": (w, h), "east": (d, h), "west": (d, h),
                                     "up": (w, d), "down": (w, d)}.items():
-                    rects.append((fh, fw, c, f))
+                    if f not in c.skip:
+                        rects.append((fh, fw, c, f))
         area = sum(r[0] * r[1] for r in rects)
         tw = 128
         while tw * tw < area * 1.5:

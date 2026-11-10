@@ -72,6 +72,7 @@ public final class PlayerService {
         Net.send(player, new PlayerSyncPayload(d.role, d.level, d.xp, d.allocatedCopy(), d.classId,
                 new java.util.HashMap<>(d.ranks), new java.util.ArrayList<>(d.offers)));
         SkillService.sync(player);
+        LookService.changed(player);
     }
 
     // ------------------------------------------------------------------ опыт и уровни

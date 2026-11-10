@@ -103,6 +103,7 @@ public final class DevClientFiles {
             }
             // зажать/отпустить Shift (воскрешение духа)
             case "sneak" -> mc.options.keyShift.setDown(cmd.length > 1 && cmd[1].equals("on"));
+            case "walk" -> mc.options.keyUp.setDown(cmd.length > 1 && cmd[1].equals("on"));
             default -> LitRPG.LOG.warn("[LitRPG] dev: неизвестное окно {}", cmd[0]);
         }
     }

@@ -13,3 +13,4 @@
 12: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx, skill_sync, skill_action, boss_sync, shop, shop_act, run_sync, credits, player_anim
 13: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx, skill_sync, skill_action, boss_sync, shop, shop_act, run_sync, credits, player_anim
 14: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx, skill_sync, skill_action, boss_sync, shop, shop_act, run_sync, credits, player_anim
+15: balance_sync, player_sync, choose_role, allocate_stats, popup, mob_target, party_sync, select_target, staff_cast, status_sync, fx, skill_sync, skill_action, boss_sync, shop, shop_act, run_sync, credits, player_anim, player_looks

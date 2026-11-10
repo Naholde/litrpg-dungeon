@@ -22,7 +22,13 @@ public final class PlayerEvents {
         modBus.addListener((FMLCommonSetupEvent e) -> e.enqueueWork(PlayerEvents::raiseHealthCap));
         game.addListener((PlayerEvent.PlayerLoggedInEvent e) -> {
             refresh(e.getEntity());
-            if (e.getEntity() instanceof ServerPlayer sp) PlayerService.offerClasses(sp);
+            if (e.getEntity() instanceof ServerPlayer sp) {
+                PlayerService.offerClasses(sp);
+                LookService.login(sp);
+            }
+        });
+        game.addListener((PlayerEvent.PlayerLoggedOutEvent e) -> {
+            if (e.getEntity() instanceof ServerPlayer sp) LookService.logout(sp);
         });
         game.addListener((PlayerEvent.PlayerRespawnEvent e) -> refresh(e.getEntity()));
         game.addListener((PlayerEvent.PlayerChangedDimensionEvent e) -> refresh(e.getEntity()));

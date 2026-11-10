@@ -429,3 +429,9 @@ Dev-команда клиента: `echo "button Я знаю" > run/dev_open.txt
   (`/opt/litrpg/server/logs/litrpg/fights`), последние 10 — `/litrpg fights [номер]`. Сёстры — один бой (журнал Морры).
 - Баланс: `gradlew test -Pbalance` проходит; этапы 1–2 — 0:40–2:06, этапы 3–5 втроём ~4:10, вшестером ~2:50,
   лекарь 51–80%. Свойство вещей «Окно» теперь — урон по хранителю во время его замаха (и в отлив).
+
+## Обновление 14 — облик игрока по классу (10.11.2026)
+- Модели обликов: `tools/models/looks.py` → `python -I tools/gen_models.py --only look_<класс>`; превью — `tools/look_preview.py`.
+- Отрисовка: `client/look/LookLayer` поверх игрока; класс других игроков — пакет `player_looks` (`player/LookService`).
+- При облике ванильная броня не рисуется (`mixin/client/HumanoidArmorLayerMixin`) — облик заменяет вид лат.
+- Новый класс → функция в `looks.py` (+ в `MODELS`), иначе `LookAssetsTest` не даст собрать.

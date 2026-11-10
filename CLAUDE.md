@@ -79,6 +79,7 @@
   `RunEvents`, `RunCommands` (`/litrpg run status|start|stage N|wipe|reset|minplayers N|done <id>|lobby`).
   Цифры — `balance/run.json`. Карта сменилась → на сервере мир подземелья пересоздаётся сам (`litrpg_map_version.txt`).
 - `party/` — `Party`, `PartyService`. `core/` — `ModItems`, `ModEntities`, `ModTags`, `ModAttachments`, `SystemChat`.
+- `client/look/` — облик класса поверх игрока (`LookLayer`, модели `look_<класс>` из `tools/models/looks.py`).
 - `client/` — `HudOverlay`, `fx/` (`ClientPopups`, `ClientAggro`, `WorldText`), `render/`, `ClientParty`, `ClientPlayerData`, `ClientSetup`, `KeyBinds`, `ui/` (`UiKit`, `SysButton`), `screen/`.
 - `gametest/` — игровые тесты (шаблон `litrpg:empty`, генератор `tools/make_empty_structure.py`).
 

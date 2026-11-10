@@ -49,6 +49,22 @@ public final class ClientSetup {
             e.register(KeyBinds.CODEX);
         }
 
+        /** Облик класса — слой поверх обеих моделей игрока (широкие и тонкие руки). */
+        @SubscribeEvent
+        public static void layers(EntityRenderersEvent.AddLayers e) {
+            for (var skin : e.getSkins()) {
+                if (e.getSkin(skin) instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer r) {
+                    r.addLayer(new com.andrey.litrpg.client.look.LookLayer(r));
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void reloads(net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent e) {
+            e.registerReloadListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener) rm ->
+                    com.andrey.litrpg.client.look.LookModels.clear());
+        }
+
         @SubscribeEvent
         public static void renderers(EntityRenderersEvent.RegisterRenderers e) {
             e.registerEntityRenderer(ModEntities.MAGIC_BOLT.get(), MagicBoltRenderer::new);
@@ -227,6 +243,7 @@ public final class ClientSetup {
         public static void loggedOut(ClientPlayerNetworkEvent.LoggingOut e) {
             ClientPlayerData.reset();
             ClientParty.reset();
+            com.andrey.litrpg.client.look.ClientLooks.reset();
             ClientAggro.clear();
             ClientPopups.clear();
             FxRenderer.clear();

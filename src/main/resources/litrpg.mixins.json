@@ -4,7 +4,8 @@
   "package": "com.andrey.litrpg.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "client.PlayerModelMixin"
+    "client.PlayerModelMixin",
+    "client.HumanoidArmorLayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
