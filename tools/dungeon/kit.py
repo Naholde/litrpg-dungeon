@@ -78,6 +78,14 @@ def passable(s):
     return b == 'air' or any(k in b for k in PASSABLE)
 
 
+def tall(s):
+    """Забор, стенка, калитка — 1,5 блока: на них не шагнуть и не запрыгнуть, это перила."""
+    if s is None:
+        return False
+    b = base(s)
+    return _joinable(b) in ('fence', 'nether', 'wall') or b.endswith('fence_gate')
+
+
 def standable(s):
     """На блоке можно стоять (полный блок, плита, ступени, сундук…), но не на жидкости и не на разломе."""
     if s is None or passable(s):
@@ -150,6 +158,19 @@ def _joinable(b):
         return 'pane'
     if b.endswith('_wall') and not any(k in b for k in ('torch', 'sign', 'banner', 'head', 'skull', 'fan')):
         return 'wall'
+    return None
+
+
+def _slab_of(block):
+    """Плита того же материала: spruce_planks → spruce_slab, stone_bricks → stone_brick_slab; None — не знаем."""
+    b = block.split(':')[-1].split('[')[0]
+    for end, rep in (('_planks', '_slab'), ('bricks', 'brick_slab'), ('tiles', 'tile_slab')):
+        if b.endswith(end):
+            return b[: -len(end)] + rep
+    if b in ('stone', 'cobblestone', 'sandstone', 'blackstone', 'polished_blackstone', 'polished_andesite',
+             'polished_diorite', 'polished_granite', 'polished_deepslate', 'cobbled_deepslate', 'purpur_block',
+             'smooth_stone', 'prismarine', 'dark_prismarine', 'cut_copper', 'tuff', 'polished_tuff'):
+        return b.replace('_block', '') + '_slab'
     return None
 
 
@@ -458,25 +479,41 @@ class Map:
         else:
             self.carve(x1, y1, z1, x2, y2, z2, theme)
 
-    def ladder(self, x, z, y1, y2, facing, support=None, theme=None):
+    def ladder(self, x, z, y1, y2, facing, support=None, theme=None, width=1):
         """Приставная лестница в клетке (x, z) от y1 до y2; facing — куда она смотрит (от стены к игроку).
         Наверху лестница кончается на блок ниже пола выхода: с последней перекладины шагают вперёд-вверх.
-        Стена за лестницей достраивается (support или материал темы), если там пусто."""
+        Стена за лестницей достраивается (support или материал темы), если там пусто.
+        width — ширина вдоль стены (от (x, z) в сторону +x или +z). Шахта шире одной клетки должна быть вся
+        в лестницах или лозах: с разбега игрок пролетает мимо узкой лестницы в пустоту (`check.drops`)."""
         dx, dz = DIRV[facing]
-        if theme:
-            self.carve(x, y1, z, x, y2 + 1, z, theme)
-        self.reserve(x, z, x, z)
+        cols = [(x + i * abs(dz), z + i * abs(dx)) for i in range(width)]
+        for cx, cz in cols:
+            if theme:
+                self.carve(cx, y1, cz, cx, y2 + 1, cz, theme)
+            self.reserve(cx, cz, cx, cz)
 
         def build():
-            for y in range(y1, y2 + 1):
-                self._support(x - dx, y, z - dz, support)
-                self.set(x, y, z, 'ladder', facing=facing, waterlogged=False)
+            for cx, cz in cols:
+                for y in range(y1, y2 + 1):
+                    self._support(cx - dx, y, cz - dz, support)
+                    self.set(cx, y, cz, 'ladder', facing=facing, waterlogged=False)
         self.later(build)
 
-    def vines(self, x, z, y1, y2, kind='vine', facing=None, berries=0.35, support=None, theme=None):
+    def vines(self, x, z, y1, y2, kind='vine', facing=None, berries=0.35, support=None, theme=None, to=None):
         """Лоза, по которой лезут: kind='vine' — по стене (facing — от стены), 'cave' — светящиеся ягоды
         свисают с потолка, 'weeping' — плачущие (с потолка), 'twisting' — вьющиеся (растут от пола).
-        Опора (стена, потолок или пол) достраивается. Растения в возрасте 25 — сами не растут."""
+        Опора (стена, потолок или пол) достраивается. Растения в возрасте 25 — сами не растут.
+        to=(x2, z2) — заполнить прямоугольник x..x2, z..z2: шахта шире клетки должна быть в лозе вся, иначе
+        с разбега игрок пролетает мимо лозы в соседнюю пустоту и разбивается (`check.drops`). У лозы
+        по стене прямоугольник — линия вдоль стены."""
+        if to is not None:
+            x2, z2 = to
+            if kind == 'vine' and ((x2 != x and DIRV[facing][0]) or (z2 != z and DIRV[facing][1])):
+                raise ValueError('лоза по стене: to — только вдоль стены')
+            for xx in range(min(x, x2), max(x, x2) + 1):
+                for zz in range(min(z, z2), max(z, z2) + 1):
+                    self.vines(xx, zz, y1, y2, kind, facing, berries, support, theme)
+            return
         if theme:
             self.carve(x, y1, z, x, y2 + 1, z, theme)
         self.reserve(x, z, x, z)
@@ -515,16 +552,15 @@ class Map:
         self.later(build)
 
     def spiral(self, cx, cz, y1, y2, r, theme, step='stone_bricks', core='polished_andesite', r_core=1.2,
-               per_turn=12, cw=False, start=0.0, rail=None, carve=True, underside=None):
+               per_turn=12, cw=False, start=0.0, rail=None, carve=True, underside=None, guard=None):
         """Винтовая лестница вокруг столба (центр cx, cz — середина клетки: целое + 0.5).
         Ступени — полные блоки: на плитах проверка проходимости врёт на полблока. За оборот подъём per_turn блоков
         (≥ 5: над головой — ступень следующего витка). Начало — у пола y1 под углом start (рад, 0 — на восток),
         верхняя ступень — на y2-1 (ноги на y2). rail — перила по внешнему краю (если r ≥ 4).
         underside — блок «изнанки» (ступени вверх ногами под каждой ступенью) для красоты снизу.
+        guard — бортик вокруг открытого колодца на верхней площадке (по умолчанию rail или каменная стенка).
         Возвращает {'top': (x, z) — клетка верхней ступени у внешнего края, 'angle': угол выхода}."""
         assert per_turn >= (6 if underside else 5), 'над головой должно быть место'
-        if carve:
-            self.round_room(cx, cz, r + 0.5, y1, y2 - y1 + 4, theme)
         rr = r + 0.5
         cells = []
         for x in range(int(cx - rr) - 1, int(cx + rr) + 2):
@@ -532,9 +568,16 @@ class Map:
                 d = math.hypot(x + 0.5 - cx, z + 0.5 - cz)
                 if d <= rr:
                     cells.append((x, z, d))
+        if carve:
+            # Вырез — ровно по клеткам ступеней. round_room меряет от угла клетки, а ступени — от середины:
+            # по краю оставались щели без ступеней на всю высоту башни (падение до 24 блоков).
+            for x, z, _ in cells:
+                for y in range(y1, y2 + 4):
+                    self.open[(x, y, z)] = theme.name
         self.reserve(int(cx - rr), int(cz - rr), int(cx + rr), int(cz + rr), pad=0)
         sign = -1 if cw else 1
         turns = (y2 - y1) / per_turn
+        guard = guard or rail or 'stone_brick_wall'
         end = start + sign * turns * 2 * math.pi
 
         def frac(x, z):
@@ -565,7 +608,19 @@ class Map:
                         self.stairs(x, h - 1, z, underside, fc, half='top')
                     if rail and r >= 4 and d > r - 0.5 and y1 + 1 < h < y2 - 2:   # у входа и выхода — без перил
                         self.set(x, h + 1, z, rail)
-            if rail:
+            # Наверху колодец открыт: шаг с верхней площадки мимо ступеней — падение на виток ниже.
+            # Бортик на уровне ног выхода над клетками, чья верхняя ступень ниже на MAX_DROP и больше.
+            guarded = []
+            for x, z, d in cells:
+                if d <= r_core:
+                    continue
+                f = frac(x, z)
+                tops = [y1 - 1 + int((t + f) * per_turn) for t in range(int(turns) + 3)]
+                top = max([h for h in tops if y1 <= h <= y2 - 1], default=y1 - 1)
+                if y2 - 1 - top > MAX_DROP and not self.solid(x, y2, z):
+                    self.set(x, y2, z, guard)
+                    guarded.append((x, y2, z))
+            if rail or guarded:
                 self.connect([(x, y, z) for x, z, d in cells for y in range(y1, y2 + 1)])
         self.later(build)
         tx = int(math.floor(cx + math.cos(end) * (r - 0.5)))
@@ -573,9 +628,11 @@ class Map:
         return {'top': (tx, tz), 'angle': end}
 
     def bridge(self, a, b, y, deck, width=3, rail=None, posts=None, post_every=6, lanterns=True, sag=0, gaps=(),
-               theme=None, under=None):
+               theme=None, under=None, slab=None):
         """Мост по прямой a → b ((x, z), концы включительно) на уровне ног y: настил на y-1, перила rail по краям,
-        столбы posts (с фонарём) через post_every клеток, провис sag (середина ниже на sag блоков, перепад ≤ 1),
+        столбы posts (с фонарём) через post_every клеток, провис sag (середина ниже на sag блоков, перепад ≤ 1;
+        на нижней клетке каждого перепада — плита slab (по умолчанию из настила): целый блок шагом не взять,
+        а пол-блока — да; перила там на блок выше, чтобы с плиты их не перепрыгнуть),
         gaps — номера клеток вдоль моста без настила (обрушенный мост: разрыв ≤ 3 — перепрыгнуть).
         theme — вырезать над мостом пустоту (если моста ещё нет в пустоте). under — балки снизу (каждая 3-я клетка)."""
         (ax, az), (bx, bz) = a, b
@@ -605,6 +662,11 @@ class Map:
             for k in range(lo - 2, hi + 3):
                 self.keep.add((x + px * k, z + pz * k))
 
+        slab_ = slab or _slab_of(deck)
+        ys = {i: yy for i, _, _, yy in path}
+        steps = {i for i, *_ in path if slab_ and i not in gaps
+                 and any(ys.get(j, ys[i]) == ys[i] + 1 and j not in gaps for j in (i - 1, i + 1))}
+
         def build():
             rails = []
             for i, x, z, yy in path:
@@ -612,6 +674,8 @@ class Map:
                     continue
                 for k in range(lo, hi + 1):
                     self.set(x + px * k, yy - 1, z + pz * k, deck)
+                    if i in steps:
+                        self.slab(x + px * k, yy, z + pz * k, slab_)
                 if under and i % 3 == 0:
                     for k in range(lo, hi + 1):
                         if not self.solid(x + px * k, yy - 2, z + pz * k):
@@ -628,6 +692,9 @@ class Map:
                         self.set(sx, yy - 1, sz, deck)
                         self.set(sx, yy, sz, rail)
                         rails.append((sx, yy, sz))
+                        if i in steps:
+                            self.set(sx, yy + 1, sz, rail)
+                            rails.append((sx, yy + 1, sz))
             self.connect(rails)
         self.later(build)
         return path
@@ -655,9 +722,11 @@ class Map:
             self.later(build)
 
     def platform(self, cx, cz, y, r, deck, rim=None, support=None, support_block=None, chains=False, round_=True,
-                 theme=None):
+                 theme=None, rail=None, gaps=()):
         """Площадка на уровне ног y (центр cx, cz; радиус r): настил на y-1, rim — кайма другим блоком.
-        support='pillar' — столб под серединой до опоры, chains — цепи с краёв к потолку."""
+        support='pillar' — столб под серединой до опоры, chains — цепи с краёв к потолку.
+        rail — перила по краю (площадка выше MAX_DROP над полом без них не проходит проверку),
+        gaps — клетки края (x, z), где перил нет: вход с лестницы или лозы."""
         cells = []
         for x in range(int(cx - r) - 1, int(cx + r) + 2):
             for z in range(int(cz - r) - 1, int(cz + r) + 2):
@@ -693,6 +762,39 @@ class Map:
                     if yy - y < 40:
                         for k in range(y + 2, yy):
                             self.set(x, k, z, 'chain', axis='y', waterlogged=False)
+            if rail:
+                have = {(x, z) for x, z, _ in cells}
+                edge = [(x, y, z) for x, z, _ in cells if (x, z) not in gaps
+                        and any((x + dx, z + dz) not in have for dx, dz in DIRV.values())]
+                for c in edge:
+                    if not self.solid(*c):
+                        self.set(*c, rail)
+                self.connect(edge)
+        self.later(build)
+
+    def sleeve(self, x1, z1, x2, z2, y1, y2, block):
+        """Рукав: каменная труба вокруг шахты x1..x2, z1..z2 на высотах y1..y2 (кольцо клеток вокруг, только где пусто).
+        Нужна, когда лестница или лоза спускается сквозь потолок зала: без рукава с неё можно соскочить вбок
+        выше MAX_DROP. Низ рукава — не выше MAX_DROP над полом зала."""
+        ring = [(x, z) for x in range(x1 - 1, x2 + 2) for z in range(z1 - 1, z2 + 2)
+                if not (x1 <= x <= x2 and z1 <= z <= z2)]
+
+        def build():
+            for x, z in ring:
+                for y in range(y1, y2 + 1):
+                    if not self.solid(x, y, z):
+                        self.set(x, y, z, block, **_axis(block))
+        self.later(build)
+
+    def railing(self, cells, block):
+        """Бортик: block (стенка, забор, решётка) в клетках (x, y, z), соединённый с соседями и стенами."""
+        cells = list(cells)
+
+        def build():
+            for c in cells:
+                if not self.solid(*c):
+                    self.set(*c, block)
+            self.connect(cells)
         self.later(build)
 
     def parkour(self, pads, block, pillar=None, theme=None, size=1):

@@ -104,6 +104,15 @@ public final class DevClientFiles {
             // зажать/отпустить Shift (воскрешение духа)
             case "sneak" -> mc.options.keyShift.setDown(cmd.length > 1 && cmd[1].equals("on"));
             case "walk" -> mc.options.keyUp.setDown(cmd.length > 1 && cmd[1].equals("on"));
+            // бег: зажать «вперёд» и «бег» (проверка карты — разбег в шахту, прыжки по мосту)
+            case "sprint" -> {
+                boolean on = cmd.length > 1 && cmd[1].equals("on");
+                mc.options.keyUp.setDown(on);
+                mc.options.keySprint.setDown(on);
+                if (!on) mc.player.setSprinting(false);
+            }
+            // зажать прыжок (с «sprint on» — прыжки с разбега по паркуру)
+            case "jump" -> mc.options.keyJump.setDown(cmd.length > 1 && cmd[1].equals("on"));
             default -> LitRPG.LOG.warn("[LitRPG] dev: неизвестное окно {}", cmd[0]);
         }
     }

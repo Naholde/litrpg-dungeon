@@ -12,7 +12,7 @@ import os
 import re
 from collections import deque
 
-from kit import JUMPS, MAX_DROP, climbable, current, is_water, passable, standable
+from kit import JUMPS, MAX_DROP, climbable, current, is_water, passable, standable, tall
 
 JAVA = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'main', 'java', 'com', 'andrey', 'litrpg')
 
@@ -83,7 +83,8 @@ class Walker:
                 k |= SWIM
                 c = current(s)
                 k |= UP if c > 0 else DOWN if c < 0 else 0
-            if standable(self.m.blocks.get((x, y - 1, z))) and (x, y - 1, z) not in self.opened:
+            below = self.m.blocks.get((x, y - 1, z))
+            if standable(below) and not tall(below) and (x, y - 1, z) not in self.opened:
                 k |= STAND
         self._kind[key] = k
         return k
@@ -232,6 +233,44 @@ def breath(w, reached, limit=10):
     return worst, lost
 
 
+def drops(w, reached):
+    """Обрывы без перил: с достижимой клетки шагнуть (или сорваться с лестницы) туда, где пол ниже `kit.MAX_DROP`,
+    а внизу нет ни воды, ни лестницы/лозы. Пропасть до бездны (ниже пола этапа) — не обрыв: Система вытаскивает.
+    Так же ловится лоза в одной клетке широкой шахты: с разбега игрок пролетает мимо неё в соседнюю пустоту.
+    [(высота, откуда, куда)] — по одному на место (соседние клетки края склеиваются), самые высокие первыми."""
+    found = {}
+    for c in reached:
+        x, y, z = c
+        k = w.kind(x, y, z)
+        steps = [(x + dx, y, z + dz) for dx, dz in DIRS4]
+        if k & CLIMB and not k & STAND:
+            steps.append((x, y - 1, z))
+        for n in steps:
+            nx, ny, nz = n
+            if ny == y and (w.node(nx, ny, nz) or (w.node(nx, ny + 1, nz) and w.air(x, y + 2, z))):
+                continue
+            if ny == y and not (w.air(nx, ny, nz) and w.air(nx, ny + 1, nz)):
+                continue
+            if ny < y and (w.node(nx, ny, nz) or not w.air(nx, ny, nz)):
+                continue
+            for yy in range(ny - 1 if ny == y else ny, ny - 128, -1):
+                if yy < w.floor_y:
+                    break                                   # бездна
+                if not w.air(nx, yy, nz):
+                    break                                   # лава или упор в блок — не наше дело
+                kk = w.kind(nx, yy, nz)
+                if kk & (SWIM | CLIMB):
+                    break
+                if kk & STAND:
+                    h = y - yy
+                    if h > MAX_DROP:
+                        key = (nx // 4, nz // 4, yy)
+                        if h > found.get(key, (0,))[0]:
+                            found[key] = (h, c, (nx, yy, nz))
+                    break
+    return sorted(found.values(), reverse=True)
+
+
 def near(reached, pos, r=1, dy=2):
     x, y, z = (int(v) if not isinstance(v, float) else int(v // 1) for v in pos[:3])
     for ddx in range(-r, r + 1):
@@ -369,6 +408,11 @@ def check_stage(m, st, species, bosses, errors, strict=False, warns=None):
                                        for x, y, z in box_cells(st['rift']))} | {camp}
     for size, at in traps(w, camp, st['box'], goals)[:6]:
         sink.append(f'{sid}: западня — {size} кл., оттуда не вернуться к разлому и привалу (напр. {at})')
+    cliffs = drops(w, reached)
+    for h, at, to in cliffs[:6]:
+        sink.append(f'{sid}: обрыв без перил — {h} бл. вниз с {at} на {to} (больше {MAX_DROP}: бортик, вода или лоза)')
+    if len(cliffs) > 6:
+        sink.append(f'{sid}: обрывов без перил ещё {len(cliffs) - 6}')
     (worst, at), lost = breath(w, reached)
     if worst > 10:
         sink.append(f'{sid}: под водой {worst} кл. до вдоха (у {at}) — утонут')

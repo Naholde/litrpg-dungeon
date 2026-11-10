@@ -20,7 +20,8 @@ def X(x):
     return OX + x
 
 
-def build(_n=N, ladder=True):
+def build(_n=N, ladder=True, narrow=False):
+    """narrow — старая ошибка для теста: в шахтах 2×2 лестница и лоза в одной клетке (с разбега — мимо)."""
     m = Map(seed=7007)
     hall = m.theme(Theme('proving', wall=[('stone_bricks', 5), ('cracked_stone_bricks', 1), ('tuff_bricks', 2)],
                          floor=[('polished_andesite', 3), ('stone_bricks', 2)], ceil='stone_bricks', seed=71))
@@ -60,20 +61,29 @@ def build(_n=N, ladder=True):
     RY = G0 + 28
     m.carve(X(99), MY, 33, X(100), RY + 2, 34, hall)
     if ladder:
-        m.ladder(X(99), 34, MY, RY - 1, 'north')
+        # шахта 2×2 вся в лестнице и лозе: мимо не пролететь. У входа с антресоли (z 33) стены нет —
+        # там плачущая лоза с потолка шахты (он же закрывает колодец со стороны Галереи).
+        m.ladder(X(99), 34, MY, RY - 1, 'north', width=1 if narrow else 2)
+        if not narrow:
+            m.vines(X(99), 33, MY, RY - 1, kind='weeping', to=(X(100), 33))
     m.room(X(94), 35, X(106), 44, RY, 5, hall)
     s.climb_trap('ladder_trap', (X(99), MY + 1, 33, X(100), RY - 2, 34), period=3.0, warn=1.0, share=0.15, layer=2)
 
     # ---- Лоза-ягоды вниз в Зал разлома (92 → 64)
     m.room(X(107), 30, X(124), 48, G0, 10, deep, vault=2)
     m.carve(X(107), G0, 38, X(108), RY + 3, 39, deep)
-    m.vines(X(107), 38, G0 + 1, RY + 3, kind='cave', berries=0.5)
+    m.vines(X(107), 38, G0 + 1, RY + 3, kind='cave', berries=0.5, to=None if narrow else (X(108), 39))
+    if not narrow:   # лоза входит в зал сквозь свод: рукав до высоты 6 над полом, ниже — соскочить не страшно
+        m.sleeve(X(107), 38, X(108), 39, G0 + 6, G0 + 12, 'polished_deepslate')   # до свода зала
     # вьющаяся лоза на балкон
-    m.platform(X(120) + 0.5, 44.5, G0 + 6, 2, 'polished_deepslate', rim='deepslate_tiles', chains=True)
+    m.platform(X(120) + 0.5, 44.5, G0 + 6, 2, 'polished_deepslate', rim='deepslate_tiles', chains=True,
+               rail='deepslate_tile_wall', gaps={(X(118), 44)})
+    m.railing([(X(118), G0 + 6, 43), (X(118), G0 + 6, 45)], 'deepslate_tile_wall')   # бока входа с лозы
     m.vines(X(117), 44, G0, G0 + 5, kind='twisting')
     # лоза по стене в нишу
     m.room(X(110), 49, X(114), 52, G0 + 6, 3, deep)
     m.vines(X(112), 48, G0, G0 + 5, kind='vine', facing='north')
+    m.railing([(X(x), G0 + 6, 49) for x in (110, 111, 113, 114)], 'deepslate_brick_wall')   # край ниши, вход — с лозы
 
     m.shell(2)
     m.hanging_lights(spacing=8, soul=False, min_h=6)
