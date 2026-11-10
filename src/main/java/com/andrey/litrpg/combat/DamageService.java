@@ -63,6 +63,11 @@ public final class DamageService {
         return Boolean.TRUE.equals(CRIT.remove(victim));
     }
 
+    /** Ноги в воде (по блоку, а не по флагу движения — так работает и у игрока без тика, в тестах). */
+    public static boolean underWater(LivingEntity v) {
+        return v.level().getFluidState(v.blockPosition()).is(net.minecraft.tags.FluidTags.WATER);
+    }
+
     static void onIncoming(LivingIncomingDamageEvent e) {
         LivingEntity victim = e.getEntity();
         if (victim.level().isClientSide) return;
@@ -118,6 +123,10 @@ public final class DamageService {
             } else if (attacker == null) {
                 if (src.is(DamageTypeTags.IS_FALL) && SkillService.state(vp).leaping()) {
                     e.setCanceled(true); // приземление после прыжка-навыка не ранит
+                    return;
+                }
+                if (src.is(net.minecraft.world.damagesource.DamageTypes.HOT_FLOOR) && underWater(vp)) {
+                    e.setCanceled(true); // магма под водой остужена: дно водоворота (этап 3) не жжёт, сухая магма — жжёт
                     return;
                 }
                 if (Balance.get(Balance.COMBAT).environmentScalesWithHealth()) {

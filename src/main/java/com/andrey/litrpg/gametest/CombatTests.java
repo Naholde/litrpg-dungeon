@@ -75,6 +75,25 @@ public final class CombatTests {
         h.succeed();
     }
 
+    /** Магма жжёт на суше, а под водой (дно водоворота этапа 3) — нет: там отряд не должен сгорать, пока выплывает. */
+    @GameTest(template = "empty", timeoutTicks = 200)
+    public static void magmaUnderWaterDoesNotBurn(GameTestHelper h) {
+        ServerPlayer p = player(h, Role.DAMAGE, 25);
+        h.runAfterDelay(AFTER_SPAWN, () -> {
+            float max = p.getMaxHealth();
+            p.invulnerableTime = 0;
+            p.hurt(p.damageSources().hotFloor(), 1);
+            h.assertTrue(p.getHealth() < max, "сухая магма должна жечь");
+            p.setHealth(max);
+            h.setBlock(new BlockPos(0, 1, 0), net.minecraft.world.level.block.Blocks.WATER);
+            h.setBlock(new BlockPos(0, 2, 0), net.minecraft.world.level.block.Blocks.WATER);
+            p.invulnerableTime = 0;
+            p.hurt(p.damageSources().hotFloor(), 1);
+            h.assertTrue(p.getHealth() >= max, "под водой магма не жжёт, а сняла " + (max - p.getHealth()));
+            h.succeed();
+        });
+    }
+
     /** Падение бьёт так же больно, как в обычном Minecraft: доля здоровья, а не жалкие 2 единицы из тысячи. */
     @GameTest(template = "empty", timeoutTicks = 200)
     public static void environmentScalesWithHealth(GameTestHelper h) {

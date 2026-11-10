@@ -150,7 +150,8 @@ public class TideWarden extends BossEntity {
             Vec3 eye = p.getEyePosition();
             Vec3 src = eye.subtract(dir.scale(arenaRadius() * 2.2));
             var hit = sl.clip(new ClipContext(eye, src, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, p));
-            boolean covered = hit.getType() == HitResult.Type.BLOCK && hit.getLocation().distanceTo(eye) < arenaRadius() * 2;
+            boolean covered = hit.getType() == HitResult.Type.BLOCK
+                    && shelters(hit.getLocation().x, hit.getLocation().z, home().x, home().z, arenaRadius());
             if (covered) continue;
             BossDamage.hit(this, p, units);
             StatusService.apply(p, Status.of(StatusType.SLOW, "tide_wave", getUUID(), 0.5, level().getGameTime(), 60));
@@ -163,6 +164,16 @@ public class TideWarden extends BossEntity {
             sl.sendParticles(ParticleTypes.SPLASH, at.x, at.y + 1, at.z, 30, 1, 0.8, 1, 0.3);
         }
         sl.playSound(null, blockPosition(), SoundEvents.GENERIC_SPLASH, SoundSource.HOSTILE, 3f, 0.5f);
+    }
+
+    /**
+     * Укрывает от волны только то, что стоит внутри арены (колонна — своя или поднятая «Колоннами прилива»), а не стена зала:
+     * стена есть с любой стороны, и раньше она «укрывала» всех — в настоящем зале волна не била никого
+     * (найдено при перестройке этапа 3, обновление 14).
+     */
+    static boolean shelters(double hitX, double hitZ, double homeX, double homeZ, double arenaRadius) {
+        double dx = hitX - homeX, dz = hitZ - homeZ, r = arenaRadius - 0.5;
+        return dx * dx + dz * dz < r * r;
     }
 
     @Override

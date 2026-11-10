@@ -209,26 +209,43 @@ def traps(w, start, box, goals):
     return sorted(out, reverse=True)
 
 
+# Водоворот (пузыри над магмой) несёт вниз быстрее, чем плывут: клетка трубы — доля клетки заплыва.
+WHIRL_COST = 0.4
+
+
 def breath(w, reached, limit=10):
-    """Самый долгий путь под водой (в клетках) до места, где можно вдохнуть: голова над водой, пузыри или суша рядом."""
+    """Самый долгий путь под водой (в клетках заплыва) до места, где можно вдохнуть: голова над водой, пузыри вверх
+    или суша рядом. Шаг вниз по водовороту стоит `WHIRL_COST` клетки."""
+    import heapq
     sub = {c for c in reached if w.kind(*c) & SWIM}
     dist = {}
-    q = deque()
+    q = []
     for (x, y, z) in sub:
         s = w.block(x, y + 1, z)
         if not is_water(s) or current(w.block(x, y, z)) > 0:
             dist[(x, y, z)] = 0
-            q.append((x, y, z))
         elif any(not w.kind(*n) & SWIM for n in w.moves(x, y, z)):
             dist[(x, y, z)] = 1   # шаг из воды на сушу
-            q.append((x, y, z))
+        else:
+            continue
+        q.append((dist[(x, y, z)], (x, y, z)))
+    heapq.heapify(q)
     while q:
-        x, y, z = q.popleft()
+        d, (x, y, z) = heapq.heappop(q)
+        if d > dist.get((x, y, z), 1e9):
+            continue
+        down = current(w.block(x, y, z)) < 0
         for n in ((x + 1, y, z), (x - 1, y, z), (x, y, z + 1), (x, y, z - 1), (x, y + 1, z), (x, y - 1, z)):
-            if n in sub and n not in dist:
-                dist[n] = dist[(x, y, z)] + 1
-                q.append(n)
-    worst = max(((d, c) for c, d in dist.items()), default=(0, None))
+            if n not in sub:
+                continue
+            if n[1] == y - 1 and current(w.block(*n)) < 0:
+                continue                  # из водоворота вверх не всплыть — только вниз и вбок
+            step = WHIRL_COST if down and n[1] == y + 1 and current(w.block(*n)) < 0 else 1
+            nd = d + step
+            if nd < dist.get(n, 1e9):
+                dist[n] = nd
+                heapq.heappush(q, (nd, n))
+    worst = max(((round(d, 1), c) for c, d in dist.items()), default=(0, None))
     lost = [c for c in sub if c not in dist]
     return worst, lost
 

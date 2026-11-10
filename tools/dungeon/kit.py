@@ -560,6 +560,7 @@ class Map:
         Ступени — полные блоки: на плитах проверка проходимости врёт на полблока. За оборот подъём per_turn блоков
         (≥ 5: над головой — ступень следующего витка). Начало — у пола y1 под углом start (рад, 0 — на восток),
         верхняя ступень — на y2-1 (ноги на y2). rail — перила по внешнему краю (если r ≥ 4).
+        core=None — без столба: посередине открытый колодец (вниз — в воду или на пол, строитель решает сам).
         underside — блок «изнанки» (ступени вверх ногами под каждой ступенью) для красоты снизу.
         guard — бортик вокруг открытого колодца на верхней площадке (по умолчанию rail или каменная стенка).
         Возвращает {'top': (x, z) — клетка верхней ступени у внешнего края, 'angle': угол выхода}."""
@@ -590,9 +591,10 @@ class Map:
         def build():
             for x, z, d in cells:
                 if d <= r_core:
-                    for y in range(y1 - 1, y2 + 4):
-                        if (x, y, z) in self.open:
-                            self.set(x, y, z, core)
+                    if core:
+                        for y in range(y1 - 1, y2 + 4):
+                            if (x, y, z) in self.open:
+                                self.set(x, y, z, core)
                     continue
                 f = frac(x, z)
                 t = 0
@@ -905,6 +907,45 @@ class Map:
             self.set(e1[0], yb, e1[1], glass)
             self.check_water(water)
         self.later(build)
+
+    def whirlpool(self, x1, z1, x2, z2, y_top, y_bottom, theme, pad=2, depth=3, glass='glass', basin='dark_prismarine'):
+        """Водоворот: пузыри над магмой тянут вниз. Наверху — бассейн в полу верхнего зала (ноги y_top, поверхность
+        y_top-1, глубина depth) с трубой x1..x2, z1..z2 посередине; внизу — бассейн в полу нижнего зала (ноги y_bottom),
+        шире трубы на pad+1. Нырнул в трубу — водоворот уносит на дно нижнего бассейна; отплыть вбок и всплыть.
+        Где труба идёт сквозь открытый зал — стекло. Вверх по трубе не подняться (течение тянет вниз).
+        Возвращает клетки трубы."""
+        assert y_top - y_bottom >= 6, 'это не водоворот, а лужа'
+        tb, tt = y_bottom - depth, y_top - 1          # дно нижнего бассейна и поверхность верхнего
+        self.carve(x1, tb, z1, x2, tt, z2, theme)
+        tube = [(x, y, z) for x in range(x1, x2 + 1) for y in range(tb, tt + 1) for z in range(z1, z2 + 1)]
+
+        def prefill():                                 # до проверки бассейнов: под верхним — вода трубы, а не дыра
+            for c in tube:
+                self.blocks[c] = WATER
+        self.later(prefill)
+        self.pool(x1 - pad, z1 - pad, x2 + pad, z2 + pad, y_top - 1, depth, theme)
+        self.pool(x1 - pad - 1, z1 - pad - 1, x2 + pad + 1, z2 + pad + 1, y_bottom - 1, depth, theme)
+        ring = [(x, z) for x in range(x1 - 1, x2 + 2) for z in range(z1 - 1, z2 + 2) if not (x1 <= x <= x2 and z1 <= z <= z2)]
+        self.reserve(x1, z1, x2, z2, pad=pad + 2)
+
+        def build():
+            for c in tube:
+                self.set(*c, 'bubble_column', drag=True)
+            for x in range(x1, x2 + 1):
+                for z in range(z1, z2 + 1):
+                    self.set(x, tb - 1, z, 'magma_block')
+            for y in range(tb, tt + 1):
+                for x, z in ring:
+                    c = (x, y, z)
+                    if is_water(self.blocks.get(c)):
+                        continue                              # бассейн вокруг трубы
+                    if c in self.open and not self.solid(*c):
+                        self.set(*c, glass)
+                    else:
+                        self._support(*c, basin)
+            self.check_water(tube)
+        self.later(build)
+        return tube
 
     def check_water(self, cells):
         """Вода стоит, только если ей некуда течь: по бокам и снизу — вода или твёрдое."""
