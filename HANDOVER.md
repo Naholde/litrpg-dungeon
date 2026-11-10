@@ -435,3 +435,8 @@ Dev-команда клиента: `echo "button Я знаю" > run/dev_open.txt
 - Отрисовка: `client/look/LookLayer` поверх игрока; класс других игроков — пакет `player_looks` (`player/LookService`).
 - При облике ванильная броня не рисуется (`mixin/client/HumanoidArmorLayerMixin`) — облик заменяет вид лат.
 - Новый класс → функция в `looks.py` (+ в `MODELS`), иначе `LookAssetsTest` не даст собрать.
+
+## Обновление 14 — карта этапа 2 (10.11.2026)
+- `tools/dungeon/stage2.py` — 4 яруса (84/66/48/34), строгая проверка; подробности и что проверено вживую — `docs/UPDATE14.md`, пункт 12.
+- Мост над обрывом (не над бездной) — `bridge(..., tall_posts=True)`, иначе со столба с фонарём шагают через перила.
+- Блок карты, которого нет в игре, теперь роняет `RunTests.generatorPlacesMapBlocks` (`DungeonMap.unknownBlocks`).

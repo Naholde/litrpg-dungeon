@@ -53,6 +53,8 @@ public final class RunTests {
         var biomes = level.registryAccess().registryOrThrow(Registries.BIOME);
         var gen = new DungeonChunkGenerator(new FixedBiomeSource(biomes.getHolderOrThrow(Biomes.PLAINS)));
         Layout layout = Layout.get();
+        h.assertTrue(DungeonMap.get().unknownBlocks().isEmpty(),
+                "в карте блоки, которых нет в игре (стали воздухом): " + DungeonMap.get().unknownBlocks());
         h.assertTrue(chunkAt(gen, level, biomes, layout.lobby().seal()).getBlockState(layout.lobby().seal()).is(ModBlocks.SEAL.get()),
                 "Печать на месте");
         for (Layout.Stage st : layout.stages()) {

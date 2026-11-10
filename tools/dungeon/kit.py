@@ -146,7 +146,10 @@ def _face(dx, dz):
 
 def _axis(block, axis='y'):
     """Свойство оси — только у столбовых блоков (брёвна, колонны, базальт)."""
-    if block and base(state(block)).endswith(('log', 'pillar', 'basalt', '_wood', '_stem', 'hyphae', 'bone_block', 'chain')):
+    b = base(state(block)) if block else ''
+    if b.endswith('mushroom_stem'):
+        return {}                                   # у ножки гриба нет оси (в отличие от багровой/искажённой)
+    if block and b.endswith(('log', 'pillar', 'basalt', '_wood', '_stem', 'hyphae', 'bone_block', 'chain')):
         return {'axis': axis}
     return {}
 
@@ -628,12 +631,14 @@ class Map:
         return {'top': (tx, tz), 'angle': end}
 
     def bridge(self, a, b, y, deck, width=3, rail=None, posts=None, post_every=6, lanterns=True, sag=0, gaps=(),
-               theme=None, under=None, slab=None):
+               theme=None, under=None, slab=None, tall_posts=False):
         """Мост по прямой a → b ((x, z), концы включительно) на уровне ног y: настил на y-1, перила rail по краям,
         столбы posts (с фонарём) через post_every клеток, провис sag (середина ниже на sag блоков, перепад ≤ 1;
         на нижней клетке каждого перепада — плита slab (по умолчанию из настила): целый блок шагом не взять,
         а пол-блока — да; перила там на блок выше, чтобы с плиты их не перепрыгнуть),
         gaps — номера клеток вдоль моста без настила (обрушенный мост: разрыв ≤ 3 — перепрыгнуть).
+        tall_posts — столбы на блок выше (фонарь на два блока над настилом): на низкий столб с фонарём запрыгивают
+        с настила и оттуда шагают через перила — над обрывом (не над бездной) так нельзя.
         theme — вырезать над мостом пустоту (если моста ещё нет в пустоте). under — балки снизу (каждая 3-я клетка)."""
         (ax, az), (bx, bz) = a, b
         n = max(abs(bx - ax), abs(bz - az), 1)
@@ -686,8 +691,10 @@ class Map:
                     if post:
                         self.set(sx, yy - 1, sz, posts, **_axis(posts))
                         self.set(sx, yy, sz, posts, **_axis(posts))
+                        if tall_posts:
+                            self.set(sx, yy + 1, sz, posts, **_axis(posts))
                         if lanterns:
-                            self.lantern(sx, yy + 1, sz, soul=False)
+                            self.lantern(sx, yy + (2 if tall_posts else 1), sz, soul=False)
                     elif rail:
                         self.set(sx, yy - 1, sz, deck)
                         self.set(sx, yy, sz, rail)

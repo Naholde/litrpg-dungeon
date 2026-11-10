@@ -32,11 +32,19 @@ public final class DungeonMap {
     /** Секция → индексы палитры (short, 4096). */
     private final Map<Long, short[]> sections;
     private final String hash;
+    /** Строки палитры, которые игра не узнала (заменены воздухом): ошибка генератора карты — тест требует пустоты. */
+    private final java.util.List<String> unknown;
 
-    private DungeonMap(BlockState[] palette, Map<Long, short[]> sections, String hash) {
+    private DungeonMap(BlockState[] palette, Map<Long, short[]> sections, String hash, java.util.List<String> unknown) {
         this.palette = palette;
         this.sections = sections;
         this.hash = hash;
+        this.unknown = java.util.List.copyOf(unknown);
+    }
+
+    /** Блоки карты, которых нет в игре (опечатка в имени или лишнее свойство, напр. ось у ножки гриба). */
+    public java.util.List<String> unknownBlocks() {
+        return unknown;
     }
 
     public static DungeonMap get() {
@@ -65,7 +73,7 @@ public final class DungeonMap {
         try (InputStream raw = DungeonMap.class.getResourceAsStream(RESOURCE)) {
             if (raw == null) {
                 LitRPG.LOG.error("[LitRPG] Нет карты {} — подземелье будет пустым", RESOURCE);
-                return new DungeonMap(new BlockState[]{Blocks.AIR.defaultBlockState()}, Map.of(), "none");
+                return new DungeonMap(new BlockState[]{Blocks.AIR.defaultBlockState()}, Map.of(), "none", java.util.List.of());
             }
             byte[] bytes = raw.readAllBytes();
             String hash = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(bytes)).substring(0, 16);
@@ -77,7 +85,8 @@ public final class DungeonMap {
             }
             int n = in.readInt();
             BlockState[] palette = new BlockState[n];
-            for (int i = 0; i < n; i++) palette[i] = parse(in.readUTF());
+            java.util.List<String> unknown = new java.util.ArrayList<>();
+            for (int i = 0; i < n; i++) palette[i] = parse(in.readUTF(), unknown);
             int count = in.readInt();
             Map<Long, short[]> sections = new ConcurrentHashMap<>(count * 2);
             for (int s = 0; s < count; s++) {
@@ -92,17 +101,18 @@ public final class DungeonMap {
             }
             LitRPG.LOG.info("[LitRPG] Карта подземелья: {} секций, палитра {}, версия {} ({} мс)", count, n, hash,
                     System.currentTimeMillis() - t0);
-            return new DungeonMap(palette, sections, hash);
+            return new DungeonMap(palette, sections, hash, unknown);
         } catch (Exception e) {
             throw new IllegalStateException("Не удалось прочитать карту подземелья " + RESOURCE, e);
         }
     }
 
-    private static BlockState parse(String s) {
+    private static BlockState parse(String s, java.util.List<String> unknown) {
         try {
             return BlockStateParser.parseForBlock(BuiltInRegistries.BLOCK.asLookup(), s, false).blockState();
         } catch (Exception e) {
             LitRPG.LOG.error("[LitRPG] Карта: неизвестный блок «{}» — заменён воздухом", s);
+            unknown.add(s);
             return Blocks.AIR.defaultBlockState();
         }
     }
