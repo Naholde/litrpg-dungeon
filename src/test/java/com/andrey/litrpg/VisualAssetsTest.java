@@ -16,6 +16,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Фаза «Визуал»: у каждого навыка — нарисованный значок (tools/gen_icons.py). Нет — сборка падает. */
 class VisualAssetsTest {
+    /**
+     * У каждой модели — маска свечения ({@code _glowmask}, хоть пустая): без неё слой свечения GeckoLib закрашивает
+     * модель чёрным (так было с коконом, плахой, капканом и знамёнами — найдено при проверке Преддверия).
+     */
+    @Test
+    void everyModelHasGlowMask() throws Exception {
+        java.nio.file.Path root = java.nio.file.Path.of(java.util.Objects.requireNonNull(
+                getClass().getResource("/assets/litrpg/geo/entity")).toURI()).getParent().getParent();
+        List<String> missing = new ArrayList<>();
+        try (var files = java.nio.file.Files.list(root.resolve("geo/entity"))) {
+            for (var f : files.toList()) {
+                String id = f.getFileName().toString().replace(".geo.json", "");
+                if (!java.nio.file.Files.exists(root.resolve("textures/entity/" + id + "_glowmask.png"))) missing.add(id);
+            }
+        }
+        assertTrue(missing.isEmpty(), "нет маски свечения (модель будет чёрной; tools/gen_models.py): " + missing);
+    }
+
     /** У каждого навыка хранителя — своя анимация «a_<навык>», и есть фаза, неистовство, перенос боя. */
     @Test
     void everyGuardianAbilityHasItsOwnAnimation() throws Exception {
@@ -50,6 +68,7 @@ class VisualAssetsTest {
                     ? List.of("idle", "attack") : List.of("idle"));
         }
         for (var k : com.andrey.litrpg.skill.prop.SummonKind.all()) need.put(k.id(), List.of("idle", "walk", "attack"));
+        need.put("training_dummy", List.of("idle", "hit"));   // манекен Двора испытаний (обновление 14, пункт 16)
         com.google.gson.JsonObject ru;
         try (var in = getClass().getResourceAsStream("/assets/litrpg/lang/ru_ru.json")) {
             ru = JsonParser.parseReader(new InputStreamReader(java.util.Objects.requireNonNull(in), StandardCharsets.UTF_8))

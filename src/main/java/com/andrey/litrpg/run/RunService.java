@@ -361,6 +361,7 @@ public final class RunService {
         RunState s = state(server);
         Protect.tickRescue(server, s);
         Layout layout = Layout.get();
+        if (server.getTickCount() % 100 == 0) LobbyDummies.ensure(level, layout.lobby().dummies());
         if (!s.active(layout.lastStage())) {
             if (++syncTimer >= 20) {
                 syncTimer = 0;

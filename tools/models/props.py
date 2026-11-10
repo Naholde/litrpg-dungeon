@@ -485,9 +485,110 @@ def dark_candle():
     return m
 
 
+# ---------------------------------------------------------------------------- боевой манекен (Двор испытаний)
+mat("burlap", "#B49A6C", "cloth", dark="#7A6440", light="#DCC594")
+mat("burlap_dark", "#8A7250", "cloth", dark="#5A4830", light="#B09670")
+mat("straw", "#D8B858", "hair", dark="#9A7A2A", light="#F6E294")
+mat("rope", "#9A7646", "leather", dark="#5E4626", light="#C89E68")
+mat("bucket", "#7E8690", "rust", dark="#454B52", light="#B8C0C8")
+
+
+def dummy_face(f):
+    """Мешок-голова: глаза крестиками и зашитый рот — стежки тёмной нитью."""
+    w, h = f.w, f.h
+    thread = "#3A2A18"
+    for ex in (int(w * 0.28), int(w * 0.62)):
+        ey = int(h * 0.36)
+        for k in range(3):
+            f.set(ex + k, ey + k, thread)
+            f.set(ex + 2 - k, ey + k, thread)
+    my = int(h * 0.7)
+    f.rect(int(w * 0.3), my, int(w * 0.72), my + 1, thread)
+    for x in range(int(w * 0.32), int(w * 0.72), 2):
+        f.set(x, my - 1, thread)
+        f.set(x, my + 1, thread)
+
+
+def dummy_target(f):
+    """Мишень на груди: красно-белые кольца с золотым яблочком."""
+    w, h = f.w, f.h
+    cx, cy = (w - 1) / 2, (h - 1) / 2
+    for y in range(h):
+        for x in range(w):
+            r = math.hypot(x - cx, y - cy) / (min(w, h) / 2)
+            if r > 1.02:
+                continue
+            col = "#FFD860" if r < 0.25 else ("#B8302A" if int(r * 4) % 2 else "#EAE2D0")
+            f.set(x, y, col, glow=r < 0.25)                 # яблочко светится — видно и в полутьме
+    f.rect(0, 0, w, 1, "#5A3A26")
+
+
+def patch(f):
+    w, h = f.w, f.h
+    f.rect(int(w * 0.15), int(h * 0.55), int(w * 0.4), int(h * 0.8), "#8A7250")
+    f.line(int(w * 0.15), int(h * 0.55), int(w * 0.4), int(h * 0.55), "#3A2A18")
+
+
+def training_dummy():
+    """Боевой манекен Двора испытаний: соломенное чучело в мешковине на крестовине, на груди — мишень,
+    на голове — мятое ведро набекрень, из рукавов и ворота торчит солома. Бьют — качается на столбе."""
+    m = Model("training_dummy")
+    base = m.bone("base", [0, 0, 0])
+    for rot in (0, 90):
+        m.box(base, [0, 0.8, 0], [12, 1.6, 2.4], "wood_dark", rot=[0, rot, 0])
+    m.box(base, [0, 1.8, 0], [3.4, 1.2, 3.4], "wood")
+    for a in (45, 135, 225, 315):
+        r = math.radians(a)
+        m.box(base, [math.cos(r) * 2.6, 2.6, math.sin(r) * 2.6], [0.8, 3.4, 0.8], "wood_dark", rot=[0, -a, 35])
+    m.box(base, [0, 6, 0], [2, 9, 2], "wood")                              # столб до пояса
+    body = m.bone("body", [0, 9, 0], base)
+    m.box(body, [0, 12, 0], [1.6, 22, 1.6], "wood")                        # столб внутри чучела
+    m.box(body, [0, 15.5, 0], [9, 10, 6], "burlap", decal={"south": patch})  # туловище-мешок
+    m.box(body, [0, 11.2, 0], [8, 2, 5.4], "burlap_dark")
+    m.box(body, [0, 10.4, 0], [9.6, 1, 6.6], "rope")                       # пояс
+    m.box(body, [2.6, 9.4, -3.1], [1, 2.2, 0.6], "rope", rot=[0, 0, 15])
+    for i, x in enumerate((-3.2, -1.2, 1, 3)):
+        m.box(body, [x, 9.2 - (i % 2) * 0.6, 0], [1.4, 1.6 + (i % 2), 5.2], "straw", rot=[0, 0, (i - 1.5) * 9])
+    m.box(body, [0, 16, -3.15], [6, 6, 0.4], "wood", decal={"north": dummy_target})  # мишень
+    m.box(body, [0, 20.8, 0], [10, 1.2, 6.4], "burlap_dark")               # плечи
+    arms = m.bone("arms", [0, 19.5, 0], body)
+    m.box(arms, [0, 19.5, 0], [22, 1.6, 1.6], "wood")                      # перекладина рук
+    for sx in (-1, 1):
+        m.box(arms, [7.2 * sx, 19.5, 0], [6, 3, 3], "burlap", rot=[0, 0, -6 * sx])
+        m.box(arms, [10.6 * sx, 19.6, 0], [1.4, 2.4, 2.4], "rope")
+        for k in range(3):
+            m.box(arms, [11.8 * sx, 19.2 + k * 0.8, -0.8 + k * 0.8], [1.8, 0.8, 0.8], "straw",
+                  rot=[0, 0, (k - 1) * 25 * sx])
+    head = m.bone("head", [0, 22, 0], body)
+    m.box(head, [0, 22.4, 0], [3.4, 1.4, 3.4], "rope")                     # перевязь шеи
+    for k, (x, z) in enumerate(((-1.6, -1.4), (1.5, -1.2), (0, 1.7), (-1.2, 1.4))):
+        m.box(head, [x, 22.2, z], [0.8, 1.6, 0.8], "straw", rot=[20 * (k % 2) - 10, 0, 15 - 10 * k])
+    m.box(head, [0, 26, 0], [6.6, 6.4, 6.2], "burlap", decal={"north": dummy_face})
+    m.box(head, [0.3, 29.4, 0], [5.4, 0.8, 5.2], "burlap_dark")
+    helm = m.bone("bucket", [0, 29.4, 0], head, rot=[0, 0, -14])
+    m.box(helm, [0.6, 31, 0], [7, 3.6, 7], "bucket")                       # мятое ведро набекрень
+    m.box(helm, [0.6, 32.9, 0], [6, 0.4, 6], "iron_dark")
+    m.box(helm, [0.6, 29.4, 0], [7.6, 0.6, 7.6], "iron_dark")
+    m.box(helm, [4.4, 30.8, 0], [0.4, 3, 0.4], "iron", rot=[0, 0, 30])     # дужка
+    m.anim("idle", loop(3.0, {
+        "body": {"rotation": sway(3.0, 1.2, 0, 2)},
+        "arms": {"rotation": sway(3.0, 1.5, 0.25, 0)},
+        "bucket": {"rotation": sway(3.0, 2.0, 0.5, 2)},
+    }))
+    m.anim("hit", once(0.9, {
+        "body": {"rotation": kf([(0, [0, 0, 0]), (0.08, [-14, 0, 6]), (0.25, [9, 0, -4]), (0.45, [-5, 0, 2]),
+                                 (0.65, [2, 0, -1]), (0.9, [0, 0, 0])])},
+        "head": {"rotation": kf([(0, [0, 0, 0]), (0.1, [-10, 8, 0]), (0.3, [8, -5, 0]), (0.55, [-3, 2, 0]), (0.9, [0, 0, 0])])},
+        "arms": {"rotation": kf([(0, [0, 0, 0]), (0.1, [0, 12, 0]), (0.32, [0, -8, 0]), (0.6, [0, 3, 0]), (0.9, [0, 0, 0])])},
+        "bucket": {"rotation": kf([(0, [0, 0, 0]), (0.1, [0, 0, -12]), (0.3, [0, 0, 10]), (0.6, [0, 0, -4]), (0.9, [0, 0, 0])])},
+    }))
+    return m
+
+
 MODELS = {"totem_heal": totem_heal, "totem_storm": totem_storm, "totem_earth": totem_earth, "banner_power": banner_power,
           "banner_guard": banner_guard, "banner_speed": banner_speed, "tree_life": tree_life, "monk_seal": monk_seal,
           "headsman_block": headsman_block, "hunter_trap": hunter_trap, "turret": turret, "mine": mine, "star": star,
           "tentacle": tentacle, "illusion": illusion, "mirror_double": mirror_double, "void_rift": void_rift,
           "dome_core": dome_core, "minion_skeleton": minion_skeleton, "minion_wolf": minion_wolf, "minion_golem": minion_golem,
-          "trader": trader, "trial_warden": trial_warden, "power_node": power_node, "dark_candle": dark_candle}
+          "trader": trader, "trial_warden": trial_warden, "power_node": power_node, "dark_candle": dark_candle,
+          "training_dummy": training_dummy}

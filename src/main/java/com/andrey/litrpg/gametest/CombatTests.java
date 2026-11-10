@@ -166,4 +166,44 @@ public final class CombatTests {
         h.assertTrue(bolts == 1, "выпущен один снаряд, а " + bolts);
         h.succeed();
     }
+
+    /** Злой манекен бьёт свою цель, но не добивает: здоровье не падает ниже единицы (Двор испытаний, обновление 14). */
+    @GameTest(template = "empty", timeoutTicks = 300)
+    public static void angryDummyNeverKills(GameTestHelper h) {
+        ServerPlayer p = player(h, Role.DAMAGE, 10);
+        TrainingDummy d = dummy(h);
+        h.runAfterDelay(AFTER_SPAWN, () -> {
+            boolean hit = DamageService.deal(p, null, d, 100, WeaponKind.PLAIN);
+            ThreatService.tick(d);
+            h.assertTrue(hit && d.getTarget() == p, "манекен выбрал целью того, кто его ударил");
+            p.setHealth(3);
+        });
+        h.runAtTickTime(AFTER_SPAWN + 120, () -> {
+            h.assertTrue(p.isAlive() && p.getHealth() >= 1, "манекен добил игрока: здоровье " + p.getHealth());
+            h.assertTrue(p.getHealth() < 3, "манекен не ударил ни разу");
+            h.succeed();
+        });
+    }
+
+    /** Манекены Преддверия: по схеме ставится ровно по одному у каждой точки, повтор не плодит дублей. */
+    @GameTest(template = "empty")
+    public static void lobbyDummiesFollowLayout(GameTestHelper h) {
+        h.assertTrue(com.andrey.litrpg.run.Layout.get().lobby().dummies().size() == 3, "в схеме Преддверия три манекена");
+        var spots = List.of(new com.andrey.litrpg.run.Layout.Dummy(h.absoluteVec(new Vec3(1.5, 1, 1.5)), 90, false),
+                new com.andrey.litrpg.run.Layout.Dummy(h.absoluteVec(new Vec3(4.5, 1, 1.5)), 90, true));
+        var level = h.getLevel();
+        h.assertTrue(com.andrey.litrpg.run.LobbyDummies.ensure(level, spots) == 2, "поставлены оба манекена");
+        h.assertTrue(com.andrey.litrpg.run.LobbyDummies.ensure(level, spots) == 0, "повтор ничего не добавил");
+        // Только свои (с меткой Преддверия): соседние тесты стоят ближе 8 блоков, их манекенов не трогать.
+        java.util.function.Supplier<List<TrainingDummy>> mine = () -> level.getEntitiesOfClass(TrainingDummy.class,
+                new net.minecraft.world.phys.AABB(h.absolutePos(BlockPos.ZERO)).inflate(6),
+                e -> e.getTags().contains(com.andrey.litrpg.run.LobbyDummies.TAG));
+        var all = mine.get();
+        h.assertTrue(all.size() == 2, "манекенов " + all.size());
+        h.assertTrue(all.stream().filter(TrainingDummy::angry).count() == 1, "злой — один");
+        all.get(0).discard();
+        h.assertTrue(com.andrey.litrpg.run.LobbyDummies.ensure(level, spots) == 1, "убранный манекен вернулся");
+        mine.get().forEach(TrainingDummy::discard);
+        h.succeed();
+    }
 }

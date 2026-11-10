@@ -70,12 +70,22 @@ public record Layout(int version, Lobby lobby, List<Stage> stages) {
         ).apply(i, Sign::new));
     }
 
-    public record Lobby(Box box, Spot spawn, BlockPos seal, List<Sign> signs) {
+    /** Боевой манекен Двора испытаний: где стоит, куда смотрит, злой ли (бьёт того, кто ему опаснее). */
+    public record Dummy(Vec3 at, float yaw, boolean aggressive) {
+        public static final Codec<Dummy> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Vec3.CODEC.fieldOf("at").forGetter(Dummy::at),
+                Codec.FLOAT.optionalFieldOf("yaw", 0f).forGetter(Dummy::yaw),
+                Codec.BOOL.optionalFieldOf("aggressive", false).forGetter(Dummy::aggressive)
+        ).apply(i, Dummy::new));
+    }
+
+    public record Lobby(Box box, Spot spawn, BlockPos seal, List<Sign> signs, List<Dummy> dummies) {
         public static final Codec<Lobby> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Box.CODEC.fieldOf("box").forGetter(Lobby::box),
                 Spot.CODEC.fieldOf("spawn").forGetter(Lobby::spawn),
                 BlockPos.CODEC.fieldOf("seal").forGetter(Lobby::seal),
-                Sign.CODEC.listOf().optionalFieldOf("signs", List.of()).forGetter(Lobby::signs)
+                Sign.CODEC.listOf().optionalFieldOf("signs", List.of()).forGetter(Lobby::signs),
+                Dummy.CODEC.listOf().optionalFieldOf("dummies", List.of()).forGetter(Lobby::dummies)
         ).apply(i, Lobby::new));
     }
 

@@ -551,11 +551,19 @@ class Model:
         (ASSETS / f"animations/entity/{self.name}.animation.json").write_text(json.dumps(anim, indent=1),
                                                                              encoding="utf-8", newline="\n")
         tex.save(ASSETS / f"textures/entity/{self.name}.png")
-        gf = ASSETS / f"textures/entity/{self.name}_glowmask.png"
-        if any(p[3] for p in glow.px):
-            glow.save(gf)
-        elif gf.exists():
-            gf.unlink()
+        # Маска свечения пишется всегда: без файла слой свечения GeckoLib (AutoGlowingGeoLayer) закрашивает всю модель
+        # чёрным (так в игре были чёрными кокон, плаха, капкан и знамёна — пункт 16), а совсем пустую он не принимает
+        # («must have at least one pixel»). Без светящихся частей — один почти прозрачный пиксель вне развёртки.
+        if not any(p[3] for p in glow.px):
+            used = set()
+            for b in self.bones:
+                for c in b.cubes:
+                    for (fx, fy, fw, fh) in c.uv.values():
+                        used.update((x, y) for x in range(fx, fx + fw) for y in range(fy, fy + fh))
+            spot = next(((x, y) for y in range(th - 1, -1, -1) for x in range(tw - 1, -1, -1) if (x, y) not in used),
+                        (tw - 1, th - 1))
+            glow.set(spot[0], spot[1], (0, 0, 0, 1))
+        glow.save(ASSETS / f"textures/entity/{self.name}_glowmask.png")
         cubes = sum(len(b.cubes) for b in self.bones)
         return f"{self.name}: {len(self.bones)} костей, {cubes} кубов, текстура {tw}x{th}"
 

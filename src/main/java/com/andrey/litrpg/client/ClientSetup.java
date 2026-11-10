@@ -14,7 +14,6 @@ import com.andrey.litrpg.client.fx.ClientPopups;
 import com.andrey.litrpg.client.fx.FxRenderer;
 import com.andrey.litrpg.client.render.GeoRenderers;
 import com.andrey.litrpg.client.render.MagicBoltRenderer;
-import com.andrey.litrpg.client.render.TrainingDummyRenderer;
 import com.andrey.litrpg.combat.item.StaffItem;
 import com.andrey.litrpg.core.ModEntities;
 import com.andrey.litrpg.net.StaffCastPayload;
@@ -68,7 +67,7 @@ public final class ClientSetup {
         @SubscribeEvent
         public static void renderers(EntityRenderersEvent.RegisterRenderers e) {
             e.registerEntityRenderer(ModEntities.MAGIC_BOLT.get(), MagicBoltRenderer::new);
-            e.registerEntityRenderer(ModEntities.TRAINING_DUMMY.get(), TrainingDummyRenderer::new);
+            e.registerEntityRenderer(ModEntities.TRAINING_DUMMY.get(), ctx -> GeoRenderers.glowing(ctx, "training_dummy", 0.95f));
             e.registerEntityRenderer(ModEntities.TRIAL_WARDEN.get(), ctx -> GeoRenderers.glowing(ctx, "trial_warden", 1.6f));
             e.registerEntityRenderer(ModEntities.POWER_NODE.get(), ctx -> GeoRenderers.glowing(ctx, "power_node", 1.0f));
             e.registerEntityRenderer(ModEntities.TRADER.get(), ctx -> GeoRenderers.glowing(ctx, "trader", 1.0f));

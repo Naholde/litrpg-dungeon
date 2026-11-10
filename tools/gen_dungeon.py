@@ -51,6 +51,8 @@ def main():
         stages.append(s)
     layout = {'version': 1, 'lobby': lobby_json, 'stages': [s.json() for s in stages]}
     strict = {n for n, mod in STAGES.items() if getattr(mod, 'STRICT', False)}
+    if getattr(lobby, 'STRICT', False):
+        strict.add('lobby')
     warns = []
     errors = check.check(maps, json.loads(json.dumps(layout)), strict, warns)
     for wmsg in warns:
@@ -71,7 +73,8 @@ def main():
     print(f'Карта: {len(maps)} частей, палитра {pal}, секций {secs}, {size // 1024} КБ, {time.time() - t0:.1f} с. Всё в порядке.')
     if args.preview:
         os.makedirs(args.preview, exist_ok=True)
-        kit.preview(lm, os.path.join(args.preview, 'lobby.png'), (0, 0, 64, 64), scale=4)
+        bx1, _, bz1, bx2, _, bz2 = lobby_json['box']
+        kit.preview(lm, os.path.join(args.preview, 'lobby.png'), (bx1, bz1, bx2, bz2), scale=4)
         for s in stages:
             x1, _, z1, x2, _, z2 = s.box
             marks = [(p['at'][0], p['at'][2], (255, 60, 60)) for p in s.packs]

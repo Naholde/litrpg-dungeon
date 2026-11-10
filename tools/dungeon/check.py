@@ -453,19 +453,44 @@ def check_stage(m, st, species, bosses, errors, strict=False, warns=None):
     return len(reached)
 
 
+def check_lobby(m, lb, errors, strict=False, warns=None):
+    """Преддверие: от места появления пешком — до Печати, каждой таблички и манекена; в строгом режиме ещё обрывы
+    без перил и западни (оттуда не вернуться ни к Печати, ни к месту появления). Ниже коробки — бездна."""
+    sx, sy, sz = (int(v // 1) for v in lb['spawn'][:3])
+    box = lb['box']
+    w = Walker(m, set(), floor_y=box[1])
+    if not w.stand(sx, sy, sz):
+        errors.append('преддверие: на месте появления негде стоять')
+        return 0
+    r = w.reach((sx, sy, sz), box)
+    if not near(r, lb['seal'], r=2):
+        errors.append('преддверие: до Печати не дойти')
+    for s in lb.get('signs', []):
+        if not near(r, s['at'], r=2, dy=2):
+            errors.append(f'преддверие: табличка «{s["lines"][0]}» у {s["at"]} недоступна пешком')
+    for dm in lb.get('dummies', []):
+        if not near(r, dm['at'], r=2, dy=1):
+            errors.append(f'преддверие: манекен у {dm["at"]} недоступен пешком')
+    sink = errors if strict else (warns if warns is not None else [])
+    seal = tuple(lb['seal'])
+    goals = {c for c in r if abs(c[0] - seal[0]) <= 2 and abs(c[2] - seal[2]) <= 2 and abs(c[1] - seal[1]) <= 2}
+    goals.add((sx, sy, sz))
+    for size, at in traps(w, (sx, sy, sz), box, goals)[:6]:
+        sink.append(f'преддверие: западня — {size} кл., оттуда не вернуться к Печати (напр. {at})')
+    cliffs = drops(w, r)
+    for h, at, to in cliffs[:6]:
+        sink.append(f'преддверие: обрыв без перил — {h} бл. вниз с {at} на {to}')
+    if len(cliffs) > 6:
+        sink.append(f'преддверие: обрывов без перил ещё {len(cliffs) - 6}')
+    print(f'Преддверие: {len(r)} достижимых клеток')
+    return len(r)
+
+
 def check(maps, layout, strict=(), warns=None):
     species = known_ids('mob', r'reg\("([a-z_]+)"')
     bosses = known_ids('boss', r'reg\("([a-z_]+)"')
     errors = []
-    lobby_m = maps['lobby']
-    sx, sy, sz = (int(v // 1) for v in layout['lobby']['spawn'][:3])
-    w = Walker(lobby_m, set())
-    if not w.stand(sx, sy, sz):
-        errors.append('преддверие: на месте появления негде стоять')
-    else:
-        r = w.reach((sx, sy, sz), layout['lobby']['box'])
-        if not near(r, layout['lobby']['seal'], r=2):
-            errors.append('преддверие: до Печати не дойти')
+    check_lobby(maps['lobby'], layout['lobby'], errors, 'lobby' in strict, warns)
     for st in layout['stages']:
         check_stage(maps[st['n']], st, species, bosses, errors, st['n'] in strict, warns)
     return errors

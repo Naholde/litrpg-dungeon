@@ -18,6 +18,12 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -25,9 +31,11 @@ import java.util.Deque;
 /**
  * Боевой манекен для проверки: держит любой урон, показывает урон в секунду над головой и восстанавливается,
  * если его не бить. «Агрессивный» манекен бьёт свою цель по таблице угрозы — на нём проверяют агро, провокацию
- * и лечение без настоящих монстров.
+ * и лечение без настоящих монстров. Злой манекен не добивает: удар оставляет хотя бы единицу здоровья.
+ * Модель — соломенное чучело ({@code tools/models/props.py}, {@code training_dummy}): качается, когда бьют.
  */
-public class TrainingDummy extends Mob {
+public class TrainingDummy extends Mob implements GeoEntity {
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private static final double HEALTH = 1_000_000;
     private static final int DPS_WINDOW = 100;
 
@@ -52,6 +60,11 @@ public class TrainingDummy extends Mob {
         aggressive = v;
     }
 
+    /** Злой ли манекен (бьёт свою цель по таблице угрозы). */
+    public boolean angry() {
+        return aggressive;
+    }
+
     @Override
     public boolean isPushable() {
         return false;
@@ -60,7 +73,10 @@ public class TrainingDummy extends Mob {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         boolean r = super.hurt(source, amount);
-        if (r && !level().isClientSide) lastHit = level().getGameTime();
+        if (r && !level().isClientSide) {
+            if (level().getGameTime() - lastHit > 8) triggerAnim("main", "hit");
+            lastHit = level().getGameTime();
+        }
         return r;
     }
 
@@ -86,7 +102,8 @@ public class TrainingDummy extends Mob {
                 && p.distanceTo(this) <= cfg.hitRange()) {
             getLookControl().setLookAt(p);
             swing(InteractionHand.MAIN_HAND);
-            p.hurt(damageSources().mobAttack(this), (float) (p.getMaxHealth() * cfg.hitShareOfMaxHealth()));
+            float dmg = Math.min((float) (p.getMaxHealth() * cfg.hitShareOfMaxHealth()), p.getHealth() - 1);
+            if (dmg > 0) p.hurt(damageSources().mobAttack(this), dmg);
             level().playSound(null, blockPosition(), SoundEvents.PLAYER_ATTACK_STRONG, SoundSource.HOSTILE, 0.7f, 0.8f);
         }
         if (tickCount % 10 == 0) updateName(now);
@@ -125,5 +142,17 @@ public class TrainingDummy extends Mob {
     @Override
     public boolean removeWhenFarAway(double distance) {
         return false;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "main", 2,
+                state -> state.setAndContinue(RawAnimation.begin().thenLoop("animation.training_dummy.idle")))
+                .triggerableAnim("hit", RawAnimation.begin().thenPlay("animation.training_dummy.hit")));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 }
