@@ -1,15 +1,18 @@
 """
 Проверка карты: схема (виды, хранители, ссылки преград) и проходимость пешком.
 
-Проходимость проверяется «как играет отряд»: от привала идём пешком, всё достижимое — побеждаем; открываются
-преграды, чьи условия выполнены; повторяем, пока что-то меняется. В конце должны быть достижимы все отряды,
-хранители и разлом. Запертые на время боя двери («lock») при проверке открыты.
+Проходимость проверяется «как играет отряд»: от привала идём (прыгаем, лезем, плывём — см. `Walker`), всё достижимое —
+побеждаем; открываются преграды, чьи условия выполнены; повторяем, пока что-то меняется. В конце должны быть достижимы
+все отряды, хранители и разлом. Запертые на время боя двери («lock») при проверке открыты.
+
+Ещё ищутся западни (дошёл, а к разлому и привалу оттуда не выбраться) и долгие заплывы под водой. Для этапов,
+построенных набором вертикали (`STRICT = True` в модуле этапа), это ошибки, для старых — предупреждения.
 """
 import os
 import re
 from collections import deque
 
-from kit import passable, standable
+from kit import JUMPS, MAX_DROP, climbable, current, is_water, passable, standable
 
 JAVA = os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'main', 'java', 'com', 'andrey', 'litrpg')
 
@@ -37,10 +40,25 @@ def box_cells(b):
                 yield x, y, z
 
 
+STAND, CLIMB, SWIM, UP, DOWN = 1, 2, 4, 8, 16
+DIRS4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
+
+
 class Walker:
-    def __init__(self, m, opened):
+    """Как ходит игрок: шагом (подъём на блок), прыжком через разрыв (`kit.JUMPS`), падением (на твёрдое — не выше
+    `kit.MAX_DROP`, в воду и на лестницу — с любой высоты), по лестницам и лозам вверх-вниз, вплавь в любую сторону;
+    пузырьки (песок душ) несут только вверх, магма — только вниз. Узел — клетка ног (над ней голова)."""
+
+    def __init__(self, m, opened, floor_y=-64):
         self.m = m
         self.opened = opened
+        self.floor_y = floor_y   # ниже — пропасть: Система вытащит, но это не путь
+        self._kind = {}
+
+    def block(self, x, y, z):
+        if (x, y, z) in self.opened:
+            return None
+        return self.m.blocks.get((x, y, z))
 
     def air(self, x, y, z):
         if (x, y, z) in self.opened:
@@ -50,40 +68,168 @@ class Walker:
             return True
         return passable(s) and not (s and 'lava' in s)
 
-    def stand(self, x, y, z):
-        return self.air(x, y, z) and self.air(x, y + 1, z) and standable(self.m.blocks.get((x, y - 1, z))) \
-            and (x, y - 1, z) not in self.opened
+    def kind(self, x, y, z):
+        """Чем является клетка ног: STAND/CLIMB/SWIM (+UP/DOWN — течение); 0 — здесь не удержаться."""
+        key = (x, y, z)
+        k = self._kind.get(key)
+        if k is not None:
+            return k
+        k = 0
+        if self.air(x, y, z) and self.air(x, y + 1, z):
+            s = self.block(x, y, z)
+            if climbable(s):
+                k |= CLIMB
+            if is_water(s):
+                k |= SWIM
+                c = current(s)
+                k |= UP if c > 0 else DOWN if c < 0 else 0
+            if standable(self.m.blocks.get((x, y - 1, z))) and (x, y - 1, z) not in self.opened:
+                k |= STAND
+        self._kind[key] = k
+        return k
 
-    def drop(self, x, y, z, limit=6):
-        """Куда приземлимся, шагнув в (x, y, z): ищем опору вниз."""
-        for d in range(limit):
-            if not self.air(x, y - d, z) or not self.air(x, y - d + 1, z):
+    def stand(self, x, y, z):
+        return bool(self.kind(x, y, z) & STAND)
+
+    def node(self, x, y, z):
+        return self.kind(x, y, z) != 0
+
+    def fall(self, x, y, z, y0):
+        """Шагнули в пустоту (x, y, z) с высоты ног y0: где поймает пол, вода или лестница."""
+        for yy in range(y, y - 96, -1):
+            if yy < self.floor_y or not self.air(x, yy, z):
                 return None
-            if self.stand(x, y - d, z):
-                return x, y - d, z
+            k = self.kind(x, yy, z)
+            if k & (SWIM | CLIMB):
+                return x, yy, z
+            if k & STAND:
+                return (x, yy, z) if y0 - yy <= MAX_DROP else None
         return None
 
-    def reach(self, start, limit_box):
+    def jumps(self, x, y, z, dx, dz):
+        """Прыжок с разбега по прямой через разрыв 1–3 клетки (над разрывом и над головой — простор)."""
+        out = []
+        if not self.air(x, y + 2, z):
+            return out
+        for g in range(1, 4):
+            cols = [(x + dx * i, z + dz * i) for i in range(1, g + 1)]
+            if not all(self.air(cx, y + h, cz) for cx, cz in cols for h in (0, 1, 2)):
+                break
+            lx, lz = x + dx * (g + 1), z + dz * (g + 1)
+            for dy, gmax in JUMPS.items():
+                if g > gmax:
+                    continue
+                ly = y + dy
+                if not self.stand(lx, ly, lz):
+                    continue
+                if dy < 0 and not all(self.air(cx, h, cz) for cx, cz in cols[-1:] for h in range(ly, y)):
+                    continue
+                out.append((lx, ly, lz))
+        return out
+
+    def moves(self, x, y, z):
+        k = self.kind(x, y, z)
+        out = []
+        for dx, dz in DIRS4:
+            nx, nz = x + dx, z + dz
+            if self.node(nx, y, nz):
+                out.append((nx, y, nz))
+                continue
+            if not k & DOWN and self.node(nx, y + 1, nz) and self.air(x, y + 2, z):
+                out.append((nx, y + 1, nz))   # шаг на блок (из воды — на берег, с лестницы — на площадку)
+                continue
+            if self.air(nx, y, nz) and self.air(nx, y + 1, nz):
+                f = self.fall(nx, y - 1, nz, y)
+                if f:
+                    out.append(f)
+                if k & STAND:
+                    out.extend(self.jumps(x, y, z, dx, dz))
+        if k & CLIMB:
+            if self.node(x, y + 1, z):
+                out.append((x, y + 1, z))
+            if self.node(x, y - 1, z):
+                out.append((x, y - 1, z))
+            elif self.air(x, y - 1, z):
+                f = self.fall(x, y - 1, z, y)
+                if f:
+                    out.append(f)
+        if k & SWIM:
+            if not k & DOWN and self.kind(x, y + 1, z) & (SWIM | CLIMB):
+                out.append((x, y + 1, z))
+            if not k & UP and self.node(x, y - 1, z):
+                out.append((x, y - 1, z))
+        return out
+
+    def reach(self, start, limit_box, edges=None):
         x1, y1, z1, x2, y2, z2 = limit_box
         seen = {start}
         q = deque([start])
         while q:
-            x, y, z = q.popleft()
-            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                nx, nz = x + dx, z + dz
-                if not (x1 <= nx <= x2 and z1 <= nz <= z2):
+            c = q.popleft()
+            for n in self.moves(*c):
+                if not (x1 <= n[0] <= x2 and z1 <= n[2] <= z2 and y1 <= n[1] <= y2):
                     continue
-                cand = None
-                if self.stand(nx, y, nz):
-                    cand = (nx, y, nz)
-                elif self.stand(nx, y + 1, nz) and self.air(x, y + 2, z):
-                    cand = (nx, y + 1, nz)
-                else:
-                    cand = self.drop(nx, y, nz)
-                if cand and cand not in seen and y1 <= cand[1] <= y2:
-                    seen.add(cand)
-                    q.append(cand)
+                if edges is not None:
+                    edges.setdefault(n, []).append(c)   # обратные рёбра: куда можно вернуться
+                if n not in seen:
+                    seen.add(n)
+                    q.append(n)
         return seen
+
+
+def traps(w, start, box, goals):
+    """Западни: клетки, куда дойти можно, а оттуда до цели (разлом, привал) — нет. [(размер, пример клетки)]."""
+    back = {}
+    reached = w.reach(start, box, back)
+    good = set()
+    q = deque(c for c in reached if c in goals)
+    good.update(q)
+    while q:
+        c = q.popleft()
+        for p in back.get(c, ()):
+            if p not in good:
+                good.add(p)
+                q.append(p)
+    bad = reached - good
+    out = []
+    while bad:
+        seed = min(bad)
+        group = {seed}
+        q = deque([seed])
+        bad.discard(seed)
+        while q:
+            x, y, z = q.popleft()
+            for n in ((x + 1, y, z), (x - 1, y, z), (x, y, z + 1), (x, y, z - 1), (x, y + 1, z), (x, y - 1, z)):
+                if n in bad:
+                    bad.discard(n)
+                    group.add(n)
+                    q.append(n)
+        out.append((len(group), seed))
+    return sorted(out, reverse=True)
+
+
+def breath(w, reached, limit=10):
+    """Самый долгий путь под водой (в клетках) до места, где можно вдохнуть: голова над водой, пузыри или суша рядом."""
+    sub = {c for c in reached if w.kind(*c) & SWIM}
+    dist = {}
+    q = deque()
+    for (x, y, z) in sub:
+        s = w.block(x, y + 1, z)
+        if not is_water(s) or current(w.block(x, y, z)) > 0:
+            dist[(x, y, z)] = 0
+            q.append((x, y, z))
+        elif any(not w.kind(*n) & SWIM for n in w.moves(x, y, z)):
+            dist[(x, y, z)] = 1   # шаг из воды на сушу
+            q.append((x, y, z))
+    while q:
+        x, y, z = q.popleft()
+        for n in ((x + 1, y, z), (x - 1, y, z), (x, y, z + 1), (x, y, z - 1), (x, y + 1, z), (x, y - 1, z)):
+            if n in sub and n not in dist:
+                dist[n] = dist[(x, y, z)] + 1
+                q.append(n)
+    worst = max(((d, c) for c, d in dist.items()), default=(0, None))
+    lost = [c for c in sub if c not in dist]
+    return worst, lost
 
 
 def near(reached, pos, r=1, dy=2):
@@ -100,7 +246,7 @@ def m_get(m, pt):
     return m.blocks.get(tuple(pt))
 
 
-def check_stage(m, st, species, bosses, errors):
+def check_stage(m, st, species, bosses, errors, strict=False, warns=None):
     m_ = m
     sid = f'этап {st["n"]}'
     ids = {f'pack:{p["id"]}' for p in st['packs']} | {f'boss:{b["id"]}' for b in st['bosses']}
@@ -152,11 +298,13 @@ def check_stage(m, st, species, bosses, errors):
         if not g['open_when']:
             opened |= set(box_cells(g['box']))
     camp = tuple(int(v // 1) for v in st['camp'][:3])
-    w = Walker(m, opened)
+    floor_y = st['box'][1]
+    w = Walker(m, opened, floor_y)
     if not w.stand(*camp):
         errors.append(f'{sid}: на привале негде стоять {camp}')
         return
     while True:
+        w = Walker(m, opened, floor_y)
         reached = w.reach(camp, st['box'])
         before = len(done)
         for p in st['packs']:
@@ -215,10 +363,21 @@ def check_stage(m, st, species, bosses, errors):
             x, y, z, r = b['arena2']
             if not Walker(m, opened).stand(int(x // 1), int(y // 1), int(z // 1)):
                 errors.append(f'{sid}: второй зал {b["id"]}: в центре негде стоять')
+    # западни и вода — в итоговом состоянии (все преграды открыты)
+    sink = errors if strict else (warns if warns is not None else [])
+    goals = {c for c in reached if any(abs(c[0] - x) <= 1 and abs(c[2] - z) <= 1 and abs(c[1] - y) <= 1
+                                       for x, y, z in box_cells(st['rift']))} | {camp}
+    for size, at in traps(w, camp, st['box'], goals)[:6]:
+        sink.append(f'{sid}: западня — {size} кл., оттуда не вернуться к разлому и привалу (напр. {at})')
+    (worst, at), lost = breath(w, reached)
+    if worst > 10:
+        sink.append(f'{sid}: под водой {worst} кл. до вдоха (у {at}) — утонут')
+    if lost:
+        sink.append(f'{sid}: под водой без воздуха вовсе (у {min(lost)})')
     return len(reached)
 
 
-def check(maps, layout):
+def check(maps, layout, strict=(), warns=None):
     species = known_ids('mob', r'reg\("([a-z_]+)"')
     bosses = known_ids('boss', r'reg\("([a-z_]+)"')
     errors = []
@@ -232,5 +391,5 @@ def check(maps, layout):
         if not near(r, layout['lobby']['seal'], r=2):
             errors.append('преддверие: до Печати не дойти')
     for st in layout['stages']:
-        check_stage(maps[st['n']], st, species, bosses, errors)
+        check_stage(maps[st['n']], st, species, bosses, errors, st['n'] in strict, warns)
     return errors

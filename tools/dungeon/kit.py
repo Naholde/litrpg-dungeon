@@ -26,11 +26,12 @@ PASSABLE = ('air', 'light', 'torch', 'wall_torch', 'soul_torch', 'soul_wall_torc
             'button', 'pressure_plate', 'lever', 'rail', 'ladder', 'vine', 'sign', 'banner', 'cobweb', 'chain', 'flower',
             'fern', 'short_grass', 'tall_grass', 'dead_bush', 'mushroom', 'sapling', 'glow_lichen', 'sculk_vein',
             'moss_carpet', 'pink_petals', 'tripwire', 'string', 'snow', 'water', 'lantern', 'roots', 'sprouts',
-            'hanging_roots', 'spore_blossom', 'small_dripleaf', 'big_dripleaf_stem', 'rift')
+            'hanging_roots', 'spore_blossom', 'small_dripleaf', 'big_dripleaf_stem', 'rift', 'bubble_column')
 # Похожи на проходимые по имени, но твёрдые.
 SOLID_EXCEPT = ('sea_lantern', 'redstone_lamp', 'jack_o_lantern', 'mushroom_block', 'brown_mushroom_block',
                 'red_mushroom_block', 'mushroom_stem', 'grass_block', 'chain_command_block', 'snow_block',
-                'mangrove_roots', 'muddy_mangrove_roots', 'flowering_azalea', 'flower_pot', 'powder_snow')
+                'mangrove_roots', 'muddy_mangrove_roots', 'flowering_azalea', 'flower_pot', 'powder_snow',
+                'divine_cache')
 
 
 def h3(x, y, z, seed=0):
@@ -85,6 +86,78 @@ def standable(s):
     return 'lava' not in b and 'magma' not in b
 
 
+# ---------------- вертикаль: общие правила (их же использует check.py) ----------------
+WATER = 'minecraft:water[level=0]'
+DIRV = {'east': (1, 0), 'west': (-1, 0), 'south': (0, 1), 'north': (0, -1)}
+OPPOSITE = {'east': 'west', 'west': 'east', 'south': 'north', 'north': 'south'}
+# Прыжок с разбега: подъём dy → наибольший разрыв (пустых клеток между краями). Выше чем на 1 не запрыгнуть.
+JUMPS = {1: 2, 0: 3, -1: 3, -2: 3, -3: 3}
+# Падение на твёрдое без серьёзного урона (урон с 4-го блока: 1–2 единицы из 20, то есть 5–10% здоровья).
+# В воду и на лестницу/лозу — с любой высоты.
+MAX_DROP = 5
+
+
+def climbable(s):
+    """По блоку лезут вверх и вниз (лестница, лозы, строительные леса)."""
+    if s is None:
+        return False
+    b = base(s)
+    return b in ('ladder', 'vine', 'scaffolding') or b.startswith(('twisting_vines', 'weeping_vines', 'cave_vines'))
+
+
+def is_water(s):
+    return s is not None and base(s) in ('water', 'bubble_column')
+
+
+def current(s):
+    """Течение пузырей: +1 — несёт вверх (песок душ), -1 — тянет вниз (магма), 0 — нет."""
+    if s is None or base(s) != 'bubble_column':
+        return 0
+    return -1 if 'drag=true' in s else 1
+
+
+def jump_ok(a, b):
+    """Можно ли перейти или перепрыгнуть с клетки ног a на клетку ног b (по прямой вдоль оси)."""
+    dx, dy, dz = b[0] - a[0], b[1] - a[1], b[2] - a[2]
+    if dx and dz:
+        return False
+    dist = abs(dx) + abs(dz)
+    if dist == 0:
+        return False
+    if dist == 1:
+        return dy <= 1
+    return dy in JUMPS and dist - 1 <= JUMPS[dy]
+
+
+def _face(dx, dz):
+    for k, v in DIRV.items():
+        if v == (dx, dz):
+            return k
+    raise ValueError((dx, dz))
+
+
+def _axis(block, axis='y'):
+    """Свойство оси — только у столбовых блоков (брёвна, колонны, базальт)."""
+    if block and base(state(block)).endswith(('log', 'pillar', 'basalt', '_wood', '_stem', 'hyphae', 'bone_block', 'chain')):
+        return {'axis': axis}
+    return {}
+
+
+def _joinable(b):
+    if 'fence' in b and 'gate' not in b:
+        return 'nether' if b.startswith('nether') else 'fence'
+    if b == 'iron_bars' or b.endswith('glass_pane'):
+        return 'pane'
+    if b.endswith('_wall') and not any(k in b for k in ('torch', 'sign', 'banner', 'head', 'skull', 'fan')):
+        return 'wall'
+    return None
+
+
+def _full(b):
+    return not any(k in b for k in ('slab', 'stairs', 'fence', 'wall', 'pane', 'bars', 'door', 'lantern', 'chain',
+                                    'carpet', 'button', 'plate', 'candle', 'torch', 'ladder', 'vine', 'glass'))
+
+
 class Theme:
     """Материалы места: стены, пол, потолок. Палитра — [(блок, вес)] или один блок."""
 
@@ -119,6 +192,9 @@ class Map:
         self.nowall = set()    # пустоты без оболочки снизу (пропасти)
         self.themes = {}
         self.seed = seed
+        self.keep = set()      # столбцы (x, z) построек вертикали — отделка их не трогает
+        self._post = []        # постройки, ждущие оболочки
+        self._shelled = False
 
     # ---------------- блоки ----------------
 
@@ -252,6 +328,10 @@ class Map:
                         else:
                             pal = t.wall
                         blocks[p] = Theme.pick(pal, p[0], p[1], p[2], t.seed)
+        self._shelled = True
+        posts, self._post = self._post, []
+        for fn in posts:
+            fn()
 
     # ---------------- отделка ----------------
 
@@ -304,6 +384,8 @@ class Map:
                 continue
             if x % spacing or z % spacing:
                 continue
+            if (x, z) in self.keep:
+                continue
             if not (self.solid(x, y - 1, z) and (x, y - 1, z) not in self.open or (x, y - 1, z) in self.blocks and self.solid(x, y - 1, z)):
                 continue
             ly = y + height
@@ -317,6 +399,8 @@ class Map:
             if themes and t not in themes:
                 continue
             if (x + offset) % spacing or (z + offset) % spacing:
+                continue
+            if (x, z) in self.keep:
                 continue
             if (x, y - 1, z) in self.open:
                 continue
@@ -332,6 +416,422 @@ class Map:
     def sign(self, x, y, z, facing, wood='dark_oak'):
         """Табличка на стене (текст ставит игра из схемы — в map.bin только блок)."""
         self.set(x, y, z, f'{wood}_wall_sign', facing=facing, waterlogged=False)
+
+    # ---------------- вертикаль (обновление 14) ----------------
+    # Всё, что ставит блоки поверх стен (лестницы, мосты, вода), откладывается до оболочки (`later`) — пустоты
+    # вырезаются сразу. Клетки построек попадают в `keep`: отделка (dress) и фонари их не трогают.
+
+    def later(self, fn):
+        """Выполнить постройку после оболочки (или сразу, если оболочка уже стоит)."""
+        if self._shelled:
+            fn()
+        else:
+            self._post.append(fn)
+
+    def reserve(self, x1, z1, x2, z2, pad=1):
+        """Столбцы (x, z), где отделке нечего делать."""
+        for x in range(min(x1, x2) - pad, max(x1, x2) + pad + 1):
+            for z in range(min(z1, z2) - pad, max(z1, z2) + pad + 1):
+                self.keep.add((x, z))
+
+    def material(self, x, y, z, part='wall'):
+        """Блок темы ближайшей пустоты — чем достроить опору, чтобы она не выделялась."""
+        for r in (1, 2, 3):
+            for dx in range(-r, r + 1):
+                for dy in range(-r, r + 1):
+                    for dz in range(-r, r + 1):
+                        t = self.open.get((x + dx, y + dy, z + dz))
+                        if t:
+                            th = self.themes[t]
+                            return Theme.pick(getattr(th, part), x, y, z, th.seed)
+        return state('stone_bricks')
+
+    def _support(self, x, y, z, block=None):
+        if not self.solid(x, y, z):
+            self.blocks[(x, y, z)] = state(block) if block else self.material(x, y, z)
+
+    def shaft(self, x1, z1, x2, z2, y1, y2, theme, round_=False):
+        """Вертикальная шахта: пустота от уровня ног y1 до y2 включительно (round_ — круглая, по вписанному кругу)."""
+        if round_:
+            cx, cz = (x1 + x2) / 2, (z1 + z2) / 2
+            self.round_room(cx, cz, min(x2 - x1, z2 - z1) / 2 + 0.3, y1, y2 - y1 + 1, theme)
+        else:
+            self.carve(x1, y1, z1, x2, y2, z2, theme)
+
+    def ladder(self, x, z, y1, y2, facing, support=None, theme=None):
+        """Приставная лестница в клетке (x, z) от y1 до y2; facing — куда она смотрит (от стены к игроку).
+        Наверху лестница кончается на блок ниже пола выхода: с последней перекладины шагают вперёд-вверх.
+        Стена за лестницей достраивается (support или материал темы), если там пусто."""
+        dx, dz = DIRV[facing]
+        if theme:
+            self.carve(x, y1, z, x, y2 + 1, z, theme)
+        self.reserve(x, z, x, z)
+
+        def build():
+            for y in range(y1, y2 + 1):
+                self._support(x - dx, y, z - dz, support)
+                self.set(x, y, z, 'ladder', facing=facing, waterlogged=False)
+        self.later(build)
+
+    def vines(self, x, z, y1, y2, kind='vine', facing=None, berries=0.35, support=None, theme=None):
+        """Лоза, по которой лезут: kind='vine' — по стене (facing — от стены), 'cave' — светящиеся ягоды
+        свисают с потолка, 'weeping' — плачущие (с потолка), 'twisting' — вьющиеся (растут от пола).
+        Опора (стена, потолок или пол) достраивается. Растения в возрасте 25 — сами не растут."""
+        if theme:
+            self.carve(x, y1, z, x, y2 + 1, z, theme)
+        self.reserve(x, z, x, z)
+
+        def build():
+            if kind == 'vine':
+                dx, dz = DIRV[facing]
+                face = OPPOSITE[facing]
+                for y in range(y1, y2 + 1):
+                    self._support(x - dx, y, z - dz, support)
+                    self.set(x, y, z, 'vine', **{d: d == face for d in ('east', 'north', 'south', 'west')}, up=False)
+            elif kind in ('cave', 'weeping'):
+                self._support(x, y2 + 1, z, support)
+                for y in range(y1, y2 + 1):
+                    tip = y == y1
+                    if kind == 'cave':
+                        b = h3(x, y, z, 77) < berries
+                        if tip:
+                            self.set(x, y, z, 'cave_vines', age=25, berries=b)
+                        else:
+                            self.set(x, y, z, 'cave_vines_plant', berries=b)
+                    else:
+                        if tip:
+                            self.set(x, y, z, 'weeping_vines', age=25)
+                        else:
+                            self.set(x, y, z, 'weeping_vines_plant')
+            elif kind == 'twisting':
+                self._support(x, y1 - 1, z, support)
+                for y in range(y1, y2 + 1):
+                    if y == y2:
+                        self.set(x, y, z, 'twisting_vines', age=25)
+                    else:
+                        self.set(x, y, z, 'twisting_vines_plant')
+            else:
+                raise ValueError(f'лоза: неизвестный вид {kind}')
+        self.later(build)
+
+    def spiral(self, cx, cz, y1, y2, r, theme, step='stone_bricks', core='polished_andesite', r_core=1.2,
+               per_turn=12, cw=False, start=0.0, rail=None, carve=True, underside=None):
+        """Винтовая лестница вокруг столба (центр cx, cz — середина клетки: целое + 0.5).
+        Ступени — полные блоки: на плитах проверка проходимости врёт на полблока. За оборот подъём per_turn блоков
+        (≥ 5: над головой — ступень следующего витка). Начало — у пола y1 под углом start (рад, 0 — на восток),
+        верхняя ступень — на y2-1 (ноги на y2). rail — перила по внешнему краю (если r ≥ 4).
+        underside — блок «изнанки» (ступени вверх ногами под каждой ступенью) для красоты снизу.
+        Возвращает {'top': (x, z) — клетка верхней ступени у внешнего края, 'angle': угол выхода}."""
+        assert per_turn >= (6 if underside else 5), 'над головой должно быть место'
+        if carve:
+            self.round_room(cx, cz, r + 0.5, y1, y2 - y1 + 4, theme)
+        rr = r + 0.5
+        cells = []
+        for x in range(int(cx - rr) - 1, int(cx + rr) + 2):
+            for z in range(int(cz - rr) - 1, int(cz + rr) + 2):
+                d = math.hypot(x + 0.5 - cx, z + 0.5 - cz)
+                if d <= rr:
+                    cells.append((x, z, d))
+        self.reserve(int(cx - rr), int(cz - rr), int(cx + rr), int(cz + rr), pad=0)
+        sign = -1 if cw else 1
+        turns = (y2 - y1) / per_turn
+        end = start + sign * turns * 2 * math.pi
+
+        def frac(x, z):
+            a = math.atan2(z + 0.5 - cz, x + 0.5 - cx)
+            return ((sign * (a - start)) % (2 * math.pi)) / (2 * math.pi)
+
+        def build():
+            for x, z, d in cells:
+                if d <= r_core:
+                    for y in range(y1 - 1, y2 + 4):
+                        if (x, y, z) in self.open:
+                            self.set(x, y, z, core)
+                    continue
+                f = frac(x, z)
+                t = 0
+                while True:
+                    h = y1 - 1 + int((t + f) * per_turn)
+                    t += 1
+                    if h < y1:
+                        continue
+                    if h > y2 - 1:
+                        break
+                    self.set(x, h, z, step)
+                    if underside and (x, h - 1, z) in self.open and not self.solid(x, h - 1, z):
+                        # ступень вверх ногами, «смотрит» на столб
+                        ddx, ddz = cx - (x + 0.5), cz - (z + 0.5)
+                        fc = ('east' if ddx > 0 else 'west') if abs(ddx) >= abs(ddz) else ('south' if ddz > 0 else 'north')
+                        self.stairs(x, h - 1, z, underside, fc, half='top')
+                    if rail and r >= 4 and d > r - 0.5 and y1 + 1 < h < y2 - 2:   # у входа и выхода — без перил
+                        self.set(x, h + 1, z, rail)
+            if rail:
+                self.connect([(x, y, z) for x, z, d in cells for y in range(y1, y2 + 1)])
+        self.later(build)
+        tx = int(math.floor(cx + math.cos(end) * (r - 0.5)))
+        tz = int(math.floor(cz + math.sin(end) * (r - 0.5)))
+        return {'top': (tx, tz), 'angle': end}
+
+    def bridge(self, a, b, y, deck, width=3, rail=None, posts=None, post_every=6, lanterns=True, sag=0, gaps=(),
+               theme=None, under=None):
+        """Мост по прямой a → b ((x, z), концы включительно) на уровне ног y: настил на y-1, перила rail по краям,
+        столбы posts (с фонарём) через post_every клеток, провис sag (середина ниже на sag блоков, перепад ≤ 1),
+        gaps — номера клеток вдоль моста без настила (обрушенный мост: разрыв ≤ 3 — перепрыгнуть).
+        theme — вырезать над мостом пустоту (если моста ещё нет в пустоте). under — балки снизу (каждая 3-я клетка)."""
+        (ax, az), (bx, bz) = a, b
+        n = max(abs(bx - ax), abs(bz - az), 1)
+        px, pz = (0, 1) if abs(bx - ax) >= abs(bz - az) else (1, 0)
+        lo = -(width // 2)
+        hi = width - width // 2 - 1
+        path = []
+        for i in range(n + 1):
+            t = i / n
+            x, z = round(ax + (bx - ax) * t), round(az + (bz - az) * t)
+            yy = y - int(round(sag * math.sin(math.pi * t)))
+            path.append((i, x, z, yy))
+        for (_, _, _, y0), (_, _, _, y1_) in zip(path, path[1:]):
+            assert abs(y1_ - y0) <= 1, 'провис слишком крутой для такой длины'
+        run, longest = 0, 0
+        for i, *_ in path:
+            run = run + 1 if i in gaps else 0
+            longest = max(longest, run)
+        assert longest <= 3, 'разрыв больше трёх клеток не перепрыгнуть'
+        for i, x, z, yy in path:
+            if theme:
+                for k in range(lo - 1, hi + 2):
+                    for dy in range(3):
+                        self.open.setdefault((x + px * k, yy + dy, z + pz * k), theme.name)
+            self.keep.add((x, z))
+            for k in range(lo - 2, hi + 3):
+                self.keep.add((x + px * k, z + pz * k))
+
+        def build():
+            rails = []
+            for i, x, z, yy in path:
+                if i in gaps:
+                    continue
+                for k in range(lo, hi + 1):
+                    self.set(x + px * k, yy - 1, z + pz * k, deck)
+                if under and i % 3 == 0:
+                    for k in range(lo, hi + 1):
+                        if not self.solid(x + px * k, yy - 2, z + pz * k):
+                            self.set(x + px * k, yy - 2, z + pz * k, under, **_axis(under, 'z' if px else 'x'))
+                for k in (lo - 1, hi + 1):
+                    sx, sz = x + px * k, z + pz * k
+                    post = posts and post_every and i % post_every == 0
+                    if post:
+                        self.set(sx, yy - 1, sz, posts, **_axis(posts))
+                        self.set(sx, yy, sz, posts, **_axis(posts))
+                        if lanterns:
+                            self.lantern(sx, yy + 1, sz, soul=False)
+                    elif rail:
+                        self.set(sx, yy - 1, sz, deck)
+                        self.set(sx, yy, sz, rail)
+                        rails.append((sx, yy, sz))
+            self.connect(rails)
+        self.later(build)
+        return path
+
+    def ledge(self, points, y, block, width=2, corbel=None, theme=None):
+        """Уступ вдоль стены по ломаной [(x, z), …] на уровне ног y. corbel — ступени вверх ногами под открытым краем."""
+        for a, b in zip(points, points[1:]):
+            path = self.bridge(a, b, y, block, width=width, theme=theme)
+            if not corbel:
+                continue
+            (ax, az), (bx, bz) = a, b
+            px, pz = (0, 1) if abs(bx - ax) >= abs(bz - az) else (1, 0)
+            lo, hi = -(width // 2), width - width // 2 - 1
+
+            def build(path=path, px=px, pz=pz, lo=lo, hi=hi):
+                for i, x, z, yy in path:
+                    if i % 2:
+                        continue
+                    for k, sgn in ((lo, -1), (hi, 1)):
+                        if self.solid(x + px * (k + sgn), yy - 1, z + pz * (k + sgn)):
+                            continue  # этот край у стены
+                        cx_, cz_ = x + px * k, z + pz * k
+                        if not self.solid(cx_, yy - 2, cz_):
+                            self.stairs(cx_, yy - 2, cz_, corbel, _face(-sgn * px, -sgn * pz), half='top')
+            self.later(build)
+
+    def platform(self, cx, cz, y, r, deck, rim=None, support=None, support_block=None, chains=False, round_=True,
+                 theme=None):
+        """Площадка на уровне ног y (центр cx, cz; радиус r): настил на y-1, rim — кайма другим блоком.
+        support='pillar' — столб под серединой до опоры, chains — цепи с краёв к потолку."""
+        cells = []
+        for x in range(int(cx - r) - 1, int(cx + r) + 2):
+            for z in range(int(cz - r) - 1, int(cz + r) + 2):
+                d = math.hypot(x + 0.5 - cx, z + 0.5 - cz) if round_ else max(abs(x + 0.5 - cx), abs(z + 0.5 - cz))
+                if d <= r:
+                    cells.append((x, z, d))
+        if theme:
+            for x, z, _ in cells:
+                for dy in range(3):
+                    self.open.setdefault((x, y + dy, z), theme.name)
+        self.reserve(int(cx - r), int(cz - r), int(cx + r), int(cz + r))
+
+        def build():
+            for x, z, d in cells:
+                self.set(x, y - 1, z, rim if rim and d > r - 1 else deck)
+            if support == 'pillar':
+                pr = max(0.8, r * 0.3)
+                blk = support_block or deck
+                for x, z, d in cells:
+                    if d > pr:
+                        continue
+                    for yy in range(y - 2, y - 62, -1):
+                        if self.solid(x, yy, z) or (x, yy, z) not in self.open:
+                            break
+                        self.set(x, yy, z, blk, **_axis(blk))
+            if chains:
+                for x, z, d in cells:
+                    if d <= r - 1 or d > r or (x + z) % 3:
+                        continue
+                    yy = y
+                    while (x, yy, z) in self.open and not self.solid(x, yy, z) and yy - y < 40:
+                        yy += 1
+                    if yy - y < 40:
+                        for k in range(y + 2, yy):
+                            self.set(x, k, z, 'chain', axis='y', waterlogged=False)
+        self.later(build)
+
+    def parkour(self, pads, block, pillar=None, theme=None, size=1):
+        """Паркур: pads — [(x, y, z)] клетки, где стоят ноги; под каждой — блок block (size×size), под ним
+        столб pillar до опоры. Соседние площадки проверяются правилами прыжка (`jump_ok`) — иначе ошибка сразу."""
+        for a, b in zip(pads, pads[1:]):
+            if not jump_ok(a, b):
+                raise ValueError(f'паркур: с {a} на {b} не допрыгнуть')
+        for x, y, z in pads:
+            if theme:
+                for dx in range(size):
+                    for dz in range(size):
+                        for dy in range(3):
+                            self.open.setdefault((x + dx, y + dy, z + dz), theme.name)
+            self.reserve(x, z, x + size - 1, z + size - 1)
+
+        def build():
+            for x, y, z in pads:
+                for dx in range(size):
+                    for dz in range(size):
+                        self.set(x + dx, y - 1, z + dz, block)
+                        if pillar:
+                            for yy in range(y - 2, y - 60, -1):
+                                if self.solid(x + dx, yy, z + dz) or (x + dx, yy, z + dz) not in self.open:
+                                    break
+                                self.set(x + dx, yy, z + dz, pillar, **_axis(pillar))
+        self.later(build)
+
+    def pool(self, x1, z1, x2, z2, y_surface, depth, theme):
+        """Бассейн, утопленный в пол: вода от y_surface-depth+1 до y_surface (поверхность вровень с блоками пола —
+        из воды выходят шагом на берег). Проверяется, что воде некуда течь."""
+        y0 = y_surface - depth + 1
+        self.carve(x1, y0, z1, x2, y_surface, z2, theme)
+        cells = [(x, y, z) for x in range(min(x1, x2), max(x1, x2) + 1) for y in range(y0, y_surface + 1)
+                 for z in range(min(z1, z2), max(z1, z2) + 1)]
+        self.reserve(x1, z1, x2, z2)
+
+        def build():
+            for c in cells:
+                self.blocks[c] = WATER
+            self.check_water(cells)
+        self.later(build)
+
+    def dropper(self, x1, z1, x2, z2, y_top, y_bottom, theme, depth=3, pad=1):
+        """Шахта-спуск («дропер»): дыра в полу верхнего зала (ноги y_top) — прыжок в бассейн нижнего зала
+        (ноги y_bottom, поверхность воды y_bottom-1, глубина depth). Бассейн шире дыры на pad: при падении сносит.
+        Обратно так не подняться — подъём строится отдельно."""
+        assert y_top - y_bottom >= 4, 'это не шахта, а ступенька'
+        self.carve(x1, y_bottom, z1, x2, y_top + 2, z2, theme)
+        self.pool(x1 - pad, z1 - pad, x2 + pad, z2 + pad, y_bottom - 1, depth, theme)
+        self.reserve(x1, z1, x2, z2, pad=pad + 1)
+
+    def bubble_lift(self, x, z, y_floor, y_top, entry, exit_, theme, glass='glass', basin='prismarine_bricks'):
+        """Пузырьковый подъём (песок душ под водой): в нижнем зале (ноги y_floor) с той стороны, куда смотрит entry,
+        — бассейн глубиной 2; нырнуть, проплыть под стеклом в колонну 1×1 — вода несёт вверх до y_top
+        (верхний блок воды). Выход — на пол y_top+1 со стороны exit_. Стекло — где колонна идёт сквозь зал.
+        Вниз по колонне не спуститься (течение выталкивает)."""
+        ex, ez = DIRV[entry]
+        ox, oz = DIRV[exit_]
+        yb = y_floor
+        e1, e2 = (x + ex, z + ez), (x + 2 * ex, z + 2 * ez)
+        self.carve(x, yb - 2, z, x, y_top + 2, z, theme)
+        for (px, pz) in (e1, e2):
+            self.carve(px, yb - 2, pz, px, yb - 1, pz, theme)
+        self.carve(x + ox, y_top + 1, z + oz, x + ox, y_top + 2, z + oz, theme)
+        self.reserve(min(x, e2[0]), min(z, e2[1]), max(x, e2[0]), max(z, e2[1]))
+        self.reserve(x + ox, z + oz, x + ox, z + oz)
+
+        def build():
+            self.set(x, yb - 3, z, 'soul_sand')
+            for px, pz in (e1, e2):
+                self._support(px, yb - 3, pz, basin)
+            water = []
+            for y in range(yb - 2, y_top + 1):
+                self.set(x, y, z, 'bubble_column', drag=False)
+                water.append((x, y, z))
+            for px, pz in (e1, e2):
+                for y in (yb - 2, yb - 1):
+                    self.blocks[(px, y, pz)] = WATER
+                    water.append((px, y, pz))
+            # стенки колонны: сквозь открытый зал — стекло, в толще — материал
+            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                for y in range(yb - 2, y_top + 1):
+                    c = (x + dx, y, z + dz)
+                    if c in water:
+                        continue
+                    if (x + dx, z + dz) == (x + ox, z + oz) and y == y_top:
+                        self._support(*c, basin)
+                        continue
+                    if c in self.open and not self.solid(*c):
+                        self.set(*c, glass if y >= yb else basin)
+                    else:
+                        self._support(*c, basin)
+            # бортик бассейна: под водой у соседей — облицовка
+            for px, pz in (e1, e2):
+                for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    for y in (yb - 2, yb - 1):
+                        c = (px + dx, y, pz + dz)
+                        if c not in water:
+                            self._support(*c, basin)
+            self.set(e1[0], yb, e1[1], glass)
+            self.check_water(water)
+        self.later(build)
+
+    def check_water(self, cells):
+        """Вода стоит, только если ей некуда течь: по бокам и снизу — вода или твёрдое."""
+        cs = set(cells)
+        for (x, y, z) in cells:
+            for c in ((x + 1, y, z), (x - 1, y, z), (x, y, z + 1), (x, y, z - 1), (x, y - 1, z)):
+                if c in cs or is_water(self.blocks.get(c)):
+                    continue
+                if not self.solid(*c):
+                    raise ValueError(f'вода в {x, y, z} утечёт в {c}')
+
+    def connect(self, cells):
+        """Соединить заборы, стены, решётки и стёкла-панели с соседями (генератор их форму не пересчитывает)."""
+        for (x, y, z) in cells:
+            s = self.blocks.get((x, y, z))
+            if not s:
+                continue
+            b = base(s)
+            kind = _joinable(b)
+            if not kind:
+                continue
+            props = {}
+            for d, (dx, dz) in DIRV.items():
+                n = self.blocks.get((x + dx, y, z + dz))
+                ok = n is not None and (_joinable(base(n)) == kind or (not passable(n) and _full(base(n))))
+                if kind == 'wall':
+                    props[d] = 'low' if ok else 'none'
+                else:
+                    props[d] = ok
+            if kind == 'wall':
+                ew = props['east'] != 'none' and props['west'] != 'none'
+                ns = props['north'] != 'none' and props['south'] != 'none'
+                one = sum(v != 'none' for v in props.values())
+                props['up'] = not (one == 2 and (ew or ns))
+            props['waterlogged'] = False
+            self.blocks[(x, y, z)] = state(s.split('[')[0], **props)
 
     # ---------------- выгрузка ----------------
 
@@ -465,6 +965,12 @@ class Stage:
             m['num'] = {k: float(v) for k, v in num.items()}
         self.mechs.append(m)
         return m['id']
+
+    def climb_trap(self, mid, box, period=3.0, warn=1.0, share=0.15, layer=2, sound=0, offset=0.0):
+        """Ловушка на подъёме (шахта с лестницей, лозой, пузырями): бьёт ярусами по layer блоков через один,
+        по очереди — лезть в такт, пережидая вспышку яруса над головой (pattern 3 в Mechanisms.hazard)."""
+        return self.mech(mid, 'hazard', area=box, period=period, warn=warn, share=share, pattern=3, stripe=layer,
+                         sound=sound, offset=offset)
 
     def cache(self, cid, at, tier):
         self.caches.append({'id': f's{self.n}_{cid}', 'at': list(at), 'tier': tier})

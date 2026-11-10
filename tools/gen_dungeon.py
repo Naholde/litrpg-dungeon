@@ -2,7 +2,10 @@
 Генератор подземелья: строит преддверие и этапы, проверяет схему и проходимость, пишет
 src/main/resources/litrpg_map/{map.bin,layout.json}. Если проверка не прошла — файлы не пишутся.
 
-    python tools/gen_dungeon.py [--preview build/preview/map]
+    python tools/gen_dungeon.py [--preview build/preview/map] [--proving]
+
+--proving — вставить в map.bin полигон вертикали (tools/dungeon/proving.py, x≈7168) для осмотра в dev-клиенте.
+Только для проверки: перед коммитом перезапустить без флага (карта вернётся байт в байт).
 
 После изменения карты на сервере мир подземелья пересоздаётся сам (версия карты — хеш map.bin).
 """
@@ -22,6 +25,7 @@ import stage2  # noqa: E402
 import stage3  # noqa: E402
 import stage4  # noqa: E402
 import stage5  # noqa: E402
+import proving  # noqa: E402
 
 STAGES = {}
 STAGES[1] = stage1
@@ -34,6 +38,7 @@ STAGES[5] = stage5
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--preview', help='папка для картинок «вид сверху»')
+    ap.add_argument('--proving', action='store_true', help='добавить полигон вертикали (только для dev-проверки)')
     args = ap.parse_args()
     t0 = time.time()
     lm, lobby_json = lobby.build()
@@ -45,13 +50,22 @@ def main():
         maps[n] = m
         stages.append(s)
     layout = {'version': 1, 'lobby': lobby_json, 'stages': [s.json() for s in stages]}
-    errors = check.check(maps, json.loads(json.dumps(layout)))
+    strict = {n for n, mod in STAGES.items() if getattr(mod, 'STRICT', False)}
+    warns = []
+    errors = check.check(maps, json.loads(json.dumps(layout)), strict, warns)
+    for wmsg in warns:
+        print('  ! ' + wmsg)
     if errors:
         print('Карта НЕ записана — ошибки:')
         for e in errors:
             print('  ✗', e)
         sys.exit(1)
-    pal, secs = kit.write_map(list(maps.values()), os.path.join(kit.ROOT, 'map.bin'))
+    parts = list(maps.values())
+    if args.proving:
+        pm, _, _ = proving.build()
+        parts.append(pm)
+        print('  + полигон вертикали (не для коммита!)')
+    pal, secs = kit.write_map(parts, os.path.join(kit.ROOT, 'map.bin'))
     kit.write_layout(lobby_json, stages, os.path.join(kit.ROOT, 'layout.json'))
     size = os.path.getsize(os.path.join(kit.ROOT, 'map.bin'))
     print(f'Карта: {len(maps)} частей, палитра {pal}, секций {secs}, {size // 1024} КБ, {time.time() - t0:.1f} с. Всё в порядке.')

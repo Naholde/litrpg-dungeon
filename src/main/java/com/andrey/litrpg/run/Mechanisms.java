@@ -277,7 +277,8 @@ public final class Mechanisms {
 
     /**
      * Ловушка: каждые {@code period} с (со сдвигом {@code offset}) область вспыхивает на {@code warn} с и бьёт тех, кто внутри,
-     * долей {@code share} здоровья. {@code pattern}: 0 — вся область, 1/2 — полосы вдоль x/z (через одну, по очереди).
+     * долей {@code share} здоровья. {@code pattern}: 0 — вся область, 1/2 — полосы вдоль x/z (через одну, по очереди),
+     * 3 — ярусы по высоте (шахты с лестницей или лозой).
      */
     private static void hazard(ServerLevel level, Layout.Mech m, List<ServerPlayer> alive, long now) {
         if (m.area().isEmpty()) return;
@@ -287,21 +288,7 @@ public final class Mechanisms {
         int period = (int) Math.round(m.n("period", 4) * 20), warn = (int) Math.round(m.n("warn", 1.2) * 20);
         long t = now - Math.round(m.n("offset", 0) * 20);
         if (Math.floorMod(t, period) != 0) return;
-        int pattern = (int) m.n("pattern", 0);
-        long cycle = Math.floorDiv(t, period);
-        List<Layout.Box> parts = new ArrayList<>();
-        if (pattern == 0) {
-            parts.add(b);
-        } else {
-            boolean alongX = pattern == 1;
-            int from = alongX ? b.z1() : b.x1(), to = alongX ? b.z2() : b.x2();
-            int w = (int) m.n("stripe", 1);
-            for (int k = from, i = 0; k <= to; k += w, i++) {
-                if ((i + cycle) % 2 != 0) continue;
-                int k2 = Math.min(to, k + w - 1);
-                parts.add(alongX ? new Layout.Box(b.x1(), b.y1(), k, b.x2(), b.y2(), k2) : new Layout.Box(k, b.y1(), b.z1(), k2, b.y2(), b.z2()));
-            }
-        }
+        List<Layout.Box> parts = hazardParts(b, (int) m.n("pattern", 0), (int) m.n("stripe", 1), Math.floorDiv(t, period));
         for (Layout.Box part : parts) {
             boolean xLong = part.x2() - part.x1() >= part.z2() - part.z1();
             double y = part.y1() + 0.05;
@@ -325,6 +312,31 @@ public final class Mechanisms {
                 }, SoundSource.BLOCKS, 0.7f, 1.2f);
             }
         });
+    }
+
+    /**
+     * Какие части области бьют в этот цикл: 0 — вся; 1/2 — полосы вдоль x/z через одну; 3 — ярусы по высоте через один
+     * (ловушка подъёма: шахта бьёт поочерёдно, лезут в такт). Ширина полосы/яруса — {@code stripe}.
+     */
+    static List<Layout.Box> hazardParts(Layout.Box b, int pattern, int stripe, long cycle) {
+        List<Layout.Box> parts = new ArrayList<>();
+        if (pattern == 0) {
+            parts.add(b);
+            return parts;
+        }
+        int w = Math.max(1, stripe);
+        int from = switch (pattern) { case 1 -> b.z1(); case 3 -> b.y1(); default -> b.x1(); };
+        int to = switch (pattern) { case 1 -> b.z2(); case 3 -> b.y2(); default -> b.x2(); };
+        for (int k = from, i = 0; k <= to; k += w, i++) {
+            if ((i + cycle) % 2 != 0) continue;
+            int k2 = Math.min(to, k + w - 1);
+            parts.add(switch (pattern) {
+                case 1 -> new Layout.Box(b.x1(), b.y1(), k, b.x2(), b.y2(), k2);
+                case 3 -> new Layout.Box(b.x1(), k, b.z1(), b.x2(), k2, b.z2());
+                default -> new Layout.Box(k, b.y1(), b.z1(), k2, b.y2(), b.z2());
+            });
+        }
+        return parts;
     }
 
     // ------------------------------------------------------------------ сброс

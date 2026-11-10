@@ -161,7 +161,7 @@ def dress(m, stage, n):
         return False
 
     for (x, y, z) in sorted(floors):
-        if _blocked(x, z, pts, boxes) or near_breakable(x, y, z):
+        if (x, z) in m.keep or _blocked(x, z, pts, boxes) or near_breakable(x, y, z):
             continue
         walls = [(dx, dz, f) for dx, dz, f in DIRS if (x + dx, y, z + dz) not in opn and m.solid(x + dx, y, z + dz)]
         h = height(x, y, z)

@@ -89,6 +89,8 @@ public final class RunEvents {
     private static void onStarted(MinecraftServer server) {
         GameRules r = server.getGameRules();
         r.getRule(GameRules.RULE_DOFIRETICK).set(false, server);
+        // Карта не меняется сама: лозы-подъёмы не расползаются, медь не зеленеет, лёд не тает (обновление 14).
+        r.getRule(GameRules.RULE_RANDOMTICKING).set(0, server);
         r.getRule(GameRules.RULE_MOBGRIEFING).set(false, server);
         r.getRule(GameRules.RULE_DOMOBSPAWNING).set(false, server);
         r.getRule(GameRules.RULE_DAYLIGHT).set(false, server);
