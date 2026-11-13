@@ -446,7 +446,8 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         pressureTold = false;
         partySize = Math.max(1, Math.min(com.andrey.litrpg.party.Party.MAX, fixedParty > 0 ? fixedParty : players.size()));
         double max = p("hp_units") * BossDamage.unit(bossLevel()) * Balance.get(Balance.BOSSES).common().hpScale(partySize)
-                * BossDamage.earlyHp(bossLevel());
+                * BossDamage.earlyHp(bossLevel())
+                * com.andrey.litrpg.run.Difficulty.active(getServer()).hp();   // обычная/героическая
         var hp = getAttribute(Attributes.MAX_HEALTH);
         if (hp != null) hp.setBaseValue(max);
         setHealth((float) max);

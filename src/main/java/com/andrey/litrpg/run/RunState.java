@@ -56,6 +56,8 @@ public final class RunState extends SavedData {
     final Map<UUID, BlockPos> spirits = new HashMap<>();
     /** Наименьший отряд у Печати (для проверки в одиночку можно опустить до 1). 0 — по балансу. */
     int minPlayers;
+    /** Сложность забега: выбирается в лобби, держится до конца забега. */
+    Difficulty difficulty = Difficulty.NORMAL;
 
     public static Factory<RunState> factory() {
         return new Factory<>(RunState::new, RunState::load, null);
@@ -79,6 +81,10 @@ public final class RunState extends SavedData {
 
     public int partySize() {
         return partySize;
+    }
+
+    public Difficulty difficulty() {
+        return difficulty;
     }
 
     public int attempt() {
@@ -135,6 +141,7 @@ public final class RunState extends SavedData {
         });
         tag.put("spirits", s);
         tag.putInt("minPlayers", minPlayers);
+        tag.putString("difficulty", difficulty.id);
         return tag;
     }
 
@@ -177,6 +184,7 @@ public final class RunState extends SavedData {
             s.spirits.put(e.getUUID("id"), BlockPos.of(e.getLong("pos")));
         }
         s.minPlayers = tag.getInt("minPlayers");
+        s.difficulty = Difficulty.byId(tag.getString("difficulty"));
         return s;
     }
 

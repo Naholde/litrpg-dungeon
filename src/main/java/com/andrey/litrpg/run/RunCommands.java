@@ -25,9 +25,11 @@ public final class RunCommands {
     public static void addTo(LiteralArgumentBuilder<CommandSourceStack> root) {
         root.then(Commands.literal("run").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("status").executes(RunCommands::status))
-                .then(Commands.literal("start").executes(c -> start(c, null))
+                .then(Commands.literal("start").executes(c -> start(c, null, Difficulty.HEROIC))
                         .then(Commands.argument("players", EntityArgument.players())
-                                .executes(c -> start(c, new ArrayList<>(EntityArgument.getPlayers(c, "players"))))))
+                                .executes(c -> start(c, new ArrayList<>(EntityArgument.getPlayers(c, "players")), Difficulty.HEROIC)))
+                        .then(Commands.literal("normal").executes(c -> start(c, null, Difficulty.NORMAL)))
+                        .then(Commands.literal("heroic").executes(c -> start(c, null, Difficulty.HEROIC))))
                 .then(Commands.literal("stage").then(Commands.argument("n", IntegerArgumentType.integer(1, 6))
                         .executes(c -> {
                             if (!RunService.active(c.getSource().getServer())) {
@@ -73,7 +75,8 @@ public final class RunCommands {
                 })));
     }
 
-    private static int start(CommandContext<CommandSourceStack> c, List<ServerPlayer> players) throws CommandSyntaxException {
+    private static int start(CommandContext<CommandSourceStack> c, List<ServerPlayer> players, Difficulty difficulty)
+            throws CommandSyntaxException {
         var server = c.getSource().getServer();
         if (players == null) {
             players = new ArrayList<>();
@@ -81,7 +84,7 @@ public final class RunCommands {
             if (players.isEmpty()) players.add(c.getSource().getPlayerOrException());
         }
         if (players.size() > com.andrey.litrpg.party.Party.MAX) players = players.subList(0, com.andrey.litrpg.party.Party.MAX);
-        RunService.start(server, players);
+        RunService.start(server, players, difficulty);
         return players.size();
     }
 

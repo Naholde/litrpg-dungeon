@@ -86,7 +86,8 @@ public final class LootService {
             var prog = Balance.get(Balance.PROGRESSION);
             long xp = Math.round(prog.xpToNext(PlayerService.data(p).level()) * Balance.get(Balance.MOBS).xpPerKillShare() * rank.reward);
             if (mob instanceof com.andrey.litrpg.mob.DungeonMob && !runMob) PlayerService.addXp(p, Math.max(1, xp));
-            double find = PlayerService.breakdown(p).get(Derived.FIND);
+            double find = PlayerService.breakdown(p).get(Derived.FIND)
+                    + com.andrey.litrpg.run.Difficulty.active(p.server).lootFind();   // героическая — добыча лучше
             long coins = Math.round(g.drops().coinsPerLevel() * level * (0.8 + level % 3 * 0.1 + p.getRandom().nextDouble() * 0.4)
                     * (1 + find) * rank.reward);
             Wallet.give(p, coins);
@@ -119,7 +120,8 @@ public final class LootService {
         int level = boss.bossLevel();
         String id = boss.type().id();
         for (ServerPlayer p : boss.playersInArena()) {
-            double find = PlayerService.breakdown(p).get(Derived.FIND);
+            double find = PlayerService.breakdown(p).get(Derived.FIND)
+                    + com.andrey.litrpg.run.Difficulty.active(p.server).lootFind();   // героическая — добыча лучше
             Wallet.give(p, Math.round(g.drops().coinsPerLevel() * level * 12 * (1 + find)));
             double legendary = (FINALS.contains(id) ? 0.4 : 0.2) * (1 + find);
             double divine = DIVINE.contains(id) ? 0.03 * (1 + find) : 0;

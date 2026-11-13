@@ -11,3 +11,4 @@
 -XX:G1ReservePercent=20
 -XX:InitiatingHeapOccupancyPercent=15
 -Dlitrpg.dev=true
+-Dlitrpg.autoop=true

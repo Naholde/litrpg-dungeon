@@ -118,6 +118,10 @@ public final class DamageService {
         // 3. Жертва — игрок.
         if (victim instanceof ServerPlayer vp) {
             StatBreakdown b = PlayerService.breakdown(vp);
+            // Сложность забега: удары хранителей и монстров (и их снарядов) на обычной слабее.
+            if (attacker instanceof LivingEntity && !(attacker instanceof net.minecraft.world.entity.player.Player)) {
+                amount *= com.andrey.litrpg.run.Difficulty.active(vp.server).damage();
+            }
             if (attacker instanceof ServerPlayer && attacker != victim) {
                 amount *= Balance.get(Balance.COMBAT).friendlyFireMult();
             } else if (attacker == null) {

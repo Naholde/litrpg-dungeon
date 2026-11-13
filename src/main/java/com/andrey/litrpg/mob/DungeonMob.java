@@ -115,7 +115,8 @@ public class DungeonMob extends Monster implements GeoEntity {
         this.rank = rank;
         this.setUp = true;
         double unit = BossDamage.unit(this.level);
-        set(Attributes.MAX_HEALTH, p("hp_units") * unit * rank.health * growHp(level));
+        set(Attributes.MAX_HEALTH, p("hp_units") * unit * rank.health * growHp(level)
+                * com.andrey.litrpg.run.Difficulty.active(getServer()).hp());   // обычная/героическая
         set(Attributes.ATTACK_DAMAGE, p("dmg_units") * unit * rank.damage * growDamage(level));
         set(Attributes.MOVEMENT_SPEED, p("speed"));
         setHealth(getMaxHealth());

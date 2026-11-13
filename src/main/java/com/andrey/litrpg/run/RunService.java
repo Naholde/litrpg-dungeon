@@ -41,7 +41,6 @@ import java.util.UUID;
 public final class RunService {
     private static int riftTimer = -1;
     private static int wipeTimer = -1;
-    private static long sealConfirmUntil;
     private static int syncTimer;
 
     private RunService() {
@@ -92,6 +91,41 @@ public final class RunService {
         return onlineMembers(server).stream().filter(p -> inDungeon(p) && !s.isSpirit(p.getUUID()) && p.isAlive()).toList();
     }
 
+    // ------------------------------------------------------------------ роли (обновление 15)
+
+    /** Роль выбирают в подземелье: участник идущего забега на этапе 1 (вне сервера автотестов — всегда можно). */
+    public static boolean mayChooseRole(ServerPlayer p) {
+        if (p.server instanceof net.minecraft.gametest.framework.GameTestServer && !testing) return true;
+        RunState s = state(p.server);
+        return s.stage == 1 && s.member(p.getUUID());
+    }
+
+    /**
+     * Этап 1: когда роль есть у каждого участника в сети — отмечается «roles» (ворота выхода с привала открываются).
+     * Если в составе нет танка, бойца или поддержки — Система предупреждает (пройти можно, но почти невозможно).
+     */
+    private static void tickRoles(MinecraftServer server, RunState s) {
+        if (s.stage != 1 || s.done.contains("roles")) return;
+        List<ServerPlayer> members = onlineMembers(server);
+        if (members.isEmpty() || members.stream().anyMatch(p -> !PlayerService.data(p).role().chosen())) return;
+        s.done.add("roles");
+        s.setDirty();
+        if (!s.claims.add("roles")) return;     // после вайпа — молча: роли уже были выбраны
+        EnumSet<Role> roles = EnumSet.noneOf(Role.class);
+        members.forEach(p -> roles.add(PlayerService.data(p).role()));
+        List<String> missing = new ArrayList<>();
+        if (!roles.contains(Role.TANK)) missing.add("танка");
+        if (!roles.contains(Role.SUPPORT)) missing.add("поддержки");
+        if (!roles.contains(Role.DAMAGE)) missing.add("бойца");
+        for (ServerPlayer p : members) {
+            SystemChat.send(p, Component.literal("Роли выбраны — путь вниз открыт.").withStyle(ChatFormatting.LIGHT_PURPLE));
+            if (!missing.isEmpty()) {
+                SystemChat.send(p, Component.literal("В отряде нет " + String.join(" и ", missing)
+                        + " — без всех трёх ролей хранителей почти не одолеть.").withStyle(ChatFormatting.GOLD));
+            }
+        }
+    }
+
     // ------------------------------------------------------------------ Печать
 
     /** ПКМ по Печати: собрать отряд из стоящих в преддверии и начать прохождение. */
@@ -112,12 +146,6 @@ public final class RunService {
         for (ServerPlayer p : dungeon(server).players()) {
             if (!p.isSpectator() && lobby.box().contains(p.position())) here.add(p);
         }
-        List<ServerPlayer> noRole = here.stream().filter(p -> PlayerService.data(p).role() == Role.NONE).toList();
-        if (!noRole.isEmpty()) {
-            SystemChat.send(clicker, Component.literal("Не выбрали роль: " + names(noRole) + ". Окно роли — клавиша K.")
-                    .withStyle(ChatFormatting.YELLOW));
-            return;
-        }
         if (here.size() < min) {
             SystemChat.send(clicker, Component.literal("Печать не отзывается: нужно не меньше " + min + " игроков в преддверии"
                     + " (сейчас " + here.size() + ").").withStyle(ChatFormatting.YELLOW));
@@ -126,24 +154,7 @@ public final class RunService {
         Vec3 seal = Vec3.atCenterOf(lobby.seal());
         here.sort(java.util.Comparator.comparingDouble(p -> p.position().distanceToSqr(seal)));
         List<ServerPlayer> party = here.subList(0, Math.min(cfg.maxPlayers(), here.size()));
-        EnumSet<Role> roles = EnumSet.noneOf(Role.class);
-        party.forEach(p -> roles.add(PlayerService.data(p).role()));
-        List<String> missing = new ArrayList<>();
-        if (!roles.contains(Role.TANK)) missing.add("танка");
-        if (!roles.contains(Role.SUPPORT)) missing.add("поддержки");
-        if (!roles.contains(Role.DAMAGE)) missing.add("бойца");
-        long now = server.overworld().getGameTime();
-        if (!missing.isEmpty() && now > sealConfirmUntil) {
-            sealConfirmUntil = now + Math.round(cfg.sealConfirmSeconds() * 20);
-            for (ServerPlayer p : party) {
-                SystemChat.send(p, Component.literal("В отряде нет " + String.join(" и ", missing)
-                        + " — без всех трёх ролей пройти почти невозможно. Нажмите Печать ещё раз, чтобы начать всё равно.")
-                        .withStyle(ChatFormatting.GOLD));
-            }
-            return;
-        }
-        sealConfirmUntil = 0;
-        start(server, party);
+        start(server, party, Difficulty.HEROIC, true);
         for (ServerPlayer p : here) {
             if (!party.contains(p)) SystemChat.send(p, "Отряд полон (" + party.size() + "). Вы останетесь наблюдателем.");
         }
@@ -153,10 +164,24 @@ public final class RunService {
         return String.join(", ", list.stream().map(p -> p.getGameProfile().getName()).toList());
     }
 
-    /** Начать прохождение с этим отрядом (Печать или команда). */
+    /** Начать прохождение с этим отрядом (команда, автотесты) — на героической, как было до выбора сложности. */
     public static void start(MinecraftServer server, List<ServerPlayer> party) {
+        start(server, party, Difficulty.HEROIC, false);
+    }
+
+    public static void start(MinecraftServer server, List<ServerPlayer> party, Difficulty difficulty) {
+        start(server, party, difficulty, false);
+    }
+
+    /**
+     * Начать прохождение с этим отрядом и сложностью. {@code fresh} — новый забег из лобби: персонажи с 1 уровня,
+     * роль выбирается на привале этапа 1 (команды и автотесты оставляют персонажей как есть).
+     */
+    public static void start(MinecraftServer server, List<ServerPlayer> party, Difficulty difficulty, boolean fresh) {
         RunState s = state(server);
         s.resetAll();
+        s.difficulty = difficulty;
+        if (fresh) for (ServerPlayer p : party) PlayerService.resetForRun(p);
         for (ServerPlayer p : party) {
             s.party.add(p.getUUID());
             s.names.put(p.getUUID(), p.getGameProfile().getName());
@@ -166,7 +191,8 @@ public final class RunService {
         PartyService.form(party);
         for (ServerPlayer p : party) {
             SystemChat.title(p, Component.literal("Печать снята").withStyle(ChatFormatting.LIGHT_PURPLE),
-                    Component.literal("Отряд: " + party.size() + " · подземелье подстроилось под вас").withStyle(ChatFormatting.GRAY));
+                    Component.literal("Отряд: " + party.size() + " · сложность: ").withStyle(ChatFormatting.GRAY)
+                            .append(Component.literal(difficulty.title).withColor(difficulty.color & 0xFFFFFF)));
         }
         enterStage(server, 1);
     }
@@ -385,6 +411,8 @@ public final class RunService {
             if (!near(alive, Vec3.atCenterOf(b.at()), r2) || !level.isLoaded(b.at())) continue;
             StageWorld.spawnBoss(level, s, b);
         }
+
+        tickRoles(server, s);
 
         // преграды: условия и «замки» боя
         Set<String> engaged = engagedBosses(level, st);

@@ -151,7 +151,9 @@ public final class ClientSetup {
         public static void tick(ClientTickEvent.Post e) {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player == null) return;
-            boolean needRole = ClientPlayerData.received() && !ClientPlayerData.role().chosen();
+            // Роль выбирают в подземелье (обновление 15): на привале этапа 1, в Зале ролей. В лобби окна роли нет.
+            boolean needRole = ClientPlayerData.received() && !ClientPlayerData.role().chosen()
+                    && com.andrey.litrpg.client.ClientRun.stage() == 1 && !com.andrey.litrpg.client.ClientRun.spirit();
             for (int i = 0; i < KeyBinds.PARTY_TARGET.length; i++) {
                 while (KeyBinds.PARTY_TARGET[i].consumeClick()) ClientParty.toggle(i);
             }

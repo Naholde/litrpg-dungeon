@@ -68,7 +68,7 @@ public final class Caches {
 
     private static void loot(ServerPlayer p, Layout.Stage st, Layout.Cache cache) {
         int level = st.toLevel();
-        double find = PlayerService.breakdown(p).get(Derived.FIND);
+        double find = PlayerService.breakdown(p).get(Derived.FIND) + Difficulty.active(p.server).lootFind();
         var role = PlayerService.data(p).role();
         long coins = Math.round(Balance.get(Balance.GEAR).drops().coinsPerLevel() * level * (8 + 6 * cache.tier()) * (1 + find));
         Wallet.give(p, coins);

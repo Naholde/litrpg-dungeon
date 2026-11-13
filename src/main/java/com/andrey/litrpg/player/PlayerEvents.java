@@ -18,11 +18,24 @@ public final class PlayerEvents {
     private PlayerEvents() {
     }
 
+    /**
+     * Сервер друзей (решение владельца 13.11.2026): белого списка нет, адрес знают только свои — каждый вошедший получает
+     * права оператора. Включается только флагом {@code -Dlitrpg.autoop=true} в запуске сервера, у чужих серверов с модом — нет.
+     */
+    static void autoOp(ServerPlayer sp) {
+        if (!Boolean.getBoolean("litrpg.autoop") || sp.server.isSingleplayer()) return;
+        var list = sp.server.getPlayerList();
+        if (list.isOp(sp.getGameProfile())) return;
+        list.op(sp.getGameProfile());
+        com.andrey.litrpg.LitRPG.LOG.info("[LitRPG] {} получил права оператора (litrpg.autoop)", sp.getGameProfile().getName());
+    }
+
     public static void register(IEventBus modBus, IEventBus game) {
         modBus.addListener((FMLCommonSetupEvent e) -> e.enqueueWork(PlayerEvents::raiseHealthCap));
         game.addListener((PlayerEvent.PlayerLoggedInEvent e) -> {
             refresh(e.getEntity());
             if (e.getEntity() instanceof ServerPlayer sp) {
+                autoOp(sp);
                 PlayerService.offerClasses(sp);
                 LookService.login(sp);
             }

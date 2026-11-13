@@ -307,6 +307,7 @@ def check_stage(m, st, species, bosses, errors, strict=False, warns=None):
     sid = f'этап {st["n"]}'
     ids = {f'pack:{p["id"]}' for p in st['packs']} | {f'boss:{b["id"]}' for b in st['bosses']}
     ids |= {f'mech:{m["id"]}' for m in st.get('mechs', []) if m['type'] != 'hazard'}
+    ids.add('roles')            # роль у всего отряда — выбирается на привале этапа 1 (обновление 15)
     for mc in st.get('mechs', []):
         if mc['type'] not in ('plates', 'levers', 'sequence', 'memory', 'riddle', 'hazard'):
             errors.append(f'{sid}: механизм {mc["id"]}: неизвестный тип {mc["type"]}')
@@ -348,7 +349,7 @@ def check_stage(m, st, species, bosses, errors, strict=False, warns=None):
             errors.append(f'{sid}: разлом ждёт неизвестного «{c}»')
 
     # проходимость с открытием преград
-    done = set()
+    done = {'roles'}
     opened = set()
     for g in st['gates']:
         if not g['open_when']:

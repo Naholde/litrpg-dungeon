@@ -212,6 +212,11 @@ public final class PlayerService {
     public static boolean chooseRole(ServerPlayer player, Role role) {
         PlayerData d = data(player);
         if (d.role.chosen() || !role.chosen()) return false;
+        if (!com.andrey.litrpg.run.RunService.mayChooseRole(player)) {
+            SystemChat.send(player, Component.literal("Роль выбирают в подземелье — в Зале ролей на привале этапа 1.")
+                    .withStyle(ChatFormatting.YELLOW));
+            return false;
+        }
         setRole(player, role);
         com.andrey.litrpg.combat.StarterKit.give(player, role);
         SystemChat.send(player, Component.literal("Роль принята: ").append(
@@ -219,6 +224,37 @@ public final class PlayerService {
         SystemChat.title(player, Component.literal(role.title).withColor(role.color & 0xFFFFFF),
                 Component.literal("Система запомнила ваш выбор").withStyle(ChatFormatting.GRAY));
         return true;
+    }
+
+    /**
+     * Новый забег — с 1 уровня (решение владельца 13.11.2026): уровень, опыт, очки, класс, ранги, стиль, предложения
+     * классов, покупки, роль, весь инвентарь (вещи и монеты) и украшения. Статистика и титулы живут отдельно
+     * ({@code run.Records}) и не трогаются.
+     */
+    public static void resetForRun(ServerPlayer player) {
+        PlayerData d = data(player);
+        d.role = Role.NONE;
+        d.level = 1;
+        d.xp = 0;
+        java.util.Arrays.fill(d.allocated, 0);
+        d.classId = "";
+        d.ranks.clear();
+        d.style.clear();
+        d.offers.clear();
+        d.bought.clear();
+        player.getInventory().clearContent();
+        player.containerMenu.broadcastChanges();
+        try {
+            top.theillusivec4.curios.api.CuriosApi.getCuriosInventory(player).ifPresent(inv -> {
+                var h = inv.getEquippedCurios();
+                for (int i = 0; i < h.getSlots(); i++) h.setStackInSlot(i, net.minecraft.world.item.ItemStack.EMPTY);
+            });
+        } catch (RuntimeException ignored) {
+            // Curios не готов — украшений нет
+        }
+        SkillService.reset(player);
+        refresh(player);
+        player.setHealth(player.getMaxHealth());
     }
 
     public static void setRole(ServerPlayer player, Role role) {

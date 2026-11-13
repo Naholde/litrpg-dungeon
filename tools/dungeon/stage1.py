@@ -63,6 +63,57 @@ def colonnade(m, cx, cz, r, n, y, body, base_, cap, rz=None, phase=0.5):
         column(m, bx, bz, y, m.ceil_y(bx, y, bz) - y + 1, body, base_, cap)
 
 
+# Эмблемы ролей 7×7 (сверху вниз, слева направо — как видит игрок, стоя лицом к нише): a — цвет роли, b — второй, y — золото.
+EMBLEMS = {
+    'tank': ('blue', 'light_blue', ['.aaaaa.', 'abbbbba', 'abbybba', 'abyyyba', 'abbybba', '.abbba.', '..aaa..']),
+    'damage': ('red', 'orange', ['......a', '.....ab', '....ab.', 'y..ab..', '.yab...', '.ay....', 'a..y...']),
+    'support': ('lime', 'white', ['..aaa..', '..aba..', 'aaabaaa', 'abbbbba', 'aaabaaa', '..aba..', '..aaa..']),
+}
+ROLE_TEXT = {'tank': ['ТАНК', 'держит хранителя', 'и врагов на себе.', 'Провокация'],
+             'damage': ['БОЕЦ', 'главный урон.', 'Не стой', 'в разметке!'],
+             'support': ['ПОДДЕРЖКА', 'лечит отряд', 'и поднимает', 'павших']}
+
+
+def role_hall(m, s):
+    """Зал ролей (обновление 15): роль выбирают здесь, на привале этапа 1, — окно роли открывается само (клавиша K).
+    Три ниши с витражами-эмблемами: север — танк, запад — боец, восток — поддержка. Выход с привала закрыт,
+    пока роль не выбрал каждый из отряда (ворота `roles`)."""
+    floor_pattern(m, X(2), 7, X(14), 17, A, ['polished_andesite', 'chiseled_stone_bricks', 'polished_andesite'], 4)
+    carpet_line(m, X(8), 8, X(8), 18, A, 'gray')
+    carpet_line(m, X(3), 12, X(13), 12, A, 'gray')
+    for name, (side, (gx, gz)) in {'tank': ('north', (X(5), 2)), 'damage': ('west', (X(-2), 15)),
+                                   'support': ('east', (X(18), 9))}.items():
+        col, col2, rows = EMBLEMS[name]
+        for j, row in enumerate(rows):
+            y = A + 6 - j
+            for i, ch in enumerate(row):
+                if side == 'north':     # игрок смотрит на север: слева — запад
+                    g, lt, bk = (gx + i, y, gz), (gx + i, y, gz - 1), (gx + i, y, gz - 2)
+                elif side == 'west':    # смотрит на запад: слева — юг
+                    g, lt, bk = (gx, y, gz - i), (gx - 1, y, gz - i), (gx - 2, y, gz - i)
+                else:                   # смотрит на восток: слева — север
+                    g, lt, bk = (gx, y, gz + i), (gx + 1, y, gz + i), (gx + 2, y, gz + i)
+                if ch == '.':
+                    m.set(*g, 'chiseled_stone_bricks')
+                    continue
+                c = {'a': col, 'b': col2, 'y': 'yellow'}[ch]
+                m.set(*g, f'{c}_stained_glass')
+                m.set(*lt, 'light', level=15, waterlogged=False)
+                m.set(*bk, 'white_concrete')
+        # постамент со свечами и табличка перед нишей
+        px, pz, f = {'north': (X(8), 6, 'south'), 'west': (X(1), 12, 'east'), 'east': (X(15), 12, 'west')}[side]
+        m.set(px, A, pz, 'chiseled_stone_bricks')
+        m.set(px, A + 1, pz, f'{col}_candle', candles=4, lit=True, waterlogged=False)
+        dx, dz = {'south': (0, 1), 'east': (1, 0), 'west': (-1, 0)}[f]
+        m.sign(px + dx, A, pz + dz, f)
+        s.sign((px + dx, A, pz + dz), ROLE_TEXT[name])
+    m.sign(X(10), A + 1, 18, 'north')
+    s.sign((X(10), A + 1, 18), ['ЗАЛ РОЛЕЙ', 'Выберите роль:', 'клавиша K.', 'Нужны все три'])
+    s.say((X(0), A - 1, 2, X(17), A + 9, 34),
+          'Система: «Здесь каждый выбирает, кем идти: танк держит, боец бьёт, поддержка лечит. Окно роли — клавиша K. '
+          'Путь вниз откроется, когда выберут все.»')
+
+
 def build(_n=N):
     m = Map(seed=1001)
     crypt = m.theme(Theme('crypt', wall=[('stone_bricks', 6), ('cracked_stone_bricks', 2), ('mossy_stone_bricks', 2), ('andesite', 1)],
@@ -80,6 +131,11 @@ def build(_n=N):
     # ================================================================== пустоты
     # ---- Ярус I · Верхний склеп (84)
     m.room(X(0), 20, X(16), 34, A, 6, crypt, vault=2)                          # Сторожка
+    m.room(X(1), 6, X(15), 18, A, 9, crypt, vault=3)                            # Зал ролей (обновление 15)
+    m.carve(X(7), A, 19, X(9), A + 3, 19, crypt)                                # проход из Сторожки
+    m.carve(X(5), A, 3, X(11), A + 7, 5, crypt)                                 # ниша танка (север)
+    m.carve(X(-1), A, 9, X(0), A + 7, 15, crypt)                                # ниша бойца (запад)
+    m.carve(X(16), A, 9, X(17), A + 7, 15, crypt)                               # ниша поддержки (восток)
     m.corridor([(X(16), 27), (X(22), 27)], 3, 4, crypt, y=A)
     m.room(X(22), 12, X(46), 42, A, 10, crypt, vault=4)                         # Зал Предков
     m.room(X(26), 7, X(31), 11, A + 6, 4, crypt)                                # ниша под сводом (лоза)
@@ -159,6 +215,8 @@ def build(_n=N):
     m.sign(X(16), A + 1, 24, 'west')
     s.sign((X(16), A + 1, 24), ['ЭТАП 1', 'Склеп', 'Забытых', 'уровни 1–10'])
 
+    role_hall(m, s)
+
     # ================================================================== Зал Предков
     for x in range(X(25), X(44), 6):
         for z in (16, 38):
@@ -221,6 +279,7 @@ def build(_n=N):
     s.say((X(52), A - 1, 16, X(72), A + 10, 38),
           'Система: «Три саркофага, три рычага — один на хорах, другой в склепе под полом, третий в нише. '
           'Разделитесь, так быстрее.»')
+    s.gate('roles', (X(19), A, 26, X(19), A + 3, 28), open_when=['roles'])     # роль у всех — путь открыт
     s.gate('g1', (X(75), A, 26, X(75), A + 3, 28), open_when=[f'mech:{mech_levers}'])
 
     # ================================================================== Коридор шипов (полосы через одну)

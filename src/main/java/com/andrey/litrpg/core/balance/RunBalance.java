@@ -5,7 +5,26 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 /** Прохождение: отряд, опыт этапа, мир (появление, разлом, спасение), духи и воскрешение. Файл {@code balance/run.json}. */
-public record RunBalance(Party party, Xp xp, World world, Spirits spirits) {
+public record RunBalance(Party party, Xp xp, World world, Spirits spirits, Difficulty difficulty) {
+
+    /**
+     * Сложность забега (решение владельца 13.11.2026): Обычная и Героическая. Множители здоровья и урона хранителей и
+     * монстров; {@code lootFind} прибавляется к «находке» каждого (выше редкость, больше монет и легендарных трофеев).
+     */
+    public record Mode(double hp, double damage, double lootFind) {
+        static final Codec<Mode> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.DOUBLE.fieldOf("hp").forGetter(Mode::hp),
+                Codec.DOUBLE.fieldOf("damage").forGetter(Mode::damage),
+                Codec.DOUBLE.fieldOf("loot_find").forGetter(Mode::lootFind)
+        ).apply(i, Mode::new));
+    }
+
+    public record Difficulty(Mode normal, Mode heroic) {
+        static final Codec<Difficulty> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Mode.CODEC.fieldOf("normal").forGetter(Difficulty::normal),
+                Mode.CODEC.fieldOf("heroic").forGetter(Difficulty::heroic)
+        ).apply(i, Difficulty::new));
+    }
 
     /** Сколько игроков нужно у Печати; повторное нажатие — подтверждение старта без какой-то роли. */
     public record Party(int minPlayers, int maxPlayers, double sealConfirmSeconds) {
@@ -73,9 +92,11 @@ public record RunBalance(Party party, Xp xp, World world, Spirits spirits) {
             Party.CODEC.fieldOf("party").forGetter(RunBalance::party),
             Xp.CODEC.fieldOf("xp").forGetter(RunBalance::xp),
             World.CODEC.fieldOf("world").forGetter(RunBalance::world),
-            Spirits.CODEC.fieldOf("spirits").forGetter(RunBalance::spirits)
+            Spirits.CODEC.fieldOf("spirits").forGetter(RunBalance::spirits),
+            Difficulty.CODEC.fieldOf("difficulty").forGetter(RunBalance::difficulty)
     ).apply(i, RunBalance::new));
 
     public static final RunBalance DEFAULT = new RunBalance(new Party(3, 6, 10), new Xp(0.5, 0.45, 0.05),
-            new World(40, 34, 5, 5, 0.2), new Spirits(3, 5, 10, 15, 45, 2.5, 0.3, 0.5, 7));
+            new World(40, 34, 5, 5, 0.2), new Spirits(3, 5, 10, 15, 45, 2.5, 0.3, 0.5, 7),
+            new Difficulty(new Mode(0.65, 0.7, 0), new Mode(1, 1, 1.0)));
 }
