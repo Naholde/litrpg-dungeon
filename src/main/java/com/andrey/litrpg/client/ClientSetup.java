@@ -148,6 +148,7 @@ public final class ClientSetup {
         }
 
         private static boolean classWindowShown;
+        private static boolean roleWindowShown;
 
         @SubscribeEvent
         public static void tick(ClientTickEvent.Post e) {
@@ -191,8 +192,12 @@ public final class ClientSetup {
                     mc.setScreen(needRole ? new RoleScreen() : needClass ? new ClassChoiceScreen() : new CharacterScreen());
                 }
             }
-            // Роль не выбрана — Система сразу предлагает выбрать (как только закрыты другие окна).
-            if (needRole && mc.screen == null && mc.getOverlay() == null) mc.setScreen(new RoleScreen());
+            // Роль не выбрана — Система предлагает выбрать один раз (закрыли — снова клавишей K).
+            if (needRole && !roleWindowShown && mc.screen == null && mc.getOverlay() == null) {
+                roleWindowShown = true;
+                mc.setScreen(new RoleScreen());
+            }
+            if (!needRole) roleWindowShown = false;
             // Предложены классы — окно открывается само один раз; закрыли — вернутся клавишей K.
             if (needClass && !classWindowShown && mc.screen == null && mc.getOverlay() == null) {
                 classWindowShown = true;

@@ -20,7 +20,8 @@ import java.util.UUID;
  * Паркур Башни ветров (обновление 15). Встал на стартовую площадку — пошёл отсчёт (строка действия); золотые площадки —
  * сохранения; сорвался в бассейн — назад на последнее сохранение (время идёт дальше); финиш — время, личный рекорд,
  * рекорд сервера, титулы «Акробат» (дошёл) и «Ветер в ногах» (быстрее {@link Titles#WINDRUNNER_TICKS}).
- * Ушёл из башни — попытка сбрасывается. Считается каждые 2 тика.
+ * Ушёл из башни, взлетел или включил творческий режим — попытка снимается; финиш — только после всех сохранений.
+ * Считается каждые 2 тика.
  */
 public final class ParkourService {
     private ParkourService() {
@@ -50,6 +51,14 @@ public final class ParkourService {
             }
             boolean inside = pk.area().aabb().inflate(0.5).contains(p.position());
             Attempt a = RUNS.get(p.getUUID());
+            // Опку получают все (решение владельца) — творческий режим и полёт снимают попытку: рекорд только честный.
+            if (p.isCreative() || p.getAbilities().flying) {
+                if (a != null) {
+                    RUNS.remove(p.getUUID());
+                    p.displayClientMessage(Component.literal("Паркур прерван: полёт не в счёт").withStyle(ChatFormatting.GRAY), true);
+                }
+                continue;
+            }
             if (!inside) {
                 if (a != null) {
                     RUNS.remove(p.getUUID());
@@ -81,7 +90,7 @@ public final class ParkourService {
                 continue;
             }
             List<Vec3> cps = pk.checkpoints();
-            for (int i = a.checkpoint + 1; i < cps.size(); i++) {
+            for (int i = a.checkpoint + 1; i < Math.min(cps.size(), a.checkpoint + 2); i++) {   // только следующее
                 if (on(p, cps.get(i))) {
                     a.checkpoint = i;
                     p.playNotifySound(SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.MASTER, 0.7f, 1.2f + 0.1f * i);
@@ -92,7 +101,7 @@ public final class ParkourService {
                     break;
                 }
             }
-            if (on(p, pk.finish())) {
+            if (on(p, pk.finish()) && a.checkpoint == cps.size() - 1) {    // все сохранения по порядку — иначе не в счёт
                 finish(p, a, now - a.start);
                 RUNS.remove(p.getUUID());
                 continue;

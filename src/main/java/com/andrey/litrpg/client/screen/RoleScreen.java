@@ -15,7 +15,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.List;
 
 /**
- * Выбор роли при первом входе. Нельзя закрыть, не выбрав. Сверху — три карточки, снизу — подробности
+ * Выбор роли в Зале ролей (привал этапа 1). Открывается само один раз; закрыли — снова клавишей K. Сверху — три карточки, снизу — подробности
  * роли под курсором (или выбранной). Подробности строятся из roles.json через {@link RoleInfo}.
  */
 public final class RoleScreen extends Screen {
@@ -138,7 +138,13 @@ public final class RoleScreen extends Screen {
 
     @Override
     public boolean shouldCloseOnEsc() {
-        return false;
+        return true;   // обновление 15: окно в Зале ролей — закрыть, осмотреться, открыть снова клавишей K
+    }
+
+    @Override
+    public void tick() {
+        // роль уже выбрана (другим путём или подтверждение дошло) — окно больше не нужно
+        if (com.andrey.litrpg.client.ClientPlayerData.role().chosen()) onClose();
     }
 
     @Override

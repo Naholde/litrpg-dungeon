@@ -81,6 +81,10 @@ public final class DevClientFiles {
                     ? new com.andrey.litrpg.client.screen.RoleScreen(com.andrey.litrpg.player.Role.byId(cmd[1]))
                     : new com.andrey.litrpg.client.screen.RoleScreen());
             case "close" -> mc.setScreen(null);
+            // окно сбора: lobby ready | lobby difficulty heroic | lobby spectate | lobby return | lobby abandon
+            case "lobby" -> net.neoforged.neoforge.network.PacketDistributor.sendToServer(new com.andrey.litrpg.net.LobbyActionPayload(
+                    com.andrey.litrpg.net.LobbyActionPayload.Action.valueOf(cmd[1].toUpperCase(java.util.Locale.ROOT)),
+                    cmd.length > 2 ? cmd[2] : ""));
             case "codex" -> mc.setScreen(new com.andrey.litrpg.client.screen.CodexScreen(cmd.length > 1 ? Integer.parseInt(cmd[1]) : 0));
             case "credits" -> mc.setScreen(new com.andrey.litrpg.client.screen.CreditsScreen(
                     new com.andrey.litrpg.net.CreditsPayload(java.util.List.of("Dev", "Друг"), 3 * 3600 + 12 * 60, 4)));

@@ -20,7 +20,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * «Наблюдать» / «В лобби» и голос «Покинуть забег» для участников.
  */
 public final class LobbyScreen extends Screen {
-    private static final int W = 340, H = 232;
+    private static final int W = 340, H = 240;
     private int left, top;
     private SysButton ready, normal, heroic, watch, back, abandon;
 
@@ -40,23 +40,23 @@ public final class LobbyScreen extends Screen {
         normal = addRenderableWidget(new SysButton(left + 12, top + 100, cw, 14, "Выбрать",
                 () -> act(LobbyActionPayload.Action.DIFFICULTY, Difficulty.NORMAL.id)));
         normal.accent = Difficulty.NORMAL.color;
-        heroic = addRenderableWidget(new SysButton(left + 12, top + 186, cw, 14, "Выбрать",
+        heroic = addRenderableWidget(new SysButton(left + 12, top + 198, cw, 14, "Выбрать",
                 () -> act(LobbyActionPayload.Action.DIFFICULTY, Difficulty.HEROIC.id)));
         heroic.accent = Difficulty.HEROIC.color;
-        ready = addRenderableWidget(new SysButton(left + 178, top + H - 46, 150, 18, "Готов",
+        ready = addRenderableWidget(new SysButton(left + 178, top + H - 50, 150, 18, "Готов",
                 () -> act(LobbyActionPayload.Action.READY, "")));
         ready.accent = UiKit.GOOD;
-        watch = addRenderableWidget(new SysButton(left + 178, top + H - 46, 72, 18, "Наблюдать",
+        watch = addRenderableWidget(new SysButton(left + 178, top + H - 50, 72, 18, "Наблюдать",
                 () -> {
                     act(LobbyActionPayload.Action.SPECTATE, "");
                     onClose();
                 }));
-        back = addRenderableWidget(new SysButton(left + 256, top + H - 46, 72, 18, "В лобби",
+        back = addRenderableWidget(new SysButton(left + 256, top + H - 50, 72, 18, "В лобби",
                 () -> {
                     act(LobbyActionPayload.Action.RETURN, "");
                     onClose();
                 }));
-        abandon = addRenderableWidget(new SysButton(left + 178, top + H - 46, 150, 18, "Покинуть забег",
+        abandon = addRenderableWidget(new SysButton(left + 178, top + H - 50, 150, 18, "Покинуть забег",
                 () -> act(LobbyActionPayload.Action.ABANDON, "")));
         abandon.accent = UiKit.BAD;
         refresh();
@@ -110,12 +110,12 @@ public final class LobbyScreen extends Screen {
 
     private void renderDifficulty(GuiGraphics g, LobbySyncPayload d) {
         var bal = Balance.get(Balance.RUN).difficulty();
-        card(g, Difficulty.NORMAL, top + 24, bal.normal(), d.difficulty().equals(Difficulty.NORMAL.id));
-        card(g, Difficulty.HEROIC, top + 110, bal.heroic(), d.difficulty().equals(Difficulty.HEROIC.id));
+        card(g, Difficulty.NORMAL, top + 22, bal.normal(), d.difficulty().equals(Difficulty.NORMAL.id));
+        card(g, Difficulty.HEROIC, top + 120, bal.heroic(), d.difficulty().equals(Difficulty.HEROIC.id));
     }
 
     private void card(GuiGraphics g, Difficulty diff, int y, com.andrey.litrpg.core.balance.RunBalance.Mode m, boolean picked) {
-        int x = left + 8, w = 158, h = 80;
+        int x = left + 8, w = 158, h = 76;
         g.fill(x, y, x + w, y + h, picked ? 0xE0182B45 : 0xC00D1828);
         UiKit.border(g, x, y, w, h, picked ? diff.color : (diff.color & 0x00FFFFFF) | 0x70000000);
         UiKit.text(g, font, (picked ? "▶ " : "") + diff.title, x + 6, y + 5, diff.color);

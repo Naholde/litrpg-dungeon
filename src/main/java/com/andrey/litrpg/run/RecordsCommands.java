@@ -27,6 +27,20 @@ public final class RecordsCommands {
         root.then(Commands.literal("stats").executes(c -> stats(c, c.getSource().getPlayerOrException()))
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(c -> stats(c, EntityArgument.getPlayer(c, "player")))));
+        // Для проверки лобби оператором: отметить хранителя побеждённым (чучело в Зале трофеев) или забыть.
+        root.then(Commands.literal("trophy").requires(s -> s.hasPermission(2))
+                .then(Commands.argument("boss", StringArgumentType.word()).executes(c -> {
+                    String boss = StringArgumentType.getString(c, "boss");
+                    Records r = Records.get(c.getSource().getServer());
+                    if (r.trophies().remove(boss) == null) {
+                        r.trophy(boss, java.util.List.of(c.getSource().getTextName()), Difficulty.NORMAL);
+                        c.getSource().sendSuccess(() -> Component.literal("Трофей «" + boss + "» отмечен."), true);
+                    } else {
+                        r.changed();
+                        c.getSource().sendSuccess(() -> Component.literal("Трофей «" + boss + "» снят."), true);
+                    }
+                    return 1;
+                })));
         root.then(Commands.literal("title").executes(RecordsCommands::titles)
                 .then(Commands.argument("id", StringArgumentType.word())
                         .suggests((c, b) -> {

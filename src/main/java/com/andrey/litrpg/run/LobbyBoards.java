@@ -35,11 +35,31 @@ public final class LobbyBoards {
     public static void tick(MinecraftServer server) {
         ServerLevel level = RunService.dungeon(server);
         if (level == null) return;
+        sweep(level);
         for (Layout.Board b : Layout.get().lobby().boards()) {
             if (!level.isLoaded(net.minecraft.core.BlockPos.containing(b.at()))) continue;
             Component text = text(server, b.id());
             if (text == null) continue;
-            place(level, TAG + ":" + b.id(), b.at(), b.yaw(), b.scale(), b.width(), b.id().equals("now"), text, 0x90101826);
+            place(level, TAG + ":" + b.id(), b.at(), b.yaw(), b.scale(), b.width(), b.id().equals("now"), text, 0xD0101826);
+        }
+    }
+
+    /** Убрать доски и таблички лобби, которых больше нет в схеме или которые стоят не там (карта поменялась). */
+    private static void sweep(ServerLevel level) {
+        Map<String, Vec3> want = new HashMap<>();
+        for (Layout.Board b : Layout.get().lobby().boards()) want.put(TAG + ":" + b.id(), b.at());
+        for (Layout.TrophySpot t : Layout.get().lobby().trophies()) {
+            want.put(LobbyTrophies.TAG + ":" + t.boss() + ":plaque", t.at().add(0, 3.4, 0));
+        }
+        for (Display.TextDisplay d : level.getEntitiesOfClass(Display.TextDisplay.class, Layout.get().lobby().box().aabb().inflate(4))) {
+            for (String tag : d.getTags()) {
+                if (!tag.startsWith(TAG + ":") && !tag.startsWith(LobbyTrophies.TAG + ":")) continue;
+                Vec3 at = want.get(tag);
+                if (at == null || d.position().distanceToSqr(at) > 2.25) {
+                    d.discard();
+                    SHOWN.remove(tag);
+                }
+            }
         }
     }
 

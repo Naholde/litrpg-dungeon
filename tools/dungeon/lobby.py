@@ -61,8 +61,8 @@ def build():
     m = Map(seed=15)
     cit = m.theme(Theme('citadel', wall=[('calcite', 5), ('polished_diorite', 3), ('smooth_quartz', 1)],
                         floor=[('polished_diorite', 4), ('calcite', 2), ('smooth_stone', 1)], ceil='calcite', seed=3))
-    fame = m.theme(Theme('fame', wall=[('polished_andesite', 4), ('stone_bricks', 2), ('chiseled_stone_bricks', 1)],
-                         floor=[('polished_andesite', 3), ('smooth_stone', 1)], ceil='smooth_quartz', seed=5))
+    fame = m.theme(Theme('fame', wall=[('smooth_sandstone', 4), ('cut_sandstone', 2), ('chiseled_sandstone', 1)],
+                         floor=[('smooth_sandstone', 3), ('polished_diorite', 1)], ceil='smooth_quartz', seed=5))
     hall = m.theme(Theme('trophy', wall=[('deepslate_tiles', 4), ('polished_deepslate', 2), ('deepslate_bricks', 1)],
                          floor=[('polished_deepslate', 3), ('deepslate_tiles', 1)], ceil='deepslate_tiles', seed=7))
     arena = m.theme(Theme('arena', wall=[('tuff_bricks', 5), ('polished_tuff', 2), ('chiseled_tuff_bricks', 1)],
@@ -149,7 +149,7 @@ def build():
                     m.set(PCX + dx, FY + dy, PCZ + dz, 'amethyst_block' if (dx or dz) else 'purple_stained_glass')
     for dx, dz in ((2, 0), (-2, 0), (0, 2), (0, -2)):
         m.set(PCX + dx, FY + 6, PCZ + dz, 'end_rod', facing='down')
-    board('now', PCX + 0.5, FY + 3.4, PCZ + 0.5, 0, 1.0, 240)              # «Сейчас в подземелье» (лицом к игроку)
+    board('now', PCX + 0.5, FY + 2.3, PCZ + 0.5, 0, 1.6, 200)              # «Сейчас в подземелье» (лицом к игроку)
     # колонны по краю площади (не в проходах)
     for i in range(12):
         a = 2 * math.pi * i / 12 + math.pi / 12
@@ -205,16 +205,16 @@ def build():
     for x in (59, 67, 83, 91):                                                   # колонны с золотыми капителями
         for z in (24, 34):
             for y in range(FY, FY + 10):
-                m.set(x, y, z, 'gold_block' if y == FY + 9 else 'polished_andesite')
-    board('best_normal', 63.5, FY + 4.5, 18.9, 0, 0.9, 200)
-    board('best_heroic', 71.5, FY + 4.5, 18.9, 0, 0.9, 200)
-    board('single_normal', 79.5, FY + 4.5, 18.9, 0, 0.9, 200)
-    board('single_heroic', 87.5, FY + 4.5, 18.9, 0, 0.9, 200)
-    board('bosses_normal', 55.1, FY + 4.0, 26.5, -90, 0.75, 230)
-    board('bosses_heroic', 55.1, FY + 4.0, 34.5, -90, 0.75, 230)
-    board('heroes', 94.9, FY + 4.0, 35.0, 90, 0.85, 220)
-    board('history', 64.5, FY + 4.2, 39.9, 180, 0.8, 240)
-    board('parkour', 86.5, FY + 4.2, 39.9, 180, 0.9, 200)
+                m.set(x, y, z, 'gold_block' if y == FY + 9 else 'quartz_pillar', **({} if y == FY + 9 else {'axis': 'y'}))
+    board('best_normal', 61.0, FY + 3.0, 18.95, 0, 1.7, 160)
+    board('best_heroic', 69.5, FY + 3.0, 18.95, 0, 1.7, 160)
+    board('single_normal', 81.0, FY + 3.0, 18.95, 0, 1.7, 170)
+    board('single_heroic', 89.5, FY + 3.0, 18.95, 0, 1.7, 170)
+    board('bosses_normal', 55.05, FY + 2.2, 25.0, -90, 1.35, 190)
+    board('bosses_heroic', 55.05, FY + 2.2, 34.0, -90, 1.35, 190)
+    board('heroes', 94.95, FY + 2.6, 35.0, 90, 1.4, 190)
+    board('history', 63.0, FY + 2.6, 39.95, 180, 1.4, 210)
+    board('parkour', 87.0, FY + 2.6, 39.95, 180, 1.5, 160)
     sign(94, FY + 1, 29, 'west', ['БАШНЯ ВЕТРОВ', 'паркур над', 'бассейном.', 'Рекорд — титул'])
     sign(56, FY + 1, 30, 'east', ['ЗАЛ СЛАВЫ', 'Рекорды ставят', 'только в', 'настоящем забеге'])
 
@@ -234,7 +234,7 @@ def build():
             trophies.append({'boss': boss, 'stage': n, 'at': [x + 0.5, FY + 1, z + 0.5], 'yaw': 90,
                              'scale': STATUE_SCALE.get(boss, 0.75)})
             m.chain_lantern(x + 3, m.ceil_y(x + 3, FY + 1, z), z, 3, soul=light == 'soul')
-    board('titles', 6.1, FY + 4.0, 66.5, -90, 0.8, 260)
+    board('titles', 6.05, FY + 1.5, 66.5, -90, 1.15, 260)
 
     # ================================================================== Полигон и Двор манекенов
     for x in range(109, 140):
@@ -252,7 +252,7 @@ def build():
         for y in range(FY, FY + 6):
             m.set(x, y, z, 'polished_blackstone_bricks')
         m.set(x, FY + 6, z, 'sea_lantern')
-    board('polygon', 109.1, FY + 3.6, PCZ - 5.0, -90, 0.8, 200)
+    board('polygon', 109.05, FY + 2.4, PCZ - 5.5, -90, 1.3, 170)
     sign(110, FY + 1, PCZ + 3, 'east', ['ПОЛИГОН', 'Испытатель бьёт', 'понарошку:', 'уворачивайтесь'])
     sign(110, FY + 1, PCZ + 4, 'east', ['СЕРИЯ', 'Увернулся 20 раз', 'подряд — титул', '«Неуловимый»'])
     for x, angry in ((117, False), (124, True), (131, False)):
@@ -293,7 +293,7 @@ def build():
     m.hanging_lights(spacing=7, soul=False, themes=['citadel', 'fame'], min_h=9, chain=3, offset=3)
     m.hanging_lights(spacing=6, soul=True, themes=['trophy'], min_h=8, chain=2, offset=1)
     m.glow(spacing=4, level=15, themes=['citadel', 'fame', 'arena', 'tower'], height=3)
-    m.glow(spacing=4, level=13, themes=['trophy'], height=3)
+    m.glow(spacing=4, level=15, themes=['trophy'], height=3)
     m.glow(spacing=6, level=14, themes=['citadel'], height=10)
 
     lobby = {'box': list(BOX), 'spawn': [PCX + 0.5, FY, 99.5, 180], 'seal': [PCX, FY + 1, PCZ], 'signs': signs,
