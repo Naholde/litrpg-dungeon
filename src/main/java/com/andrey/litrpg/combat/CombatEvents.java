@@ -63,6 +63,10 @@ public final class CombatEvents {
         LivingEntity attacker = e.getSource().getEntity() instanceof LivingEntity l ? l : null;
         Popups.damage(victim, attacker, dealt, crit);
         DamageService.afterHit(victim, e.getSource(), dealt);
+        if (dealt > 0) {
+            if (victim instanceof ServerPlayer vp) com.andrey.litrpg.run.RunStats.taken(vp, dealt);
+            else if (e.getSource().getEntity() != null) com.andrey.litrpg.run.RunStats.dealt(e.getSource().getEntity(), victim, dealt);
+        }
         if (victim instanceof Mob mob && attacker instanceof ServerPlayer p) ThreatService.add(mob, p, dealt);
         if (dealt > 0 && attacker instanceof ServerPlayer p && attacker != victim && !(victim instanceof ServerPlayer)) {
             SkillService.onDealt(p);

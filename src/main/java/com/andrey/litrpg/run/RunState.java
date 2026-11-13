@@ -58,6 +58,12 @@ public final class RunState extends SavedData {
     int minPlayers;
     /** Сложность забега: выбирается в лобби, держится до конца забега. */
     Difficulty difficulty = Difficulty.NORMAL;
+    /** Статистика забега по участникам (обновление 15). */
+    final Map<UUID, RunStats.Line> stats = new LinkedHashMap<>();
+    /** Лучшее время боя с каждым хранителем в этом забеге (тики). */
+    final Map<String, Long> bossTimes = new LinkedHashMap<>();
+    /** Время прохождения этапов (номер этапа строкой → тики). */
+    final Map<String, Long> stageTimes = new LinkedHashMap<>();
 
     public static Factory<RunState> factory() {
         return new Factory<>(RunState::new, RunState::load, null);
@@ -81,6 +87,22 @@ public final class RunState extends SavedData {
 
     public int partySize() {
         return partySize;
+    }
+
+    public Map<UUID, RunStats.Line> stats() {
+        return stats;
+    }
+
+    public Map<UUID, String> names() {
+        return names;
+    }
+
+    public long runStart() {
+        return runStart;
+    }
+
+    public int wipes() {
+        return wipes;
     }
 
     public Difficulty difficulty() {
@@ -142,6 +164,9 @@ public final class RunState extends SavedData {
         tag.put("spirits", s);
         tag.putInt("minPlayers", minPlayers);
         tag.putString("difficulty", difficulty.id);
+        tag.put("stats", RunStats.save(stats));
+        tag.put("bossTimes", RunStats.saveTimes(bossTimes));
+        tag.put("stageTimes", RunStats.saveTimes(stageTimes));
         return tag;
     }
 
@@ -185,6 +210,9 @@ public final class RunState extends SavedData {
         }
         s.minPlayers = tag.getInt("minPlayers");
         s.difficulty = Difficulty.byId(tag.getString("difficulty"));
+        RunStats.load(tag.getList("stats", Tag.TAG_COMPOUND), s.stats);
+        RunStats.loadTimes(tag.getCompound("bossTimes"), s.bossTimes);
+        RunStats.loadTimes(tag.getCompound("stageTimes"), s.stageTimes);
         return s;
     }
 
@@ -200,6 +228,9 @@ public final class RunState extends SavedData {
         clearAttempt();
         claims.clear();
         granted.clear();
+        stats.clear();
+        bossTimes.clear();
+        stageTimes.clear();
         setDirty();
     }
 

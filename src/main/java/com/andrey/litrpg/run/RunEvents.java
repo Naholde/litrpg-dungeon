@@ -72,7 +72,10 @@ public final class RunEvents {
 
     private static void onDeathLast(LivingDeathEvent e) {
         if (e.isCanceled() || e.getEntity().level().isClientSide) return;
-        if (e.getEntity() instanceof DungeonMob m) RunService.onMobDeath(m);
+        if (e.getEntity() instanceof DungeonMob m) {
+            RunStats.killed(e.getSource().getEntity());
+            RunService.onMobDeath(m);
+        }
         else if (e.getEntity() instanceof BossEntity b) RunService.onBossDeath(b);
     }
 

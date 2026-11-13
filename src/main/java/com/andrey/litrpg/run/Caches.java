@@ -48,6 +48,7 @@ public final class Caches {
                     .withStyle(ChatFormatting.YELLOW));
             return;
         }
+        RunStats.cache(p);
         s.claims.add(mine);
         s.setDirty();
         loot(p, st, cache);

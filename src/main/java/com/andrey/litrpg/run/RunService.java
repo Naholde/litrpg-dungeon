@@ -179,6 +179,7 @@ public final class RunService {
      */
     public static void start(MinecraftServer server, List<ServerPlayer> party, Difficulty difficulty, boolean fresh) {
         RunState s = state(server);
+        if (s.active(Layout.get().lastStage())) Chronicle.commit(server, s, false);
         s.resetAll();
         s.difficulty = difficulty;
         if (fresh) for (ServerPlayer p : party) PlayerService.resetForRun(p);
@@ -213,6 +214,7 @@ public final class RunService {
         StageWorld.restoreBroken(level, s);
         StageWorld.clearEntities(level, false);
         if (prev != null) Mechanisms.resetBlocks(level, prev);
+        if (prev != null) s.stageTimes.put(String.valueOf(prev.n()), server.overworld().getGameTime() - s.stageStart);
         s.stage = n;
         s.attempt = 1;
         s.epoch++;
@@ -248,6 +250,8 @@ public final class RunService {
         RunState s = state(server);
         Layout layout = Layout.get();
         Layout.Stage last = layout.stage(layout.lastStage()).orElse(null);
+        if (last != null) s.stageTimes.put(String.valueOf(last.n()), server.overworld().getGameTime() - s.stageStart);
+        Chronicle.commit(server, s, true);
         StageWorld.clearEntities(dungeon(server), true);
         s.stage = layout.lastStage() + 1;
         s.epoch++;
@@ -324,6 +328,8 @@ public final class RunService {
         if (t.getInt("epoch") != s.epoch) return;
         String id = t.getString("id");
         s.done.add("boss:" + id);
+        if (boss.combatStart() > 0) RunStats.bossTime(s, boss.type().id(), boss.level().getGameTime() - boss.combatStart());
+        if (s.claims.add("chronicle:boss:" + id)) Chronicle.bossDefeated(server, s, boss.type().id(), boss.type().name());
         s.setDirty();
         Layout.Stage st = currentStage(server);
         if (st != null) Rewards.claim(server, s, "boss:" + id, Rewards.bossXp(st), boss.type().name() + " повержен");
@@ -336,6 +342,8 @@ public final class RunService {
     static void onLogin(ServerPlayer p) {
         MinecraftServer server = p.server;
         if (server instanceof net.minecraft.gametest.framework.GameTestServer) return;
+        Records.get(server).profile(p.getUUID(), p.getGameProfile().getName());
+        Titles.apply(p);
         RunState s = state(server);
         Layout layout = Layout.get();
         if (s.active(layout.lastStage())) {
@@ -559,6 +567,7 @@ public final class RunService {
     /** Сбросить прохождение: все — в преддверие, мир этапов — как был. */
     public static void reset(MinecraftServer server) {
         RunState s = state(server);
+        if (s.active(Layout.get().lastStage())) Chronicle.commit(server, s, false);
         ServerLevel level = dungeon(server);
         StageWorld.restoreBroken(level, s);
         StageWorld.clearEntities(level, true);
@@ -581,6 +590,14 @@ public final class RunService {
 
     public static void reviveForTest(ServerPlayer p, double share) {
         Spirits.revive(p, share, "проверка");
+    }
+
+    public static void finishForTest(MinecraftServer server) {
+        finish(server);
+    }
+
+    public static void tickRolesForTest(MinecraftServer server) {
+        tickRoles(server, state(server));
     }
 
     public static void wipeForTest(MinecraftServer server) {

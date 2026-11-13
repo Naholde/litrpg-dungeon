@@ -139,6 +139,11 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
     private double arenaRadius = 18;
     private boolean engaged;
     private long combatStart;
+
+    /** Тик вступления в бой (для времени боя — рекорды хранителей). */
+    public long combatStart() {
+        return combatStart;
+    }
     private long lastPlayerSeen;
     private long nextAuto;
     /** Давление (фаза 12): когда следующая волна по отряду и следующая метка. */

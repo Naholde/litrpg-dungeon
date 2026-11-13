@@ -57,6 +57,7 @@ public final class LitrpgCommand {
         CombatCommands.addTo(root);
         com.andrey.litrpg.dev.Showcase.addTo(root);
         com.andrey.litrpg.run.RunCommands.addTo(root);
+        com.andrey.litrpg.run.RecordsCommands.addTo(root);
         d.register(root);
     }
 

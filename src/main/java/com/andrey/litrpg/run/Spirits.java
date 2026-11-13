@@ -52,6 +52,7 @@ public final class Spirits {
     /** Гибель участника прохождения: стать духом на месте. */
     static void become(ServerPlayer p) {
         com.andrey.litrpg.boss.FightLog.died(p);
+        RunStats.died(p);
         RunState s = RunService.state(p.server);
         BlockPos at = p.blockPosition();
         s.spirits.put(p.getUUID(), at);
@@ -192,6 +193,7 @@ public final class Spirits {
                 READY.put(reviver.getUUID(), time + Math.round(cooldown(reviver, cfg) * 20));
                 SystemChat.send(reviver, Component.literal("Вы подняли " + name + ". Снова поднимать — через "
                         + (int) Math.round(cooldown(reviver, cfg)) + " с.").withStyle(ChatFormatting.GRAY));
+                RunStats.revived(reviver);
                 revive(spirit, cfg.reviveHealth(), "Вас поднял " + reviver.getGameProfile().getName());
             }
         }
