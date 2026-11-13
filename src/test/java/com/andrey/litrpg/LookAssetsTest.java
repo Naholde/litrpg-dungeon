@@ -1,5 +1,7 @@
 package com.andrey.litrpg;
 
+import com.andrey.litrpg.player.LookService;
+import com.andrey.litrpg.player.Role;
 import com.andrey.litrpg.skill.ClassRegistry;
 import com.andrey.litrpg.skill.PlayerClass;
 import com.google.gson.JsonElement;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Обновление 14, пункт 7: у каждого класса — свой облик (tools/models/looks.py), прикреплённый к частям тела игрока. */
@@ -24,8 +27,11 @@ class LookAssetsTest {
     @Test
     void everyClassHasALookOnPlayerParts() throws Exception {
         List<String> bad = new ArrayList<>();
-        for (PlayerClass c : ClassRegistry.all()) {
-            String name = "look_" + c.id();
+        List<String> ids = new ArrayList<>();
+        for (PlayerClass c : ClassRegistry.all()) ids.add(c.id());
+        for (Role r : Role.values()) if (r.chosen()) ids.add(LookService.lookId("", r));   // облик роли до класса
+        for (String id : ids) {
+            String name = "look_" + id;
             if (getClass().getResource("/assets/litrpg/textures/entity/" + name + ".png") == null) bad.add(name + ": текстура");
             var in = getClass().getResourceAsStream("/assets/litrpg/geo/entity/" + name + ".geo.json");
             if (in == null) {
@@ -54,5 +60,13 @@ class LookAssetsTest {
             if (cubes < 20) bad.add(name + ": всего " + cubes + " кубов — облик не доделан");
         }
         assertTrue(bad.isEmpty(), "Облики классов: " + bad);
+    }
+
+    @Test
+    void lookIsClassThenRoleThenNothing() {
+        assertEquals("berserker", LookService.lookId("berserker", Role.TANK));
+        assertEquals("role_tank", LookService.lookId("", Role.TANK));
+        assertEquals("role_support", LookService.lookId(null, Role.SUPPORT));
+        assertEquals("", LookService.lookId("", Role.NONE));
     }
 }

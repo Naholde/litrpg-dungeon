@@ -16,6 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from png import Canvas, hexrgb, shade  # noqa: E402
 import boss_anims  # noqa: E402
+import boss_signature  # noqa: E402
 
 ASSETS = Path(__file__).resolve().parent.parent / "src/main/resources/assets/litrpg"
 
@@ -1639,6 +1640,7 @@ def main():
             (ASSETS / f"animations/entity/{name}.animation.json").unlink(missing_ok=True)
             continue
         boss_anims.add(name, m.anims)
+        boss_signature.apply(name, m.anims, set(m.by))
         print("written", m.save())
     for name, fn in MODELS.items():
         if only and name != only:

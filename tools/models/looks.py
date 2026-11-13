@@ -1283,7 +1283,73 @@ def bannerman():
     return m
 
 
+# ============================================================================ облик по роли (до выбора класса, ур. 1–9)
+# Скромнее классовых: снаряжение новичка — кожа, простое железо, без свечения. Облик класса на 10 уровне — награда.
+
+def role_tank():
+    """Новобранец-танк: открытый железный шлем, один наплечник, стёганка с синим щитом, круглый щит за спиной."""
+    m = base("role_tank")
+    sleeves(m, M["chain"], upper=True)
+    pants(m, M["leather_dark"])
+    helm(m, M["steel"], M["steel_dark"], face="open")
+    pauldrons(m, M["steel"], M["blue"], size=0.95, layers=2, only=LA)
+    tunic(m, M["cream"], deco=glyph("shield", "#3E6CB8"), back=trim_edges("#3E6CB8"))
+    belt(m, M["leather_dark"], buckle=M["steel"])
+    bracers(m, M["leather"], M["steel"])
+    boots(m, M["leather_dark"], cuff=M["steel"])
+    b = BODY
+    for i in range(8):
+        a = math.radians(i * 45)
+        x, y = math.cos(a) * 3.4, 17.4 + math.sin(a) * 3.4
+        m.box(b, [x, y, 3.4], [2.8, 2.8, 0.8], M["wood"], rot=[0, 0, i * 45], pivot=[x, y, 3.4])
+    m.box(b, [0, 17.4, 3.45], [6.6, 6.6, 0.85], M["wood"], decal={"south": glyph("cross", "#3E6CB8", cy=0.5)})
+    m.box(b, [0, 17.4, 4.0], [2.0, 2.0, 0.6], M["steel"])
+    return m
+
+
+def role_damage():
+    """Новобранец-боец: красная бандана с хвостами, кожаная куртка, кушак, наручи, короткий клинок за спиной."""
+    m = base("role_damage")
+    sleeves(m, M["leather"])
+    pants(m, M["leather_dark"])
+    h = HEAD
+    m.box(h, [0, 30.4, 0], [8.8, 2.4, 8.8], M["red"], skip=("down",))
+    for i, (dx, r) in enumerate(((0.9, 18), (2.0, 34))):
+        m.box(h, [dx, 28.6, 4.75], [1.2, 3.4, 0.4], M["red"], rot=[r, 0, 8 + i * 12], pivot=[dx, 30.2, 4.55])
+    tunic(m, M["leather"], deco=glyph("axes", "#C8A070"))
+    belt(m, M["red"], buckle=M["brass"], pouches=[(3.0, M["leather_dark"])])
+    straps(m, M["leather_dark"], cross=False, buckle=M["brass"])
+    bracers(m, M["leather_dark"], M["brass"])
+    boots(m, M["leather_dark"], cuff=M["leather"])
+    b = BODY
+    pv = [-0.4, 18.0, 3.2]
+    m.box(b, [-0.4, 20.4, 3.2], [1.2, 9.0, 0.5], M["steel"], rot=[0, 0, 35], pivot=pv)
+    m.box(b, [-0.4, 15.6, 3.3], [3.4, 0.8, 0.8], M["brass"], rot=[0, 0, 35], pivot=pv)
+    m.box(b, [-0.4, 13.8, 3.3], [1.0, 3.0, 1.0], M["leather_dark"], rot=[0, 0, 35], pivot=pv)
+    return m
+
+
+def role_support():
+    """Послушник-поддержка: светлый капюшон с зелёной каймой, роба до колен, сумка с травами на боку."""
+    m = base("role_support")
+    sleeves(m, M["cream"], cuff=M["green"])
+    hood(m, M["cream"], M["green"], tip=True)
+    tunic(m, M["cream"], deco=glyph("cross", "#4FB060"), long=True)
+    belt(m, M["leather"], buckle=M["brass"], pouches=[(-3.0, M["leather_dark"])])
+    straps(m, M["leather"], cross=False)
+    leg_flaps(m, M["cream"], length=6.5, deco=trim_edges("#4FB060", top=False))
+    boots(m, M["leather"])
+    b = BODY
+    m.box(b, [2.6, 13.6, 3.3], [4.4, 4.0, 2.0], M["leather"])
+    m.box(b, [2.6, 15.8, 3.3], [4.6, 0.8, 2.2], M["leather_dark"])
+    for i, (dx, col) in enumerate(((-0.9, "green"), (0.5, "moss"), (1.6, "olive"))):
+        m.box(b, [2.6 + dx, 16.9 + i * 0.3, 3.3], [0.8, 2.0, 0.8], M[col], rot=[0, 0, -15 + i * 15],
+              pivot=[2.6 + dx, 16.2, 3.3])
+    return m
+
+
 MODELS = {f"look_{fn.__name__}": fn for fn in (
+    role_tank, role_damage, role_support,
     guardian, blood_knight, mirror, graviton, bastion, paladin, berserker, swift, monk, shadow, reaper, harpooner,
     headsman, sniper, mechanic, pyromancer, cryomancer, stormcaller, plague_lord, astromancer, summoner, illusionist,
     warlock, rifter, cleric, chronolog, shadow_priest, druid, shaman, bannerman)}

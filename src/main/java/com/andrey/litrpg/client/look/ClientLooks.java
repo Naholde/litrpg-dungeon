@@ -26,11 +26,11 @@ public final class ClientLooks {
         }
     }
 
-    /** Класс игрока или пустая строка. Свой — из данных персонажа (они приходят раньше таблицы). */
+    /** Облик игрока (класс или роль) или пустая строка. Свой — из данных персонажа (они приходят раньше таблицы). */
     public static String classOf(Player p) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player != null && p.getUUID().equals(mc.player.getUUID()) && ClientPlayerData.received()) {
-            return ClientPlayerData.classId();
+            return com.andrey.litrpg.player.LookService.lookId(ClientPlayerData.classId(), ClientPlayerData.role());
         }
         return CLASSES.getOrDefault(p.getUUID(), "");
     }
