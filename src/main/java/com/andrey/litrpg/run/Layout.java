@@ -79,13 +79,58 @@ public record Layout(int version, Lobby lobby, List<Stage> stages) {
         ).apply(i, Dummy::new));
     }
 
-    public record Lobby(Box box, Spot spawn, BlockPos seal, List<Sign> signs, List<Dummy> dummies) {
+    /** Доска рекордов в лобби (обновление 15): text_display в точке, повёрнутый на yaw; {@code id} — что показывать. */
+    public record Board(String id, Vec3 at, float yaw, float scale, int width) {
+        public static final Codec<Board> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.STRING.fieldOf("id").forGetter(Board::id),
+                Vec3.CODEC.fieldOf("at").forGetter(Board::at),
+                Codec.FLOAT.optionalFieldOf("yaw", 0f).forGetter(Board::yaw),
+                Codec.FLOAT.optionalFieldOf("scale", 1f).forGetter(Board::scale),
+                Codec.INT.optionalFieldOf("width", 220).forGetter(Board::width)
+        ).apply(i, Board::new));
+    }
+
+    /** Пьедестал Зала трофеев: чучело хранителя {@code boss} после первой победы над ним. */
+    public record TrophySpot(String boss, int stage, Vec3 at, float yaw, float scale) {
+        public static final Codec<TrophySpot> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.STRING.fieldOf("boss").forGetter(TrophySpot::boss),
+                Codec.INT.optionalFieldOf("stage", 1).forGetter(TrophySpot::stage),
+                Vec3.CODEC.fieldOf("at").forGetter(TrophySpot::at),
+                Codec.FLOAT.optionalFieldOf("yaw", 0f).forGetter(TrophySpot::yaw),
+                Codec.FLOAT.optionalFieldOf("scale", 0.75f).forGetter(TrophySpot::scale)
+        ).apply(i, TrophySpot::new));
+    }
+
+    /** Паркур Башни ветров: старт, сохранения, финиш, рамка трассы. */
+    public record Parkour(Vec3 start, List<Vec3> checkpoints, Vec3 finish, Box area) {
+        public static final Codec<Parkour> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Vec3.CODEC.fieldOf("start").forGetter(Parkour::start),
+                Vec3.CODEC.listOf().fieldOf("checkpoints").forGetter(Parkour::checkpoints),
+                Vec3.CODEC.fieldOf("finish").forGetter(Parkour::finish),
+                Box.CODEC.fieldOf("area").forGetter(Parkour::area)
+        ).apply(i, Parkour::new));
+    }
+
+    /** Арена полигона: Испытатель Системы в учебном бою. */
+    public record PolygonSpot(Vec3 center, double radius) {
+        public static final Codec<PolygonSpot> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Vec3.CODEC.fieldOf("center").forGetter(PolygonSpot::center),
+                Codec.DOUBLE.fieldOf("radius").forGetter(PolygonSpot::radius)
+        ).apply(i, PolygonSpot::new));
+    }
+
+    public record Lobby(Box box, Spot spawn, BlockPos seal, List<Sign> signs, List<Dummy> dummies, List<Board> boards,
+                        List<TrophySpot> trophies, Optional<Parkour> parkour, Optional<PolygonSpot> polygon) {
         public static final Codec<Lobby> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Box.CODEC.fieldOf("box").forGetter(Lobby::box),
                 Spot.CODEC.fieldOf("spawn").forGetter(Lobby::spawn),
                 BlockPos.CODEC.fieldOf("seal").forGetter(Lobby::seal),
                 Sign.CODEC.listOf().optionalFieldOf("signs", List.of()).forGetter(Lobby::signs),
-                Dummy.CODEC.listOf().optionalFieldOf("dummies", List.of()).forGetter(Lobby::dummies)
+                Dummy.CODEC.listOf().optionalFieldOf("dummies", List.of()).forGetter(Lobby::dummies),
+                Board.CODEC.listOf().optionalFieldOf("boards", List.of()).forGetter(Lobby::boards),
+                TrophySpot.CODEC.listOf().optionalFieldOf("trophies", List.of()).forGetter(Lobby::trophies),
+                Parkour.CODEC.optionalFieldOf("parkour").forGetter(Lobby::parkour),
+                PolygonSpot.CODEC.optionalFieldOf("polygon").forGetter(Lobby::polygon)
         ).apply(i, Lobby::new));
     }
 

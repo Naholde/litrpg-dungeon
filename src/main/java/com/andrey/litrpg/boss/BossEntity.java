@@ -708,6 +708,7 @@ public abstract class BossEntity extends PathfinderMob implements GeoEntity {
         runningCast = casting.id;
         hitLabel = a.name();
         FightLog.cast(this, a.name());
+        com.andrey.litrpg.run.LobbyPolygon.onCast(this);
         try {
             a.start().accept(casting);
         } finally {

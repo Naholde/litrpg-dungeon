@@ -67,6 +67,11 @@ public final class RunService {
     }
 
     /** Игрок — участник идущего прохождения. */
+    /** Игрок в лобби (рамка лобби в подземелье). */
+    public static boolean inLobby(ServerPlayer p) {
+        return inDungeon(p) && Layout.get().lobby().box().contains(p.position());
+    }
+
     public static boolean member(ServerPlayer p) {
         RunState s = state(p.server);
         return s.active(Layout.get().lastStage()) && s.member(p.getUUID());
@@ -128,41 +133,6 @@ public final class RunService {
 
     // ------------------------------------------------------------------ Печать
 
-    /** ПКМ по Печати: собрать отряд из стоящих в преддверии и начать прохождение. */
-    public static void onSeal(ServerPlayer clicker) {
-        MinecraftServer server = clicker.server;
-        RunState s = state(server);
-        Layout layout = Layout.get();
-        if (s.stage != RunState.LOBBY) {
-            SystemChat.send(clicker, s.stage > layout.lastStage()
-                    ? "Подземелье уже пройдено. Новый поход начнёт оператор: /litrpg run reset."
-                    : "Прохождение уже идёт.");
-            return;
-        }
-        RunBalance.Party cfg = Balance.get(Balance.RUN).party();
-        int min = s.minPlayers > 0 ? s.minPlayers : cfg.minPlayers();
-        Layout.Lobby lobby = layout.lobby();
-        List<ServerPlayer> here = new ArrayList<>();
-        for (ServerPlayer p : dungeon(server).players()) {
-            if (!p.isSpectator() && lobby.box().contains(p.position())) here.add(p);
-        }
-        if (here.size() < min) {
-            SystemChat.send(clicker, Component.literal("Печать не отзывается: нужно не меньше " + min + " игроков в преддверии"
-                    + " (сейчас " + here.size() + ").").withStyle(ChatFormatting.YELLOW));
-            return;
-        }
-        Vec3 seal = Vec3.atCenterOf(lobby.seal());
-        here.sort(java.util.Comparator.comparingDouble(p -> p.position().distanceToSqr(seal)));
-        List<ServerPlayer> party = here.subList(0, Math.min(cfg.maxPlayers(), here.size()));
-        start(server, party, Difficulty.HEROIC, true);
-        for (ServerPlayer p : here) {
-            if (!party.contains(p)) SystemChat.send(p, "Отряд полон (" + party.size() + "). Вы останетесь наблюдателем.");
-        }
-    }
-
-    private static String names(List<ServerPlayer> list) {
-        return String.join(", ", list.stream().map(p -> p.getGameProfile().getName()).toList());
-    }
 
     /** Начать прохождение с этим отрядом (команда, автотесты) — на героической, как было до выбора сложности. */
     public static void start(MinecraftServer server, List<ServerPlayer> party) {

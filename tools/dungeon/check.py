@@ -472,6 +472,17 @@ def check_lobby(m, lb, errors, strict=False, warns=None):
     for dm in lb.get('dummies', []):
         if not near(r, dm['at'], r=2, dy=1):
             errors.append(f'преддверие: манекен у {dm["at"]} недоступен пешком')
+    for tr in lb.get('trophies', []):
+        if not near(r, tr['at'], r=2, dy=2):
+            errors.append(f'лобби: пьедестал «{tr["boss"]}» у {tr["at"]} недоступен пешком')
+    pk = lb.get('parkour')
+    if pk:
+        for name, at in [('старт', pk['start'])] + [(f'сохранение {i + 1}', c) for i, c in enumerate(pk['checkpoints'])]                 + [('финиш', pk['finish'])]:
+            if not near(r, at, r=0, dy=0):
+                errors.append(f'лобби: паркур — {name} {at} недостижим прыжками')
+    pg = lb.get('polygon')
+    if pg and not near(r, pg['center'], r=1, dy=1):
+        errors.append('лобби: середина полигона недоступна пешком')
     sink = errors if strict else (warns if warns is not None else [])
     seal = tuple(lb['seal'])
     goals = {c for c in r if abs(c[0] - seal[0]) <= 2 and abs(c[2] - seal[2]) <= 2 and abs(c[1] - seal[1]) <= 2}

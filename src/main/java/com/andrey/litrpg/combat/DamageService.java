@@ -76,6 +76,19 @@ public final class DamageService {
         double amount = e.getAmount();
         if (src.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return; // /kill и падение в пустоту — как есть
 
+        // Лобби (обновление 15): полигон бьёт понарошку (серия уворотов), а в остальном лобби игрокам урона нет —
+        // кроме злого манекена Двора (на нём танк проверяет провокацию, лекарь — лечение).
+        if (victim instanceof ServerPlayer vp) {
+            if (attacker != null && com.andrey.litrpg.run.LobbyPolygon.onHit(vp, attacker)) {
+                e.setCanceled(true);
+                return;
+            }
+            if (com.andrey.litrpg.run.RunService.inLobby(vp) && !(attacker instanceof com.andrey.litrpg.combat.entity.TrainingDummy)) {
+                e.setCanceled(true);
+                return;
+            }
+        }
+
         Context ctx = CONTEXT.get();
         boolean fixed = ctx != null && ctx.kind() == WeaponKind.FIXED;
 

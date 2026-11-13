@@ -42,6 +42,14 @@ public final class RunEvents {
                 RunService.tick(e.getServer());
                 LobbyService.tick(e.getServer());
             }
+            if (!(e.getServer() instanceof net.minecraft.gametest.framework.GameTestServer)) {
+                if (e.getServer().getTickCount() % 2 == 0) ParkourService.tick(e.getServer());
+                if (e.getServer().getTickCount() % 40 == 5) {
+                    LobbyBoards.tick(e.getServer());
+                    LobbyTrophies.tick(e.getServer());
+                    LobbyPolygon.tick(e.getServer());
+                }
+            }
             RunService.tickFast(e.getServer());
         });
         game.addListener((net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock e) -> {

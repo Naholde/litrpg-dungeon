@@ -26,7 +26,7 @@ public enum Titles {
     ANGEL("angel", "Ангел-хранитель", 0xF4F4FF, "Поднять 25 павших (за всё время)"),
     TREASURE("treasure", "Кладоискатель", 0xE0C060, "Открыть 15 тайников (за всё время)"),
     ACROBAT("acrobat", "Акробат", 0xC8A0FF, "Пройти паркур Цитадели"),
-    WINDRUNNER("windrunner", "Ветер в ногах", 0xA0F0FF, "Пройти паркур Цитадели быстрее 60 секунд"),
+    WINDRUNNER("windrunner", "Ветер в ногах", 0xA0F0FF, "Пройти паркур Цитадели быстрее 40 секунд"),
     ELUSIVE("elusive", "Неуловимый", 0xD8D8E8, "Увернуться от 20 приёмов Испытателя подряд");
 
     public final String id, name, how;
@@ -45,7 +45,7 @@ public enum Titles {
     }
 
     /** Паркур быстрее этого (тики) — «Ветер в ногах». */
-    public static final long WINDRUNNER_TICKS = 60 * 20;
+    public static final long WINDRUNNER_TICKS = 40 * 20;
     public static final int ELUSIVE_STREAK = 20;
     public static final int ANGEL_REVIVES = 25;
     public static final int TREASURE_CACHES = 15;
