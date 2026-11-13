@@ -592,6 +592,10 @@ public final class RunService {
         Spirits.revive(p, share, "проверка");
     }
 
+    public static void toLobbyForTest(ServerPlayer p) {
+        toLobby(p);
+    }
+
     public static void finishForTest(MinecraftServer server) {
         finish(server);
     }

@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
-/** Печать у Врат: ПКМ — собрать отряд из стоящих в преддверии и начать прохождение. */
+/** Печать в лобби: ПКМ — окно сбора отряда (сложность, готовность, старт забега). */
 public class SealBlock extends Block {
     public SealBlock(Properties props) {
         super(props);
@@ -20,7 +20,7 @@ public class SealBlock extends Block {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (!level.isClientSide && player instanceof ServerPlayer sp) RunService.onSeal(sp);
+        if (!level.isClientSide && player instanceof ServerPlayer sp) com.andrey.litrpg.run.LobbyService.openFor(sp);
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
 

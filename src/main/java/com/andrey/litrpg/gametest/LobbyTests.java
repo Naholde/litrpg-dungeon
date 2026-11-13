@@ -92,7 +92,7 @@ public final class LobbyTests {
         RunService.start(server, List.of(p), Difficulty.HEROIC, false);
         RunState s = RunService.state(server);
         h.runAfterDelay(70, () -> {
-            double record = 1e7 + h.getLevel().getRandom().nextInt(1000);   // заведомо выше любых прошлых
+            double record = System.currentTimeMillis();   // растёт от запуска к запуску — заведомо новый рекорд
             RunStats.dealt(p, zombie, record);
             RunStats.dealt(p, p, 999);                 // по игроку — не урон по врагу
             RunStats.healed(p, 1200);
@@ -117,6 +117,55 @@ public final class LobbyTests {
                     "забег записан в историю");
             h.assertTrue(r.bestRun().containsKey("heroic"), "лучший забег на героической есть");
             RunService.reset(server);
+            RunService.testing = false;
+            h.succeed();
+        });
+    }
+
+    /**
+     * Сбор в лобби: двое встали в лобби; один готов — отсчёта нет; оба — отсчёт; один передумал — отсчёт отменён;
+     * снова оба — через 5 с забег на выбранной сложности (обычная), персонажи с 1 уровня.
+     */
+    @GameTest(template = "empty", batch = "lobby_gather", timeoutTicks = 300)
+    public static void gatherReadyCountdownStart(GameTestHelper h) {
+        var server = h.getLevel().getServer();
+        RunService.testing = true;
+        com.andrey.litrpg.run.LobbyService.resetForTest();
+        RunService.reset(server);
+        RunService.setMinPlayers(server, 2);
+        ServerPlayer a = TestPlayers.create(h), b = TestPlayers.create(h);
+        PlayerService.setLevel(a, 15);
+        h.runAfterDelay(70, () -> {
+            // на сервере проверок в лобби падают посторонние тестовые игроки — считать только этих двоих
+            com.andrey.litrpg.run.LobbyService.onlyForTest = java.util.Set.of(a.getUUID(), b.getUUID());
+            for (ServerPlayer p : List.of(a, b)) com.andrey.litrpg.run.RunService.toLobbyForTest(p);
+            var lobby = com.andrey.litrpg.run.LobbyService.inLobby(server);
+            h.assertTrue(lobby.contains(a) && lobby.contains(b), "оба в лобби");
+            var act = com.andrey.litrpg.net.LobbyActionPayload.Action.READY;
+            com.andrey.litrpg.run.LobbyService.act(a, act, "");
+            com.andrey.litrpg.run.LobbyService.tick(server);
+            h.assertTrue(!com.andrey.litrpg.run.LobbyService.countingForTest(), "готов один из двух — ждём");
+            com.andrey.litrpg.run.LobbyService.act(b, act, "");
+            com.andrey.litrpg.run.LobbyService.tick(server);
+            h.assertTrue(com.andrey.litrpg.run.LobbyService.countingForTest(), "готовы все — отсчёт");
+            com.andrey.litrpg.run.LobbyService.act(b, act, "");
+            com.andrey.litrpg.run.LobbyService.tick(server);
+            h.assertTrue(!com.andrey.litrpg.run.LobbyService.countingForTest(), "передумал — отсчёт остановлен");
+            com.andrey.litrpg.run.LobbyService.act(b, act, "");
+            com.andrey.litrpg.run.LobbyService.tick(server);
+            h.assertTrue(com.andrey.litrpg.run.LobbyService.countingForTest(), "снова все — снова отсчёт");
+        });
+        h.runAfterDelay(70 + 5 * 20 + 5, () -> {
+            com.andrey.litrpg.run.LobbyService.tick(server);
+            RunState s = RunService.state(server);
+            h.assertTrue(s.stage() == 1 && s.member(a.getUUID()) && s.member(b.getUUID()), "забег начался с обоими: этап " + s.stage() + ", отряд " + s.party().size()
+                    + ", отсчёт " + com.andrey.litrpg.run.LobbyService.countingForTest() + ", в лобби "
+                    + com.andrey.litrpg.run.LobbyService.inLobby(server).size() + ", a в лобби " + com.andrey.litrpg.run.LobbyService.inLobby(server).contains(a));
+            h.assertTrue(s.difficulty() == Difficulty.NORMAL, "сложность — выбранная (обычная)");
+            h.assertTrue(PlayerService.data(a).level() == 1, "персонаж с 1 уровня");
+            RunService.reset(server);
+            RunService.setMinPlayers(server, 0);
+            com.andrey.litrpg.run.LobbyService.resetForTest();
             RunService.testing = false;
             h.succeed();
         });

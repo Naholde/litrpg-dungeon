@@ -19,6 +19,9 @@ public final class KeyBinds {
     /** Кодекс Системы: правила, этапы, хранители, бестиарий, трофеи. */
     public static final KeyMapping CODEX = new KeyMapping("key.litrpg.codex", KeyConflictContext.IN_GAME,
             com.mojang.blaze3d.platform.InputConstants.Type.KEYSYM, org.lwjgl.glfw.GLFW.GLFW_KEY_J, CATEGORY);
+    /** Окно сбора отряда (обновление 15). */
+    public static final KeyMapping LOBBY = new KeyMapping("key.litrpg.lobby", KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_P, CATEGORY);
     public static final KeyMapping DASH = new KeyMapping("key.litrpg.dash", KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, CATEGORY);
     public static final String[] SKILL_LABELS = {"Z", "X", "C", "V", "B", "G"};

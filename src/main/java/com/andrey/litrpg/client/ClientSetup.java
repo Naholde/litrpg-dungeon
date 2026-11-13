@@ -46,6 +46,7 @@ public final class ClientSetup {
             for (var k : KeyBinds.SKILL) e.register(k);
             e.register(KeyBinds.DASH);
             e.register(KeyBinds.CODEX);
+            e.register(KeyBinds.LOBBY);
         }
 
         /** Облик класса — слой поверх обеих моделей игрока (широкие и тонкие руки). */
@@ -113,6 +114,7 @@ public final class ClientSetup {
         public static void layers(RegisterGuiLayersEvent e) {
             e.registerAbove(VanillaGuiLayers.HOTBAR, LitRPG.id("hud"), HudOverlay::render);
             e.registerAbove(LitRPG.id("hud"), LitRPG.id("run"), ClientRun::render);
+            e.registerAbove(LitRPG.id("run"), LitRPG.id("lobby"), ClientLobby::render);
         }
 
         /** Небо подземелья: ни облаков, ни солнца — цвет тумана биома этапа. */
@@ -153,7 +155,8 @@ public final class ClientSetup {
             if (mc.player == null) return;
             // Роль выбирают в подземелье (обновление 15): на привале этапа 1, в Зале ролей. В лобби окна роли нет.
             boolean needRole = ClientPlayerData.received() && !ClientPlayerData.role().chosen()
-                    && com.andrey.litrpg.client.ClientRun.stage() == 1 && !com.andrey.litrpg.client.ClientRun.spirit();
+                    && com.andrey.litrpg.client.ClientRun.stage() == 1 && !com.andrey.litrpg.client.ClientRun.spirit()
+                    && ClientLobby.data().run().party().contains(mc.player.getUUID());   // только участник забега
             for (int i = 0; i < KeyBinds.PARTY_TARGET.length; i++) {
                 while (KeyBinds.PARTY_TARGET[i].consumeClick()) ClientParty.toggle(i);
             }
@@ -172,6 +175,13 @@ public final class ClientSetup {
             }
             boolean needClass = ClientPlayerData.received() && ClientPlayerData.classId().isEmpty()
                     && !ClientPlayerData.offers().isEmpty();
+            while (KeyBinds.LOBBY.consumeClick()) {
+                if (mc.screen == null) {
+                    mc.setScreen(new com.andrey.litrpg.client.screen.LobbyScreen());
+                    net.neoforged.neoforge.network.PacketDistributor.sendToServer(
+                            new com.andrey.litrpg.net.LobbyActionPayload(com.andrey.litrpg.net.LobbyActionPayload.Action.OPEN, ""));
+                }
+            }
             while (KeyBinds.CODEX.consumeClick()) {
                 if (mc.screen == null) mc.setScreen(new com.andrey.litrpg.client.screen.CodexScreen());
             }
@@ -252,6 +262,7 @@ public final class ClientSetup {
             ClientSkills.reset();
             ClientBoss.reset();
             ClientRun.reset();
+            ClientLobby.reset();
             com.andrey.litrpg.client.music.MusicController.stopAll();
         }
     }

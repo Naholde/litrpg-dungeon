@@ -38,7 +38,10 @@ public final class RunEvents {
         game.addListener(RunEvents::onAboutToStart);
         game.addListener((ServerStartedEvent e) -> onStarted(e.getServer()));
         game.addListener((ServerTickEvent.Post e) -> {
-            if (e.getServer().getTickCount() % 10 == 0) RunService.tick(e.getServer());
+            if (e.getServer().getTickCount() % 10 == 0) {
+                RunService.tick(e.getServer());
+                LobbyService.tick(e.getServer());
+            }
             RunService.tickFast(e.getServer());
         });
         game.addListener((net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock e) -> {
